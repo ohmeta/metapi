@@ -1,0 +1,21 @@
+##
+# BGISEQ500(zebra) Platform reads filter
+# Phread quality algorithm
+# Overall accuracy
+##
+rule filter_zebra:
+    input:
+        R1 = lambda wildcards: config["R1_reads_per_sample"][wildcards.sample],
+        R2 = lambda wildcards: config["R2_reads_per_sample"][wildcards.sample]
+    output:
+        expand("/hwfssz1/ST_META/CD/zhujie/gitlab/metapipe/data/01.filter/{sample}.clean.{ext}.", ext=["1.fq.gz", "2.fq.gz", "single.fq.gz", "stat_out"])
+    params:
+        oa_filter = config["oa_filter"],
+        phread_quality_system = config["phread_quality_system"],
+        oa_min_length = config["oa_min_length"],
+        out_dir = config["filter_reads_dir"],
+        seed_oa = config["seed_oa"],
+        frag_oa = config["frag_oa"]
+    run:
+        prefix = os.path.join("{params.out_dir}", "{sample}")
+        shell("""perl {params.oa_filter} {input.R1},{input.R2} {prefix} {params.phread_quality_system} {params.oa_min_length} {params.seed_oa} {params.frag_oa}""")
