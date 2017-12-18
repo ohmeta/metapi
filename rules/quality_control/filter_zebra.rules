@@ -8,7 +8,7 @@ rule filter_zebra:
         R1 = lambda wildcards: config["R1_reads_per_sample"][wildcards.sample],
         R2 = lambda wildcards: config["R2_reads_per_sample"][wildcards.sample]
     output:
-        expand("/hwfssz1/ST_META/CD/zhujie/gitlab/metapipe/data/01.filter/{sample}.clean.{ext}.", ext=["1.fq.gz", "2.fq.gz", "single.fq.gz", "stat_out"])
+        expand("data/01.filter/{sample}.clean.{ext}.", ext=["1.fq.gz", "2.fq.gz", "single.fq.gz", "stat_out"])
     params:
         oa_filter = config["oa_filter"],
         phread_quality_system = config["phread_quality_system"],
