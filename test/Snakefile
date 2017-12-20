@@ -1,1 +1,4 @@
-include: "../rules/hello.rules"
+PLACES = ["universe",
+          "colorado",
+          "123"]
+print(expand("hello_{place}.txt", place=PLACES))
