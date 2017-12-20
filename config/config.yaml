@@ -1,0 +1,14 @@
+reads_file_ending: "fq.gz"
+raw_reads_dir: "data/00.raw"
+filter_reads_dir: "data/01.filter"
+rmhost_reads_dir: "data/02.rmhost"
+qc_report_dir: "data/03.report"
+oa_filter: "scripts/filter.pl"
+rmhost_pl: "scripts/rmhost.pl"
+filter_reporter: "scripts/clean_statout_to_matrix.py"
+rmhost_reporter: "scripts/rmhost_statout_to_matrix.py"
+report_merger: "scripts/report_merger.py"
+phread_quality_system: 33
+oa_min_length: 30
+seed_oa: 0.9
+frag_oa: 0.8
