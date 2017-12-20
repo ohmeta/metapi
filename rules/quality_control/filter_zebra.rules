@@ -5,10 +5,10 @@
 ##
 rule filter_zebra:
     input:
-        R1 = lambda wildcards: config["R1_reads_per_sample"][wildcards.sample],
-        R2 = lambda wildcards: config["R2_reads_per_sample"][wildcards.sample]
+        R1 = lambda wildcards: config["R1_raw"][wildcards.sample],
+        R2 = lambda wildcards: config["R1_raw"][wildcards.sample]
     output:
-        expand("data/01.filter/{sample}.clean.{ext}.", ext=["1.fq.gz", "2.fq.gz", "single.fq.gz", "stat_out"])
+        expand("{filter_dir}/{{sample}}.clean.{ext}.", filter_dir=config["filter_reads_dir"], ext=["1.fq.gz", "2.fq.gz", "single.fq.gz", "stat_out"])
     params:
         oa_filter = config["oa_filter"],
         phread_quality_system = config["phread_quality_system"],
