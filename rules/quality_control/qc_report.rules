@@ -1,0 +1,19 @@
+import os
+from find_path import find_path_tag
+
+(R1, R2, RS, RT) = find_path_tag(config["filter_reads_dir"], "clean")
+
+rule qc_report:
+    input:
+        r1       = lambda wildcards: R1[wildcards.sample]
+        r2       = lambda wildcards: R2[wildcards.sample]
+        single   = lambda wildcards: RS[wildcards.sample]
+        stat_out = lambda wildcards: RT[wildcards.sample]
+    output:
+        "{out_dir}/clean/{sample}.csv"
+    params:
+        filter_reporter=config["filter_report"]
+        stat_out_dir=config["filter_reads_dir"]
+        out_dir=config["qc_report_dir"]
+    shell:
+        "python {params.filter_report} -d {params.stat_out_dir} -n 30 -m 100"
