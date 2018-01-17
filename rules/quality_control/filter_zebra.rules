@@ -6,7 +6,7 @@
 rule filter_zebra:
     input:
         R1 = lambda wildcards: config["R1_raw"][wildcards.sample],
-        R2 = lambda wildcards: config["R1_raw"][wildcards.sample]
+        R2 = lambda wildcards: config["R2_raw"][wildcards.sample]
     output:
         expand("{filter_dir}/{{sample}}.clean.{ext}.", filter_dir=config["filter_reads_dir"], ext=["1.fq.gz", "2.fq.gz", "single.fq.gz", "stat_out"])
     params:
