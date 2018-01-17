@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 '''
-  __  __ ______ _____          _    _ _____ _______  __          _______            _____  _____  ______ _____  
- |  \/  |  ____/ ____|   /\   | |  | |_   _|__   __| \ \        / /  __ \     /\   |  __ \|  __ \|  ____|  __ \ 
+  __  __ ______ _____          _    _ _____ _______  __          _______            _____  _____  ______ _____
+ |  \/  |  ____/ ____|   /\   | |  | |_   _|__   __| \ \        / /  __ \     /\   |  __ \|  __ \|  ____|  __ \
  | \  / | |__ | |  __   /  \  | |__| | | |    | |     \ \  /\  / /| |__) |   /  \  | |__) | |__) | |__  | |__) |
- | |\/| |  __|| | |_ | / /\ \ |  __  | | |    | |      \ \/  \/ / |  _  /   / /\ \ |  ___/|  ___/|  __| |  _  / 
- | |  | | |___| |__| |/ ____ \| |  | |_| |_   | |       \  /\  /  | | \ \  / ____ \| |    | |    | |____| | \ \ 
+ | |\/| |  __|| | |_ | / /\ \ |  __  | | |    | |      \ \/  \/ / |  _  /   / /\ \ |  ___/|  ___/|  __| |  _  /
+ | |  | | |___| |__| |/ ____ \| |  | |_| |_   | |       \  /\  /  | | \ \  / ____ \| |    | |    | |____| | \ \
  |_|  |_|______\_____/_/    \_\_|  |_|_____|  |_|        \/  \/   |_|  \_\/_/    \_\_|    |_|    |______|_|  \_\
-                                                                                                                
-                                                                                                                
+
 https://github.com/voutcn/megahit/wiki/Assembly-Tips
 
 Choosing k:
@@ -99,9 +98,9 @@ def gen_megahit_sge(fq_list, out_dir, kmin, kmax, kstep,
                 out_dir_asm = os.path.join(
                     out_dir, sample_name + ".megahit_out")
                 assembly_shell = megahit + \
-                    " -kmin " + str(kmin) + \
-                    " -kmax " + str(kmax) + \
-                    " -kstep " + str(kstep) + \
+                    " --k-min " + str(kmin) + \
+                    " --k-max " + str(kmax) + \
+                    " --k-step " + str(kstep) + \
                     " -1 " + reads_a + \
                     " -2 " + reads_b + \
                     " -r " + reads_s + \
@@ -161,11 +160,11 @@ do
         echo $LINE;
         read1=`echo $LINE| awk '{print $2}'`
         read2=`echo $LINE| awk '{print $3}'`
-        reads=`echo $LINE| awk '{print $4}'`     
+        reads=`echo $LINE| awk '{print $4}'`
         base=`basename $read1`
         prefix=${base%%%%.*}
         outputfilename=${prefix}.megahit_out
-        %s -kmin %s -kmax %s -kstep %s -1 $read1 -2 $read2 -r $reads --out-dir %s/$outputfilename --out-prefix $prefix
+        %s --k-min %s --k-max %s --k-step %s -1 $read1 -2 $read2 -r $reads --out-dir %s/$outputfilename --out-prefix $prefix
     fi
 done\n''' % (megahit, kmin, kmax, kstep, out_dir)
         assembly_handle.write(assembly_shell)
@@ -192,7 +191,7 @@ def main():
     banner = '''
             ===========================================================================================
             Yet another megahit wrapper for PE + SE reads assembly using megahit based on SGE or Hadoop
-            
+
             GPL License
 
             zhujie@genomics.cn liuxing2@genomics.cn
@@ -246,12 +245,12 @@ def main():
 if __name__ == "__main__":
     main()
 '''
-  __  __ ______ _____          _    _ _____ _______  __          _______            _____  _____  ______ _____  
- |  \/  |  ____/ ____|   /\   | |  | |_   _|__   __| \ \        / /  __ \     /\   |  __ \|  __ \|  ____|  __ \ 
+  __  __ ______ _____          _    _ _____ _______  __          _______            _____  _____  ______ _____
+ |  \/  |  ____/ ____|   /\   | |  | |_   _|__   __| \ \        / /  __ \     /\   |  __ \|  __ \|  ____|  __ \
  | \  / | |__ | |  __   /  \  | |__| | | |    | |     \ \  /\  / /| |__) |   /  \  | |__) | |__) | |__  | |__) |
- | |\/| |  __|| | |_ | / /\ \ |  __  | | |    | |      \ \/  \/ / |  _  /   / /\ \ |  ___/|  ___/|  __| |  _  / 
- | |  | | |___| |__| |/ ____ \| |  | |_| |_   | |       \  /\  /  | | \ \  / ____ \| |    | |    | |____| | \ \ 
+ | |\/| |  __|| | |_ | / /\ \ |  __  | | |    | |      \ \/  \/ / |  _  /   / /\ \ |  ___/|  ___/|  __| |  _  /
+ | |  | | |___| |__| |/ ____ \| |  | |_| |_   | |       \  /\  /  | | \ \  / ____ \| |    | |    | |____| | \ \
  |_|  |_|______\_____/_/    \_\_|  |_|_____|  |_|        \/  \/   |_|  \_\/_/    \_\_|    |_|    |______|_|  \_\
- 
- Run megahit wrapper for all samples http://patorjk.com/software/taag                                                                                                                                                                                                                         
+
+ Run megahit wrapper for all samples http://patorjk.com/software/taag
 '''

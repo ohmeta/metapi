@@ -1,6 +1,6 @@
 account_string: account_name
 path_list: /bin/bash
-priority: st.q
+wc_queue_list: st.q
 project_name: project_id
 resource_list:
  vf: 1G
