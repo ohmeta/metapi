@@ -1,2 +1,3 @@
 .vscode
 .snakemake
+scripts/__pycache__
