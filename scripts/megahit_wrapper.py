@@ -60,6 +60,7 @@ import argparse
 from argparse import RawTextHelpFormatter
 import textwrap
 import os
+import sys
 import stat
 import shutil
 
@@ -68,7 +69,7 @@ __version__ = '1.0.0'
 __date__ = 'January 16, 2018'
 
 
-def gen_megahit_sge(fq_list, out_dir, mincount, kmin, kmax, kstep,
+def gen_megahit_sge(addse, fq_list, out_dir, mincount, kmin, kmax, kstep,
                     threads, job_dir, project_name, queue, resource_list):
     '''generate megahit script for sge'''
     megahit = shutil.which('megahit')
@@ -90,24 +91,29 @@ def gen_megahit_sge(fq_list, out_dir, mincount, kmin, kmax, kstep,
     with open(assembly_script, 'w') as assembly_handle:
         with open(fq_list, 'r') as fqlist_handle:
             for line in fqlist_handle:
-                (reads_a, reads_b, reads_s) = line.split()
-                reads_a = os.path.abspath(reads_a)
-                reads_b = os.path.abspath(reads_b)
-                reads_s = os.path.abspath(reads_s)
+                if len(line.split()) == 3:
+                    (reads_a, reads_b, reads_s) = line.split()
+                elif (len(line.split()) == 2) and (not addse):
+                    (reads_a, reads_b) = line.split()
+                else:
+                    sys.exit('''fastq path list is wrong, need two or three columns each line\n
+                             if addse, need three columns each line\n
+                             fastq_1_path\tfastq_2_path\tfastq_single_path''')
+
                 sample_name = os.path.basename(reads_a).split('.')[0]
-                out_dir_asm = os.path.join(
-                    out_dir, sample_name + ".megahit_out")
+                out_dir_asm = os.path.join(out_dir, sample_name + ".megahit_out")
                 assembly_shell = megahit + \
-                    " --min-count " + str(mincount) + \
-                    " --k-min " + str(kmin) + \
-                    " --k-max " + str(kmax) + \
-                    " --k-step " + str(kstep) + \
-                    " -1 " + reads_a + \
-                    " -2 " + reads_b + \
-                    " -r " + reads_s + \
-                    " -t " + str(threads) + \
-                    " --out-dir " + out_dir_asm + \
-                    " --out-prefix " + sample_name + '\n'
+                                 " --min-count " + str(mincount) + \
+                                 " --k-min " + str(kmin) + \
+                                 " --k-max " + str(kmax) + \
+                                 " --k-step " + str(kstep) + \
+                                 " -1 " + os.path.abspath(reads_a) + \
+                                 " -2 " + os.path.abspath(reads_b)
+                if addse:
+                    assembly_shell += " -r " + os.path.abspath(reads_s)
+                assembly_shell += " -t " + str(threads) + \
+                                  " --out-dir " + out_dir_asm + \
+                                  " --out-prefix " + sample_name + '\n'
                 assembly_handle.write(assembly_shell)
 
     with open(submit_script, 'w') as submit_handle:
@@ -125,7 +131,7 @@ def gen_megahit_sge(fq_list, out_dir, mincount, kmin, kmax, kstep,
     os.chmod(submit_script, stat.S_IRWXU)
 
 
-def gen_megahit_hadoop(fq_list, out_dir, mincount, kmin, kmax, kstep, threads, job_dir, memory):
+def gen_megahit_hadoop(addse, fq_list, out_dir, mincount, kmin, kmax, kstep, threads, job_dir, memory):
     '''generate megahit script for hadoop'''
     fq_list = os.path.abspath(fq_list)
     job_dir = os.path.abspath(job_dir)
@@ -156,7 +162,8 @@ def gen_megahit_hadoop(fq_list, out_dir, mincount, kmin, kmax, kstep, threads, j
     hadoop["file"] = assembly_script
 
     with open(assembly_script, 'w') as assembly_handle:
-        assembly_shell = '''while read LINE
+        if addse:
+            assembly_shell = '''while read LINE
 do
     if [[ -n $LINE ]];then
         echo $LINE;
@@ -169,6 +176,20 @@ do
         %s --min-count %s --k-min %s --k-max %s --k-step %s -1 $read1 -2 $read2 -r $reads -t %s --out-dir %s/$outputfilename --out-prefix $prefix
     fi
 done\n''' % (megahit, mincount, kmin, kmax, kstep, threads, out_dir)
+        else:
+            assembly_shell = '''while read LINE
+do
+    if [[ -n $LINE ]];then
+        echo $LINE;
+        read1=`echo $LINE| awk '{print $2}'`
+        read2=`echo $LINE| awk '{print $3}'`
+        base=`basename $read1`
+        prefix=${base%%%%.*}
+        outputfilename=${prefix}.megahit_out
+        %s --min-count %s --k-min %s --k-max %s --k-step %s -1 $read1 -2 $read2 -t %s --out-dir %s/$outputfilename --out-prefix $prefix
+    fi
+done\n''' % (megahit, mincount, kmin, kmax, kstep, threads, out_dir)
+
         assembly_handle.write(assembly_shell)
 
     with open(submit_script, 'w') as submit_handle:
@@ -205,7 +226,9 @@ def main():
     parser.add_argument('--platform', type=str, default='sge',
                         help='platform, sge or hadoop, default: sge')
     parser.add_argument('--fqlist', type=str,
-                        help='rmhost fastq file list')
+                        help='rmhost fastq file list, two or three columns each line')
+    parser.add_argument('--addse', action='store_true',
+                        help='add single fastq, if --addse: yes(fqlist need three columns each line), else: no')
     parser.add_argument('--mincount', type=int, default=1,
                         help='minimum multiplicity for filtering (k_min+1)-mers')
     parser.add_argument('--kmin', type=int, default=21,
@@ -239,12 +262,12 @@ def main():
     os.makedirs(args.jobdir, exist_ok=True)
 
     if args.platform == "sge":
-        gen_megahit_sge(args.fqlist, args.outdir,
+        gen_megahit_sge(args.addse, args.fqlist, args.outdir,
                         args.mincount, args.kmin, args.kmax, args.kstep, args.threads,
                         args.jobdir, args.project_name, args.queue, args.resource_list)
 
     if args.platform == "hadoop":
-        gen_megahit_hadoop(args.fqlist, args.outdir,
+        gen_megahit_hadoop(args.addse, args.fqlist, args.outdir,
                            args.mincount, args.kmin, args.kmax, args.kstep,
                            args.threads, args.jobdir, args.memory)
 
