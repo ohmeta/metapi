@@ -68,8 +68,8 @@ __version__ = '1.0.0'
 __date__ = 'January 16, 2018'
 
 
-def gen_megahit_sge(fq_list, out_dir, kmin, kmax, kstep,
-                    job_dir, project_name, queue, resource_list):
+def gen_megahit_sge(fq_list, out_dir, mincount, kmin, kmax, kstep,
+                    threads, job_dir, project_name, queue, resource_list):
     '''generate megahit script for sge'''
     megahit = shutil.which('megahit')
     out_dir = os.path.abspath(out_dir)
@@ -98,12 +98,14 @@ def gen_megahit_sge(fq_list, out_dir, kmin, kmax, kstep,
                 out_dir_asm = os.path.join(
                     out_dir, sample_name + ".megahit_out")
                 assembly_shell = megahit + \
+                    " --min-count " + str(mincount) + \
                     " --k-min " + str(kmin) + \
                     " --k-max " + str(kmax) + \
                     " --k-step " + str(kstep) + \
                     " -1 " + reads_a + \
                     " -2 " + reads_b + \
                     " -r " + reads_s + \
+                    " -t " + threads + \
                     " --out-dir " + out_dir_asm + \
                     " --out-prefix " + sample_name + '\n'
                 assembly_handle.write(assembly_shell)
@@ -123,7 +125,7 @@ def gen_megahit_sge(fq_list, out_dir, kmin, kmax, kstep,
     os.chmod(submit_script, stat.S_IRWXU)
 
 
-def gen_megahit_hadoop(fq_list, out_dir, kmin, kmax, kstep, job_dir, memory):
+def gen_megahit_hadoop(fq_list, out_dir, mincount, kmin, kmax, kstep, threads, job_dir, memory):
     '''generate megahit script for hadoop'''
     fq_list = os.path.abspath(fq_list)
     job_dir = os.path.abspath(job_dir)
@@ -164,9 +166,9 @@ do
         base=`basename $read1`
         prefix=${base%%%%.*}
         outputfilename=${prefix}.megahit_out
-        %s --k-min %s --k-max %s --k-step %s -1 $read1 -2 $read2 -r $reads --out-dir %s/$outputfilename --out-prefix $prefix
+        %s --min-count %s --k-min %s --k-max %s --k-step %s -1 $read1 -2 $read2 -r $reads -t %s --out-dir %s/$outputfilename --out-prefix $prefix
     fi
-done\n''' % (megahit, kmin, kmax, kstep, out_dir)
+done\n''' % (megahit, mincount, kmin, kmax, kstep, threads, out_dir)
         assembly_handle.write(assembly_shell)
 
     with open(submit_script, 'w') as submit_handle:
@@ -204,12 +206,16 @@ def main():
                         help='platform, sge or hadoop, default: sge')
     parser.add_argument('--fqlist', type=str,
                         help='rmhost fastq file list')
+    parser.add_argument('--mincount', type=int, default=1,
+                        help='minimum multiplicity for filtering (k_min+1)-mers')
     parser.add_argument('--kmin', type=int, default=21,
                         help='kmer min length, must be odd number, default: 21')
     parser.add_argument('--kmax', type=int, default=99,
                         help='kmer max length, must be odd number, default: 99')
     parser.add_argument('--kstep', type=int, default=10,
                         help='kmer step, must be even number, default: 10')
+    parser.add_argument('--threads', type=int, default=8,
+                        help='number of CPU threads, at least 2 if GPU enabled')
     parser.add_argument('--outdir', type=str, default='megahit_out',
                         help='assembly result outdir, default: megahit_out')
     parser.add_argument('--jobdir', type=str, default='job',
@@ -234,12 +240,13 @@ def main():
 
     if args.platform == "sge":
         gen_megahit_sge(args.fqlist, args.outdir,
-                        args.kmin, args.kmax, args.kstep,
+                        args.mincount, args.kmin, args.kmax, args.kstep, args.threads,
                         args.jobdir, args.project_name, args.queue, args.resource_list)
 
     if args.platform == "hadoop":
         gen_megahit_hadoop(args.fqlist, args.outdir,
-                           args.kmin, args.kmax, args.kstep, args.jobdir, args.memory)
+                           args.mincount, args.kmin, args.kmax, args.kstep,
+                           args.threads, args.jobdir, args.memory)
 
 
 if __name__ == "__main__":
