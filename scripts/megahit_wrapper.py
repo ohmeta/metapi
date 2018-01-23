@@ -105,7 +105,7 @@ def gen_megahit_sge(fq_list, out_dir, mincount, kmin, kmax, kstep,
                     " -1 " + reads_a + \
                     " -2 " + reads_b + \
                     " -r " + reads_s + \
-                    " -t " + threads + \
+                    " -t " + str(threads) + \
                     " --out-dir " + out_dir_asm + \
                     " --out-prefix " + sample_name + '\n'
                 assembly_handle.write(assembly_shell)
