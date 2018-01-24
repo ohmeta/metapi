@@ -1,4 +1,6 @@
 #!/bin/bash
+# Author: liuxing 
+# Email: liuxing2@genomics.cn
 
 if [[ $# -ne 8 ]];then
         echo
