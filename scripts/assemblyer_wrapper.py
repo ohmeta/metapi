@@ -80,10 +80,10 @@ def gen_megahit_sge(sge, addse, fq_list,
                     " --k-min " + str(kmin) + \
                     " --k-max " + str(kmax) + \
                     " --k-step " + str(kstep) + \
-                    " -1 " + os.path.abspath(fq_path[1]) + \
-                    " -2 " + os.path.abspath(fq_path[2])
+                    " -1 " + os.path.abspath(fq_path[0]) + \
+                    " -2 " + os.path.abspath(fq_path[1])
                 if addse:
-                    assembly_shell += " -r " + os.path.abspath(fq_path[3])
+                    assembly_shell += " -r " + os.path.abspath(fq_path[2])
                 assembly_shell += " -t " + str(threads) + \
                                   " --out-dir " + out_dir_asm + \
                                   " --out-prefix " + sample_name + '\n'
@@ -272,8 +272,8 @@ def main():
     if args.platform == "sge" and args.assemblyer == "megahit":
         sge = sge_init(args.assemblyer, args.outdir, args.jobdir, 1,
                        args.project_name, args.queue, args.resource_list)
-        gen_megahit_sge(sge, args.addse, args.fq_list,
-                        args.mincount, args.kmin, args.kmax, args.kstep, args.thread)
+        gen_megahit_sge(sge, args.addse, args.fqlist,
+                        args.mincount, args.kmin, args.kmax, args.kstep, args.threads)
 
     elif args.platform == "sge" and args.assemblyer == "idba_ud":
         sge = sge_init(args.assemblyer, args.outdir, args.jobdir, 10,
