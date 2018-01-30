@@ -102,6 +102,8 @@ def gen_idba_ud_sge(sge, addse, precor, fq_list, kmin, kmax, kstep, threads):
                 fq_1 = sample_name + ".1.fq"
                 fq_2 = sample_name + ".2.fq"
                 fa_pe = sample_name + ".pe.fa"
+                fq_se = sample_name + ".se.fq"
+                fa_se = sample_name + ".se.fa"
                 out_dir_asm = os.path.join(
                     sge["out_dir"], sample_name + ".idba_ud_out")
                 assembly_shell = "mkdir " + out_dir_asm + "\n" + \
@@ -110,8 +112,6 @@ def gen_idba_ud_sge(sge, addse, precor, fq_list, kmin, kmax, kstep, threads):
                                  "zcat " + fq_path[1] + " > " + fq_2 + "\n" + \
                                  fq2fa + " --merge " + fq_1 + " " + fq_2 + " " + fa_pe + "\n"
                 if addse:
-                    fq_se = sample_name + ".se.fq"
-                    fa_se = sample_name + ".se.fa"
                     assembly_shell += "zcat " + fq_path[2] + " > " + fq_se + "\n" + \
                                       fq2fa + " " + fq_se + " " + fa_se + "\n" + \
                                       "rm -f *.fq\n" + \
@@ -127,8 +127,13 @@ def gen_idba_ud_sge(sge, addse, precor, fq_list, kmin, kmax, kstep, threads):
                                       " --num_threads " + str(threads)
                 if precor:
                     assembly_shell += " --pre_correction "
-                assembly_shell += "\nrm -r kmer contig-* align-* graph-* local-contig-* " + \
-                                  fa_pe + " " + fa_se + "\n"
+                if addse:
+                    assembly_shell += "\nrm -r kmer contig-* align-* graph-* local-contig-* " + \
+                                      fa_pe + " " + fa_se + "\n"
+                else:
+                    assembly_shell += "\nrm -r kmer contig-* align-* graph-* local-contig-* " + \
+                                      fa_pe + "\n"
+
                 assembly_handle.write(assembly_shell)
 
 
@@ -276,8 +281,13 @@ def main():
                         args.mincount, args.kmin, args.kmax, args.kstep, args.threads)
 
     elif args.platform == "sge" and args.assemblyer == "idba_ud":
-        sge = sge_init(args.assemblyer, args.outdir, args.jobdir, 10,
-                       args.project_name, args.queue, args.resource_list)
+        sge = {}
+        if args.addse:
+            sge = sge_init(args.assemblyer, args.outdir, args.jobdir, 10,
+                           args.project_name, args.queue, args.resource_list)
+        else:
+            sge = sge_init(args.assemblyer, args.outdir, args.jobdir, 8,
+                           args.project_name, args.queue, args.resource_list)
         gen_idba_ud_sge(sge, args.addse, args.pre_correction, args.fqlist,
                         args.kmin, args.kmax, args.kstep, args.threads)
 
