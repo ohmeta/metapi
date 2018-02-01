@@ -64,7 +64,7 @@ def sge_init(assemblyer, out_dir, job_dir, job_line,
     return sge
 
 
-def gen_megahit_sge(sge, addse, fq_list,
+def gen_megahit_sge(sge, addse, fq_list, nomercy,
                     mincount, kmin, kmax, kstep, threads):
     '''generate megahit script for sge'''
     with open(sge["assembly_script"], 'w') as assembly_handle:
@@ -79,9 +79,11 @@ def gen_megahit_sge(sge, addse, fq_list,
                     " --min-count " + str(mincount) + \
                     " --k-min " + str(kmin) + \
                     " --k-max " + str(kmax) + \
-                    " --k-step " + str(kstep) + \
-                    " -1 " + os.path.abspath(fq_path[0]) + \
-                    " -2 " + os.path.abspath(fq_path[1])
+                    " --k-step " + str(kstep)
+                if nomercy:
+                    assembly_shell += " --no-mercy "
+                assembly_shell += " -1 " + os.path.abspath(fq_path[0]) + \
+                                  " -2 " + os.path.abspath(fq_path[1])
                 if addse:
                     assembly_shell += " -r " + os.path.abspath(fq_path[2])
                 assembly_shell += " -t " + str(threads) + \
@@ -218,11 +220,11 @@ done\n''' % (megahit, mincount, kmin, kmax, kstep, threads, out_dir)
 def main():
     '''main function'''
     banner = '''
-            ======================================================================================================
-            Yet another megahit wrapper for PE + SE reads assembly using megahit or idba_ud based on SGE or Hadoop
+            ================================================================================================================
+            Yet another genome assemblyer wrapper for PE + SE reads assembly using megahit or idba_ud based on SGE or Hadoop
 
             GPL License
-            ======================================================================================================
+            ================================================================================================================
 '''
     parser = argparse.ArgumentParser(formatter_class=RawTextHelpFormatter,
                                      description=textwrap.dedent(banner))
@@ -242,8 +244,10 @@ def main():
                         help='kmer step, must be even number, default: 10')
 
     megahit_group = parser.add_argument_group("megahit", "args for megahit")
-    megahit_group.add_argument('--mincount', type=int, default=1,
+    megahit_group.add_argument('--mincount', type=int, default=2,
                                help='minimum multiplicity for filtering (k_min+1)-mers')
+    megahit_group.add_argument('--nomercy', action='store_true',
+                               help='for generic dataset >= 30x, MEGAHIT may generate better results with --no-mercy option')
 
     idba_ud_group = parser.add_argument_group("idba_ud", "args for idba_ud")
     idba_ud_group.add_argument("--pre_correction", action='store_true')
@@ -277,7 +281,7 @@ def main():
     if args.platform == "sge" and args.assemblyer == "megahit":
         sge = sge_init(args.assemblyer, args.outdir, args.jobdir, 1,
                        args.project_name, args.queue, args.resource_list)
-        gen_megahit_sge(sge, args.addse, args.fqlist,
+        gen_megahit_sge(sge, args.addse, args.fqlist, args.nomercy,
                         args.mincount, args.kmin, args.kmax, args.kstep, args.threads)
 
     elif args.platform == "sge" and args.assemblyer == "idba_ud":
@@ -311,5 +315,5 @@ if __name__ == "__main__":
                                        __/ |                              | |   | |
                                       |___/                               |_|   |_|
 
- Run megahit wrapper for all samples http://patorjk.com/software/taag
+ Run assemblyer wrapper for all samples http://patorjk.com/software/taag
 '''
