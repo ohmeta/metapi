@@ -65,7 +65,7 @@ def sge_init(assemblyer, out_dir, job_dir, job_line,
 
 
 def gen_megahit_sge(sge, addse, fq_list, nomercy,
-                    mincount, kmin, kmax, kstep, threads):
+                    mincount, klist, kmin, kmax, kstep, threads):
     '''generate megahit script for sge'''
     with open(sge["assembly_script"], 'w') as assembly_handle:
         with open(fq_list, 'r') as fqlist_handle:
@@ -74,12 +74,13 @@ def gen_megahit_sge(sge, addse, fq_list, nomercy,
                 sample_name = os.path.basename(fq_path[1]).split('.')[0]
                 out_dir_asm = os.path.join(
                     sge["out_dir"], sample_name + ".megahit_out")
-
-                assembly_shell = sge["assemblyer"] + \
-                    " --min-count " + str(mincount) + \
-                    " --k-min " + str(kmin) + \
-                    " --k-max " + str(kmax) + \
-                    " --k-step " + str(kstep)
+                assembly_shell = sge["assemblyer"] + " --min-count " + str(mincount)
+                if not klist:
+                    assembly_shell += " --k-min " + str(kmin) + \
+                        " --k-max " + str(kmax) + \
+                        " --k-step " + str(kstep)
+                else:
+                    assembly_shell += " --k-list " + klist
                 if nomercy:
                     assembly_shell += " --no-mercy "
                 assembly_shell += " -1 " + os.path.abspath(fq_path[0]) + \
@@ -246,6 +247,8 @@ def main():
     megahit_group = parser.add_argument_group("megahit", "args for megahit")
     megahit_group.add_argument('--mincount', type=int, default=2,
                                help='minimum multiplicity for filtering (k_min+1)-mers')
+    megahit_group.add_argument('--klist', type=str,
+                                help='all must be odd, in the range 15-255, increment <= 28, [21,29,39,59,79,99,119,141]')
     megahit_group.add_argument('--nomercy', action='store_true',
                                help='for generic dataset >= 30x, MEGAHIT may generate better results with --no-mercy option')
 
@@ -282,7 +285,7 @@ def main():
         sge = sge_init(args.assemblyer, args.outdir, args.jobdir, 1,
                        args.project_name, args.queue, args.resource_list)
         gen_megahit_sge(sge, args.addse, args.fqlist, args.nomercy,
-                        args.mincount, args.kmin, args.kmax, args.kstep, args.threads)
+                        args.mincount, args.klist, args.kmin, args.kmax, args.kstep, args.threads)
 
     elif args.platform == "sge" and args.assemblyer == "idba_ud":
         sge = {}
