@@ -9,7 +9,7 @@ def gen_fa_len_tab(fa_file, len_out):
             for title, seq in SimpleFastaParser(in_handle):
                 #out_handle.write(title + "\t" + str(len(seq)))
                 # just print id and seq length
-                out_handle.write(title.split(' ')[0] + "\t" + str(len(seq)))
+                out_handle.write(title.split(' ')[0] + "\t" + str(len(seq)) + "\n")
 
 # megahit contigs header contains contigs length info
 def gen_fa_len_tab_megahit(fa_file, len_out):
@@ -18,7 +18,7 @@ def gen_fa_len_tab_megahit(fa_file, len_out):
             for title, seq in SimpleFastaParser(in_handle):
                 # maybe wrong
                 len = title.split(' ')[-1].split('=')[-1]
-                out_handle.write(title + "\t" + len)
+                out_handle.write(title + "\t" + len + "\n")
 
 def main():
     parser = argparse.ArgumentParser(description='get fasta length info')
@@ -31,5 +31,5 @@ def main():
     # fasta input must contigs file which was assemblyed by megahit
     # gen_fa_len_tab(args.fasta, args.out)
 
-if '__name__' == '__main__':
+if __name__ == '__main__':
     main()
