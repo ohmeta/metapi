@@ -8,6 +8,7 @@ pattern = re.compile(r'\d+\t(\d+)[a-z]{2}, >(.+)\.\.\. \*')
 #pattern = re.compile(r'\d+\t(\d+)nt, >(.+)\.\.\. \*')
 #pattern = re.compile(r'\d+\t(\d+)nt,\s>(.+)\.\.\.\s\*')
 
+# this parser base code comes from Bio.SeqIO.FastaIO.SimpleFastaParser :)
 def cdhit_clstr_parser(handle):
     """Generator function to iterate over cdhit clstr records (as string tuple)
     
