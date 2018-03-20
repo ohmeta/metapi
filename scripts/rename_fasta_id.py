@@ -26,3 +26,20 @@ with open(sys.argv[2], 'w') as fa_out:
 #        print(rec)
 
 # 所以，整体上看，SeqIO.parse()函数注重解析，在改变序列的属性上，逻辑关系处理得不好
+
+def change_id(title):
+    # title(total header) -> (id, name, description)
+    # > k119_1 flag=1 multi=7.0000 len=3284 R0170300050_tooth_RA
+    # > R0170300050_tooth_RA_k119_1 flag=1 multi=7.0000 len=3284
+    (one_line, sample_name) = title.split("\t")
+    id = sample_name + "_" + title.split(' ')[0]
+    desc = id + ' ' + ' '.join(one_line.split(' ')[1:])
+    return id, "", desc
+
+
+def rename_fasta(fasta_f, sample_name, out):
+    from Bio.SeqIO.FastaIO import FastaIterator, FastaWriter
+    with open(fasta_f, 'r') as fa_handle, open(out, 'w') as out_h:
+        fa_writer = FastaWriter(out_h)
+        for rec in FastaIterator(fa_handle, title2ids = change_id):
+            fa_writer.write_file(rec)
