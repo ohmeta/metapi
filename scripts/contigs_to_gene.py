@@ -8,6 +8,9 @@ import subprocess
 import sys
 import gzip
 
+__author__ = 'Jie Zhu'
+__version__ = '1.0.0'
+__date__ = 'March 21, 2018'
 
 def filter_contigs_by_len(fa_file, len_cutoff, outdir, prefix):
     if not os.path.exists(outdir):
@@ -16,7 +19,7 @@ def filter_contigs_by_len(fa_file, len_cutoff, outdir, prefix):
                                prefix + "_gt" + str(len_cutoff) + ".fa")
     if os.path.exists(cut_fa_file) and (os.path.getsize(cut_fa_file) > 0):
         return cut_fa_file
-    
+
     if fa_file.endswith(".gz"):
         in_h = gzip.open(fa_file, 'rt')
     else:
@@ -40,7 +43,40 @@ def filter_contigs_by_len(fa_file, len_cutoff, outdir, prefix):
 # just transfer seq(store in the RAM) to prodigal, the prodigal program also write seq to disk as tmp file
 # so we store seq to disk first, then pass the seq file to prodigal by using -i parameter
 def gene_prediction(cut_fa_file, len_cutoff, outdir, prefix, gz_or):
-    '''gene prediction'''
+    '''gene prediction using prodigal
+    
+    https://github.com/hyattpd/Prodigal/wiki
+    https://github.com/hyattpd/prodigal/wiki/Advice-by-Input-Type#metagenomes
+
+    PRODIGAL v2.6.1 [July, 2013]
+    Univ of Tenn / Oak Ridge National Lab
+    Doug Hyatt, Loren Hauser, et al.
+    -------------------------------------
+
+    Usage:  prodigal [-a trans_file] [-c] [-d nuc_file] [-f output_type]
+                 [-g tr_table] [-h] [-i input_file] [-m] [-n] [-o output_file]
+                 [-p mode] [-q] [-s start_file] [-t training_file] [-v]
+
+            -a:  Write protein translations to the selected file.
+            -c:  Closed ends.  Do not allow genes to run off edges.
+            -d:  Write nucleotide sequences of genes to the selected file.
+            -f:  Select output format (gbk, gff, or sco).  Default is gbk.
+            -g:  Specify a translation table to use (default 11).
+            -h:  Print help menu and exit.
+            -i:  Specify input file (default reads from stdin).
+            -m:  Treat runs of n's as masked sequence and do not build genes across
+                 them.
+            -n:  Bypass the Shine-Dalgarno trainer and force the program to scan
+                 for motifs.
+            -o:  Specify output file (default writes to stdout).
+            -p:  Select procedure (single or meta).  Default is single.
+            -q:  Run quietly (suppress normal stderr output).
+            -s:  Write all potential genes (with scores) to the selected file.
+            -t:  Write a training file (if none exists); otherwise, read and use
+                 the specified training file.
+            -v:  Print version number and exit.
+    '''
+
     protein_file = os.path.join(outdir, prefix + ".protein.faa")
     cds_file = os.path.join(outdir, prefix + ".cds.ffn")
     cds_gff_file = os.path.join(outdir, prefix + ".cds.gff")
@@ -54,7 +90,7 @@ def gene_prediction(cut_fa_file, len_cutoff, outdir, prefix, gz_or):
             " -d " + cds_file + \
             " -o " + cds_gff_file + \
             " -s " + start_file + \
-            " -f gff -p anon -q"
+            " -f gff -p meta -q"
     with open(shell_file, 'w') as out_f:
         out_f.write(shell + "\n")
 
@@ -104,10 +140,10 @@ def main():
 
     cut_fa_file = filter_contigs_by_len(args.fa, args.len, args.outdir,
                                         args.prefix)
-    code = gene_prediction(cut_fa_file, args.len, args.outdir,
-                           args.prefix, args.gz)
+    code = gene_prediction(cut_fa_file, args.len, args.outdir, args.prefix,
+                           args.gz)
 
-    if code == 0 and args.rm: 
+    if code == 0 and args.rm:
         os.remove(cut_fa_file)
 
 
