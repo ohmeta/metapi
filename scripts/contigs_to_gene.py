@@ -3,6 +3,7 @@
 from Bio.SeqIO.FastaIO import FastaIterator, FastaWriter
 import shutil
 import os
+import errno
 import argparse
 import subprocess
 import sys
@@ -13,8 +14,16 @@ __version__ = '1.0.0'
 __date__ = 'March 21, 2018'
 
 def filter_contigs_by_len(fa_file, len_cutoff, outdir, prefix):
-    if not os.path.exists(outdir):
-        os.mkdir(outdir)
+    # https://stackoverflow.com/questions/273192/how-can-i-create-a-directory-if-it-does-not-exist
+    # Defeats race condition when another thread created the path
+    #if not os.path.exists(outdir):
+    #    os.mkdir(outdir)
+    try:
+        os.makedirs(outdir)
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            raise
+
     cut_fa_file = os.path.join(outdir,
                                prefix + "_gt" + str(len_cutoff) + ".fa")
     if os.path.exists(cut_fa_file) and (os.path.getsize(cut_fa_file) > 0):
