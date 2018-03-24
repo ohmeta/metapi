@@ -10,10 +10,10 @@ import sys
 import gzip
 
 __author__ = 'Jie Zhu'
-__version__ = '1.0.0'
+__version__ = '0.1.0'
 __date__ = 'March 21, 2018'
 
-def filter_contigs_by_len(fa_file, len_cutoff, outdir, prefix):
+def cut_fasta_by_len(fa_file, len_cutoff, outdir, prefix, suffix):
     # https://stackoverflow.com/questions/273192/how-can-i-create-a-directory-if-it-does-not-exist
     # Defeats race condition when another thread created the path
     #if not os.path.exists(outdir):
@@ -25,7 +25,7 @@ def filter_contigs_by_len(fa_file, len_cutoff, outdir, prefix):
             raise
 
     cut_fa_file = os.path.join(outdir,
-                               prefix + "_gt" + str(len_cutoff) + ".fa")
+                               prefix + "_gt" + str(len_cutoff) + suffix)
     if os.path.exists(cut_fa_file) and (os.path.getsize(cut_fa_file) > 0):
         return cut_fa_file
 
@@ -51,7 +51,7 @@ def filter_contigs_by_len(fa_file, len_cutoff, outdir, prefix):
 
 # just transfer seq(store in the RAM) to prodigal, the prodigal program also write seq to disk as tmp file
 # so we store seq to disk first, then pass the seq file to prodigal by using -i parameter
-def gene_prediction(cut_fa_file, len_cutoff, outdir, prefix, gz_or):
+def gene_prediction(cut_scatig_file, outdir, prefix, gz_or):
     '''gene prediction using prodigal
     
     https://github.com/hyattpd/Prodigal/wiki
@@ -86,18 +86,18 @@ def gene_prediction(cut_fa_file, len_cutoff, outdir, prefix, gz_or):
             -v:  Print version number and exit.
     '''
 
-    protein_file = os.path.join(outdir, prefix + ".protein.faa")
-    cds_file = os.path.join(outdir, prefix + ".cds.ffn")
-    cds_gff_file = os.path.join(outdir, prefix + ".cds.gff")
-    start_file = os.path.join(outdir, prefix + ".score.gff")
-    shell_file = os.path.join(outdir, prefix + ".prodigal.sh")
+    pep_file = os.path.join(outdir, prefix + "_pep.faa")
+    cds_file = os.path.join(outdir, prefix + "_cds.ffn")
+    gff_file = os.path.join(outdir, prefix + "_cds.gff")
+    start_file = os.path.join(outdir, prefix + "_score.gff")
+    shell_file = os.path.join(outdir, prefix + "_prodigal.sh")
 
     prodigal = shutil.which("prodigal")
     shell = prodigal + \
-            " -i " + cut_fa_file + \
-            " -a " + protein_file + \
+            " -i " + cut_scatig_file + \
+            " -a " + pep_file + \
             " -d " + cds_file + \
-            " -o " + cds_gff_file + \
+            " -o " + gff_file + \
             " -s " + start_file + \
             " -f gff -p meta -q"
     with open(shell_file, 'w') as out_f:
@@ -105,56 +105,82 @@ def gene_prediction(cut_fa_file, len_cutoff, outdir, prefix, gz_or):
 
     try:
         code = subprocess.check_output(shell, shell=True)
+        print("gene prediction done!")
     except subprocess.CalledProcessError as e:
         code = e.returncode
         return code
 
     gzip_bin = shutil.which("gzip")
     if gz_or:
-        gz_shell = gzip_bin + " " + protein_file + " && " + \
-                   gzip_bin + " " + cds_file + " && " + \
-                   gzip_bin + " " + cds_gff_file + " && " + \
+        gz_shell = gzip_bin + " " + cds_file + " && " + \
+                   gzip_bin + " " + pep_file + " && " + \
+                   gzip_bin + " " + gff_file + " && " + \
                    gzip_bin + " " + start_file
         try:
             subprocess.check_output(gz_shell, shell=True)
+            print("gzip files done!")
         except subprocess.CalledProcessError as e:
             code = e.returncode
-    return 0
+            return code
 
+    return code
 
 def main():
     parser = argparse.ArgumentParser(
-        description="filter contigs and do gene prediction")
-    parser.add_argument('-fa', type=str, help='contigs file path')
+        description="filter scaffolds or contigs by length cutoff and do gene prediction")
+    parser.add_argument('-fa', type=str, help='scaffolds or contigs file path')
     parser.add_argument(
-        '-len',
+        '-sclen',
         type=int,
-        help='contigs length cutoff, default: 500',
+        help='scaffold or contigs length cutoff, default: 500',
         default=500)
+    parser.add_argument(
+        '-cdslen',
+        type=int,
+        help='cds length cutoff, default: 100',
+        default=100)
     parser.add_argument(
         '-outdir', type=str, help='output dir store gene prediction results')
     parser.add_argument('-prefix', type=str, help='prefix for file name')
     parser.add_argument(
-        '-rm',
+        '-rms',
         action='store_true',
         help=
-        'delete cutoff contigs after gene prediction, default: False, just -rm, it will true',
+        'delete cutoff scaffolds or contigs file after gene prediction, default: False, just -rm, it will true',
         default=False)
     parser.add_argument(
         '-gz',
         action='store_true',
-        help='compress output file, default: False, just -gz, it will true',
+        help='compress all output file, default: False, just -gz, it will true',
         default=False)
     args = parser.parse_args()
 
-    cut_fa_file = filter_contigs_by_len(args.fa, args.len, args.outdir,
-                                        args.prefix)
-    code = gene_prediction(cut_fa_file, args.len, args.outdir, args.prefix,
-                           args.gz)
+    # cut scaffolds or contigs
+    cut_scatig_file = cut_fasta_by_len(args.fa, args.sclen, args.outdir, args.prefix + "_scatig", ".fa")
+    
+    # do gene prediction
+    code = gene_prediction(cut_scatig_file, args.outdir, args.prefix, args.gz)
 
-    if code == 0 and args.rm:
-        os.remove(cut_fa_file)
+    # remove cutted scaffolds or contigs after gene prediction
+    if code and args.rm:
+        os.remove(cut_scatig_file)
+        print("remove " + cut_scatig_file + " done!")
 
+    # cut cds
+    cds_file = os.path.join(args.outdir, args.prefix + ".cds.ffn")
+    cut_cds_file = cut_fasta_by_len(cds_file, args.cdslen, args.outdir, args.prefix + "_cds", ".ffn")
+    if cut_cds_file and args.gz:
+        gz_shell = shutil.which("gzip") + " " + cut_cds_file 
+        try:
+            subprocess.check_output(gz_shell, shell=True)
+        except subprocess.CalledProcessError as e:
+            code = e.returncode
+    
+    # I think maybe we need another script to do this
+    # we could cut gene and generate file by using gene file and gff file
+    # finally, we get
+    # cutted gene file
+    # cutted gff file(maybe)
 
 if __name__ == '__main__':
     main()
