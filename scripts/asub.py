@@ -34,7 +34,7 @@ def parse_job(job_name, job_file, a_job_line, logdir):
 def submit_job(job_name, total_job_num, queue, prj_id, resource, logdir):
     submit_f = os.path.join(os.path.curdir, job_name.rstrip(".sh") + "_submit.sh")
     array_range = "1-" + str(total_job_num) + ":1"
-    job_script = os.path.join(logdir, job_name.rstrip(".sh") + "_" + "$SGE_TASK_ID" + ".sh")
+    job_script = os.path.join(logdir, job_name.rstrip(".sh") + "_$SGE_TASK_ID.sh")
     with open(submit_f, 'w') as submit_h:
         submit_h.write('''#!/bin/bash\n\
 #$ -S /bin/bash
@@ -49,8 +49,8 @@ bash $jobscript\n''' % (job_name, resource, queue, prj_id, array_range, job_scri
 
     os.chmod(submit_f, stat.S_IRWXU)
     submit_cmd = shutil.which("qsub") + \
-                 " -e " + logdir + job_name + "_\\$TASK_ID.e" + \
-                 " -o " + logdir + job_name + "_\\$TASK_ID.o " + submit_f
+                 " -e " + os.path.join(logdir, job_name + "_\\$TASK_ID.e") + \
+                 " -o " + os.path.join(logdir, job_name + "_\\$TASK_ID.o") + " " + submit_f
     print(submit_cmd)
     subprocess.call(submit_cmd, shell=True)
 
