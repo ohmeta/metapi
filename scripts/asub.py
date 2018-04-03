@@ -62,7 +62,7 @@ def main():
     parser.add_argument('-jobline', type=int, help='set the number of lines to form a job', default=1)
     parser.add_argument('-queue', type=str, help='submit queue', default='st.q')
     parser.add_argument('-project', type=str, help='project id', default='F16ZQSB1SY2779')
-    parser.add_argument('-resource',type=str, help='resourse requirment', default='vf=128M,p=1')
+    parser.add_argument('-resource',type=str, help='resourse requirment', default='vf=1G,p=1')
     parser.add_argument('-logdir', type=str, help='array job log directory')
     args = parser.parse_args()
 
