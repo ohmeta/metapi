@@ -20,7 +20,7 @@ def gen_job(qry_fa, min_cluster, split_num, split_dir, job_dir, results_dir):
         ref_fa = os.path.join(split_dir, "split_%i.fa" % (i))
         prefix = os.path.join(results_dir, "nucmer_%i" % (i))
         with open(job_sh, 'w') as job_h:
-            job_h.write("%s -maxmatch -c %d %s %s -p %s" % (nucmer, min_cluster, ref_fa, qry_fa, prefix))
+            job_h.write("%s -maxmatch -c %d %s %s -p %s\n" % (nucmer, min_cluster, ref_fa, qry_fa, prefix))
 
 # TODO
 # def merge():
