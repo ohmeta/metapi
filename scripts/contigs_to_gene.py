@@ -25,7 +25,7 @@ def cut_fasta_by_len(fa_file, len_cutoff, outdir, prefix, suffix):
             raise
 
     cut_fa_file = os.path.join(outdir,
-                               prefix + "_gt" + str(len_cutoff) + suffix)
+                               prefix + "_ge" + str(len_cutoff) + suffix)
     if os.path.exists(cut_fa_file) and (os.path.getsize(cut_fa_file) > 0):
         return cut_fa_file
 
