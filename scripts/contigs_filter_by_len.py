@@ -10,3 +10,6 @@ def main():
     parser.add_argument('-prefix', type=str, help='prefix for file name')
     args = parser.parse_args()
     cut_fasta_by_len(args.fa, args.sclen, args.outdir, args.prefix, ".fa")
+
+if __name__ == '__main__':
+    main()
