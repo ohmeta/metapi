@@ -25,7 +25,7 @@ def cut_fasta_by_len(fa_file, len_cutoff, outdir, prefix, suffix):
             raise
 
     cut_fa_file = os.path.join(outdir,
-                               prefix + "_ge" + str(len_cutoff) + suffix)
+                               prefix + ".ge" + str(len_cutoff) + suffix)
     if os.path.exists(cut_fa_file) and (os.path.getsize(cut_fa_file) > 0):
         return cut_fa_file
 
@@ -86,11 +86,11 @@ def gene_prediction(cut_scatig_file, outdir, prefix, gz_or):
             -v:  Print version number and exit.
     '''
 
-    pep_file = os.path.join(outdir, prefix + "_pep.faa")
-    cds_file = os.path.join(outdir, prefix + "_cds.ffn")
-    gff_file = os.path.join(outdir, prefix + "_cds.gff")
-    start_file = os.path.join(outdir, prefix + "_score.gff")
-    shell_file = os.path.join(outdir, prefix + "_prodigal.sh")
+    pep_file = os.path.join(outdir, prefix + ".pep.faa")
+    cds_file = os.path.join(outdir, prefix + ".cds.ffn")
+    gff_file = os.path.join(outdir, prefix + ".cds.gff")
+    start_file = os.path.join(outdir, prefix + ".score.gff")
+    shell_file = os.path.join(outdir, prefix + ".prodigal.sh")
 
     prodigal = shutil.which("prodigal")
     shell = prodigal + \
@@ -156,7 +156,7 @@ def main():
     args = parser.parse_args()
 
     # cut scaffolds or contigs
-    cut_scatig_file = cut_fasta_by_len(args.fa, args.sclen, args.outdir, args.prefix + "_scatig", ".fa")
+    cut_scatig_file = cut_fasta_by_len(args.fa, args.sclen, args.outdir, args.prefix + ".scatig", ".fa")
     
     # do gene prediction
     code = gene_prediction(cut_scatig_file, args.outdir, args.prefix, args.gz)
@@ -168,7 +168,7 @@ def main():
 
     # cut cds
     cds_file = os.path.join(args.outdir, args.prefix + ".cds.ffn")
-    cut_cds_file = cut_fasta_by_len(cds_file, args.cdslen, args.outdir, args.prefix + "_cds", ".ffn")
+    cut_cds_file = cut_fasta_by_len(cds_file, args.cdslen, args.outdir, args.prefix + ".cds", ".ffn")
     if cut_cds_file and args.gz:
         gz_shell = shutil.which("gzip") + " " + cut_cds_file 
         try:
