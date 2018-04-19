@@ -44,7 +44,7 @@ def get_bin_id(checkmout_list, out_tsv, completeness, contamination):
 
 def main():
     parser = argparse.ArgumentParser(
-        descriptiona='''get bin id by completeness cutoff and contamination
+        description='''get bin id by completeness cutoff and contamination
         cutoff''')
     parser.add_argument('-l', type=str, help='checkmout list of many samples')
     parser.add_argument(
