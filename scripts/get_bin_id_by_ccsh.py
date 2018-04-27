@@ -20,7 +20,7 @@ def get_bin_id(checkmout_list, out_tsv, completeness, contamination):
                 next(checkmout_handle)
                 next(checkmout_handle)
                 for info in checkmout_handle:
-                    if info.startswith("R0"):
+                    if info.strip().startswith("R0"):
                         info_l = re.split(r'\s+', info.strip())
                         if (float(info_l[-2]) < contamination) and (float(
                                 info_l[-3]) > completeness):
