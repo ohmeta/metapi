@@ -1,3 +1,4 @@
 .vscode
 .snakemake
+.idea
 scripts/__pycache__
