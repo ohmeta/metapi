@@ -1,15 +1,16 @@
 #!/usr/bin/env snakemake
-configfile: "config/config.yaml"
-import os
-import json
-from scripts.find_path import find_path_tag
+import pandas as pd
+shell.executable("bash")
 
-(R1_raw, R2_raw) = find_path_tag(config["raw_reads_dir"], "raw")
-assert sorted(R2_raw.keys()) == sorted(R2_raw.keys())
-config["R1_raw"] = R1_raw
-config["R2_raw"] = R2_raw
-print(json.dumps(config, sort_keys=True, indent=4))
+configfile: "config.yaml"
+samples = pd.read_table(config["samples"], index_col="sample")
+units = pd.read_table(config["units"], index_col=["sample", "unit"], dtype=str)
+units.index = units.index.set_levels([i.astype(str) for i inunits.index.levels])
 
-include: "rules/quality_control/filter_zebra.rules"
-#include: "rules/quality_control/rmhost.rules"
-#include: "rules/quality_control/qc_report.rules"
+def is_single_end(sample, unit):
+    return pd.isnull(units.loc[(sample, unit)], "2.fq.gz")
+
+include: "rules/trim.smk"
+include: "rules/assembly.smk"
+include: "rules/align.smk"
+include: "rules/binning.smk"

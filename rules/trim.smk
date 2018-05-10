@@ -1,12 +1,7 @@
-##
-# BGISEQ500(zebra) Platform reads filter
-# Phread quality algorithm
-# Overall accuracy
-##
-rule filter_zebra:
+rule trimming:
     input:
-        R1 = lambda wildcards: config["R1_raw"][wildcards.sample],
-        R2 = lambda wildcards: config["R2_raw"][wildcards.sample]
+        fastq1 = lambda wildcards: config["R1_raw"][wildcards.sample],
+        fastq2 = lambda wildcards: config["R2_raw"][wildcards.sample]
     output:
         expand("{filter_dir}/{{sample}}.clean.{ext}.", filter_dir=config["filter_reads_dir"], ext=["1.fq.gz", "2.fq.gz", "single.fq.gz", "stat_out"])
     params:
