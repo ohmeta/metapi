@@ -1,16 +1,25 @@
-rule trimming:
+def get_fastq(wildcards):
+    return units.loc[(wildcards.sample, wildcards.unit), ["1.fq.gz", "2.fq.gz"]].dropna()
+
+rule trimming_pe:
     input:
-        fastq1 = lambda wildcards: config["R1_raw"][wildcards.sample],
-        fastq2 = lambda wildcards: config["R2_raw"][wildcards.sample]
+        fastq1=get_fastq[1]
+        fastq2=
     output:
-        expand("{filter_dir}/{{sample}}.clean.{ext}.", filter_dir=config["filter_reads_dir"], ext=["1.fq.gz", "2.fq.gz", "single.fq.gz", "stat_out"])
+        fastq1="data/01.trimmed/{sample}_{unit}.trimmed.1.fq.gz",
+        fastq2="data/01.trimmed/{sample}_{unit}.trimmed.2.fq.gz"
+    log:
     params:
-        oa_filter = config["oa_filter"],
-        phread_quality_system = config["phread_quality_system"],
-        oa_min_length = config["oa_min_length"],
-        out_dir = config["filter_reads_dir"],
-        seed_oa = config["seed_oa"],
-        frag_oa = config["frag_oa"]
-    run:
-        prefix = os.path.join("{params.out_dir}", "{sample}")
-        shell("""perl {params.oa_filter} {input.R1},{input.R2} {prefix} {params.phread_quality_system} {params.oa_min_length} {params.seed_oa} {params.frag_oa}""")
+    wrapper:
+        0.20/bio/sickle
+
+
+rule trimming_se:
+    input:
+        fastq1=
+        fastq2=
+    output:
+        fastq="data/01.trimmed/{sample}_{unit}.trimmed.fq.gz"
+    log:
+    params:
+    wrapper:

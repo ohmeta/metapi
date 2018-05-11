@@ -3,5 +3,11 @@ samples: samples.tsv
 units: units.tsv
 
 ref:
-  index:
-  annotation:
+  index: ""
+  annotation: ""
+
+qual_type: "sanger"
+
+params:
+  sickle_pe: ""
+  sickle_se: ""
