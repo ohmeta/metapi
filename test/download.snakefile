@@ -1,12 +1,10 @@
+#!/usr/bin/env snakemake
 dwn_lnks = {
     '1': 'https://molb7621.github.io/workshop/_downloads/sample.fa',
     '2': 'https://molb7621.github.io/workshop/_downloads/sample.fa'
 }
 
 import os
-
-def get_link(wildcards):
-    return dwn_lnks[wildcards.chromo]
 
 rule all:
     input:
