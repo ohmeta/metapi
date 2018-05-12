@@ -5,8 +5,7 @@ dwn_lnks = {
 
 import os
 
-# association between chromosomes and their links
-def chromo2link(wildcards):
+def get_link(wildcards):
     return dwn_lnks[wildcards.chromo]
 
 rule all:
@@ -15,23 +14,24 @@ rule all:
 
 rule download:
     output:
-        "data/chr_dir/{chromo}"
+        os.path.join('data/chr_dir', "{chromo}")
     params:
-        link=chromo2link
+        link = lambda wildcards: dwn_lnks[wildcards.chromo]
     shell:
         "wget {params.link} -O {output}"
 
 rule merger:
     input:
-        expand(os.path.join('data/chr_dir', "{chromo}"),
-               chromo=dwn_lnks.keys())
+        expand(os.path.join('data/chr_dir', "{chromo}"), chromo=dwn_lnks.keys())
     output:
         os.path.join('data/genome_dir', 'human_en37_sm.fa')
     run:
-        txt = open("{output}", 'a+')
-        with open(os.path.join('data/chr_dir', "{chromo}"), 'r') as file:
-            line = file.readline()
-            while line:
-                txt.write(line)
-                line = file.read(line)
+        txt = open(output[0], "a+")
+        for i in input:
+            with open(i, "r") as file:
+                line = file.readline()
+                while line:
+                    txt.write(line)
+                    line = file.readline()
+            txt.write("\n")
         txt.close()
