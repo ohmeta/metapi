@@ -2,3 +2,4 @@
 .snakemake
 .idea
 scripts/__pycache__
+data

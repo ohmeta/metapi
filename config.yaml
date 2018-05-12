@@ -1,13 +1,38 @@
 samples: samples.tsv
-
 units: units.tsv
+
+qual_type: "sanger"
 
 ref:
   index: ""
-  annotation: ""
-
-qual_type: "sanger"
 
 params:
   sickle_pe: ""
   sickle_se: ""
+  rmhost: ""
+  assembly: ""
+  bwa_mem: ""
+  samtools: ""
+  metabat2: ""
+  checkm: ""
+  drep: ""
+
+results:
+  trim: "data/01.trimmed"
+  rmhost: "data/02.rmhost"
+  assembly: "data/03.assembly"
+  alignment: "data/04.alignment"
+  binning: "data/05.binning"
+  checkm: "data/06.checkm"
+  drep: "data/07.drep"
+  annotation: "data/08.annotation"
+
+logs:
+  trim: "data/logs/01.trimmed"
+  rmhost: "data/logs/02.rmhost"
+  assembly: "data/logs/03.assembly"
+  alignment: "data/logs/04.alignment"
+  binning: "data/logs/05.binning"
+  checkm: ""
+  drep: ""
+  annotation: ""

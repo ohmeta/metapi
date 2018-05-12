@@ -1,25 +1,36 @@
-def get_fastq(wildcards):
-    return units.loc[(wildcards.sample, wildcards.unit), ["1.fq.gz", "2.fq.gz"]].dropna()
+import os
+
+def _get_fastq(wildcards, units, read_pair="fq1"):
+    return units.loc[(wildcards.sample, wildcards.unit), [read_pair]].dropna()[0]
+
 
 rule trimming_pe:
     input:
-        fastq1=get_fastq[1]
-        fastq2=
+        fq1 = lambda wildcards: _get_fastq(wildcards, units, "fq1"),
+        fq2 = lambda wildcards: _get_fastq(wildcards, units, "fq2")
     output:
-        fastq1="data/01.trimmed/{sample}_{unit}.trimmed.1.fq.gz",
-        fastq2="data/01.trimmed/{sample}_{unit}.trimmed.2.fq.gz"
+        expand("{trim_dir}/{{sample}}_{{unit}}.trimmed.{read}.fq.gz",
+               trim_dir=config["results"]["trim"],
+               read=["1", "2", "single"])
     log:
+        os.path.join(config["logs"]["trim"], "{sample}_{unit}.trimmed.log")
     params:
-    wrapper:
-        0.20/bio/sickle
+        qual_type = config["qual_type"],
+    shell:
+        "sickle pe -f {input.fq1} -r {input.fq2} "
+        "-o {output[0]} -p {output[1]} -s {output[2]} "
+        "-g -t {params.qual_type} {log}"
 
 
 rule trimming_se:
     input:
-        fastq1=
-        fastq2=
+        fq = lambda wildcards: get_fastq(wildcards, units)
     output:
-        fastq="data/01.trimmed/{sample}_{unit}.trimmed.fq.gz"
+        fq = os.path.join(config["results"]["trim"], "{sample}}_{unit}.trimmed.fq.gz")
     log:
+        os.path.join(config["logs"]["trim"], "{sample}_{unit}.trimmed.log")
     params:
-    wrapper:
+        qual_type = config["qual_type"],
+    shell:
+        "sickle se -f {input.fq} -o {output.fq} "
+        "-g -t {params.qual_type} {log}"

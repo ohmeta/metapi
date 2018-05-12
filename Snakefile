@@ -13,7 +13,25 @@ def is_single_end(sample, unit):
     return pd.isnull(units.loc[(sample, unit), "fq2"])
 
 
+def debug(samples, units):
+    print(samples)
+    print(samples.index)
+    print("\n")
+    print(units)
+    print(units.index)
+    print("\n")
+    for unit in units.reset_index().itertuples():
+        print(unit)
+        print(unit.sample)
+        print(unit.unit)
+
+#debug(samples, units)
+
+rule all:
+    input:
+        expand("{trim}/{unit.sample}_{unit.unit}.trimmed.{read}.fq.gz",
+               trim=config["results"]["trim"],
+               unit=units.reset_index().itertuples(),
+               read=[1, 2, 'single'])
+
 include: "rules/trim.smk"
-#include: "rules/assembly.smk"
-#include: "rules/align.smk"
-#include: "rules/binning.smk"
