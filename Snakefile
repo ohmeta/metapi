@@ -27,11 +27,23 @@ def debug(samples, units):
 
 #debug(samples, units)
 
+# test trim
+'''
 rule all:
     input:
         expand("{trim}/{unit.sample}_{unit.unit}.trimmed.{read}.fq.gz",
                trim=config["results"]["trim"],
                unit=units.reset_index().itertuples(),
                read=[1, 2, 'single'])
+'''
+
+# test rmhost
+rule all:
+    input:
+        expand("{rmhost}/{unit.sample}_{unit.unit}.rmhost.{read}.fq.gz",
+               rmhost=config["results"]["rmhost"],
+               unit=units.reset_index().itertuples(),
+               read=["1", "2"])
 
 include: "rules/trim.smk"
+include: "rules/rmhost.smk"
