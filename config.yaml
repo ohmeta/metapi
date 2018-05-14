@@ -12,7 +12,8 @@ params:
   sickle_se: ""
   rmhost:
     bwa_mem_threads: 8
-  assembly: ""
+  assembly:
+    megahit_threads: 8
   bwa_mem: ""
   samtools: ""
   metabat2: ""

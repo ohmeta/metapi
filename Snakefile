@@ -38,12 +38,24 @@ rule all:
 '''
 
 # test rmhost
+'''
 rule all:
     input:
         expand("{rmhost}/{unit.sample}_{unit.unit}.rmhost.{read}.fq.gz",
                rmhost=config["results"]["rmhost"],
                unit=units.reset_index().itertuples(),
                read=["1", "2"])
+'''
+
+# test individualy assembly
+rule all:
+    input:
+        expand("{assembly}/{unit.sample}_{unit.unit}.megahit_out/{unit.sample}_{unit.unit}.contigs.fa",
+               assembly=config["results"]["assembly"],
+               unit=units.reset_index().itertuples())
+
 
 include: "rules/trim.smk"
 include: "rules/rmhost.smk"
+#include: "rules/qcreport.smk"
+include: "rules/assembly.smk"
