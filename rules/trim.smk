@@ -1,5 +1,3 @@
-import os
-
 def _get_fastq(wildcards, units, read_pair="fq1"):
     return units.loc[(wildcards.sample, wildcards.unit), [read_pair]].dropna()[0]
 
@@ -33,4 +31,4 @@ rule trimming_se:
         qual_type = config["qual_type"],
     shell:
         "sickle se -f {input.fq} -o {output.fq} "
-        "-g -t {params.qual_type} {log}"
+        "--gzip-output -t {params.qual_type} {log}"

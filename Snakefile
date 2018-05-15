@@ -1,4 +1,5 @@
 #!/usr/bin/env snakemake
+import os
 import pandas as pd
 shell.executable("bash")
 
@@ -41,21 +42,32 @@ rule all:
 '''
 rule all:
     input:
-        expand("{rmhost}/{unit.sample}_{unit.unit}.rmhost.{read}.fq.gz",
+        expand(["{rmhost}/{unit.sample}_{unit.unit}.rmhost.{read}.fq.gz",
+                "{rmhost}/{unit.sample}_{unit.unit}.flagstat.txt"],
                rmhost=config["results"]["rmhost"],
                unit=units.reset_index().itertuples(),
                read=["1", "2"])
 '''
 
-# test individualy assembly
+# test individual assembly
+'''
 rule all:
     input:
         expand("{assembly}/{unit.sample}_{unit.unit}.megahit_out/{unit.sample}_{unit.unit}.contigs.fa",
                assembly=config["results"]["assembly"],
                unit=units.reset_index().itertuples())
+'''
 
+# test algnment
+rule all:
+    input:
+        expand(["{alignment}/{unit.sample}_{unit.unit}.sorted.bam",
+                "{alignment}/{unit.sample}_{unit.unit}.flagstat.txt"],
+               alignment=config["results"]["alignment"],
+               unit=units.reset_index().itertuples())
 
 include: "rules/trim.smk"
 include: "rules/rmhost.smk"
 #include: "rules/qcreport.smk"
 include: "rules/assembly.smk"
+include: "rules/alignment.smk"
