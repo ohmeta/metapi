@@ -1,7 +1,39 @@
 #!/usr/bin/env snakemake
 import os
+import sys
+import shutil
 import pandas as pd
+
 shell.executable("bash")
+
+program_list = ["sickle", "bwa", "samtools", "megahit", "metabat2"]
+
+def checking_dependencies(program_list):
+    install = []
+    exit = False
+    for program in program_list:
+        where = shutil.which(program)
+        if where is None:
+            exit = True
+            install.append(program)
+            print(program + ":\tno")
+        else:
+            print(program + ":\tyes")
+
+    if "metabat2" not in install:
+        print("\npelase use conda to install these program:")
+        print("conda install -c bionconda %s" % (" ".join(install)))
+    else:
+        install_info = " ".join(install).replace("metabat2", "")
+        print("\npelase use conda to install these program:")
+        if install_info != "":
+            print("conda install -c bionconda %s" % install_info)
+        print("conda install -c ursky metabat2")
+
+    if exit:
+        sys.exit()
+
+checking_dependencies(program_list)
 
 configfile: "config.yaml"
 samples = pd.read_table(config["samples"], index_col=["sample"])
@@ -59,15 +91,26 @@ rule all:
 '''
 
 # test algnment
+'''
 rule all:
     input:
         expand(["{alignment}/{unit.sample}_{unit.unit}.sorted.bam",
                 "{alignment}/{unit.sample}_{unit.unit}.flagstat.txt"],
                alignment=config["results"]["alignment"],
                unit=units.reset_index().itertuples())
+'''
+
+# test binning
+rule all:
+    input:
+        expand("{binning}/bins/{unit.sample}_{unit.unit}.metabat2_out/done",
+               binning=config["results"]["binning"],
+               unit=units.reset_index().itertuples())
+
 
 include: "rules/trim.smk"
 include: "rules/rmhost.smk"
 #include: "rules/qcreport.smk"
 include: "rules/assembly.smk"
 include: "rules/alignment.smk"
+include: "rules/binning.smk"
