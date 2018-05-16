@@ -11,7 +11,7 @@ rule individual_assembly:
         out_prefix = "{sample}_{unit}"
     shell:
         "megahit -1 {input.reads[0]} -2 {input.reads[1]} -t {params.megahit_threads} "
-        "--out-dir {params.out_dir} --out-prefix {params.out_prefix} "
+        "--out-dir {params.out_dir} --out-prefix {params.out_prefix} --continue"
 
 #rule co_assembly:
 #    input:

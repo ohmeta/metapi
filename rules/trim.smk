@@ -17,7 +17,7 @@ rule trimming_pe:
     shell:
         "sickle pe -f {input.fq1} -r {input.fq2} "
         "-o {output[0]} -p {output[1]} -s {output[2]} "
-        "-g -t {params.qual_type} {log}"
+        "--gzip-output -t {params.qual_type} {log}"
 
 
 rule trimming_se:

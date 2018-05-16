@@ -6,7 +6,7 @@ import pandas as pd
 
 shell.executable("bash")
 
-program_list = ["sickle", "bwa", "samtools", "megahit", "metabat2"]
+program_list = ["sickle", "bwa", "samtools", "megahit", "metabat2", "pigz"]
 
 def checking_dependencies(program_list):
     install = []
@@ -20,17 +20,16 @@ def checking_dependencies(program_list):
         else:
             print(program + ":\tyes")
 
-    if "metabat2" not in install:
-        print("\npelase use conda to install these program:")
-        print("conda install -c bionconda %s" % (" ".join(install)))
-    else:
-        install_info = " ".join(install).replace("metabat2", "")
-        print("\npelase use conda to install these program:")
-        if install_info != "":
-            print("conda install -c bionconda %s" % install_info)
-        print("conda install -c ursky metabat2")
-
     if exit:
+        if "metabat2" not in install:
+            print("\npelase use conda to install these program:")
+            print("conda install %s" % (" ".join(install)))
+        else:
+            install_info = " ".join(install).replace("metabat2", "")
+            print("\npelase use conda to install these program:")
+            if install_info != "":
+                print("conda install %s" % install_info)
+            print("conda install -c ursky metabat2")
         sys.exit()
 
 checking_dependencies(program_list)

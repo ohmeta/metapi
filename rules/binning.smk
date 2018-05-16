@@ -30,6 +30,6 @@ rule metabat2:
         metabat2 -i {input.asmfa} -a {input.depth} \
         -o {params.bin_prefix} -m {params.min_contig} --seed {params.seed} -v > {log}
         sleep 10
-        pigz {log}
+        pigz -f {log}
         touch {output.default}
         '''
