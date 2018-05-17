@@ -6,12 +6,16 @@ rule individual_assembly:
     output:
         os.path.join(config["results"]["assembly"], "{sample}_{unit}.megahit_out/{sample}_{unit}.contigs.fa")
     params:
-        megahit_threads = config["params"]["assembly"]["megahit_threads"],
+        min_contig = config["params"]["assembly"]["megahit"]["min_contig"],
+        megahit_threads = config["params"]["assembly"]["megahit"]["threads"],
         out_dir = os.path.join(config["results"]["assembly"], "{sample}_{unit}.megahit_out"),
         out_prefix = "{sample}_{unit}"
     shell:
-        "megahit -1 {input.reads[0]} -2 {input.reads[1]} -t {params.megahit_threads} "
-        "--out-dir {params.out_dir} --out-prefix {params.out_prefix} --continue"
+        "megahit -1 {input.reads[0]} -2 {input.reads[1]} "
+        "-t {params.megahit_threads} "
+        "--min-contig-len {params.min_contig} "
+        "--out-dir {params.out_dir} "
+        "--out-prefix {params.out_prefix} --continue"
 
 #rule co_assembly:
 #    input:
