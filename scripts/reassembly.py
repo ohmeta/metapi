@@ -37,7 +37,7 @@ def mapping(reads_dict, bins_dict, output_dir):
     mapping_dir = os.path.join(output_dir, "mapping")
     os.makedirs(mapping_dir)
     for bin_id in bins_dict:
-        mappind_cmd[bin_id] = []
+        mapping_cmd[bin_id] = []
         prefix = os.path.join(output_dir, "index/%s/%s".format(bin_id, bin_id))
         bin_mapping_dir = os.path.join(mapping_dir, bin_id)
         os.makedirs(bin_mapping_dir)
@@ -50,7 +50,7 @@ def mapping(reads_dict, bins_dict, output_dir):
                    tee >(samtools flagstat -@8 - > %s) | \
                    samtools fastq -@8 -F 12 -n -1 %s -2 %s -".format(
                 prefix, reads_dict[read_id][0], reads_dict[read_id][1], r1, r2)
-            mapping_cmd["bin_id"].append(cmd)
+            mapping_cmd[bin_id].append(cmd)
     return mapping_cmd
 
 
