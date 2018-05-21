@@ -73,7 +73,7 @@ def mapping(reads_dict, bins_dict, output_dir):
                               "%s-%s-mapped.r2.fq.gz" % (bin_id, read_id))
             stat = os.path.join(bin_mapping_dir,
                                 "%s-%s-flagstat.txt" % (bin_id, read_id))
-            cmd = "bwa mem -t %s %s %s | tee >(samtools flagstat -@8 - > %s) | samtools fastq -@8 -F 12 -n -1 %s -2 %s -" % (
+            cmd = "bwa mem -t 8 %s %s %s | tee >(samtools flagstat -@8 - > %s) | samtools fastq -@8 -F 12 -n -1 %s -2 %s -" % (
                 prefix, reads_dict[read_id][0], reads_dict[read_id][1], stat,
                 r1, r2)
             mapping_cmd[bin_id].append(cmd)
