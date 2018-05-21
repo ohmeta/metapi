@@ -2,6 +2,7 @@
 import argparse
 import glob
 import os
+import re
 import sys
 
 
@@ -10,11 +11,13 @@ def parse_bins_reads(bins_list, reads_list):
     reads_dict = {}
     with open(bins_list, 'r') as bins_h:
         for line in bins_h:
-            bin_id, bin_path = line.strip().split(" ")
+            # bin_id, bin_path = line.strip().split(" ")
+            bin_id, bin_path = re.split(r'\s+|\t', line.strip())
             bins_dict[bin_id] = bin_path
     with open(reads_list, 'r') as reads_h:
         for line in reads_h:
-            reads_id, reads_1, reads_2 = line.strip().split(" ")
+            # reads_id, reads_1, reads_2 = line.strip().split(" ")
+            reads_id, reads_1, reads_2 = re.split(r'\s+|\t', line.strip())
             reads_dict[reads_id] = (reads_1, reads_2)
     return (bins_dict, reads_dict)
 
@@ -41,7 +44,7 @@ def mapping(reads_dict, bins_dict, output_dir):
         prefix = os.path.join(output_dir, "index/%s/%s".format(bin_id, bin_id))
         bin_mapping_dir = os.path.join(mapping_dir, bin_id)
         os.makedirs(bin_mapping_dir)
-        for read_id in sorted(reads_dict.keys()):
+        for read_id in reads_dict:
             r1 = os.path.join(bin_mapping_dir, "%s-%s-mapped.1.fq.gz".format(
                 bin_id, read_id))
             r2 = os.path.join(bin_mapping_dir, "%s-%s-mapped.2.fq.gz".format(
