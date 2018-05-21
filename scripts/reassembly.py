@@ -5,6 +5,7 @@ import glob
 import os
 import re
 import sys
+import stat
 
 
 def parse_bins_reads(bins_list, reads_list):
@@ -129,10 +130,6 @@ def main():
     parser.add_argument(
         '-o', type=str, help='output dir, default: ./', default='./')
     parser.add_argument(
-        '-index', action='store_true', help='build index, default: true')
-    parser.add_argument(
-        '-mapping', action='store_true', help='do mapping, default: true')
-    parser.add_argument(
         '-assembly',
         type=str,
         help='standard assembly method, default: megahit',
@@ -140,48 +137,19 @@ def main():
     args = parser.parse_args()
 
     bins_dict, reads_dict = parse_bins_reads(args.bl, args.rl)
-    index_tag = False
-    mapping_tag = False
-
-    if args.index:
-        index_cmd = index(bins_dict, args.o)
-        index_tag = True
-
-    if args.mapping:
-        mapping_cmd, mapped_dict = mapping(reads_dict, bins_dict, args.o)
-        mapping_tag = True
-
+    index_cmd = index(bins_dict, args.o)
+    mapping_cmd, mapped_dict = mapping(reads_dict, bins_dict, args.o)
     assembly_cmd = reassembly(args.assembly, bins_dict, mapped_dict, args.o)
 
-    if index_tag:
-        with open("index.sh",
-                  'w') as index_out, open(
-                      "mapping.sh", 'w') as mapping_out, open(
-                          "assembly.sh", 'w') as assembly_out, open(
-                              "all.sh", 'w') as all_out:
-            for bin_id in bins_dict:
-                index_out.write(index_cmd[bin_id] + "\n")
-                all_out.write(index_cmd[bin_id] + "\n")
-                for map_cmd in mapping_cmd[bin_id]:
-                    mapping_out.write(map_cmd + "\n")
-                    all_out.write(map_cmd + "\n")
-                assembly_out.write(assembly_cmd[bin_id] + "\n")
-                all_out.write(assembly_cmd[bin_id] + "\n")
-    else:
-        if mapping_tag:
-            with open("mapping.sh", 'w') as mapping_out, open(
-                    "assembly.sh", 'w') as assembly_out, open("all.sh",
-                                                              'w') as all_out:
-                for bin_id in bins_dict:
-                    for map_cmd in mapping_cmd[bin_id]:
-                        mapping_out.write(map_cmd + "\n")
-                        all_out.write(map_cmd + "\n")
-                    assembly_out.write(assembly_cmd[bin_id] + "\n")
-                    all_out.write(assembly_cmd[bin_id] + "\n")
-        else:
-            with open("assembly.sh", 'w') as assembly_out:
-                for bin_id in bins_dict:
-                    assembly_out.write(assembly_cmd[bin_id] + "\n")
+    with open("index.sh", 'w') as index_out, open("mapping.sh", 'w') as mapping_out, open("assembly.sh", 'w') as assembly_out, open("all.sh", 'w') as all_out:
+        for bin_id in bins_dict:
+            index_out.write(index_cmd[bin_id] + "\n")
+            all_out.write(index_cmd[bin_id] + "\n")
+            for map_cmd in mapping_cmd[bin_id]:
+                mapping_out.write(map_cmd + "\n")
+                all_out.write(map_cmd + "\n")
+            assembly_out.write(assembly_cmd[bin_id] + "\n")
+            all_out.write(assembly_cmd[bin_id] + "\n")
 
 
 if __name__ == "__main__":
