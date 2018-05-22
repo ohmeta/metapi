@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 import argparse
 import errno
-import glob
 import os
 import re
-import sys
-import stat
 
 
 def parse_bins_reads(bins_list, reads_list):
@@ -58,7 +55,7 @@ def mapping(reads_dict, bins_dict, output_dir):
         mapping_cmd[bin_id] = []
         mapped_dict[bin_id] = {}
         mapped_dict[bin_id]["r1"] = []
-        mapped_dict[bin_id]["r2"] = [] 
+        mapped_dict[bin_id]["r2"] = []
         prefix = os.path.join(output_dir, "index/%s/%s" % (bin_id, bin_id))
         bin_mapping_dir = os.path.join(mapping_dir, bin_id)
         try:
@@ -123,6 +120,7 @@ def idba_ud(bins_dict, mapped_dict, output_dir):
     print("comming soon")
     return assembly_cmd
 
+
 def main():
     parser = argparse.ArgumentParser(description='reassembly reads')
     parser.add_argument('-rl', type=str, help='metagenomics paired reads list')
@@ -141,7 +139,10 @@ def main():
     mapping_cmd, mapped_dict = mapping(reads_dict, bins_dict, args.o)
     assembly_cmd = reassembly(args.assembly, bins_dict, mapped_dict, args.o)
 
-    with open("index.sh", 'w') as index_out, open("mapping.sh", 'w') as mapping_out, open("assembly.sh", 'w') as assembly_out, open("all.sh", 'w') as all_out:
+    with open("index.sh",
+              'w') as index_out, open("mapping.sh", 'w') as mapping_out, open(
+                  "assembly.sh", 'w') as assembly_out, open("all.sh",
+                                                            'w') as all_out:
         for bin_id in bins_dict:
             index_out.write(index_cmd[bin_id] + "\n")
             all_out.write(index_cmd[bin_id] + "\n")
