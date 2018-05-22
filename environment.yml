@@ -1,0 +1,13 @@
+channels:
+  - bionconda
+  - conda-forge
+  - ursky
+dependencies:
+  - snakemake
+  - sickle
+  - bwa
+  - samtools
+  - megahit
+  - pandas
+  - metabat2
+  - pigz
