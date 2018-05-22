@@ -16,9 +16,9 @@ rule metabat2:
         asmfa = os.path.join(config["results"]["assembly"], "{sample}_{unit}.megahit_out/{sample}_{unit}.contigs.fa"),
         depth = os.path.join(config["results"]["binning"], "coverage/{sample}_{unit}.metabat2.depth.txt")
     output:
-        default = os.path.join(config["logs"]["binning"]["metabat2"], "{sample}_{unit}.done")
+        default = os.path.join(config["logs"]["binning"], "{sample}_{unit}.done")
     log:
-        os.path.join(config["logs"]["binning"]["metabat2"], "{sample}_{unit}.metabat2.log")
+        os.path.join(config["logs"]["binning"], "{sample}_{unit}.metabat2.log")
     params:
         bins_dir = os.path.join(config["results"]["binning"], "bins"),
         bin_prefix = os.path.join(config["results"]["binning"], "bins/{sample}_{unit}.metabat2_out/{sample}_{unit}.bin"),
@@ -27,9 +27,6 @@ rule metabat2:
     shell:
         '''
         mkdir -p {params.bins_dir}
-        metabat2 -i {input.asmfa} -a {input.depth} \
-        -o {params.bin_prefix} -m {params.min_contig} --seed {params.seed} -v > {log}
-        sleep 10
-        pigz -f {log}
+        metabat2 -i {input.asmfa} -a {input.depth} -o {params.bin_prefix} -m {params.min_contig} --seed {params.seed} -v > {log}
         touch {output.default}
         '''

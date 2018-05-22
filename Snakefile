@@ -100,21 +100,22 @@ rule all:
 '''
 
 # test binning
-'''
 rule all:
     input:
-        expand("{binning}/bins/{unit.sample}_{unit.unit}.metabat2_out/done",
-               binning=config["results"]["binning"],
+        expand(["{logs}/{unit.sample}_{unit.unit}.done",
+                "{logs}/{unit.sample}_{unit.unit}.metabat2.log"],
+               logs=config["logs"]["binning"],
                unit=units.reset_index().itertuples())
-'''
 
+
+'''
 # test checkm
 rule all:
     input:
         expand("{checkm}/checkm_out/{unit.sample}_{unit.unit}.checkm.txt",
                checkm=config["results"]["checkm"],
                unit=units.reset_index().itertuples())
-
+'''
 
 include: "rules/trim.smk"
 include: "rules/rmhost.smk"
@@ -122,7 +123,7 @@ include: "rules/rmhost.smk"
 include: "rules/assembly.smk"
 include: "rules/alignment.smk"
 include: "rules/binning.smk"
-include: "rules/checkm.smk"
+#include: "rules/checkm.smk"
 #include: "rules/drep.smk"
 #include: "rules/annotation.smk"
 #include: "rules/reassembly.smk"

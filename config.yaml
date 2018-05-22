@@ -47,8 +47,7 @@ logs:
   rmhost: "data/logs/02.rmhost"
   assembly: "data/logs/03.assembly"
   alignment: "data/logs/04.alignment"
-  binning:
-    metabat2: "data/logs/05.binning/metabat2"
+  binning: "data/logs/05.binning"
   checkm: "data/logs/06.checkm"
   drep: "data/logs/07.drep"
   annotation: "data/logs/08.annotation"
