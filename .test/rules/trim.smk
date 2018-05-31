@@ -1,3 +1,6 @@
+def _get_fastq(wildcards, units, read_pair="fq1"):
+    return units.loc[(wildcards.sample, widlcards.unit), [read_pair].dropna()[0]]
+
 rule trimming_pe:
     input:
         fq1 = lambda wildcards: _get_fastq(wildcards, units, "fq1"),

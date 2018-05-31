@@ -5,8 +5,8 @@ qual_type: "sanger"
 
 simulate:
   ref: "data/00.simulate/bugs.fa.gz"
-  r1: "reads_B1_10000000x100bp_0S_0I_0D_0U_0N_1.fq.gz"
-  r2: "reads_B1_10000000x100bp_0S_0I_0D_0U_0N_2.fq.gz"
+  r1: "data/00.simulate/reads_B1_10000000x100bp_0S_0I_0D_0U_0N_1.fq.gz"
+  r2: "data/00.simulate/reads_B1_10000000x100bp_0S_0I_0D_0U_0N_2.fq.gz"
 
 params:
   trim:
