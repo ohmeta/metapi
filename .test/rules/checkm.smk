@@ -12,8 +12,9 @@ rule checkm_lineage_wf:
     shell:
         '''
         set +u; source activate {params.checkm_env}; set -u;
+        rm -rf {output.checkm_data_dir}
         checkm lineage_wf -f {output.checkm_txt} -t {params.lineage_threads} \
-        -x fa {input.fa_dir} {output.checkm_data_dir}
+        -x fa {input.fa_dir} {output.checkm_data_dir} -r
         '''
 '''
 rule checkm_filter_wf:

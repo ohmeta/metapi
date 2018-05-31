@@ -18,6 +18,7 @@ rule all:
                checkm=config["results"]["checkm"],
                units=units.reset_index().itertuples())
 
+include: "rules/simulate.smk"
 include: "rules/trim.smk"
 include: "rules/assembly.smk"
 include: "rules/alignment.smk"

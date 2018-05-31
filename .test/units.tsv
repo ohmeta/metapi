@@ -1,2 +1,2 @@
 sample	unit	fq1	fq2
-s1	line1	data/00.raw/reads_B1_10000000x100bp_0S_0I_0D_0U_0N_1.fq.gz	data/00.raw/reads_B1_10000000x100bp_0S_0I_0D_0U_0N_2.fq.gz
+s1	line1	data/00.simulate/reads_B1_10000000x100bp_0S_0I_0D_0U_0N_1.fq.gz	data/00.simulate/reads_B1_10000000x100bp_0S_0I_0D_0U_0N_2.fq.gz
