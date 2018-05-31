@@ -4,7 +4,7 @@ rule checkm_lineage_wf:
         default = os.path.join(config["logs"]["binning"], "{sample}_{unit}.done")
     output:
         checkm_txt = os.path.join(config["results"]["checkm"], "checkm_out/{sample}_{unit}.checkm.txt"),
-        checkm_data_dir = os.path.join(config["results"]["checkm"], "checkm_data/{sample}_{unit}.checkm_out")
+        checkm_data_dir = os.path.join(config["results"]["checkm"], "checkm_data/{sample}_{unit}.checkm_out/")
     params:
         data_dir = os.path.join(config["results"]["checkm"], "checkm_data"),
         checkm_env = config["params"]["checkm"]["env"],
