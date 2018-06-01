@@ -41,7 +41,7 @@ results:
   annotation: "data/07.annotation"
 
 logs:
-  simulate: "data/logs/simulate"
+  simulate: "data/logs/00.simulate"
   trim: "data/logs/01.trimmed"
   assembly: "data/logs/02.assembly"
   alignment: "data/logs/03.alignment"
