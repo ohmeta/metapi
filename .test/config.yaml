@@ -24,7 +24,7 @@ params:
       min_contig: 2500
       seed: 2018
   checkm:
-    env: "bioenv2"
+    env: "bio2"
     threads: 8
     completeness: 90
     contamination: 10
