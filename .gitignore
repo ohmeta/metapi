@@ -14,4 +14,4 @@ data/logs
 .test/data/logs
 
 .snakemake
-.test/.snakemake
+.test/.snakemake.test/data/00.simulate/ref
