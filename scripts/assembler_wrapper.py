@@ -9,11 +9,12 @@
                                                                      |_|   |_|               
 '''
 import argparse
-from argparse import RawTextHelpFormatter
-import textwrap
 import os
-import sys
 import shutil
+import subprocess
+import sys
+import textwrap
+from argparse import RawTextHelpFormatter
 
 __author__ = 'Jie Zhu, Xing Liu, Zhi Feng Wang'
 __version__ = '1.0.0'
@@ -25,56 +26,50 @@ def parse_line(line, addse):
     if (len(line.split()) == 3) or ((len(line.split()) == 2) and (not addse)):
         return line.split()
     else:
-        sys.exit('''fastq path list is wrong, need two or three columns each line\n
+        sys.exit(
+            '''fastq path list is wrong, need two or three columns each line\n
                 if addse, need three columns each line\n
                 fastq_1_path\tfastq_2_path\tfastq_single_path''')
 
 
-def sge_init(assemblyer, out_dir, job_dir, job_line,
-             project_name, queue, resource_list):
+def sge_init(assembler, out_dir, job_dir, job_line, project, queue, resource):
     '''return a sge configuration dict'''
     sge = {}
-    sge["qsub_all_path"] = shutil.which("qsub_all.pl")
-    sge["project_name"] = project_name
-    sge["queue_name"] = queue
-    sge["resource_list"] = resource_list
-    sge["job_name"] = "assembly"
-    sge["job_line"] = str(job_line)
-    sge["job_number"] = str(80)
-    sge["assemblyer"] = shutil.which(assemblyer)
-    sge["out_dir"] = os.path.abspath(out_dir)
-    sge["job_dir"] = os.path.abspath(job_dir)
-    sge["log_dir"] = os.path.join(sge["job_dir"], "qsub_log")
-    sge["submit_script"] = os.path.join(
-        sge["job_dir"], assemblyer + "_sge_submit.sh")
-    sge["assembly_script"] = os.path.join(
-        sge["job_dir"], assemblyer + "_assembly.sh")
-    ## write sge submit script
-    with open(sge["submit_script"], 'w') as submit_handle:
-        submit_shell = "perl " + sge["qsub_all_path"] + \
-                       " -q " + sge["queue_name"] + \
-                       " -P " + sge["project_name"] + \
-                       " -l " + sge["resource_list"] + \
-                       " -N " + sge["job_name"] + \
-                       " -m " + sge["job_number"] + \
-                       " -b " + sge["job_line"] + \
-                       " -d " + sge["log_dir"] + \
-                       " " + sge["assembly_script"] + '\n'
-        submit_handle.write(submit_shell)
+    sge["asub"] = shutil.which("asub.py")
+    sge["project"] = project
+    sge["queue"] = queue
+    sge["resource"] = resource
+    sge["jobname"] = "assembly"
+    sge["jobline"] = job_line
+    sge["assembler"] = shutil.which(assembler)
+    sge["jobdir"] = job_dir
+    sge["out_dir"] = out_dir
+    sge["assembly_script"] = os.path.join(sge["jobdir"],
+                                          assembler + "_assembly.sh")
+    sge["submit_script"] = os.path.join(sge["jobdir"],
+                                        assembler + "_submit.sh")
+
+    submit_cmd = "python %s -project %s -queue %s -jobfile %s -jobname %s -jobline %d -resource %s\n" % (
+        sge["asub"], sge["project"], sge["queue"],
+        os.path.basename(sge["assembly_script"]), sge["jobname"],
+        sge["jobline"], sge["resource"])
+    with open(sge["submit_script"], 'w') as submit_h:
+        submit_h.write(submit_cmd)
     return sge
 
 
-def gen_megahit_sge(sge, addse, fq_list, nomercy,
-                    mincount, klist, kmin, kmax, kstep, threads):
+def gen_megahit_sge(sge, addse, fq_list, nomercy, mincount, klist, kmin, kmax,
+                    kstep, threads):
     '''generate megahit script for sge'''
     with open(sge["assembly_script"], 'w') as assembly_handle:
         with open(fq_list, 'r') as fqlist_handle:
             for line in fqlist_handle:
                 fq_path = parse_line(line.strip(), addse)
                 sample_name = os.path.basename(fq_path[1]).split('.')[0]
-                out_dir_asm = os.path.join(
-                    sge["out_dir"], sample_name + ".megahit_out")
-                assembly_shell = sge["assemblyer"] + " --min-count " + str(mincount)
+                out_dir_asm = os.path.join(sge["out_dir"],
+                                           sample_name + ".megahit_out")
+                assembly_shell = sge["assembler"] + " --min-count " + str(
+                    mincount)
                 if not klist:
                     assembly_shell += " --k-min " + str(kmin) + \
                         " --k-max " + str(kmax) + \
@@ -83,17 +78,18 @@ def gen_megahit_sge(sge, addse, fq_list, nomercy,
                     assembly_shell += " --k-list " + klist
                 if nomercy:
                     assembly_shell += " --no-mercy "
-                assembly_shell += " -1 " + os.path.abspath(fq_path[0]) + \
-                                  " -2 " + os.path.abspath(fq_path[1])
+                assembly_shell += " -1 " + fq_path[0] + \
+                                  " -2 " + fq_path[1]
                 if addse:
-                    assembly_shell += " -r " + os.path.abspath(fq_path[2])
+                    assembly_shell += " -r " + fq_path[2]
                 assembly_shell += " -t " + str(threads) + \
                                   " --out-dir " + out_dir_asm + \
                                   " --out-prefix " + sample_name + '\n'
                 assembly_handle.write(assembly_shell)
 
 
-def gen_idba_ud_sge(sge, addse, precor, fq_list, kmin, kmax, kstep, threads):
+def gen_idba_ud_sge(sge, addse, precor, fq_list, kmin, kmax, kstep, mincontig,
+                    threads):
     '''generate idba_ud script for sge'''
     fq2fa = shutil.which("fq2fa")
     with open(sge["assembly_script"], 'w') as assembly_handle:
@@ -107,8 +103,8 @@ def gen_idba_ud_sge(sge, addse, precor, fq_list, kmin, kmax, kstep, threads):
                 fa_pe = sample_name + ".pe.fa"
                 fq_se = sample_name + ".se.fq"
                 fa_se = sample_name + ".se.fa"
-                out_dir_asm = os.path.join(
-                    sge["out_dir"], sample_name + ".idba_ud_out")
+                out_dir_asm = os.path.join(sge["out_dir"],
+                                           sample_name + ".idba_ud_out")
                 assembly_shell = "mkdir " + out_dir_asm + "\n" + \
                                  "cd " + out_dir_asm + "\n" + \
                                  "zcat " + fq_path[0] + " > " + fq_1 + "\n" + \
@@ -118,15 +114,17 @@ def gen_idba_ud_sge(sge, addse, precor, fq_list, kmin, kmax, kstep, threads):
                     assembly_shell += "zcat " + fq_path[2] + " > " + fq_se + "\n" + \
                                       fq2fa + " " + fq_se + " " + fa_se + "\n" + \
                                       "rm -f *.fq\n" + \
-                                      sge["assemblyer"] + " -r " + fa_pe + " -l " + fa_se + \
+                                      sge["assembler"] + " -r " + fa_pe + " -l " + fa_se + \
                                       " --mink " + str(kmin) + " --maxk " + str(kmax) + " --step " + str(kstep) + \
-                                      " -o " + out_dir_asm + \
+                                      " --min_contig " + str(mincontig) + \
+                                      " -o " + "./" + \
                                       " --num_threads " + str(threads)
                 else:
                     assembly_shell += "rm -f *.fq\n" + \
-                                      sge["assemblyer"] + " -r " + fa_pe + \
+                                      sge["assembler"] + " -r " + fa_pe + \
                                       " --mink " + str(kmin) + " --maxk " + str(kmax) + " --step " + str(kstep) + \
-                                      " -o " + out_dir_asm + \
+                                      " --min_contig " + str(mincontig) + \
+                                      " -o " + "./" + \
                                       " --num_threads " + str(threads)
                 if precor:
                     assembly_shell += " --pre_correction "
@@ -136,24 +134,27 @@ def gen_idba_ud_sge(sge, addse, precor, fq_list, kmin, kmax, kstep, threads):
                 else:
                     assembly_shell += "\nrm -r kmer contig-* align-* graph-* local-contig-* " + \
                                       fa_pe + "\n"
+                final_asm_fa = sample_name + ".scaffold.fa.gz"
+                assembly_shell += "pigz scaffold.fa\nmv scaffold.fa.gz %s\n" % (
+                    final_asm_fa)
 
                 assembly_handle.write(assembly_shell)
 
 
-def gen_megahit_hadoop(assemblyer, addse, fq_list, out_dir,
-                       mincount, kmin, kmax, kstep, threads, job_dir, memory):
+def gen_megahit_hadoop(assembler, addse, fq_list, out_dir, mincount, kmin,
+                       kmax, kstep, threads, job_dir, memory):
     '''generate megahit script for hadoop'''
-    fq_list = os.path.abspath(fq_list)
-    job_dir = os.path.abspath(job_dir)
-    out_dir = os.path.abspath(out_dir)
+    # fq_list = os.path.abspath(fq_list)
+    # job_dir = os.path.abspath(job_dir)
+    # out_dir = os.path.abspath(out_dir)
     megahit = shutil.which('megahit')
     handle = open(fq_list, 'r')
     sample_num = len(handle.readlines())
     handle.close()
 
-    submit_script = os.path.join(job_dir, assemblyer + "_hadoop_submit.sh")
-    assembly_script = os.path.join(
-        job_dir, assemblyer + "_assembly_template.sh")
+    submit_script = os.path.join(job_dir, assembler + "_hadoop_submit.sh")
+    assembly_script = os.path.join(job_dir,
+                                   assembler + "_assembly_template.sh")
 
     hdfs_outdir = os.path.join(job_dir, "hdfs_temp")
     if os.path.exists(hdfs_outdir):
@@ -227,50 +228,102 @@ def main():
             GPL License
             ================================================================================================================
 '''
-    parser = argparse.ArgumentParser(formatter_class=RawTextHelpFormatter,
-                                     description=textwrap.dedent(banner))
-    parser.add_argument('--assembler', type=str, default='megahit',
-                        help='assemblyer supported, megahit or idba_ud, default: megahit')
-    parser.add_argument('--platform', type=str, default='sge',
-                        help='platform, sge or hadoop, default: sge')
-    parser.add_argument('--fqlist', type=str,
-                        help='rmhost fastq file list, two or three columns each line')
-    parser.add_argument('--addse', action='store_true',
-                        help='add single fastq, if --addse: yes(fqlist need three columns each line), else: no')
-    parser.add_argument('--kmin', type=int, default=21,
-                        help='kmer min length, must be odd number, default: 21')
-    parser.add_argument('--kmax', type=int, default=99,
-                        help='kmer max length, must be odd number, default: 99')
-    parser.add_argument('--kstep', type=int, default=10,
-                        help='kmer step, must be even number, default: 10')
+    parser = argparse.ArgumentParser(
+        formatter_class=RawTextHelpFormatter,
+        description=textwrap.dedent(banner))
+    parser.add_argument(
+        '--assembler',
+        type=str,
+        default='megahit',
+        help='assembler supported, megahit or idba_ud, default: megahit')
+    parser.add_argument(
+        '--platform',
+        type=str,
+        default='sge',
+        help='platform, sge or hadoop, default: sge')
+    parser.add_argument(
+        '--fqlist',
+        type=str,
+        help='rmhost fastq file list, two or three columns each line')
+    parser.add_argument(
+        '--addse',
+        action='store_true',
+        help=
+        'add single fastq, if --addse: yes(fqlist need three columns each line), else: no'
+    )
+    parser.add_argument(
+        '--kmin',
+        type=int,
+        default=21,
+        help='kmer min length, must be odd number, default: 21')
+    parser.add_argument(
+        '--kmax',
+        type=int,
+        default=99,
+        help='kmer max length, must be odd number, default: 99')
+    parser.add_argument(
+        '--kstep',
+        type=int,
+        default=10,
+        help='kmer step, must be even number, default: 10')
 
     megahit_group = parser.add_argument_group("megahit", "args for megahit")
-    megahit_group.add_argument('--mincount', type=int, default=2,
-                               help='minimum multiplicity for filtering (k_min+1)-mers')
-    megahit_group.add_argument('--klist', type=str,
-                                help='all must be odd, in the range 15-255, increment <= 28, [21,29,39,59,79,99,119,141]')
-    megahit_group.add_argument('--nomercy', action='store_true',
-                               help='for generic dataset >= 30x, MEGAHIT may generate better results with --no-mercy option')
+    megahit_group.add_argument(
+        '--mincount',
+        type=int,
+        default=2,
+        help='minimum multiplicity for filtering (k_min+1)-mers')
+    megahit_group.add_argument(
+        '--klist',
+        type=str,
+        help=
+        'all must be odd, in the range 15-255, increment <= 28, [21,29,39,59,79,99,119,141]'
+    )
+    megahit_group.add_argument(
+        '--nomercy',
+        action='store_true',
+        help=
+        'for generic dataset >= 30x, MEGAHIT may generate better results with --no-mercy option'
+    )
 
     idba_ud_group = parser.add_argument_group("idba_ud", "args for idba_ud")
     idba_ud_group.add_argument("--pre_correction", action='store_true')
+    idba_ud_group.add_argument(
+        "--min_contig",
+        type=int,
+        help='minimum size of contig, default: 200',
+        default=200)
 
     sge_group = parser.add_argument_group("sge", "args for sge")
-    sge_group.add_argument('--project_name', type=str,
-                           help='set project name')
-    sge_group.add_argument('--queue', type=str, default='st.q',
-                           help='bind job to queue(s), default: st.q')
-    sge_group.add_argument('--resource_list', type=str, default='vf=10G,p=8',
-                           help='request the given resources, default: vf=10G,p=8')
-    sge_group.add_argument('--threads', type=int, default=8,
-                           help='number of CPU threads, for megahit at least 2 if GPU enabled')
+    sge_group.add_argument('--project_name', type=str, help='set project name')
+    sge_group.add_argument(
+        '--queue',
+        type=str,
+        default='st.q',
+        help='bind job to queue(s), default: st.q')
+    sge_group.add_argument(
+        '--resource_list',
+        type=str,
+        default='vf=10G,p=8',
+        help='request the given resources, default: vf=10G,p=8')
+    sge_group.add_argument(
+        '--threads',
+        type=int,
+        default=8,
+        help='number of CPU threads, for megahit at least 2 if GPU enabled')
     sge_group.add_argument('--outdir', type=str, help='assembly result outdir')
-    sge_group.add_argument('--jobdir', type=str, default='job',
-                           help='a dir contain assembly script and submit script, default: job')
+    sge_group.add_argument(
+        '--jobdir',
+        type=str,
+        default='job',
+        help='a dir contain assembly script and submit script, default: job')
 
     hadoop_group = parser.add_argument_group("hadoop", "args for hadoop")
-    hadoop_group.add_argument('--memory', type=int, default=25000,
-                              help='set memory(MB) usage for hadoop job, default: 25000')
+    hadoop_group.add_argument(
+        '--memory',
+        type=int,
+        default=25000,
+        help='set memory(MB) usage for hadoop job, default: 25000')
     args = parser.parse_args()
 
     if not os.path.exists(args.outdir):
@@ -281,30 +334,33 @@ def main():
         if int(args.resource_list.split("=")[-1]) != int(args.threads):
             sys.exit("Please let sge resource_list p = threads")
 
-    if args.platform == "sge" and args.assemblyer == "megahit":
-        sge = sge_init(args.assemblyer, args.outdir, args.jobdir, 1,
+    if args.platform == "sge" and args.assembler == "megahit":
+        sge = sge_init(args.assembler, args.outdir, args.jobdir, 1,
                        args.project_name, args.queue, args.resource_list)
         gen_megahit_sge(sge, args.addse, args.fqlist, args.nomercy,
-                        args.mincount, args.klist, args.kmin, args.kmax, args.kstep, args.threads)
+                        args.mincount, args.klist, args.kmin, args.kmax,
+                        args.kstep, args.threads)
 
-    elif args.platform == "sge" and args.assemblyer == "idba_ud":
+    elif args.platform == "sge" and args.assembler == "idba_ud":
         sge = {}
         if args.addse:
-            sge = sge_init(args.assemblyer, args.outdir, args.jobdir, 10,
+            sge = sge_init(args.assembler, args.outdir, args.jobdir, 11,
                            args.project_name, args.queue, args.resource_list)
         else:
-            sge = sge_init(args.assemblyer, args.outdir, args.jobdir, 8,
+            sge = sge_init(args.assembler, args.outdir, args.jobdir, 10,
                            args.project_name, args.queue, args.resource_list)
         gen_idba_ud_sge(sge, args.addse, args.pre_correction, args.fqlist,
-                        args.kmin, args.kmax, args.kstep, args.threads)
+                        args.kmin, args.kmax, args.kstep, args.min_contig,
+                        args.threads)
 
-    elif args.platform == "hadoop" and args.assemblyer == "megahit":
-        gen_megahit_hadoop(args.assemblyer, args.addse, args.fqlist, args.outdir,
-                           args.mincount, args.kmin, args.kmax, args.kstep,
-                           args.threads, args.jobdir, args.memory)
+    elif args.platform == "hadoop" and args.assembler == "megahit":
+        gen_megahit_hadoop(args.assembler, args.addse, args.fqlist,
+                           args.outdir, args.mincount, args.kmin, args.kmax,
+                           args.kstep, args.threads, args.jobdir, args.memory)
     else:
-        print(args.platform + " and " + args.assemblyer +
-              " have not been implemented\nThanks using assemblyer_wrapper.py\n")
+        print(
+            args.platform + " and " + args.assembler +
+            " have not been implemented\nThanks using assembler_wrapper.py\n")
 
 
 if __name__ == "__main__":
