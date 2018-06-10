@@ -9,7 +9,7 @@ def merge_csv(csvlist, output):
     list = []
     with open(csvlist, 'r') as csv_l:
         for csv_f in csv_l:
-            df = pd.read_csv(csv_f, index_col=None, header=0)
+            df = pd.read_csv(csv_f.strip(), index_col=None, header=0)
             list.append(df)
     frame = pd.concat(list)
     frame.to_csv(output)
