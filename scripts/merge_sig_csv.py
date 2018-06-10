@@ -16,6 +16,7 @@ def main():
     parser.add_argument('-csvlist', type=str, help='a file contain sig file path list')
     parser.add_argument('-output', type=str, help='output csv file')
     args = parser.parse_args()
+    merge_csv(args.csvlist, args.output)
 
 if __name__ == '__main__':
     main()
