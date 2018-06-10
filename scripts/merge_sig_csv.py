@@ -5,11 +5,14 @@ import argparse
 import pandas as pd
 
 def merge_csv(csvlist, output):
-    dfs = pd.DataFrame([])
+    frame = pd.DataFrame()
+    list = []
     with open(csvlist, 'r') as csv_l:
         for csv_f in csv_l:
-            dfs.append(pd.read_csv(csv_f.strip()))
-    dfs.to_csv(output)
+            df = pd.read_csv(csv_f, index_col=None, header=0)
+            list.append(df)
+    frame = pd.concat(list)
+    frame.to_csv(output)
 
 def main():
     parser = argparse.ArgumentParser(description="merge sourmash sigs to a csv file")
