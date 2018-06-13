@@ -8,14 +8,14 @@ jobs:
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
-      - image: circleci/python:3.6.1
+      - image: circleci/python:3.6.5
       
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
       # - image: circleci/postgres:9.4
 
-    working_directory: ~/metapipe_test
+    working_directory: ~/.test
 
     steps:
       - checkout
@@ -32,14 +32,13 @@ jobs:
           command: |
             wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
             bash miniconda.sh -b -p $HOME/bioenv
-            export PATH="$HOME/bioenv/bin:$PATH"
-            hash -r
-            conda config --set always_yes yes --set changeps1 no
+            echo "conda activate" >> ~/.bashrc
+            conda activate
             conda update -q conda
             conda config --add channels defaults
             conda config --add channels conda-forge
             conda config --add channels bioconda
-            conda create -q -n bioenv snakemake>=5.1.2 python=3.6
+            conda create -q -n bioenv snakemake python=3.6
             conda activate bioenv
             conda install -r evrionment.yaml
 
@@ -52,4 +51,5 @@ jobs:
           name: run tests
           command: |
             conda activate bioenv
+            cd .test
             snakemake
