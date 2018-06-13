@@ -76,7 +76,7 @@ hello, metagenomics!
 ## install
 
 * install dependencies
-  * [pigz](https://zlib.net/pigz/)  
+  * [pigz](https://zlib.net/pigz/)
   * [sickle](https://github.com/najoshi/sickle)
   * [bbmap](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbmap-guide/)
   * [bwa](https://github.com/lh3/bwa)
@@ -91,22 +91,25 @@ hello, metagenomics!
   * [centrifuge](https://github.com/infphilo/centrifuge)
   * [prokka](https://github.com/tseemann/prokka)
 
-    ```bash
-    # in python3 environment
-    conda install pigz snakemake sickle-trim bbmap bwa samtools spades idba megahit mash sourmash centrifuge prokka
-    conda install -c ursky metabat2
-    # in python2 envrionment
-    conda install checkm-genome
-    # database configuration
-    wget https://data.ace.uq.edu.au/public/CheckM_databases/checkm_data_2015_01_16.tar.gz
-    mkdir checkm_data
-    cd checkm_data
-    tar -xzvf ../checkm_data_2015_01_16.tar.gz
-    cd ..
-    ln -s checkm_data checkm_data_latest
-    # activate python2 environment where checkm in
-    checkm data setRoot checkm_data_latest
-    ```
+  ```bash
+  # in python3 environment
+  conda install pigz snakemake sickle-trim bbmap bwa samtools spades idba megahit mash sourmash centrifuge prokka
+  conda install -c ursky metabat2
+  
+  # in python2 envrionment
+  conda install checkm-genome
+  
+  # database configuration
+  wget https://data.ace.uq.edu.au/public/CheckM_databases/checkm_data_2015_01_16.tar.gz
+  mkdir checkm_data
+  cd checkm_data
+  tar -xzvf ../checkm_data_2015_01_16.tar.gz
+  cd ..
+  ln -s checkm_data checkm_data_latest
+  
+  # activate python2 environment where checkm in
+  checkm data setRoot checkm_data_latest
+  ```
 
 * install metapipe
 
@@ -142,6 +145,7 @@ hello, metagenomics!
     ```bash
     # in metapipe/.test directory
     cd .test
+
     # look
     snakemake --dag | dot -Tsvg > dat.svg
     ```
