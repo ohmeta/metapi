@@ -9,7 +9,7 @@ hello, metagenomics!
 
 ## motivation
 
-  we all need a metagenomics pipelines for academic research.
+  we all need a metagenomics pipeline for academic research.
 
 ## principle
   
@@ -26,13 +26,13 @@ hello, metagenomics!
   * [common workflow language](https://github.com/common-workflow-language/common-workflow-language)
   * [workflow language definition](https://software.broadinstitute.org/wdl/)
 * make full use of awesome bioinformatics tools
-  * bwa
-  * samtools
-  * spades
-  * idba
-  * megahit
-  * metabat
-  * checkm
+  * [bwa](https://github.com/lh3/bwa)
+  * [samtools](https://github.com/samtools/samtools)
+  * [spades](https://github.com/ablab/spades)
+  * [idba](https://github.com/loneknightpy/idba)
+  * [megahit](https://github.com/voutcn/megahit)
+  * [metabat](https://bitbucket.org/berkeleylab/metabat)
+  * [checkm](https://github.com/Ecogenomics/CheckM)
 * robust and module, extensible, update
   * one rule, one module
   * one module, one analysis
@@ -60,7 +60,7 @@ hello, metagenomics!
   * quality control
   * remove host sequences
   * assembly
-  * assembly
+  * assembly evaluation
   * binning
   * checkm
   * dereplication
@@ -82,7 +82,7 @@ hello, metagenomics!
   * [bwa](https://github.com/lh3/bwa)
   * [samtools](https://github.com/samtools/samtools)
   * [spades](https://github.com/ablab/spades)
-  * [idba-ud](https://github.com/loneknightpy/idba)
+  * [idba](https://github.com/loneknightpy/idba)
   * [megahit](https://github.com/voutcn/megahit)
   * [metabat](https://bitbucket.org/berkeleylab/metabat)
   * [checkm](https://github.com/Ecogenomics/CheckM)
@@ -91,22 +91,22 @@ hello, metagenomics!
   * [centrifuge](https://github.com/infphilo/centrifuge)
   * [prokka](https://github.com/tseemann/prokka)
 
-  ```bash
-  # in python3 environment
-  conda install pigz snakemake sickle-trim bbmap bwa samtools spades idba megahit mash sourmash centrifuge prokka
-  conda install -c ursky metabat2
-  # in python2 envrionment
-  conda install checkm-genome
-  # database configuration
-  wget https://data.ace.uq.edu.au/public/CheckM_databases/checkm_data_2015_01_16.tar.gz
-  mkdir checkm_data
-  cd checkm_data
-  tar -xzvf ../checkm_data_2015_01_16.tar.gz
-  cd ..
-  ln -s checkm_data checkm_data_latest
-  # activate python2 environment where checkm in
-  checkm data setRoot checkm_data_latest
-  ```
+    ```bash
+    # in python3 environment
+    conda install pigz snakemake sickle-trim bbmap bwa samtools spades idba megahit mash sourmash centrifuge prokka
+    conda install -c ursky metabat2
+    # in python2 envrionment
+    conda install checkm-genome
+    # database configuration
+    wget https://data.ace.uq.edu.au/public/CheckM_databases/checkm_data_2015_01_16.tar.gz
+    mkdir checkm_data
+    cd checkm_data
+    tar -xzvf ../checkm_data_2015_01_16.tar.gz
+    cd ..
+    ln -s checkm_data checkm_data_latest
+    # activate python2 environment where checkm in
+    checkm data setRoot checkm_data_latest
+    ```
 
 * install metapipe
 
@@ -116,7 +116,7 @@ hello, metagenomics!
 
 ## example
 
-* snakemake了解一下
+* snakemake了解一下:)
 
     ```python
     rule bwa_mem:
@@ -126,7 +126,7 @@ hello, metagenomics!
         ref = "ref/ref.index
     output:
         bam = "sample.sort.bam",
-        stat = "sample_flagstat"
+        stat = "sample_flagstat.txt"
     params:
         bwa_t = 8,
         samtools_t = 8
@@ -137,7 +137,7 @@ hello, metagenomics!
         "samtools sort -@{params.samtools_t} -o {output.bam} -"
     ```
 
-* a simulate metagenomics data test(uncomplete)
+* a simulated metagenomics data test(uncomplete)
 
     ```bash
     # in metapipe/.test directory
@@ -149,7 +149,7 @@ hello, metagenomics!
 
     ```bash
     # run
-    Snakemake
+    snakemake
     ```
 
 * a real world metagenomics data process(uncomplete)
@@ -169,3 +169,6 @@ hello, metagenomics!
 ## reference
 
 ## contributor
+
+* [alienzj](https://github.com/alienzj)
+* [Margaret Chu](https://github.com/magcurly)
