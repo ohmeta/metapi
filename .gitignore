@@ -1,3 +1,7 @@
+# Visual Studio Code
+.vscode
+
+# Data
 data/01.trimmed
 data/02.rmhost
 data/03.assembly
@@ -6,6 +10,7 @@ data/05.binning
 data/host
 data/logs
 
+# Test
 .test/data/01.trimmed
 .test/data/02.assembly
 .test/data/03.alignment
@@ -13,5 +18,6 @@ data/logs
 .test/data/05.checkm
 .test/data/logs
 
+# Temp
 .snakemake
 .test/.snakemake.test/data/00.simulate/ref
