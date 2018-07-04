@@ -21,7 +21,7 @@ def coverage_summary(clist, cout):
     headers = [
         'sample_id', 'contigs_num', 'contigs_len', 'contigs_binned_num',
         'contigs_binned_len', 'contigs_unbinned_num', 'contigs_unbinned_len',
-        'contigs_coverage_mean', 'contigs_coverage_mean',
+        'contigs_coverage_mean',
         'contigs_binned_coverage_mean', 'contigs_unbinned_coverage_mean',
         'contigs_mapped_reads_mean', 'contigs_binned_mapped_reads_mean',
         'contigs_unbinned_mapped_reads_mean'
