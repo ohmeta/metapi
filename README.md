@@ -134,9 +134,9 @@ hello, metagenomics!
         bwa_t = 8,
         samtools_t = 8
     shell:
-        "bwa mem -t {params.bwa_t} {input.prefix} {input.r1} {input.r2} | "
+        "bwa mem -t {params.bwa_t} {input.ref} {input.r1} {input.r2} | "
         "samtools view -@{params.samtools_t} -hbS - | "
-        "tee >(samtools flagstat -@{params.samtools_t} - > {output.flagstat}) | "
+        "tee >(samtools flagstat -@{params.samtools_t} - > {output.stat}) | "
         "samtools sort -@{params.samtools_t} -o {output.bam} -"
     ```
 
@@ -152,8 +152,11 @@ hello, metagenomics!
     <img src=".test/dat.svg">
 
     ```bash
-    # run
+    # run on local
     snakemake
+
+    # run on SGE cluster
+    snakemake --jobs 80 --cluster "qsub -S /bin/bash -cwd -q {queue} -P {project_id} -l vf=8G,p=8"
     ```
 
 * a real world metagenomics data process(uncomplete)
@@ -166,8 +169,11 @@ hello, metagenomics!
     <img src="dat.svg">
 
     ```bash
-    # run
+    # run on local
     snakemake
+
+    # run on SGE cluster
+    snakemake --jobs 80 --cluster "qsub -S /bin/bash -cwd -q {queue} -P {project_id} -l vf=8G,p=8"
     ```
 
 ## reference
