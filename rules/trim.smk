@@ -14,10 +14,12 @@ rule trimming_pe:
         os.path.join(config["logs"]["trim"], "{sample}_{unit}.trimmed.log")
     params:
         qual_type = config["qual_type"],
+        qual_cutoff = config["params"]["trim"]["qual_cutoff"],
+        length_cutoff = config["params"]["trim"]["length_cutoff"]
     shell:
         "sickle pe -f {input.fq1} -r {input.fq2} "
         "-o {output[0]} -p {output[1]} -s {output[2]} "
-        "--gzip-output -t {params.qual_type} {log}"
+        "--gzip-output -t {params.qual_type} -q {params.qual_cutoff} -l {params.length_cutoff} {log}"
 
 
 rule trimming_se:
@@ -29,6 +31,9 @@ rule trimming_se:
         os.path.join(config["logs"]["trim"], "{sample}_{unit}.trimmed.log")
     params:
         qual_type = config["qual_type"],
+        qual_cutoff = config["params"]["trim"]["qual_cutoff"],
+        length_cutoff = config["params"]["trim"]["length_cutoff"]
+        
     shell:
         "sickle se -f {input.fq} -o {output.fq} "
-        "--gzip-output -t {params.qual_type} {log}"
+        "--gzip-output -t {params.qual_type} -q {params.qual_cutoff} -l {params.length_cutoff} {log}"

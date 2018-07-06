@@ -11,6 +11,8 @@ params:
   trim:
     sickle_pe: ""
     sickle_se: ""
+    length_cutoff: 45
+    qual_cutoff: 20
   rmhost:
     bwa_mem_threads: 8
     samtools_threads: 8
