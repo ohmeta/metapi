@@ -166,7 +166,7 @@ hello, metagenomics!
     # look
     snakemake --dag | dot -Tsvg > dat.svg
     ```
-    <img src="dat.svg">
+    <img src="data/dat.svg">
 
     ```bash
     # run on local
