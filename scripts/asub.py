@@ -12,7 +12,7 @@ from datetime import datetime
 
 __author__ = 'Jie Zhu'
 __email__ = 'zhujie@genomics.cn'
-__version__ = '0.2.0'
+__version__ = '0.3.0'
 __date__ = 'March 24, 2018'
 
 
@@ -35,17 +35,20 @@ def submit_job(job_name, total_job_num, queue, prj_id, resource, logdir):
     submit_f = os.path.join(os.path.curdir, job_name.rstrip(".sh") + "_submit.sh")
     array_range = "1-" + str(total_job_num) + ":1"
     job_script = os.path.join(logdir, job_name.rstrip(".sh") + "_$SGE_TASK_ID.sh")
+    num_proc = resource.split('=')[-1]
     with open(submit_f, 'w') as submit_h:
         submit_h.write('''#!/bin/bash\n\
+#$ -clear
 #$ -S /bin/bash
 #$ -N %s
 #$ -cwd
 #$ -l %s
+#$ -binding linear:%s
 #$ -q %s
 #$ -P %s
 #$ -t %s
 jobscript=%s
-bash $jobscript\n''' % (job_name, resource, queue, prj_id, array_range, job_script))
+bash $jobscript\n''' % (job_name, resource, num_proc, queue, prj_id, array_range, job_script))
 
     os.chmod(submit_f, stat.S_IRWXU)
     submit_cmd = shutil.which("qsub") + \
