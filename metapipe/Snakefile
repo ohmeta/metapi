@@ -1,99 +1,42 @@
 #!/usr/bin/env snakemake
+
 import os
 import sys
 import shutil
-import pandas as pd
+import pandas
+
+import metasample
 
 shell.executable("bash")
 
-configfile: "config.yaml"
-samples = pd.read_table(config["samples"], index_col=["sample"])
-units = pd.read_table(config["units"], index_col=["sample", "unit"], dtype=str)
-units.index = units.index.set_levels(
-    [i.astype(str) for i in units.index.levels])
+configfile: "metaconfig.yaml"
 
-def is_single_end(sample, unit):
-    return pd.isnull(units.loc[(sample, unit), "fq2"])
+samples = metasample.parse_samples(config["results"]["raw"]["samples"])
+# samples = metasample.samples_df(config["results"]["raw"]["samples"])
 
-def debug(samples, units):
-    print(samples)
-    print(samples.index)
-    print("\n")
-    print(units)
-    print(units.index)
-    print("\n")
-    for unit in units.reset_index().itertuples():
-        print(unit)
-        print(unit.sample)
-        print(unit.unit)
+import pprint
+pprint.pprint(samples)
 
-#debug(samples, units)
+def get_fastq(wildcards):
+    return samples.loc[wildcards.sample, ["fq1", "fq2"]].dropna()
 
-# test trim
-'''
-rule all:
-    input:
-        expand("{trim}/{unit.sample}_{unit.unit}.trimmed.{read}.fq.gz",
-               trim=config["results"]["trim"],
-               unit=units.reset_index().itertuples(),
-               read=[1, 2, 'single'])
-'''
 
-# test rmhost
-'''
-rule all:
-    input:
-        expand(["{rmhost}/{unit.sample}_{unit.unit}.rmhost.{read}.fq.gz",
-                "{rmhost}/{unit.sample}_{unit.unit}.flagstat.txt"],
-               rmhost=config["results"]["rmhost"],
-               unit=units.reset_index().itertuples(),
-               read=["1", "2"])
-'''
-
-# test individual assembly
-'''
-rule all:
-    input:
-        expand("{assembly}/{unit.sample}_{unit.unit}.megahit_out/{unit.sample}_{unit.unit}.contigs.fa",
-               assembly=config["results"]["assembly"],
-               unit=units.reset_index().itertuples())
-'''
-
-# test alignment
-'''
-rule all:
-    input:
-        expand(["{alignment}/{unit.sample}_{unit.unit}.sorted.bam",
-                "{alignment}/{unit.sample}_{unit.unit}.flagstat.txt"],
-               alignment=config["results"]["alignment"],
-               unit=units.reset_index().itertuples())
-'''
-
-# test binning
-rule all:
-    input:
-        expand(["{logs}/{unit.sample}_{unit.unit}.done",
-                "{logs}/{unit.sample}_{unit.unit}.metabat2.log"],
-               logs=config["logs"]["binning"],
-               unit=units.reset_index().itertuples())
-
+include: "rules/step.smk"
+include: "rules/fastqc.smk"
 
 '''
-# test checkm
-rule all:
-    input:
-        expand("{checkm}/checkm_out/{unit.sample}_{unit.unit}.checkm.txt",
-               checkm=config["results"]["checkm"],
-               unit=units.reset_index().itertuples())
-'''
-
 include: "rules/trim.smk"
 include: "rules/rmhost.smk"
-#include: "rules/qcreport.smk"
+include: "rules/qcreport.smk"
 include: "rules/assembly.smk"
 include: "rules/alignment.smk"
 include: "rules/binning.smk"
-#include: "rules/checkm.smk"
-#include: "rules/drep.smk"
-#include: "rules/annotation.smk"
-#include: "rules/reassembly.smk"
+include: "rules/checkm.smk"
+include: "rules/drep.smk"
+include: "rules/classification.smk"
+include: "rules/annotation.smk"
+'''
+
+rule all:
+    input:
+        fastqc_output

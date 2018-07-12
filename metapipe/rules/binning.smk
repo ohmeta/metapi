@@ -1,8 +1,8 @@
 rule coverage:
     input:
-        bam = os.path.join(config["results"]["alignment"], "{sample}_{unit}.sorted.bam")
+        bam = os.path.join(config["results"]["alignment"], "{sample}.sorted.bam")
     output:
-        depth = os.path.join(config["results"]["binning"], "coverage/{sample}_{unit}.metabat2.depth.txt")
+        depth = os.path.join(config["results"]["binning"], "coverage/{sample}.metabat2.depth.txt")
     params:
         coverage_dir = os.path.join(config["results"]["binning"], "coverage")
     shell:
@@ -13,15 +13,15 @@ rule coverage:
 
 rule metabat2:
     input:
-        asmfa = os.path.join(config["results"]["assembly"], "{sample}_{unit}.megahit_out/{sample}_{unit}.contigs.fa"),
-        depth = os.path.join(config["results"]["binning"], "coverage/{sample}_{unit}.metabat2.depth.txt")
+        asmfa = os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa"),
+        depth = os.path.join(config["results"]["binning"], "coverage/{sample}.metabat2.depth.txt")
     output:
-        default = os.path.join(config["logs"]["binning"], "{sample}_{unit}.done")
+        default = os.path.join(config["logs"]["binning"], "{sample}.done")
     log:
-        os.path.join(config["logs"]["binning"], "{sample}_{unit}.metabat2.log")
+        os.path.join(config["logs"]["binning"], "{sample}.metabat2.log")
     params:
         bins_dir = os.path.join(config["results"]["binning"], "bins"),
-        bin_prefix = os.path.join(config["results"]["binning"], "bins/{sample}_{unit}.metabat2_out/{sample}_{unit}.bin"),
+        bin_prefix = os.path.join(config["results"]["binning"], "bins/{sample}.metabat2_out/{sample}.bin"),
         min_contig = config["params"]["binning"]["metabat2"]["min_contig"],
         seed = config["params"]["binning"]["metabat2"]["seed"]
     shell:

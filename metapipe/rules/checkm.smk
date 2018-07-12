@@ -1,11 +1,11 @@
 rule checkm_lineage_wf:
     input:
-        default = os.path.join(config["logs"]["binning"]["metabat2"], "{sample}_{unit}.done")
+        default = os.path.join(config["logs"]["binning"]["metabat2"], "{sample}.done")
     output:
         checkm_txt = os.path.join(config["results"]["checkm"],
-                                  "checkm_out/{sample}_{unit}.checkm.txt"),
+                                  "checkm_out/{sample}.checkm.txt"),
         checkm_data_dir = os.path.join(config["results"]["checkm"],
-                                       "checkm_data/{sample}_{unit}.checkm_out")
+                                       "checkm_data/{sample}.checkm_out")
     params:
         fa_dir = 
         txt_dir = os.path.join(config["results"]["checkm"], "checkm_out"),
@@ -24,13 +24,13 @@ rule checkm_lineage_wf:
 rule checkm_filter_wf:
     input:
         checkm_txt = os.path.join(config["results"]["checkm"],
-                                  "checkm_out/{sample}_{unit}.checkm.txt")
+                                  "checkm_out/{sample}.checkm.txt")
     output:
         checkm_filter_txt = os.path.join(config["results"]["checkm"],
                                          "filter/checkm.filter.txt")
     params:
         fa_dir = os.path.join(config["results"]["binning"],
-                              "bins/{sample}_{unit}.metabat2_out"),
+                              "bins/{sample}.metabat2_out"),
         link_dir = os.path.join(config["results"]["checkm"], "checkm_bins/"),
         completeness = config["params"]["checkm"]["completeness"],
         contamination = config["params"]["checkm"]["contamination"]

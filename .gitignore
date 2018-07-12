@@ -21,3 +21,5 @@ data/logs
 # Temp
 .snakemake
 .test/.snakemake.test/data/00.simulate/ref
+
+metapipe/__pycache__/
