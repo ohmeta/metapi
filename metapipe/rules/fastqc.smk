@@ -1,12 +1,18 @@
+def get_fastq(wildcards):
+    return samples.loc[wildcards.sample, ["fq1", "fq2"]].dropna()
+
 rule fastqc:
     input:
-        lambda wildcards: samples[wildcards.sample]
+        get_fastq
     output:
-        outdir = config["results"]["raw"]["fastqc"],
-        outfile = expand("{fastqc}/{sample}_{read}_fastqc.{out}",
+        outfile = expand("{fastqc}/{{sample}}_{read}_fastqc.{out}",
                          fastqc=config["results"]["raw"]["fastqc"],
-                         sample=samples.keys(),
                          read=["1", "2"],
                          out=["html", "zip"])
+    params:
+        outdir = config["results"]["raw"]["fastqc"]
     shell:
-        "fastqc -o {output.outdir} -f fastq {input}"
+        """
+        echo {input}
+        fastqc -o {params.outdir} -f fastq {input}
+        """

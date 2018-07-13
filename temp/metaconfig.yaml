@@ -6,7 +6,6 @@ params:
     length_cutoff: 45
     qual_cutoff: 20
   rmhost:
-    do: False
     bwa_mem_threads: 8
     samtools_threads: 8
   assembly:
@@ -30,10 +29,8 @@ params:
   annotation: ""
 
 results:
-  host:
-    fasta: "results/host/host.fa"
-    prefix: "results/host/host.fa"
-  raw: 
+  host: "results/host/host.fa"
+  raw:  
     samples: "results/00.raw/samples.tsv"
     fastqc: "results/00.raw/fastqc"
   trim: "results/01.trim"
@@ -42,7 +39,7 @@ results:
   alignment: "results/04.alignment"
   binning: "results/05.binning"
   checkm: "results/06.checkm"
-  dereplication: "results/07.dereplication"
+  dereplication: "results/07.d"
   classification: "results/08.classification"
   annotation: "results/09.annotation"
 

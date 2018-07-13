@@ -11,9 +11,9 @@ rule build_host_index:
         "bwa index {input} -p {params.prefix}"
 
 
-rule rmhost_pe_pair:
+rule rmhost:
     input:
-        reads = expand("{trim}/{sample}.trimmed.{read}.fq.gz",
+        reads = expand("{trim}/{{sample}}.trimmed.{read}.fq.gz",
                        trim=config["results"]["trim"],
                        read=["1", "2"]),
         index = expand("{prefix}.{suffix}",
@@ -21,7 +21,7 @@ rule rmhost_pe_pair:
                        suffix=["amb", "ann", "bwt", "pac", "sa"])
     output:
         flagstat = os.path.join(config["results"]["rmhost"], "{sample}.flagstat.txt"),
-        reads = expand("{rmhost}/{sample}.rmhost.{read}.fq.gz",
+        reads = expand("{rmhost}/{{sample}}.rmhost.{read}.fq.gz",
                        rmhost=config["results"]["rmhost"],
                        read=["1", "2"])
     params:

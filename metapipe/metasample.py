@@ -19,5 +19,5 @@ def parse_samples(sample_tsv):
     return samples
 
 def samples_df(samples_tsv):
-    samples = pandas.read_table(samples_tsv, index_col = "id")
+    samples = pandas.read_table(samples_tsv).set_index("id", drop=False)
     return samples

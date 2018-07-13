@@ -34,6 +34,7 @@ def snake_cmd(snakefile, configfile, step):
         sys.exit()
     return snake_cmd
 
+
 def main():
     parser = argparse.ArgumentParser(description='metapipe')
 
