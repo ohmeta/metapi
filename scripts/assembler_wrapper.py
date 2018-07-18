@@ -48,7 +48,8 @@ def sge_init(assembler, out_dir, job_dir, job_line, project, queue, resource):
                                           assembler + "_assembly.sh")
     sge["submit_script"] = os.path.join(sge["jobdir"],
                                         assembler + "_submit.sh")
-
+    if sge["asub"] is None:
+        sge["asub"] = os.path.join(os.path.dirname(os.path.abspath(__file__)), "asub.py")
     submit_cmd = "python %s -project %s -queue %s -jobfile %s -jobname %s -jobline %d -resource %s\n" % (
         sge["asub"], sge["project"], sge["queue"],
         os.path.basename(sge["assembly_script"]), sge["jobname"],
