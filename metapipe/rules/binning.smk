@@ -16,9 +16,9 @@ rule metabat2:
         asmfa = os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa"),
         depth = os.path.join(config["results"]["binning"], "coverage/{sample}.metabat2.depth.txt")
     output:
-        default = os.path.join(config["logs"]["binning"], "{sample}.done")
+        default = os.path.join(config["logs"]["binning"]["metabat2"], "{sample}.binning.done")
     log:
-        os.path.join(config["logs"]["binning"], "{sample}.metabat2.log")
+        os.path.join(config["logs"]["binning"]["metabat2"], "{sample}.metabat2.log")
     params:
         bins_dir = os.path.join(config["results"]["binning"], "bins"),
         bin_prefix = os.path.join(config["results"]["binning"], "bins/{sample}.metabat2_out/{sample}.bin"),

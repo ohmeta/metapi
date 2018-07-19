@@ -12,8 +12,10 @@ shell.executable("bash")
 configfile: "metaconfig.yaml"
 
 # samples = metasample.parse_samples(config["results"]["raw"]["samples"])
+_samples = metasample.samples_df(config["results"]["raw"]["samples"])
 
-samples = metasample.samples_df(config["results"]["raw"]["samples"])
+def _get_raw_fastq(wildcards, read_pair="fq1"):
+    return _samples.loc[wildcards.sample, [read_pair]].dropna()[0]
 
 include: "rules/step.smk"
 include: "rules/fastqc.smk"
@@ -21,11 +23,11 @@ include: "rules/trim.smk"
 include: "rules/rmhost.smk"
 # include: "rules/qcreport.smk"
 include: "rules/assembly.smk"
-
-'''
 include: "rules/alignment.smk"
 include: "rules/binning.smk"
 include: "rules/checkm.smk"
+
+'''
 include: "rules/dereplication.smk"
 include: "rules/classification.smk"
 include: "rules/annotation.smk"
@@ -33,4 +35,4 @@ include: "rules/annotation.smk"
 
 rule all:
     input:
-        assembly_output
+        checkm_target

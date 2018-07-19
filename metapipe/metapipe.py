@@ -27,7 +27,7 @@ run_steps = [
 def snake_cmd(snakefile, configfile, step):
     snake_cmd = ""
     if step in run_steps:
-        snake_cmd = "snakemake --snakefile %s --configfile %s --reason %s" % (
+        snake_cmd = "snakemake --snakefile %s --configfile %s --until %s" % (
             snakefile, configfile, step)
     else:
         print("wrong step!")

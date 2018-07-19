@@ -2,23 +2,20 @@ rule build_asmfa_index:
     input:
         os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa")
     output:
-        expand("{assembly}/{sample}.megahit_out/{sample}.contigs.fa.{suffix}",
+        expand("{assembly}/{{sample}}.megahit_out/{{sample}}.contigs.fa.{suffix}",
                assembly=config["results"]["assembly"],
                suffix=["amb", "ann", "bwt", "pac", "sa"])
     shell:
         "bwa index {input}"
 
-
 rule align_reads_to_asmfa:
     input:
-        reads = expand("{rmhost}/{sample}.rmhost.{read}.fq.gz",
-                       rmhost=config["results"]["rmhost"],
-                       read=["1", "2"]),
-        index = expand("{assembly}/{sample}.megahit_out/{sample}.contigs.fa.{suffix}",
+        reads = assembly_inputs,
+        index = expand("{assembly}/{{sample}}.megahit_out/{{sample}}.contigs.fa.{suffix}",
                        assembly=config["results"]["assembly"],
                        suffix=["amb", "ann", "bwt", "pac", "sa"])
     output:
-        flagstat = os.path.join(config["results"]["alignment"], "{sample}.flagstat.txt"),
+        flagstat = os.path.join(config["results"]["alignment"], "{sample}.flagstat"),
         bam = os.path.join(config["results"]["alignment"], "{sample}.sorted.bam")
     params:
         bwa_mem_threads = config["params"]["alignment"]["bwa_mem_threads"],

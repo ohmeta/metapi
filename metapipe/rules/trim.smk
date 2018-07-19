@@ -1,7 +1,7 @@
-rule trim_pe:
+rule trim:
     input:
-        r1 = lambda wildcards: get_fastq(wildcards)[0],
-        r2 = lambda wildcards: get_fastq(wildcards)[1]
+        r1 = lambda wildcards: _get_raw_fastq(wildcards, "fq1"),
+        r2 = lambda wildcards: _get_raw_fastq(wildcards, "fq2")
     output:
         expand("{trim}/{{sample}}.trimmed.{read}.fq.gz",
                trim=config["results"]["trim"],

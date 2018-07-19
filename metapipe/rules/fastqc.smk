@@ -1,9 +1,7 @@
-def get_fastq(wildcards):
-    return samples.loc[wildcards.sample, ["fq1", "fq2"]].dropna()
-
 rule fastqc:
     input:
-        get_fastq
+        r1 = lambda wildcards: _get_raw_fastq(wildcards, "fq1"),
+        r2 = lambda wildcards: _get_raw_fastq(wildcards, "fq2")
     output:
         outfile = expand("{fastqc}/{{sample}}_{read}_fastqc.{out}",
                          fastqc=config["results"]["raw"]["fastqc"],
@@ -12,7 +10,4 @@ rule fastqc:
     params:
         outdir = config["results"]["raw"]["fastqc"]
     shell:
-        """
-        echo {input}
-        fastqc -o {params.outdir} -f fastq {input}
-        """
+        "fastqc -o {params.outdir} -f fastq {input.r1} {input.r2}"

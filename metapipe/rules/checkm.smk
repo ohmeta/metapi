@@ -1,13 +1,14 @@
 rule checkm_lineage_wf:
     input:
-        default = os.path.join(config["logs"]["binning"]["metabat2"], "{sample}.done")
+        default = os.path.join(config["logs"]["binning"]["metabat2"], "{sample}.binning.done")
     output:
         checkm_txt = os.path.join(config["results"]["checkm"],
                                   "checkm_out/{sample}.checkm.txt"),
         checkm_data_dir = os.path.join(config["results"]["checkm"],
-                                       "checkm_data/{sample}.checkm_out")
+                                       "checkm_data/{sample}.checkm_out/")
     params:
-        fa_dir = 
+        bins_dir = os.path.join(config["results"]["binning"], "bins"),
+        bins_link_dir = os.path.join(config["results"]["checkm"], "checkm_input"),
         txt_dir = os.path.join(config["results"]["checkm"], "checkm_out"),
         data_dir = os.path.join(config["results"]["checkm"], "checkm_data"),
         checkm_env = config["params"]["checkm"]["env"],
@@ -15,11 +16,14 @@ rule checkm_lineage_wf:
     shell:
         '''
         set +u; source activate {params.checkm_env}; set -u;
+        mkdir -p {params.bins_link_dir}
         mkdir -p {params.txt_dir}
         mkdir -p {params.data_dir}
+        find {params.bins_dir} -type f -name "*.bin*" | xargs -I {} ln -s {} {params.bins_link_dir}/
         checkm lineage_wf -f {output.checkm_txt} -t {params.lineage_threads} \
-        -x fa {input.fa_dir}/ {output.checkm_data_dir}
+        -x fa {params.bins_link_dir}/ {output.checkm_data_dir}
         '''
+
 '''
 rule checkm_filter_wf:
     input:

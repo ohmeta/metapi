@@ -51,7 +51,8 @@ logs:
   rmhost: "assay/02.rmhost/logs"
   assembly: "assay/03.assembly/logs"
   alignment: "assay/04.alignment/logs"
-  binning: "assay/05.binning/logs"
+  binning:
+    metabat2: "assay/05.binning/metabat2.logs"
   checkm: "assay/06.checkm/logs"
   drep: "assay/07.drep/logs"
   classification: "assay/08.classification/logs"
