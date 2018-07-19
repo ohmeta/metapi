@@ -10,10 +10,10 @@ import subprocess
 import sys
 from datetime import datetime
 
-__author__ = 'Jie Zhu'
-__email__ = 'zhujie@genomics.cn'
-__version__ = '0.3.0'
-__date__ = 'March 24, 2018'
+__author__ = 'Jie Zhu, Jiahui Zhu'
+__email__ = 'zhujie@genomics.cn, zhujiahui@genomics.cn'
+__version__ = '0.3.1'
+__date__ = 'Jun 19, 2018'
 
 
 def parse_job(job_name, job_file, a_job_line, logdir):
@@ -69,7 +69,7 @@ def main():
     parser.add_argument('-logdir', type=str, help='array job log directory')
     args = parser.parse_args()
 
-    assert re.match(r'vf=\d+\w,p=\d+', args.resource), "please specific memory usage and number processor"
+    assert re.match(r'vf=[\d\.]+\w,p=\d+', args.resource), "please specific memory usage and number processor"
     assert not re.match(r'^\d+', args.jobname), "array job name cannot start with a digit"
     assert args.jobline >= 1, "a job line can't to be zero"
 
