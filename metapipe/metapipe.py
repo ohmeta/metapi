@@ -10,6 +10,7 @@ import metaconfig
 import metasample
 
 run_steps = [
+    "simulate",
     "fastqc",
     "trim",
     "rmhost",

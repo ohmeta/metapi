@@ -1,3 +1,8 @@
+simulate_output = expand(
+    "{simulate}/species_metadata.tsv",
+    simulate=config["results"]["simulate"]["genome"]
+)
+
 fastqc_output = expand(
     "{fastqc}/{sample}_{read}_fastqc.{out}",
     fastqc=config["results"]["raw"]["fastqc"],

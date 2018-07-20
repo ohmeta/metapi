@@ -1,19 +1,19 @@
 import io
-from os.path import dirname, join
-from setuptools import setup
+import os
+import setuptools
 
 long_description = open('README.md').read()
 
 def get_version(relpath):
     """read version info from a file without importing it"""
-    for line in io.open(join(dirname(__file__), relpath), encoding="cp437"):
+    for line in io.open(os.path.join(os.path.dirname(__file__), relpath), encoding="cp437"):
         if "__version__" in line:
             if '"' in line:
                 return line.split('"')[1]
             elif "'" in line:
                 return line.split("'")[1]
 
-setup(
+setuptools.setup(
     name='metapipe',
     version=get_version("metapipe/__init__.py"),
     url='https://github.com/ohmeta/metapipe',
@@ -32,13 +32,17 @@ setup(
                        'metapipe/rules/alignment.smk',
                        'metapipe/rules/binning.smk',
                        'metapipe/rules/checkm.smk',
-                       'metapipe/rules/dereplicate.smk',
+                       'metapipe/rules/dereplication.smk',
                        'metapipe/rules/classification.smk',
                        'metapipe/rules/annotation.smk',
                        'metapipe/__init__.py',
                        'metapipe/metapipe.py',
-                       'metapipe/project.py',
-                       'metapipe/report.py']},
+                       'metapipe/metacheck.py',
+                       'metapipe/metaconfig.py',
+                       'metapipe/metasample.py',
+                       'metapipe/metareport.py',
+                       'metapipe/metacluster.yaml',
+                       'metapipe/metaconfig.yaml']},
     include_package_data=True,
     install_requires=[],
     entry_points={},

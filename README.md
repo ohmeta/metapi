@@ -24,7 +24,7 @@ hello, metagenomics!
   * [make](https://www.gnu.org/software/make/manual/make.html)
   * [snakemake](https://bitbucket.org/snakemake/snakemake)
   * [common workflow language](https://github.com/common-workflow-language/common-workflow-language)
-  * [workflow language definition](https://software.broadinstitute.org/wdl/)
+  * [workflow definition language](https://software.broadinstitute.org/wdl/)
 * make full use of awesome bioinformatics tools
   * [bwa](https://github.com/lh3/bwa)
   * [samtools](https://github.com/samtools/samtools)
@@ -43,6 +43,7 @@ hello, metagenomics!
 * execution module
     ```python
     # Snakefile
+        include: "rules/fastqc.smk"
         include: "rules/trim.smk"
         include: "rules/rmhost.smk"
         include: "rules/qcreport.smk"
@@ -50,9 +51,9 @@ hello, metagenomics!
         include: "rules/alignment.smk"
         include: "rules/binning.smk"
         include: "rules/checkm.smk"
-        include: "rules/drep.smk"
+        include: "rules/dereplication.smk"
+        include: "rules/classification.smk"
         include: "rules/annotation.smk"
-        include: "rules/reassembly.smk"
     ```
 
 * analysis module
@@ -75,10 +76,10 @@ hello, metagenomics!
 
 ## install
 
-* install dependencies
+* install dependencies* 
   * [pigz](https://zlib.net/pigz/)
+  * [ncbi-genome-download](https://github.com/kblin/ncbi-genome-download)
   * [sickle](https://github.com/najoshi/sickle)
-  * [bbmap](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbmap-guide/)
   * [bwa](https://github.com/lh3/bwa)
   * [samtools](https://github.com/samtools/samtools)
   * [spades](https://github.com/ablab/spades)
@@ -86,6 +87,7 @@ hello, metagenomics!
   * [megahit](https://github.com/voutcn/megahit)
   * [metabat](https://bitbucket.org/berkeleylab/metabat)
   * [checkm](https://github.com/Ecogenomics/CheckM)
+  * [drep](https://github.com/MrOlm/drep)
   * [mash](https://github.com/marbl/Mash)
   * [sourmash](https://github.com/dib-lab/sourmash)
   * [centrifuge](https://github.com/infphilo/centrifuge)
@@ -93,8 +95,9 @@ hello, metagenomics!
 
   ```bash
   # in python3 environment
-  conda install pigz snakemake sickle-trim bbmap bwa samtools spades idba megahit mash sourmash centrifuge prokka
+  conda install pigz snakemake sickle-trim bwa samtools spades idba megahit mash sourmash centrifuge prokka ncbi-genome-download
   conda install -c ursky metabat2
+  pip install drep
   
   # in python2 envrionment
   conda install checkm-genome

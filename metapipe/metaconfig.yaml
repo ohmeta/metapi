@@ -1,4 +1,6 @@
 params:
+  simulate:
+    do: True
   trim:
     qual_type: "sanger"
     sickle_pe: ""
@@ -33,6 +35,9 @@ results:
   host:
     fasta: "results/host/host.fa"
     prefix: "results/host/host.fa"
+  simulate: 
+    taxid: ["1597", "714", "1624", "1681", "573"]
+    genome: "results/simulate"
   raw: 
     samples: "results/00.raw/samples.tsv"
     fastqc: "results/00.raw/fastqc"
