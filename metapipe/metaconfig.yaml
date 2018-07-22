@@ -1,6 +1,15 @@
 params:
   simulate:
-    do: True
+    taxid: ["362948", "321967", "1125630", "702459", "226186", "272563"]
+    model:  "hiseq"
+    output_prefix:
+      X10: "simulate_10X"
+      X50: "simulate_50X"
+      X100: "simulate_100X"
+    coverage:
+      X10: "2M"
+      X50: "10M"
+      X100: "20M"
   trim:
     qual_type: "sanger"
     sickle_pe: ""
@@ -32,11 +41,11 @@ params:
   annotation: ""
 
 results:
+  config: "metaconfig.yaml"
   host:
     fasta: "results/host/host.fa"
     prefix: "results/host/host.fa"
   simulate: 
-    taxid: ["1597", "714", "1624", "1681", "573"]
     genome: "results/simulate"
   raw: 
     samples: "results/00.raw/samples.tsv"

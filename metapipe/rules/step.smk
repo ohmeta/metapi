@@ -1,5 +1,6 @@
 simulate_output = expand(
-    "{simulate}/species_metadata.tsv",
+    ["{simulate}/species_metadata.tsv",
+     "{simulate}/merged_genome.fa"],
     simulate=config["results"]["simulate"]["genome"]
 )
 
