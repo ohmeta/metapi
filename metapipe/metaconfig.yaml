@@ -45,9 +45,9 @@ results:
   host:
     fasta: "results/host/host.fa"
     prefix: "results/host/host.fa"
-  simulate: 
+  simulate:
     genome: "results/simulate"
-  raw: 
+  raw:
     samples: "results/00.raw/samples.tsv"
     fastqc: "results/00.raw/fastqc"
   trim: "results/01.trim"
