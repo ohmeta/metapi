@@ -1,13 +1,13 @@
 rule checkm_lineage_wf:
     input:
-        default = os.path.join(config["logs"]["binning"]["metabat2"], "{sample}.binning.done")
+        default = os.path.join(config["logs"]["binning"]["metabat2"], "{sample}.metabat2.done")
     output:
         checkm_txt = os.path.join(config["results"]["checkm"],
                                   "checkm_out/{sample}.checkm.txt"),
         checkm_data_dir = os.path.join(config["results"]["checkm"],
                                        "checkm_data/{sample}.checkm_out/")
     params:
-        bins_dir = os.path.join(config["results"]["binning"], "bins"),
+        bins_dir = config["results"]["binning"]["bins"],
         bins_link_dir = os.path.join(config["results"]["checkm"], "checkm_input"),
         txt_dir = os.path.join(config["results"]["checkm"], "checkm_out"),
         data_dir = os.path.join(config["results"]["checkm"], "checkm_data"),

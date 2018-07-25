@@ -8,13 +8,6 @@ rule genome_download:
         taxid = ",".join(config["params"]["simulate"]["taxid"])
     shell:
         '''
-        echo "downloading Lactobacillus salivarius UCC118 (firmicutes)"
-        echo "downloading Lactobacillus paracasei ATCC 334 (firmicutes)"
-        echo "downloading Klebsiella pneumoniae subsp. pneumoniae HS11286 (enterobacteria)"
-        echo "downloading Bifidobacterium bifidum PRL2010 (high GC Gram+)"
-        echo "downloading Bacteroides thetaiotaomicron VPI-5482 (CFB group bacteria)"
-        echo "downloading Clostridioides difficile 630 (firmicutes)"
-
         ncbi-genome-download \
             --format fasta,assembly-report \
             --assembly-level complete \

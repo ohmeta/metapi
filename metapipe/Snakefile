@@ -36,4 +36,4 @@ include: "rules/annotation.smk"
 
 rule all:
     input:
-        simulate_output
+        checkm_target

@@ -29,8 +29,12 @@ params:
     samtools_threads: 8
   binning:
     metabat2:
+      do: True
       min_contig: 2500
       seed: 2018
+    maxbin2:
+      do: True
+      threads: 8
   checkm:
     env: "bioenv2"
     threads: 8
@@ -54,7 +58,9 @@ results:
   rmhost: "results/02.rmhost"
   assembly: "results/03.assembly"
   alignment: "results/04.alignment"
-  binning: "results/05.binning"
+  binning:
+    depth: "results/05.binning/coverage"
+    bins: "results/05.binning/bins"
   checkm: "results/06.checkm"
   dereplication: "results/07.dereplication"
   classification: "results/08.classification"
