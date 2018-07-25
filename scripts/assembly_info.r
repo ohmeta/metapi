@@ -48,7 +48,7 @@ average_asm <- function(asm_df)
 
 asm_boxplot <- function(df, title)
 {
-    return
+    p <-
     df %>%
         gather(key, value, -filename) %>%
         mutate(key = factor(
@@ -70,6 +70,7 @@ asm_boxplot <- function(df, title)
             axis.title = element_blank(),
             legend.title = element_blank()) +
         ggtitle(title)
+    return(p)
 }
 
 parser <- arg_parser("plot assembly statistics") %>%

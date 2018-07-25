@@ -3,27 +3,18 @@
 import argparse
 import os
 import shutil
-import sys
 import subprocess
+import sys
 
 import metaconfig
 import metasample
 
 run_steps = [
-    "simulate",
-    "fastqc",
-    "trim",
-    "rmhost",
-    "qc_report",
-    "assembly",
-    "alignment",
-    "binning",
-    "checkm",
-    "dereplication",
-    "classification",
+    "simulate", "fastqc", "trim", "rmhost", "qc_report", "assembly",
+    "alignment", "binning", "checkm", "dereplication", "classification",
     "annotation"
 ]
-        
+
 
 def snake_cmd(snakefile, configfile, step):
     snake_cmd = ""
@@ -41,19 +32,22 @@ def main():
 
     cluster = parser.add_argument_group("cluster", "args for sge cluster")
     cluster.add_argument('--queue', type=str, help='queue', default='st.q')
-    cluster.add_argument('--project', type=str,
-                         help='project id', default='nature')
+    cluster.add_argument(
+        '--project', type=str, help='project id', default='nature')
 
-    parser.add_argument('--workdir', type=str,
-                        help='project work directory', default='./temp')
-    parser.add_argument('--samples', type=str, help='raw fastq',
-                        default="./temp/assay/00.raw/samples.tsv")
+    parser.add_argument(
+        '--workdir', type=str, help='project work directory', default='./temp')
+    parser.add_argument(
+        '--samples',
+        type=str,
+        help='raw fastq',
+        default="results/00.raw/samples.tsv")
 
-    parser.add_argument('--rmhost', action='store',
-                        help='do you want to rmhost', default=True)
+    parser.add_argument(
+        '--rmhost', action='store', help='do you want to rmhost', default=True)
 
-    parser.add_argument('--step', type=str,
-                        choices=run_steps, help='run to which step')
+    parser.add_argument(
+        '--step', type=str, choices=run_steps, help='run to which step')
 
     args = parser.parse_args()
 
@@ -61,8 +55,9 @@ def main():
     project.create_dirs()
     project.update_config(args.samples)
 
-    snakejob = snake_cmd(project.snake_file, project.new_config_file, args.step)
-    
+    snakejob = snake_cmd(project.snake_file, project.new_config_file,
+                         args.step)
+
     print(snakejob)
     #subprocess.run(snakejob)
 
