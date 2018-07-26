@@ -55,7 +55,8 @@ rule assembly_idba_ud:
         zcat {input.reads[1]} > {params.r2}
         fq2fa --merge {params.r1} {params.r2} {params.pe_fa}
         idba_ud -r {params.pe_fa} --mink {params.mink} --maxk {params.maxk} --step {params.step} --min_contig {params.min_contig} -o {params.out_dir} --num_threads {threads} --pre_correction 2> {log}
-        pigz {output}
+        pigz {params.out_dir}/scaffold.fa
+        mv {params.out_dir}/scaffold.fa.gz {output}
         rm -rf {params.out_dir}/kmer {params.out_dir}/contig-* {params.out_dir}/align-* {params.out_dir}/graph-* {params.out_dir}/local-contig-*
         '''
 
