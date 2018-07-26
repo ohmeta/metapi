@@ -25,8 +25,9 @@ rule assembly_megahit:
         os.path.join(config["logs"]["assembly"]["megahit"], "{sample}.megahit.log")
     shell:
         '''
-        megahit -1 {input.reads[0]} -2 {input.reads[1]} -t {threads} --min-contig-len {params.min_contig} --out-dir {params.out_dir} --out-prefix {params.out_prefix}
-        pigz {params.out_dir}/{params.out_prefix}.contigs.fa 2> {log}
+        rm -rf {params.out_dir}
+        megahit -1 {input.reads[0]} -2 {input.reads[1]} -t {threads} --min-contig-len {params.min_contig} --out-dir {params.out_dir} --out-prefix {params.out_prefix} 2> {log}
+        pigz {params.out_dir}/{params.out_prefix}.contigs.fa
         '''
 
 rule assembly_idba_ud:
