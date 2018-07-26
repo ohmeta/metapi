@@ -36,8 +36,8 @@ rule assembly_idba_ud:
         os.path.join(config["results"]["assembly"], "{sample}.idba_ud_out/{sample}.scaffolds.fa.gz")
     params:
         out_dir = os.path.join(config["results"]["assembly"], "{sample}.idba_ud_out"),
-        r1 = temp(os.path.join(config["results"]["assembly"], "{sample}.idba_ud_out/{sample}.r1.fq}")),
-        r2 = temp(os.path.join(config["results"]["assembly"], "{sample}.idba_ud_out/{sample}.r2.fq}")),
+        r1 = temp(os.path.join(config["results"]["assembly"], "{sample}.idba_ud_out/{sample}.r1.fq")),
+        r2 = temp(os.path.join(config["results"]["assembly"], "{sample}.idba_ud_out/{sample}.r2.fq")),
         pe_fa = temp(os.path.join(config["results"]["assembly"], "{sample}.idba_ud_out/{sample}.pe.fa")),
         mink = config["params"]["assembly"]["idba_ud"]["mink"],
         maxk = config["params"]["assembly"]["idba_ud"]["maxk"],
