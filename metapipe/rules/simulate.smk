@@ -42,7 +42,9 @@ rule simulate:
         n_reads = config["params"]["simulate"]["coverage"]["X100"],
         output_prefix = os.path.join(config["results"]["simulate"]["genome"],
                                      config["params"]["simulate"]["output_prefix"]["X100"])
+    threads:
+        config["params"]["simulate"]["threads"]
     shell:
         '''
-        iss generate --cpus 4 --genomes {input} --n_genomes {params.n_genomes} --n_reads {params.n_reads} --model {params.model} --output {params.output_prefix}
+        iss generate --cpus {threads} --genomes {input} --n_genomes {params.n_genomes} --n_reads {params.n_reads} --model {params.model} --output {params.output_prefix}
         '''
