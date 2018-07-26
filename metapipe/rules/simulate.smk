@@ -38,13 +38,12 @@ rule simulate:
         abundance = os.path.join(config["results"]["simulate"]["genome"], "simulate_100X_abundance.txt")
     params:
         model = config["params"]["simulate"]["model"],
-        n_genomes =  len(config["params"]["simulate"]["taxid"]),
+        n_cpus = config["params"]["simulate"]["n_cpus"],
+        n_genomes = len(config["params"]["simulate"]["taxid"]),
         n_reads = config["params"]["simulate"]["coverage"]["X100"],
         output_prefix = os.path.join(config["results"]["simulate"]["genome"],
                                      config["params"]["simulate"]["output_prefix"]["X100"])
-    threads:
-        config["params"]["simulate"]["threads"]
     shell:
         '''
-        iss generate --cpus {threads} --genomes {input} --n_genomes {params.n_genomes} --n_reads {params.n_reads} --model {params.model} --output {params.output_prefix}
+        iss generate --cpus {params.n_cpus} --genomes {input} --n_genomes {params.n_genomes} --n_reads {params.n_reads} --model {params.model} --output {params.output_prefix}
         '''

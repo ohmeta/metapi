@@ -10,7 +10,7 @@ params:
       X10: "2M"
       X50: "10M"
       X100: "20M"
-    threads: 16
+    n_cpus: 16
   trim:
     qual_type: "sanger"
     sickle_pe: ""
