@@ -1,8 +1,8 @@
 rule build_asmfa_index:
     input:
-        os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa")
+        os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa.gz")
     output:
-        expand("{assembly}/{{sample}}.megahit_out/{{sample}}.contigs.fa.{suffix}",
+        expand("{assembly}/{{sample}}.megahit_out/{{sample}}.contigs.fa.gz.{suffix}",
                assembly=config["results"]["assembly"],
                suffix=["amb", "ann", "bwt", "pac", "sa"])
     shell:
@@ -11,7 +11,7 @@ rule build_asmfa_index:
 rule align_reads_to_asmfa:
     input:
         reads = assembly_inputs,
-        index = expand("{assembly}/{{sample}}.megahit_out/{{sample}}.contigs.fa.{suffix}",
+        index = expand("{assembly}/{{sample}}.megahit_out/{{sample}}.contigs.fa.gz.{suffix}",
                        assembly=config["results"]["assembly"],
                        suffix=["amb", "ann", "bwt", "pac", "sa"])
     output:
@@ -20,7 +20,7 @@ rule align_reads_to_asmfa:
     params:
         bwa_mem_threads = config["params"]["alignment"]["bwa_mem_threads"],
         samtools_threads = config["params"]["alignment"]["samtools_threads"],
-        prefix = os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa")
+        prefix = os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa.gz")
     shell:
         "bwa mem -t {params.bwa_mem_threads} {params.prefix} {input.reads} | "
         "samtools view -@{params.samtools_threads} -hbS - | "

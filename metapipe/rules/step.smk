@@ -30,8 +30,18 @@ rmhost_output = expand(
     sample=_samples.index,
     read=["1", "2"])
 
-assembly_output = expand(
-    "{assembly}/{sample}.megahit_out/{sample}.contigs.fa",
+megahit_output = expand(
+    "{assembly}/{sample}.megahit_out/{sample}.contigs.fa.gz",
+    assembly=config["results"]["assembly"],
+    sample=_samples.index)
+
+idba_ud_output = expand(
+    "{assembly}/{sample}.idba_ud_out/{sample}.scaffolds.fa.gz",
+    assembly=config["results"]["assembly"],
+    sample=_samples.index)
+
+metaspades_output = expand(
+    "{assembly}/{sample}.metaspades_out/{sample}.scaffolds.fa.gz",
     assembly=config["results"]["assembly"],
     sample=_samples.index)
 
@@ -82,6 +92,13 @@ annotation_output = expand(
 
 trim_target = (fastqc_output + trim_output)
 rmhost_target = (trim_target + rmhost_output)
+
+if config["params"]["assembly"]["megahit"]["do"]:
+    assembly_output = (megahit_output)
+if config["params"]["assembly"]["idba_ud"]["do"]:
+    assembly_output = (assembly_output + idba_ud_output)
+if config["params"]["assembly"]["metaspades"]["do"]:
+    assembly_output = (assembly_output + metaspades_output)
 
 if config["params"]["rmhost"]["do"]:
     assembly_target = (rmhost_target + assembly_output)

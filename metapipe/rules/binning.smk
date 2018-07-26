@@ -25,7 +25,7 @@ rule coverage_maxbin2:
 
 rule binning_metabat2:
     input:
-        asmfa = os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa"),
+        asmfa = os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa.gz"),
         depth = os.path.join(config["results"]["binning"]["depth"], "{sample}.metabat2.depth.txt")
     output:
         default = os.path.join(config["logs"]["binning"]["metabat2"], "{sample}.metabat2.done")
@@ -45,7 +45,7 @@ rule binning_metabat2:
 
 rule binning_maxbin2:
     input:
-        asmfa = os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa"),
+        asmfa = os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa.gz"),
         depth = os.path.join(config["results"]["binning"]["depth"], "{sample}.maxbin2.depth.txt")
     output:
         os.path.join(config["results"]["binning"]["bins"], "{sample}.maxbin2_out/{sample}.bin.summary")
@@ -53,9 +53,11 @@ rule binning_maxbin2:
         bins_dir = os.path.join(config["results"]["binning"]["bins"], "{sample}.maxbin2_out"),
         bin_prefix = os.path.join(config["results"]["binning"]["bins"], "{sample}.maxbin2_out/{sample}.bin")
     threads:
-        config['params']['binning']['maxbin2']['threads']
+        config["params"]["binning"]["maxbin2"]["threads"]
+    log:
+        os.path.join(config["logs"]["binning"]["maxbin2"], "{sample}.maxbin2.log")
     shell:
         '''
         mkdir -p {params.bins_dir}
-        run_MaxBin.pl -thread {threads} -contig {input.asmfa} -out {params.bin_prefix} -abund {intput.depth}
+        run_MaxBin.pl -thread {threads} -contig {input.asmfa} -out {params.bin_prefix} -abund {intput.depth} 2> {log}
         '''

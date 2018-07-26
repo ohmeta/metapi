@@ -1,6 +1,4 @@
 rule genome_download:
-    input:
-        config["results"]["config"]
     output:
         metadata = os.path.join(config["results"]["simulate"]["genome"], "species_metadata.tsv")
     params:

@@ -14,24 +14,26 @@ rule assembly_megahit:
     input:
         reads = assembly_inputs
     output:
-        os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa")
+        os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa.gz")
     params:
         min_contig = config["params"]["assembly"]["megahit"]["min_contig"],
-        megahit_threads = config["params"]["assembly"]["megahit"]["threads"],
         out_dir = os.path.join(config["results"]["assembly"], "{sample}.megahit_out"),
         out_prefix = "{sample}"
+    threads:
+        config["params"]["assembly"]["megahit"]["threads"]
+    log:
+        os.path.join(config["logs"]["assembly"]["megahit"], "{sample}.megahit.log")
     shell:
-        "megahit -1 {input.reads[0]} -2 {input.reads[1]} "
-        "-t {params.megahit_threads} "
-        "--min-contig-len {params.min_contig} "
-        "--out-dir {params.out_dir} "
-        "--out-prefix {params.out_prefix}"
+        '''
+        megahit -1 {input.reads[0]} -2 {input.reads[1]} -t {threads} --min-contig-len {params.min_contig} --out-dir {params.out_dir} --out-prefix {params.out_prefix}
+        pigz {params.out_dir}/{params.out_prefix}.contigs.fa 2> {log}
+        '''
 
 rule assembly_idba_ud:
     input:
         reads = assembly_inputs
     output:
-        os.path.join(config["results"]["assembly"], "{sample}.idba_ud_out/{sample}.scaffold.fa.gz")
+        os.path.join(config["results"]["assembly"], "{sample}.idba_ud_out/{sample}.scaffolds.fa.gz")
     params:
         out_dir = os.path.join(config["results"]["assembly"], "{sample}.idba_ud_out"),
         r1 = temp(os.path.join(config["results"]["assembly"], "{sample}.idba_ud_out/{sample}.r1.fq}")),
@@ -52,7 +54,7 @@ rule assembly_idba_ud:
         zcat {input.reads[0]} > {params.r1}
         zcat {input.reads[1]} > {params.r2}
         fq2fa --merge {params.r1} {params.r2} {params.pe_fa}
-        idba_ud -r {params.pe_fa} --mink {params.mink} --maxk {params.maxk} --step {params.step} --min_contig {params.min_contig} -o {params.out_dir} --num_threads {threads} --pre_correction 2 > {log}
+        idba_ud -r {params.pe_fa} --mink {params.mink} --maxk {params.maxk} --step {params.step} --min_contig {params.min_contig} -o {params.out_dir} --num_threads {threads} --pre_correction 2> {log}
         pigz {output}
         rm -rf {params.out_dir}/kmer {params.out_dir}/contig-* {params.out_dir}/align-* {params.out_dir}/graph-* {params.out_dir}/local-contig-*
         '''
@@ -61,17 +63,17 @@ rule assembly_metaspades:
     input:
         reads = assembly_inputs
     output:
-        
+        os.path.join(config["results"]["assembly"], "{sample}.metaspades_out/{sample}.scaffolds.fa.gz")
     params:
         memory = config["params"]["assembly"]["metaspades"]["memory"],
-        out_dir = os.path.join(config["results"]["assembly"]["metaspades"], "{sample}.metaspades_out"),
-        tmp_dir = os.path.join(config["results"]["assembly"]["metaspades"], "{sample}.metaspades_out/tmp"),
-        kmers = config["params"]["assembly"]["metaspades"]["kmers"]
+        out_dir = os.path.join(config["results"]["assembly"], "{sample}.metaspades_out")
     threads:
         config["params"]["assembly"]["metaspades"]["threads"]
     log:
-        os.path.join(config["logs"]["assembly"]["metapades"], "{sample}.metaspades.log")
+        os.path.join(config["logs"]["assembly"]["metaspades"], "{sample}.metaspades.log")
     shell:
         '''
-        spades.py -1 {input.reads[0]} -2 {input.reads[1]} --only-assembler --threads {threads} --memory {params.memory} -o {params.out_dir} --tmp-dir {params.tmp_dir} -k {params.kmers} 2 > {log}
+        metaspades.py -1 {input.reads[0]} -2 {input.reads[1]} --threads {threads} --memory {params.memory} -o {params.out_dir} 2> {log}
+        pigz {params.out_dir}/scaffolds.fasta
+        mv {params.out_dir}/scaffolds.fasta.gz {output}
         '''
