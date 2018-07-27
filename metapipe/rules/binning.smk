@@ -8,7 +8,7 @@ rule coverage_metabat2:
     shell:
         '''
         mkdir -p {params.depth_dir}
-        docker run metabat/metabat:latest jgi_summarize_bam_contig_depths --outputDepth {output.depth} {input.bam}
+        jgi_summarize_bam_contig_depths --outputDepth {output.depth} {input.bam}
         '''
 
 rule coverage_maxbin2:
@@ -39,7 +39,7 @@ rule binning_metabat2:
     shell:
         '''
         mkdir -p {params.bins_dir}
-        docker run metabat/metabat:latest metabat2 -i {input.asmfa} -a {input.depth} -o {params.bin_prefix} -m {params.min_contig} --seed {params.seed} -v > {log}
+        metabat2 -i {input.asmfa} -a {input.depth} -o {params.bin_prefix} -m {params.min_contig} --seed {params.seed} -v > {log}
         touch {output.default}
         '''
 
@@ -61,3 +61,12 @@ rule binning_maxbin2:
         mkdir -p {params.bins_dir}
         run_MaxBin.pl -thread {threads} -contig {input.asmfa} -out {params.bin_prefix} -abund {intput.depth} 2> {log}
         '''
+'''
+rule dastools:
+    input:
+    output:
+    params:
+    threads:
+    log:
+    shell:
+'''
