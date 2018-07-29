@@ -1,4 +1,7 @@
 params:
+  cluster:
+    queue: "st.q"
+    project: "st.m"
   simulate:
     taxid: ["362948", "321967", "1125630", "702459", "226186", "272563"]
     model:  "hiseq"

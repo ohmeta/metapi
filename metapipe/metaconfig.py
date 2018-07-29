@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 import os
-import yaml
 import shutil
+
+import yaml
 
 
 class config:
@@ -41,21 +42,14 @@ class config:
             if not os.path.exists(loc):
                 os.mkdir(loc)
 
-    def update_config(self, samples):
+    def get_config(self):
         '''
-        update project config or copy it to work_dir
-        eg: update host reference fasta
-        eg: update samples.tsv
-        eg: update program params
-        '''
+        get default configuration
         '''
         with open(self.config_file) as conf_in:
             conf_info = yaml.load_all(conf_in)
-            with open(os.path.join(self.work_dir, "metaconfig.yaml"), 'w') as conf_out:
+        return conf_info
+
+
+        with open(os.path.join(self.work_dir, "metaconfig.yaml"), 'w') as conf_out:
                 yaml.dump(conf_info, conf_out)
-        '''
-        if not os.path.exists(self.new_config_file):
-            shutil.copy2(self.config_file, self.new_config_file)
-        
-        if not os.path.exists(self.samples_tsv):
-            shutil.copy2(samples, self.samples_tsv)
