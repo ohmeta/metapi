@@ -70,6 +70,9 @@ def workflow(args):
     if args.workdir:
         config_file = os.path.join(args.workdir, "metaconfig.yaml")
         config = metaconfig.parse_yaml(config_file)
+        if not os.path.exists(config["results"]["raw"]["samples"]):
+            print("please specific samples list on initialization step")
+            sys.exit(1)
         if args.rmhost:
             config["params"]["rmhost"]["do"] = True
         metaconfig.update_config(config_file, config_file, config, remove=True)
