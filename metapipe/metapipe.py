@@ -67,7 +67,19 @@ def simulation(args):
 
 
 def workflow(args):
-    pass
+    if args.workdir:
+        config_file = os.path.join(args.workdir, "metaconfig.yaml")
+        config = metaconfig.parse_yaml(config_file)
+        if args.rmhost:
+            config["params"]["rmhost"]["do"] = True
+        metaconfig.update_config(config_file, config_file, config, remove=True)
+    else:
+        print("please supply a workdir!")
+        sys.exit(1)
+
+    snakecmd = "snakemake --snakefile %s --configfile %s --until %s" % (
+        config["snakefile"], config["configfile"], args.step)
+    print(snakecmd)
 
 
 def main():
@@ -150,7 +162,7 @@ def main():
         '-u',
         '--step',
         type=str,
-        metavar='<str>',
+        # metavar='<str>',
         choices=simulation_steps,
         default='checkm',
         help='run step')
@@ -158,23 +170,30 @@ def main():
     parser_simulation.set_defaults(func=simulation)
 
     parser_workflow.add_argument(
+        '-r',
+        '--rmhost',
+        action='store_true',
+        default=False,
+        help='need to remove host sequence? default: False')
+    parser_workflow.add_argument(
         '-u',
         '--step',
         type=str,
-        metavar='<str>',
+        # metavar='<str>',
         default='checkm',
         help='run step')
     parser_workflow._optionals.title = 'arguments'
     parser_workflow.set_defaults(func=workflow)
 
     args = parser.parse_args()
-    #try:
-    if args.version:
-        print("metapipe version %s" % __version__)
-        sys.exit(0)
-    args.func(args)
-    #except AttributeError as e:
-    #    parser.print_help()
+    try:
+        if args.version:
+            print("metapipe version %s" % __version__)
+            sys.exit(0)
+        args.func(args)
+    except AttributeError as e:
+        print(e)
+        parser.print_help()
 
 
 if __name__ == '__main__':
