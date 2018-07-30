@@ -2,22 +2,17 @@ params:
   cluster:
     queue: "st.q"
     project: "st.m"
-  simulate:
+  simulation:
     taxid: ["362948", "321967", "1125630", "702459", "226186", "272563"]
+    genomes: ''
+    n_genomes: 6
+    n_reads: "20M"
     model:  "hiseq"
-    output_prefix:
-      X10: "simulate_10X"
-      X50: "simulate_50X"
-      X100: "simulate_100X"
-    coverage:
-      X10: "2M"
-      X50: "10M"
-      X100: "20M"
+    output_prefix: "simulate"
     threads: 8
   trim:
     qual_type: "sanger"
     sickle_pe: ""
-    sickle_se: ""
     length_cutoff: 45
     qual_cutoff: 20
   rmhost:

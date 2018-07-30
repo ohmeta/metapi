@@ -5,6 +5,27 @@ import os
 from ruamel.yaml import YAML
 
 
+def parse_yaml(yaml_file):
+    yaml = YAML()
+    try:
+        with open(yaml_file) as f:
+            try:
+                return yaml.load(f)
+            except yaml.YAMLError as exc:
+                print(exc)
+    except FileNotFoundError as e:
+        print(e)
+
+
+def update_config(yaml_file_old, yaml_file_new, yaml_content, remove=True):
+    yaml = YAML()
+    yaml.default_flow_style = False
+    if remove:
+        os.remove(yaml_file_old)
+    with open(yaml_file_new, 'w') as f:
+        yaml.dump(yaml_content, f)
+
+
 class config:
     '''
     config project directory
@@ -42,9 +63,7 @@ class config:
         '''
         get default configuration
         '''
-        yaml = YAML()
-        with open(self.config_file) as conf_in:
-            try:
-                return yaml.load(conf_in)
-            except yaml.YAMLError as exc:
-                print(exc)
+        config = parse_yaml(self.config_file)
+        config["snakefile"] = self.snake_file
+        config["configfile"] = self.new_config_file
+        return config
