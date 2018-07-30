@@ -23,6 +23,7 @@ workflow_steps = [
 def initialization(args):
     if args.workdir:
         project = metaconfig.config(args.workdir)
+        print(project.__str__())
         project.create_dirs()
         config = project.get_config()
 

@@ -1,12 +1,12 @@
 simulate_output = expand(
     [
         "{simulate}/species_metadata.tsv", "{simulate}/merged_genome.fasta",
-        "{simulate}/{out_prefix}_{read}.fastq",
+        "{simulate}/{out_prefix}.{read}.fastq",
         "{simulate}/{out_prefix}_abundance.txt"
     ],
-    simulate=config["results"]["simulate"]["genome"],
-    out_prefix=config["params"]["simulate"]["output_prefix"]["X100"],
-    read=["R1", "R2"])
+    simulate=config["results"]["simulate"]["genomes"],
+    out_prefix=config["params"]["simulate"]["output_prefix"],
+    read=["1", "2"])
 
 fastqc_output = expand(
     "{fastqc}/{sample}_{read}_fastqc.{out}",

@@ -61,8 +61,8 @@ results:
   host:
     fasta: "results/host/host.fa"
     prefix: "results/host/host.fa"
-  simulate:
-    genome: "results/simulate"
+  simulation:
+    genomes: "results/simulate"
   raw:
     samples: "results/00.raw/samples.tsv"
     fastqc: "results/00.raw/fastqc"
@@ -79,6 +79,7 @@ results:
   annotation: "results/09.annotation"
 
 logs:
+  simulation:
   trim: "assay/01.trim/logs"
   rmhost: "assay/02.rmhost/logs"
   assembly:
