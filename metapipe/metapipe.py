@@ -7,11 +7,10 @@ import shutil
 import subprocess
 import sys
 
-import yaml
+from ruamel.yaml import YAML
 
 import metaconfig
 import metasample
-from snakemake.utils import update_config
 
 __version__ = "0.1.0"
 
@@ -22,40 +21,34 @@ simulation_steps = [
 ]
 
 workflow_steps = [
-    "fastqc", "trim", "rmhost", "qc_report", "assembly",
-    "alignment", "binning", "checkm", "dereplication", "classification",
-    "annotation"
+    "fastqc", "trim", "rmhost", "qc_report", "assembly", "alignment",
+    "binning", "checkm", "dereplication", "classification", "annotation"
 ]
 
 
 def initialization(args):
     if args.workdir:
-        proj = metaconfig.config(args.workdir)
-        proj.create_dirs()
-        default_config = proj.get_config()
-        #print(type(default_config))
+        project = metaconfig.config(args.workdir)
+        project.create_dirs()
+        default_config = project.get_config()
 
-        #config = {}
-        #config["params"] = {}
-        #config["params"]["cluster"] = {}
-        #config["results"] = {}
-        #config["results"]["raw"] = {}
+        if default_config:
+            if args.queue:
+                default_config["params"]["cluster"]["queue"] = args.queue
+            if args.project:
+                default_config["params"]["cluster"]["project"] = args.project
+            if args.samples:
+                default_config["results"]["raw"]["samples"] = args.samples
 
-        if args.queue:
-            default_config["params"]["cluster"]["queue"] = args.queue
-        if args.project:
-            default_config["params"]["cluster"]["project"] = args.project
-        if args.samples:
-            default_config["results"]["raw"]["samples"] = args.samples
-
-        #update_config(default_config, config)
-        #config = default_config
-
-        with open(proj.new_config_file, 'w') as conf_out:
-            yaml.dump(default_config, conf_out)
-            print("hello")
+            yaml = YAML()
+            yaml.default_flow_style = False
+            with open(project.new_config_file, 'w') as conf_out:
+                yaml.dump(default_config, conf_out)
+                yaml.dump(default_config, sys.stdout)
+        else:
+            print("parse metaconfig.yaml error!")
     else:
-        print("please supply a workdir")
+        print("please supply a workdir!")
 
 
 def simulation(args):
@@ -70,8 +63,7 @@ def main():
     parser = argparse.ArgumentParser(
         prog='metapipe',
         usage='metapipe [subcommand] [options]',
-        description='metapipe, a metagenomics data process pipeline'
-    )
+        description='metapipe, a metagenomics data process pipeline')
     parser.add_argument(
         '-v',
         '--version',
@@ -79,8 +71,7 @@ def main():
         default=False,
         help='print software version and exit')
     subparsers = parser.add_subparsers(
-        title='available subcommands',
-        metavar='')
+        title='available subcommands', metavar='')
     parser_init = subparsers.add_parser(
         'init',
         prog='metapipe init',
@@ -98,39 +89,20 @@ def main():
         help='a workflow on real metagenomics data')
 
     parser_init.add_argument(
-        '-q',
-        '--queue',
-        default='st.q',
-        help='cluster queue')
+        '-q', '--queue', default='st.q', help='cluster queue')
     parser_init.add_argument(
-        '-p',
-        '--project',
-        help='project id')
+        '-p', '--project', default='st.m', help='project id')
     parser_init.add_argument(
-        '-d',
-        '--workdir',
-        help='project working directory')
-    parser_init.add_argument(
-        '-s',
-        '--samples',
-        help='raw fastq samples list')
+        '-d', '--workdir', help='project working directory')
+    parser_init.add_argument('-s', '--samples', help='raw fastq samples list')
     parser_init._optionals.title = 'arguments'
     parser_init.set_defaults(func=initialization)
 
+    parser_simulation.add_argument('-t', '--taxid', help='species id')
     parser_simulation.add_argument(
-        '-t',
-        '--taxid',
-        help='species id')
+        '-g', '--genomes', metavar='<genomes.fasta>', help='genomes fasta')
     parser_simulation.add_argument(
-        '-g',
-        '--genomes',
-        metavar='<genomes.fasta>',
-        help='genomes fasta')
-    parser_simulation.add_argument(
-        '-c',
-        '--coverage',
-        default=100,
-        help='reads coverage, default: 100X')
+        '-c', '--coverage', default=100, help='reads coverage, default: 100X')
     parser_simulation.add_argument(
         '-m',
         '--model',
@@ -138,18 +110,12 @@ def main():
         default='hiseq',
         help='reads error model, default: hiseq')
     parser_simulation.add_argument(
-        '-u',
-        '--until',
-        default='checkm',
-        help='run step')
+        '-u', '--until', default='checkm', help='run step')
     parser_simulation._optionals.title = 'arguments'
     parser_simulation.set_defaults(func=simulation)
 
     parser_workflow.add_argument(
-        '-u',
-        '--until',
-        default='checkm',
-        help='run step')
+        '-u', '--until', default='checkm', help='run step')
     parser_workflow._optionals.title = 'arguments'
     parser_workflow.set_defaults(func=workflow)
 
