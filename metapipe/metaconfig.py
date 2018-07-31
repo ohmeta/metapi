@@ -30,7 +30,9 @@ class config:
     '''
     config project directory
     '''
-    sub_dirs = ["assay", "results", "results", "scripts", "sources", "study"]
+    sub_dirs = [
+        "assay", "results", "results/00.raw", "scripts", "sources", "study"
+    ]
 
     def __init__(self, work_dir):
         self.work_dir = os.path.realpath(work_dir)

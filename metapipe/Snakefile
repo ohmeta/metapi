@@ -18,7 +18,7 @@ def _get_raw_fastq(wildcards, read_pair="fq1"):
     return _samples.loc[wildcards.sample, [read_pair]].dropna()[0]
 
 include: "rules/step.smk"
-include: "rules/simulate.smk"
+include: "rules/simulation.smk"
 include: "rules/fastqc.smk"
 include: "rules/trim.smk"
 include: "rules/rmhost.smk"

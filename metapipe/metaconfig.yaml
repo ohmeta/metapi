@@ -6,7 +6,7 @@ params:
     taxid: ["362948", "321967", "1125630", "702459", "226186", "272563"]
     genomes: ''
     n_genomes: 6
-    n_reads: "20M"
+    n_reads: "5M"
     model:  "hiseq"
     output_prefix: "simulate"
     threads: 8
@@ -59,10 +59,10 @@ params:
 results:
   config: "metaconfig.yaml"
   host:
-    fasta: "results/host/host.fa"
-    prefix: "results/host/host.fa"
+    fasta: "results/00.host/host.fa"
+    prefix: "results/00.host/host.fa"
   simulation:
-    genomes: "results/simulate"
+    genomes: "results/00.simulation"
   raw:
     samples: "results/00.raw/samples.tsv"
     fastqc: "results/00.raw/fastqc"

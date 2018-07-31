@@ -33,20 +33,22 @@ rule genome_simulate:
     input:
         os.path.join(config["results"]["simulation"]["genomes"], "merged_genome.fasta")
     output:
-        r1 = os.path.join(config["results"]["simulation"]["genomes"], "simulate_100X.1.fastq"),
-        r2 = os.path.join(config["results"]["simulation"]["genomes"], config["results"]["simulation"]["out_prefix"]".2.fastq"),
-        abundance = os.path.join(config["results"]["simulation"]["genomes"], "simulate_100X_abundance.txt")
+        r1 = os.path.join(config["results"]["simulation"]["genomes"], config["params"]["simulation"]["output_prefix"] + ".1.fq.gz"),
+        r2 = os.path.join(config["results"]["simulation"]["genomes"], config["params"]["simulation"]["output_prefix"] + ".2.fq.gz"),
+        abundance = os.path.join(config["results"]["simulation"]["genomes"], config["params"]["simulation"]["output_prefix"] + "_abundance.txt")
     params:
         model = config["params"]["simulation"]["model"],
-        n_genomes = len(config["params"]["simulation"]["taxid"]),
+        n_genomes = config["params"]["simulation"]["n_genomes"],
         n_reads = config["params"]["simulation"]["n_reads"],
-        output_prefix = os.path.join(config["results"]["simulation"]["genomes"],
+        prefix = os.path.join(config["results"]["simulation"]["genomes"],
                                      config["params"]["simulation"]["output_prefix"])
     threads:
-        config["params"]["simulate"]["threads"]
+        config["params"]["simulation"]["threads"]
     shell:
         '''
-        iss generate --cpus {threads} --genomes {input} --n_genomes {params.n_genomes} --n_reads {params.n_reads} --model {params.model} --output {params.output_prefix}
-        mv {config["results"]["simulate"]["genome"]/simulate_100X_R1.fastq} {output.r1}
-        mv {config["results"]["simulate"]["genome"]/simulate_100X_R2.fastq} {output.r2}
+        iss generate --cpus {threads} --genomes {input} --n_genomes {params.n_genomes} --n_reads {params.n_reads} --model {params.model} --output {params.prefix}
+        pigz {params.prefix}_R1.fastq
+        pigz {params.prefix}_R2.fastq
+        mv {params.prefix}_R1.fastq.gz {output.r1}
+        mv {params.prefix}_R2.fastq.gz {output.r2}
         '''

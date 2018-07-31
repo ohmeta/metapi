@@ -4,6 +4,8 @@ import argparse
 import os
 import sys
 
+import pandas
+
 import metaconfig
 
 __version__ = "0.1.0"
@@ -57,7 +59,28 @@ def simulation(args):
             config["params"]["simulation"]["n_reads"] = args.n_reads
         if args.model:
             config["params"]["simulation"]["model"] = args.model
+        if args.output_prefix:
+            config["params"]["simulation"][
+                "output_prefix"] = args.output_prefix
         metaconfig.update_config(config_file, config_file, config, remove=True)
+        r1 = os.path.join(
+            config["results"]["simulation"]["genomes"],
+            config["params"]["simulation"]["output_prefix"] + ".1.fq.gz")
+        r2 = os.path.join(
+            config["results"]["simulation"]["genomes"],
+            config["params"]["simulation"]["output_prefix"] + ".2.fq.gz")
+        samples_df = pandas.DataFrame(
+            {
+                "id": config["params"]["simulation"]["output_prefix"],
+                "fq1": r1,
+                "fq2": r2
+            },
+            index=['id'])
+        samples_df.to_csv(
+            config["results"]["raw"]["samples"],
+            sep='\t',
+            index=False,
+            columns=["id", "fq1", "fq2"])
     else:
         print("please supply a workdir!")
         sys.exit(1)
@@ -154,14 +177,19 @@ def main():
         '--n_reads',
         type=str,
         metavar='<str>',
-        default='20M',
-        help='reads coverage, default: 20M')
+        default='5M',
+        help='reads coverage, default: 5M')
     parser_simulation.add_argument(
         '-m',
         '--model',
         choices=['hiseq', 'novaseq', 'miseq'],
         default='hiseq',
         help='reads error model, default: hiseq')
+    parser_simulation.add_argument(
+        '-p',
+        '--output_prefix',
+        default='simulation',
+        help='reads prefix, eg: simulation.1.fq, simulation.2.fq')
     parser_simulation.add_argument(
         '-u',
         '--step',
