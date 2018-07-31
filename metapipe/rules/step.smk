@@ -53,10 +53,11 @@ alignment_output = expand(
 
 metabat2_output = expand(
     [
-        "{depth}/{sample}.metabat2.depth.txt", "{logs}/{sample}.metabat2.done",
-        "{logs}/{sample}.metabat2.log"
+        "{depth}/{sample}.metabat2.depth.txt", "{bins}/{sample}.metabat2_out",
+        "{logs}/{sample}.metabat2.done", "{logs}/{sample}.metabat2.log"
     ],
     depth=config["results"]["binning"]["depth"],
+    bins=config["results"]["binning"]["bins"],
     logs=config["logs"]["binning"]["metabat2"],
     sample=_samples.index)
 
@@ -71,11 +72,9 @@ maxbin2_output = expand(
     sample=_samples.index)
 
 checkm_output = expand(
-    [
-        "{checkm}/checkm_out/{sample}.checkm.txt",
-        "{checkm}/checkm_data/{sample}.checkm_out/"
-    ],
-    checkm=config["results"]["checkm"],
+    ["{out}/{sample}.checkm.txt", "{data}/{sample}"],
+    out=config["results"]["checkm"]["out"],
+    data=config["results"]["checkm"]["data"],
     sample=_samples.index)
 '''
 dereplication_output = expand(

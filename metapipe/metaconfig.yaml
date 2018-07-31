@@ -45,7 +45,7 @@ params:
       min_contig: 2500
       seed: 2018
     maxbin2:
-      do: True
+      do: False
       threads: 8
   checkm:
     env: "bioenv2"
@@ -73,7 +73,10 @@ results:
   binning:
     depth: "results/05.binning/coverage"
     bins: "results/05.binning/bins"
-  checkm: "results/06.checkm"
+  checkm:
+    links: "results/06.checkm/checkm_input"
+    out: "results/06.checkm/checkm_out"
+    data: "results/06.checkm/checkm_data"
   dereplication: "results/07.dereplication"
   classification: "results/08.classification"
   annotation: "results/09.annotation"

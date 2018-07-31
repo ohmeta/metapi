@@ -4,7 +4,7 @@ rule coverage_metabat2:
     output:
         depth = os.path.join(config["results"]["binning"]["depth"], "{sample}.metabat2.depth.txt")
     params:
-        depth_dir = config["results"]["binning"]["depth"]
+        depth_dir = directory(config["results"]["binning"]["depth"])
     shell:
         '''
         mkdir -p {params.depth_dir}
@@ -28,19 +28,19 @@ rule binning_metabat2:
         asmfa = os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa.gz"),
         depth = os.path.join(config["results"]["binning"]["depth"], "{sample}.metabat2.depth.txt")
     output:
-        default = os.path.join(config["logs"]["binning"]["metabat2"], "{sample}.metabat2.done")
+        default = os.path.join(config["logs"]["binning"]["metabat2"], "{sample}.metabat2.done"),
+        bins_dir = directory(os.path.join(config["results"]["binning"]["bins"], "{sample}.metabat2_out"))
     log:
         os.path.join(config["logs"]["binning"]["metabat2"], "{sample}.metabat2.log")
     params:
-        bins_dir = os.path.join(config["results"]["binning"]["bins"], "{sample}.metabat2_out" ),
         bin_prefix = os.path.join(config["results"]["binning"]["bins"], "{sample}.metabat2_out/{sample}.bin"),
         min_contig = config["params"]["binning"]["metabat2"]["min_contig"],
         seed = config["params"]["binning"]["metabat2"]["seed"]
     shell:
         '''
-        mkdir -p {params.bins_dir}
+        mkdir -p {output.bins_dir}
         metabat2 -i {input.asmfa} -a {input.depth} -o {params.bin_prefix} -m {params.min_contig} --seed {params.seed} -v > {log}
-        touch {output.default}
+        echo "done" > {output.default}
         '''
 
 rule binning_maxbin2:
@@ -50,7 +50,7 @@ rule binning_maxbin2:
     output:
         os.path.join(config["results"]["binning"]["bins"], "{sample}.maxbin2_out/{sample}.bin.summary")
     params:
-        bins_dir = os.path.join(config["results"]["binning"]["bins"], "{sample}.maxbin2_out"),
+        bins_dir = directory(os.path.join(config["results"]["binning"]["bins"], "{sample}.maxbin2_out")),
         bin_prefix = os.path.join(config["results"]["binning"]["bins"], "{sample}.maxbin2_out/{sample}.bin")
     threads:
         config["params"]["binning"]["maxbin2"]["threads"]
