@@ -65,10 +65,10 @@ def simulation(args):
         metaconfig.update_config(config_file, config_file, config, remove=True)
         r1 = os.path.join(
             config["results"]["simulation"]["genomes"],
-            config["params"]["simulation"]["output_prefix"] + ".1.fq.gz")
+            config["params"]["simulation"]["output_prefix"] + "_1.fq.gz")
         r2 = os.path.join(
             config["results"]["simulation"]["genomes"],
-            config["params"]["simulation"]["output_prefix"] + ".2.fq.gz")
+            config["params"]["simulation"]["output_prefix"] + "_2.fq.gz")
         samples_df = pandas.DataFrame(
             {
                 "id": config["params"]["simulation"]["output_prefix"],
