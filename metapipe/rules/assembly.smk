@@ -5,8 +5,8 @@ def assembly_inputs(wildcards):
                       sample=wildcards.sample,
                       read=["1", "2"])
     else:
-        return expand("{trim}/{sample}.trimmed.{read}.fq.gz",
-                      trim=config["results"]["trim"],
+        return expand("{trimming}/{sample}.trimmed.{read}.fq.gz",
+                      trimming=config["results"]["trimming"],
                       sample=wildcards.sample,
                       read=["1", "2"])
 

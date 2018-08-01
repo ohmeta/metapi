@@ -20,7 +20,7 @@ def _get_raw_fastq(wildcards, read_pair="fq1"):
 include: "rules/step.smk"
 include: "rules/simulation.smk"
 include: "rules/fastqc.smk"
-include: "rules/trim.smk"
+include: "rules/trimming.smk"
 include: "rules/rmhost.smk"
 # include: "rules/qcreport.smk"
 include: "rules/assembly.smk"

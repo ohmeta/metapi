@@ -16,11 +16,20 @@ fastqc_output = expand(
     read=["1", "2"],
     out=["html", "zip"])
 
-trim_output = expand(
-    "{trim}/{sample}.trimmed.{read}.fq.gz",
-    trim=config["results"]["trim"],
+sickle_output = expand(
+    "{trimming}/{sample}.trimmed.{read}.fq.gz",
+    trimming=config["results"]["trimming"],
     sample=_samples.index,
     read=["1", "2", "single"])
+
+fastp_output = expand(
+    [
+        "{trimming}/{sample}.trimmed.{read}.fq.gz",
+        "{trimming}/{sample}.fastp.html", "{trimming}/{sample}.fastp.json"
+    ],
+    sample=_samples.index,
+    trimming=config["results"]["trimming"],
+    read=["1", "2"])
 
 rmhost_output = expand(
     [
@@ -90,8 +99,13 @@ annotation_output = expand(
 )
 '''
 
-trim_target = (fastqc_output + trim_output)
-rmhost_target = (trim_target + rmhost_output)
+if config["params"]["trimming"]["sickle"]["do"]:
+    trimming_output = (sickle_output)
+if config["params"]["trimming"]["fastp"]["do"]:
+    trimming_output = (fastp_output)
+trimming_target = (fastqc_output + trimming_output)
+
+rmhost_target = (trimming_target + rmhost_output)
 
 if config["params"]["assembly"]["megahit"]["do"]:
     assembly_output = (megahit_output)
@@ -103,7 +117,7 @@ if config["params"]["assembly"]["metaspades"]["do"]:
 if config["params"]["rmhost"]["do"]:
     assembly_target = (rmhost_target + assembly_output)
 else:
-    assembly_target = (trim_target + assembly_output)
+    assembly_target = (trimming_target + assembly_output)
 
 alignment_target = (assembly_target + alignment_output)
 
@@ -120,5 +134,5 @@ classification_target = (drep_target + classification_output)
 annotation_target = (classification_target + annotation_output)
 '''
 
-all_target = (fastqc_output + trim_output + rmhost_output + assembly_output +
-              alignment_output + binning_output + checkm_output)
+all_target = (fastqc_output + trimming_output + rmhost_output + assembly_output
+              + alignment_output + binning_output + checkm_output)

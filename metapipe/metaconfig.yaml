@@ -10,11 +10,20 @@ params:
     model:  "hiseq"
     output_prefix: "simulate"
     threads: 8
-  trim:
-    qual_type: "sanger"
-    sickle_pe: ""
-    length_cutoff: 45
-    qual_cutoff: 20
+  trimming:
+    sickle:
+      do: False
+      qual_type: "sanger"
+      sickle_pe: ""
+      length_cutoff: 51
+      qual_cutoff: 20
+    fastp:
+      do: True
+      threads: 8
+      disable_adapter_trimming: True
+      compression: 6
+      cut_mean_quality: 20
+      length_required: 51
   rmhost:
     do: False
     bwa_mem_threads: 8
@@ -52,12 +61,11 @@ params:
     threads: 8
     completeness: 90
     contamination: 10
-  drep: ""
+  dereplication: ""
   classification: ""
   annotation: ""
 
 results:
-  config: "metaconfig.yaml"
   host:
     fasta: "results/00.host/host.fa"
     prefix: "results/00.host/host.fa"
@@ -66,7 +74,7 @@ results:
   raw:
     samples: "results/00.raw/samples.tsv"
     fastqc: "results/00.raw/fastqc"
-  trim: "results/01.trim"
+  trimming: "results/01.trimming"
   rmhost: "results/02.rmhost"
   assembly: "results/03.assembly"
   alignment: "results/04.alignment"
@@ -83,7 +91,7 @@ results:
 
 logs:
   simulation:
-  trim: "assay/01.trim/logs"
+  trimming: "assay/01.trimming/logs"
   rmhost: "assay/02.rmhost/logs"
   assembly:
     megahit: "assay/03.assembly/megahit_logs"
@@ -94,6 +102,6 @@ logs:
     metabat2: "assay/05.binning/metabat2_logs"
     maxbin2: "assay/05.binning/maxbin2_logs"
   checkm: "assay/06.checkm/logs"
-  drep: "assay/07.drep/logs"
+  dereplication: "assay/07.dereplication/logs"
   classification: "assay/08.classification/logs"
   annotation: "assay/09.annotation/logs"

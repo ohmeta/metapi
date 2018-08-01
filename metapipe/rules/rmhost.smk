@@ -14,8 +14,8 @@ if not os.path.exists(os.path.join(config["results"]["host"]["prefix"], "bwt")):
 
 rule rmhost:
     input:
-        reads = expand("{trim}/{{sample}}.trimmed.{read}.fq.gz",
-                       trim=config["results"]["trim"],
+        reads = expand("{trimming}/{{sample}}.trimmed.{read}.fq.gz",
+                       trimming=config["results"]["trimming"],
                        read=["1", "2"]),
         index = expand("{prefix}.{suffix}",
                        prefix=config["results"]["host"]["prefix"],
