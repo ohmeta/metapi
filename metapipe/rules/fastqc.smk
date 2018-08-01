@@ -3,7 +3,7 @@ rule fastqc:
         r1 = lambda wildcards: _get_raw_fastq(wildcards, "fq1"),
         r2 = lambda wildcards: _get_raw_fastq(wildcards, "fq2")
     output:
-        outfile = expand("{fastqc}/{{sample}}.{read}_fastqc.{out}",
+        outfile = expand("{fastqc}/{{sample}}_{read}_fastqc.{out}",
                          fastqc=config["results"]["raw"]["fastqc"],
                          read=["1", "2"],
                          out=["html", "zip"])

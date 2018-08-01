@@ -33,8 +33,8 @@ rule genome_simulate:
     input:
         os.path.join(config["results"]["simulation"]["genomes"], "merged_genome.fasta")
     output:
-        r1 = os.path.join(config["results"]["simulation"]["genomes"], config["params"]["simulation"]["output_prefix"] + ".1.fq.gz"),
-        r2 = os.path.join(config["results"]["simulation"]["genomes"], config["params"]["simulation"]["output_prefix"] + ".2.fq.gz"),
+        r1 = os.path.join(config["results"]["simulation"]["genomes"], config["params"]["simulation"]["output_prefix"] + "_1.fq.gz"),
+        r2 = os.path.join(config["results"]["simulation"]["genomes"], config["params"]["simulation"]["output_prefix"] + "_2.fq.gz"),
         abundance = os.path.join(config["results"]["simulation"]["genomes"], config["params"]["simulation"]["output_prefix"] + "_abundance.txt")
     params:
         model = config["params"]["simulation"]["model"],

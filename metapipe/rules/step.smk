@@ -2,7 +2,7 @@ simulation_output = expand(
     [
         "{simulation}/species_metadata.tsv",
         "{simulation}/merged_genome.fasta",
-        "{simulation}/{output_prefix}.{read}.fq.gz",
+        "{simulation}/{output_prefix}_{read}.fq.gz",
         "{simulation}/{output_prefix}_abundance.txt"
     ],
     simulation=config["results"]["simulation"]["genomes"],
@@ -10,7 +10,7 @@ simulation_output = expand(
     read=["1", "2"])
 
 fastqc_output = expand(
-    "{fastqc}/{sample}.{read}_fastqc.{out}",
+    "{fastqc}/{sample}_{read}_fastqc.{out}",
     fastqc=config["results"]["raw"]["fastqc"],
     sample=_samples.index,
     read=["1", "2"],
