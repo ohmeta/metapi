@@ -10,7 +10,7 @@ simulation_output = expand(
     read=["1", "2"])
 
 fastqc_output = expand(
-    "{fastqc}/{sample}_{read}_fastqc.{out}",
+    "{fastqc}/{sample}.{read}_fastqc.{out}",
     fastqc=config["results"]["raw"]["fastqc"],
     sample=_samples.index,
     read=["1", "2"],
