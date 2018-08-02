@@ -74,6 +74,7 @@ results:
   raw:
     samples: "results/00.raw/samples.tsv"
     fastqc: "results/00.raw/fastqc"
+    multiqc: "results/00.raw/multiqc"
   trimming: "results/01.trimming"
   rmhost: "results/02.rmhost"
   assembly: "results/03.assembly"
@@ -91,6 +92,9 @@ results:
 
 logs:
   simulation:
+  raw:
+    fastqc: "assay/00.raw/fastqc_logs"
+    multiqc: "assay/00.raw/multiqc_logs"
   trimming: "assay/01.trimming/logs"
   rmhost: "assay/02.rmhost/logs"
   assembly:

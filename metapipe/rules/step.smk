@@ -10,8 +10,13 @@ simulation_output = expand(
     read=["1", "2"])
 
 fastqc_output = expand(
-    "{fastqc}/{sample}_{read}_fastqc.{out}",
+    [
+        "{fastqc}/{sample}_{read}_fastqc.{out}",
+        "{multiqc}/fastqc_multiqc_report.html",
+        "{multiqc}/fastqc_multiqc_report_data"
+    ],
     fastqc=config["results"]["raw"]["fastqc"],
+    multiqc=config["results"]["raw"]["multiqc"],
     sample=_samples.index,
     read=["1", "2"],
     out=["html", "zip"])
@@ -99,10 +104,11 @@ annotation_output = expand(
 )
 '''
 
+trimming_output = []
 if config["params"]["trimming"]["sickle"]["do"]:
     trimming_output = (sickle_output)
 if config["params"]["trimming"]["fastp"]["do"]:
-    trimming_output = (fastp_output)
+    trimming_output = (trimming_output + fastp_output)
 trimming_target = (fastqc_output + trimming_output)
 
 rmhost_target = (trimming_target + rmhost_output)
