@@ -1,8 +1,8 @@
 if config["params"]["trimming"]["sickle"]["do"]:
     rule trimming_sickle:
         input:
-            r1 = lambda wildcards: _get_raw_fastq(wildcards, "fq1"),
-            r2 = lambda wildcards: _get_raw_fastq(wildcards, "fq2")
+            r1 = lambda wildcards: get_sample_id(_samples, wildcards, "fq1"),
+            r2 = lambda wildcards: get_sample_id(_samples, wildcards, "fq2")
         output:
             expand("{trim}/{{sample}}.trimmed.{read}.fq.gz",
                    trim=config["results"]["trimming"],
@@ -26,8 +26,8 @@ if config["params"]["trimming"]["sickle"]["do"]:
 if config["params"]["trimming"]["fastp"]["do"]:
     rule trimming_fastp:
         input:
-            r1 = lambda wildcards: _get_raw_fastq(wildcards, "fq1"),
-            r2 = lambda wildcards: _get_raw_fastq(wildcards, "fq2")
+            r1 = lambda wildcards: get_sample_id(_samples, wildcards, "fq1"),
+            r2 = lambda wildcards: get_sample_id(_samples, wildcards, "fq2")
         output:
             r1 = os.path.join(config["results"]["trimming"], "{sample}.trimmed.1.fq.gz"),
             r2 = os.path.join(config["results"]["trimming"], "{sample}.trimmed.2.fq.gz"),

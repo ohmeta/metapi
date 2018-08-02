@@ -98,11 +98,15 @@ dereplication_output = expand(
 classification_output = expand(
 
 )
-
-annotation_output = expand(
-
-)
 '''
+annotation_output = expand(
+    "{prokka}/{bin}/{bin}.{suffix}",
+    prokka=config["results"]["annotation"]["prokka"],
+    suffix=[
+        "gff", "gbk", "fna", "faa", "ffn", "sqn", "fsa", "tbl", "err", "log",
+        "txt", "tsv"
+    ],
+    bin=_bins.index)
 
 trimming_output = []
 if config["params"]["trimming"]["sickle"]["do"]:
@@ -133,12 +137,16 @@ if config['params']["binning"]["maxbin2"]["do"]:
     binning_output = (binning_output + maxbin2_output)
 
 binning_target = (alignment_target + binning_output)
+
 checkm_target = (binning_target + checkm_output)
+
+annotation_target = (checkm_target + annotation_output)
 '''
 dereplication_target = (cehckm_target + dereplication_output)
 classification_target = (drep_target + classification_output)
 annotation_target = (classification_target + annotation_output)
 '''
 
-all_target = (fastqc_output + trimming_output + rmhost_output + assembly_output
-              + alignment_output + binning_output + checkm_output)
+all_target = (
+    fastqc_output + trimming_output + rmhost_output + assembly_output +
+    alignment_output + binning_output + checkm_output + annotation_output)

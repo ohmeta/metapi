@@ -1,25 +1,30 @@
 #!/usr/bin/env python
 
+import glob
 import os
-import re
-import shutil
 
 import pandas
 
 
-def parse_samples(sample_tsv):
-    samples = {}
-    with open(sample_tsv, 'r') as sample_h:
-        next(sample_h)
-        for line in sample_h:
-            id, r1, r2 = re.split(r'\t+', line.strip())
-            # assert r1.rstrip("_1.fq.gz") == r2.rstrip("_2.fq.gz"), "wrong paired names"
-            # sample_id = os.path.basename(r1).rstrip("_1.fq.gz")
-            # samples[sample_id] = [r1, r2]
-            samples[id] = [r1, r2]
-    return samples
-
-
-def samples_df(samples_tsv):
+def parse_samples(samples_tsv):
     samples = pandas.read_table(samples_tsv).set_index("id", drop=False)
     return samples
+
+
+def parse_bins(bins_dir):
+    bin_list = []
+    for bin in glob.glob(bins_dir + "/*/*bin*fa"):
+        bin_dict = {}
+        bin_dict["path"] = bin.strip()
+        bin_dict["id"] = os.path.basename(bin).rstrip(".fa")
+        bin_list.append(bin_dict)
+    bins = pandas.DataFrame(bin_list).set_index("id", drop=False)
+    return bins
+
+
+def get_sample_id(sample_df, wildcards, col):
+    return sample_df.loc[wildcards.sample, [col]].dropna()[0]
+
+
+def get_bin_id(bin_df, wildcards, col):
+    return bin_df.loc[wildcards.bin, [col]].dropna()[0]

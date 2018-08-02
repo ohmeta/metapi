@@ -1,7 +1,7 @@
 rule fastqc:
     input:
-        r1 = lambda wildcards: _get_raw_fastq(wildcards, "fq1"),
-        r2 = lambda wildcards: _get_raw_fastq(wildcards, "fq2")
+        r1 = lambda wildcards: get_sample_id(_samples, wildcards, "fq1"),
+        r2 = lambda wildcards: get_sample_id(_samples, wildcards, "fq2")
     output:
         outfile = expand("{fastqc}/{{sample}}_{read}_fastqc.{out}",
                          fastqc=config["results"]["raw"]["fastqc"],

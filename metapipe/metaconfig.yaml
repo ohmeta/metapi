@@ -63,7 +63,11 @@ params:
     contamination: 10
   dereplication: ""
   classification: ""
-  annotation: ""
+  annotation:
+    prokka:
+      kingdom: Bacteria
+      metagenome: False
+      threads: 8
 
 results:
   host:
@@ -88,7 +92,8 @@ results:
     data: "results/06.checkm/checkm_data"
   dereplication: "results/07.dereplication"
   classification: "results/08.classification"
-  annotation: "results/09.annotation"
+  annotation:
+    prokka: "results/09.annotation/prokka"
 
 logs:
   simulation:
@@ -108,4 +113,5 @@ logs:
   checkm: "assay/06.checkm/logs"
   dereplication: "assay/07.dereplication/logs"
   classification: "assay/08.classification/logs"
-  annotation: "assay/09.annotation/logs"
+  annotation:
+    prokka: "assay/09.annotation/prokka_logs"
