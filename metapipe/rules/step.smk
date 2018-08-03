@@ -100,13 +100,9 @@ classification_output = expand(
 )
 '''
 annotation_output = expand(
-    "{prokka}/{bin}/{bin}.{suffix}",
+    "{prokka}/{sample}.prokka_out",
     prokka=config["results"]["annotation"]["prokka"],
-    suffix=[
-        "gff", "gbk", "fna", "faa", "ffn", "sqn", "fsa", "tbl", "err", "log",
-        "txt", "tsv"
-    ],
-    bin=_bins.index)
+    sample=_samples.index)
 
 trimming_output = []
 if config["params"]["trimming"]["sickle"]["do"]:
