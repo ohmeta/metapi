@@ -1,8 +1,9 @@
-_bins = parse_bins(config["results"]["binning"]["bins"])
+# _bins = parse_bins(config["results"]["binning"]["bins"])
 
 rule prokka_bins:
     input:
-        lambda wildcards: get_bin_id(_bins, wildcards, "path")
+        #lambda wildcards: get_bin_id(_bins, wildcards, "path")
+        directory(os.path.join(config["results"]["binning"]["bins"], "{sample}.metabat2_out"))
     output:
         file = expand("{prokka}/{{bin}}/{{bin}}.{suffix}",
                       prokka=config["results"]["annotation"]["prokka"],
@@ -15,7 +16,7 @@ rule prokka_bins:
         metagenome = "--metagenome" if config["params"]["annotation"]["prokka"]["metagenome"] else ""
     threads:
         config["params"]["annotation"]["prokka"]["threads"]
-    shell:
+    run:
         '''
         prokka {input} --outdir {params.outdir} --prefix {bin} --kingdom {params.kingdom} {params.metagenome} --cpus {threads} 2> {log}
         '''
