@@ -4,6 +4,7 @@ import sys
 
 program_list = ["sickle", "bwa", "samtools", "megahit", "metabat2", "pigz"]
 
+
 def checking_dependencies(program_list):
     install = []
     exit = False
@@ -27,5 +28,6 @@ def checking_dependencies(program_list):
                 print("conda install %s" % install_info)
             print("conda install -c ursky metabat2")
         sys.exit()
+
 
 checking_dependencies(program_list)

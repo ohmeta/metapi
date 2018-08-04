@@ -3,7 +3,7 @@ import os
 
 import setuptools
 
-long_description = open('README.md').read()
+long_description = "a metagenomics data processing pipeline to help research"
 
 
 def get_version(relpath):
@@ -21,8 +21,8 @@ setuptools.setup(
     version=get_version("metapipe/__init__.py"),
     url='https://github.com/ohmeta/metapipe',
     license='MIT',
-    author='Jie Zhu and Jiahui Zhu',
-    author_email='zhujie@genomics.cn, zhujiahui@genomics.cn',
+    author='Jie Zhu',
+    author_email='zhujie@genomics.cn',
     description='a metagenomics data processing pipeline to help research',
     long_description=long_description,
     packages=['metapipe'],
@@ -40,7 +40,6 @@ setuptools.setup(
                        'metapipe/rules/classification.smk',
                        'metapipe/rules/annotation.smk',
                        'metapipe/rules/profilling.smk',
-                       'metapipe/utils/OAs1',
                        'metapipe/__init__.py',
                        'metapipe/metapipe.py',
                        'metapipe/metacheck.py',
@@ -50,7 +49,7 @@ setuptools.setup(
                        'metapipe/metacluster.yaml',
                        'metapipe/metaconfig.yaml']},
     include_package_data=True,
-    install_requires=[],
+    install_requires=["pandas", "ruamel.yaml"],
     entry_points={},
     classifiers=["Topic :: Scientific/Engineering:: Bio-Informatics"],
 )

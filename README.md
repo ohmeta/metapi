@@ -1,11 +1,11 @@
-# **metapipe**  (work in process)
+# **metapipe**
 
 hello, metagenomics!
 
 ## brother project
 
-* [sunbeam](https://github.com/sunbeam-labs/sunbeam)
 * [atlas](https://github.com/pnnl/atlas)
+* [sunbeam](https://github.com/sunbeam-labs/sunbeam)
 
 ## motivation
 
@@ -43,10 +43,11 @@ hello, metagenomics!
 * execution module
     ```python
     # Snakefile
+        include: "rules/step.smk"
+        include: "rules/simulation.smk"
         include: "rules/fastqc.smk"
-        include: "rules/trim.smk"
+        include: "rules/trimming.smk"
         include: "rules/rmhost.smk"
-        include: "rules/qcreport.smk"
         include: "rules/assembly.smk"
         include: "rules/alignment.smk"
         include: "rules/binning.smk"
@@ -54,6 +55,7 @@ hello, metagenomics!
         include: "rules/dereplication.smk"
         include: "rules/classification.smk"
         include: "rules/annotation.smk"
+        include: "rules/profilling.smk"
     ```
 
 * analysis module
@@ -77,30 +79,36 @@ hello, metagenomics!
 ## install
 
 * install dependencies*
+  * [snakemake](https://snakemake.readthedocs.io)
   * [pigz](https://zlib.net/pigz/)
   * [ncbi-genome-download](https://github.com/kblin/ncbi-genome-download)
+  * [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq)
+  * [OAFilter](https://github.com/Scelta/OAFilter)
   * [sickle](https://github.com/najoshi/sickle)
+  * [fastp](https://github.com/OpenGene/fastp)
+  * [MultiQC](https://github.com/ewels/MultiQC)
   * [bwa](https://github.com/lh3/bwa)
   * [samtools](https://github.com/samtools/samtools)
+  * [bbmap](https://sourceforge.net/projects/bbmap)
   * [spades](https://github.com/ablab/spades)
   * [idba](https://github.com/loneknightpy/idba)
   * [megahit](https://github.com/voutcn/megahit)
-  * [metabat](https://bitbucket.org/berkeleylab/metabat)
-  * [checkm](https://github.com/Ecogenomics/CheckM)
+  * [quast](https://sourceforge.net/projects/quast/)
+  * [MetaBat](https://bitbucket.org/berkeleylab/metabat)
+  * [MaxBin2](http://downloads.jbei.org/data/microbial_communities/MaxBin/MaxBin.html)
+  * [CheckM](https://github.com/Ecogenomics/CheckM)
   * [drep](https://github.com/MrOlm/drep)
-  * [mash](https://github.com/marbl/Mash)
-  * [sourmash](https://github.com/dib-lab/sourmash)
-  * [centrifuge](https://github.com/infphilo/centrifuge)
   * [prokka](https://github.com/tseemann/prokka)
+  * [metaphlan2](https://bitbucket.org/biobakery/metaphlan2)
 
   ```bash
   # in python3 environment
-  conda install pigz snakemake sickle-trim bwa samtools spades idba megahit mash sourmash centrifuge prokka ncbi-genome-download
+  conda install snakemake pigz ncbi-genome-download sickle-trim fastp bwa samtools bbmap spades idba megahit maxbin2 prokka
   conda install -c ursky metabat2
-  pip install drep
+  pip install drep insilicoseq
 
   # in python2 envrionment
-  conda install checkm-genome
+  conda install quast checkm-genome metaphlan2
 
   # database configuration
   wget https://data.ace.uq.edu.au/public/CheckM_databases/checkm_data_2015_01_16.tar.gz
@@ -179,10 +187,3 @@ hello, metagenomics!
     # run on SGE cluster
     snakemake --snakefile metapipe/Snakefile --configfile metapipe/metaconfig.yaml --cores 32 --jobs 80 --cluster "qsub -S /bin/bash -cwd -q {queue} -P {project_id} -l vf=8G,p=8"
     ```
-
-## reference
-
-## contributor
-
-* [alienzj](https://github.com/alienzj)
-* [Margaret Chu](https://github.com/magcurly)
