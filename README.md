@@ -167,7 +167,8 @@ hello, metagenomics!
     ```bash
     # in metapipe directory
     # look
-    snakemake --dag | dot -Tsvg > docs/dat.svg
+    cd metapipe
+    snakemake --dag | dot -Tsvg > ../docs/dat.svg
     ```
     <img src="docs/dat.svg">
 
