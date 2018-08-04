@@ -1,25 +1,15 @@
 # Visual Studio Code
 .vscode
 
-# Data
-data/01.trimmed
-data/02.rmhost
-data/03.assembly
-data/04.alignment
-data/05.binning
-data/host
-data/logs
-
 # Test
-.test/data/01.trimmed
-.test/data/02.assembly
-.test/data/03.alignment
-.test/data/04.binning
-.test/data/05.checkm
-.test/data/logs
+example/basic_test/data/01.trimmed
+example/basic_test/data/02.assembly
+example/basic_test/data/03.alignment
+example/basic_test/data/04.binning
+example/basic_test/data/05.checkm
+example/basic_test/data/logs
 
 # Temp
 .snakemake
-.test/.snakemake.test/data/00.simulate/ref
 
 metapipe/__pycache__/

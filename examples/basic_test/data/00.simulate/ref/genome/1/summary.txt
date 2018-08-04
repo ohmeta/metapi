@@ -1,0 +1,13 @@
+#Summary
+#Generated on	Sat Aug 04 17:08:33 CST 2018
+#Version	5
+chroms	1
+bases	8328537
+defined	8310037
+undefined	18500
+contigs	6
+scaffolds	6
+interpad	500
+source	/home/alienzj/projects/metapipe/examples/basic_test/data/00.simulate/bugs.fa.gz
+bytes	2497907
+last modified	1528599225000

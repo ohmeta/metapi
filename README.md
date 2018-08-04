@@ -12,7 +12,7 @@ hello, metagenomics!
   we all need a metagenomics pipeline for academic research.
 
 ## principle
-  
+
 * bind intelligense together
   * [github](https://github.com/search?q=metagenomics)
   * why we here?
@@ -76,7 +76,7 @@ hello, metagenomics!
 
 ## install
 
-* install dependencies* 
+* install dependencies*
   * [pigz](https://zlib.net/pigz/)
   * [ncbi-genome-download](https://github.com/kblin/ncbi-genome-download)
   * [sickle](https://github.com/najoshi/sickle)
@@ -98,10 +98,10 @@ hello, metagenomics!
   conda install pigz snakemake sickle-trim bwa samtools spades idba megahit mash sourmash centrifuge prokka ncbi-genome-download
   conda install -c ursky metabat2
   pip install drep
-  
+
   # in python2 envrionment
   conda install checkm-genome
-  
+
   # database configuration
   wget https://data.ace.uq.edu.au/public/CheckM_databases/checkm_data_2015_01_16.tar.gz
   mkdir checkm_data
@@ -109,7 +109,7 @@ hello, metagenomics!
   tar -xzvf ../checkm_data_2015_01_16.tar.gz
   cd ..
   ln -s checkm_data checkm_data_latest
-  
+
   # activate python2 environment where checkm in
   checkm data setRoot checkm_data_latest
   ```
@@ -146,13 +146,13 @@ hello, metagenomics!
 * a simulated metagenomics data test(uncomplete)
 
     ```bash
-    # in metapipe/.test directory
-    cd .test
+    # in metapipe/example/basic_test directory
+    cd example/basic_test
 
     # look
     snakemake --dag | dot -Tsvg > dat.svg
     ```
-    <img src=".test/dat.svg">
+    <img src="examples/basic_test/dat.svg">
 
     ```bash
     # run on local
@@ -167,16 +167,16 @@ hello, metagenomics!
     ```bash
     # in metapipe directory
     # look
-    snakemake --dag | dot -Tsvg > dat.svg
+    snakemake --dag | dot -Tsvg > docs/dat.svg
     ```
-    <img src="data/dat.svg">
+    <img src="docs/dat.svg">
 
     ```bash
     # run on local
-    snakemake
+    snakemake --snakefile metapipe/Snakefile --configfile metapipe/metaconfig.yaml
 
     # run on SGE cluster
-    snakemake --jobs 80 --cluster "qsub -S /bin/bash -cwd -q {queue} -P {project_id} -l vf=8G,p=8"
+    snakemake --snakefile metapipe/Snakefile --configfile metapipe/metaconfig.yaml --cores 32 --jobs 80 --cluster "qsub -S /bin/bash -cwd -q {queue} -P {project_id} -l vf=8G,p=8"
     ```
 
 ## reference
