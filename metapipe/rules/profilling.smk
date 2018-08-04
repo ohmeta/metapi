@@ -29,5 +29,5 @@ rule metaphlan2_merge:
         os.path.join(config["logs"]["profilling"]["metaphlan2"], "metaphlan2.merged.log")
     shell:
         '''
-        merge_metaphaln_tables.py {input} > {output} 2> {log}
+        merge_metaphlan_tables.py {input} > {output} 2> {log}
         '''
