@@ -104,6 +104,16 @@ annotation_output = expand(
     prokka=config["results"]["annotation"]["prokka"],
     sample=_samples.index)
 
+profilling_output = expand(
+    ["{bowtie2out}/{sample}.bowtie2.gz",
+     "{profile}/{sample}.metaphlan2.profile",
+     "{metaphlan2}/metaphlan2.merged.profile"],
+    bowtie2out=config["results"]["profilling"]["metaphlan2"]["bowtie2_out"],
+    profile=config["results"]["profilling"]["metaphlan2"]["profile"],
+    metaphlan2=config["results"]["profilling"]["metaphlan2"]["base_dir"],
+    sample=_samples.index)
+
+
 trimming_output = []
 if config["params"]["trimming"]["sickle"]["do"]:
     trimming_output = (sickle_output)
@@ -137,6 +147,8 @@ binning_target = (alignment_target + binning_output)
 checkm_target = (binning_target + checkm_output)
 
 annotation_target = (checkm_target + annotation_output)
+
+profilling_target = (annotation_target + profilling_output)
 '''
 dereplication_target = (cehckm_target + dereplication_output)
 classification_target = (drep_target + classification_output)

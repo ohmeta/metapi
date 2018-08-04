@@ -224,7 +224,7 @@ def main():
             sys.exit(0)
         args.func(args)
     except AttributeError as e:
-        print(e)
+        # print(e)
         parser.print_help()
 
 

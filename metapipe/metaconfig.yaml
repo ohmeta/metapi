@@ -68,6 +68,12 @@ params:
       kingdom: Bacteria
       metagenome: False
       threads: 8
+  profilling:
+    metaphlan2:
+      env: "bioenv2"
+      input_type: "fastq"
+      threads: 8
+
 
 results:
   host:
@@ -94,9 +100,14 @@ results:
   classification: "results/08.classification"
   annotation:
     prokka: "results/09.annotation/prokka"
+  profilling:
+    metaphlan2:
+      base_dir: "results/10.profilling/metaphlan2"
+      bowtie2_out: "results/10.profilling/metaphlan2/bowtie2out"
+      profile: "results/10.profilling/metaphlan2/profile"
 
 logs:
-  simulation:
+  simulation: "assay/00.simulation/iss_logs"
   raw:
     fastqc: "assay/00.raw/fastqc_logs"
     multiqc: "assay/00.raw/multiqc_logs"
@@ -115,3 +126,5 @@ logs:
   classification: "assay/08.classification/logs"
   annotation:
     prokka: "assay/09.annotation/prokka_logs"
+  profilling:
+    metaphlan2: "assay/10.profilling/metaphlan2_logs"

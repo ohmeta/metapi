@@ -13,7 +13,7 @@ configfile: "metaconfig.yaml"
 
 _samples = parse_samples(config["results"]["raw"]["samples"])
 
-#include: "rules/step.smk"
+include: "rules/step.smk"
 include: "rules/simulation.smk"
 include: "rules/fastqc.smk"
 include: "rules/trimming.smk"
@@ -23,13 +23,15 @@ include: "rules/alignment.smk"
 include: "rules/binning.smk"
 include: "rules/checkm.smk"
 include: "rules/annotation.smk"
+include: "rules/profilling.smk"
+
+
 '''
 include: "rules/dereplication.smk"
 include: "rules/classification.smk"
 include: "rules/annotation.smk"
 '''
 
-include: "rules/step.smk"
 rule all:
     input:
-        annotation_target
+        profilling_target
