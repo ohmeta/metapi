@@ -21,6 +21,14 @@ fastqc_output = expand(
     read=["1", "2"],
     out=["html", "zip"])
 
+oas1_output = expand(
+    ["{trimming}/{sample}.trimmed.{read}.fq.gz",
+     "{trimming}/{sample}.trimmed.stat_out"],
+    trimming=config["results"]["trimming"],
+    read=["1", "2", "single"],
+    sample=_samples.index
+)
+
 sickle_output = expand(
     "{trimming}/{sample}.trimmed.{read}.fq.gz",
     trimming=config["results"]["trimming"],
@@ -113,12 +121,12 @@ profilling_output = expand(
     metaphlan2=config["results"]["profilling"]["metaphlan2"]["base_dir"],
     sample=_samples.index)
 
-
-trimming_output = []
+if config["params"]["trimming"]["oas1"]["do"]:
+    trimming_output = (oas1_output)
 if config["params"]["trimming"]["sickle"]["do"]:
     trimming_output = (sickle_output)
 if config["params"]["trimming"]["fastp"]["do"]:
-    trimming_output = (trimming_output + fastp_output)
+    trimming_output = (fastp_output)
 trimming_target = (fastqc_output + trimming_output)
 
 rmhost_target = (trimming_target + rmhost_output)

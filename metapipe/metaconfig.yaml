@@ -11,6 +11,12 @@ params:
     output_prefix: "simulate"
     threads: 8
   trimming:
+    oas1:
+      do: False
+      qual_system: 33
+      min_length: 30
+      seed_oa: 0.9
+      fragment_oa: 0.8
     sickle:
       do: False
       qual_type: "sanger"
