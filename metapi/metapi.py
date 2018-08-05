@@ -6,7 +6,7 @@ import sys
 
 import pandas
 
-from metapi.metaconfig import metaconfig
+from metapi.metaconfig import metaconfig, parse_yaml, update_config
 
 simulation_steps = [
     "simulation", "fastqc", "trim", "rmhost", "qc_report", "assembly",
@@ -34,8 +34,8 @@ def initialization(args):
         if args.samples:
             config["results"]["raw"]["samples"] = args.samples
 
-        metaconfig.update_config(
-            project.config_file, project.new_config_file, config, remove=False)
+        update_config(project.config_file, project.new_config_file, config,
+                      remove=False)
     else:
         print("please supply a workdir!")
         sys.exit(1)
@@ -44,7 +44,7 @@ def initialization(args):
 def simulation(args):
     if args.workdir:
         config_file = os.path.join(args.workdir, "metaconfig.yaml")
-        config = metaconfig.parse_yaml(config_file)
+        config = parse_yaml(config_file)
         if args.taxid and not args.genomes:
             config["params"]["simulation"]["taxid"] = args.taxid
         if not args.taxid and args.genomes:
@@ -60,7 +60,7 @@ def simulation(args):
         if args.output_prefix:
             config["params"]["simulation"][
                 "output_prefix"] = args.output_prefix
-        metaconfig.update_config(config_file, config_file, config, remove=True)
+        update_config(config_file, config_file, config, remove=True)
         r1 = os.path.join(
             config["results"]["simulation"]["genomes"],
             config["params"]["simulation"]["output_prefix"] + "_1.fq.gz")
@@ -91,13 +91,13 @@ def simulation(args):
 def workflow(args):
     if args.workdir:
         config_file = os.path.join(args.workdir, "metaconfig.yaml")
-        config = metaconfig.parse_yaml(config_file)
+        config = parse_yaml(config_file)
         if not os.path.exists(config["results"]["raw"]["samples"]):
             print("please specific samples list on initialization step")
             sys.exit(1)
         if args.rmhost:
             config["params"]["rmhost"]["do"] = True
-        metaconfig.update_config(config_file, config_file, config, remove=True)
+        update_config(config_file, config_file, config, remove=True)
     else:
         print("please supply a workdir!")
         sys.exit(1)
