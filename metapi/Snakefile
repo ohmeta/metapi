@@ -1,4 +1,4 @@
-!/usr/bin/env snakemake
+#!/usr/bin/env snakemake
 
 import os
 import sys
