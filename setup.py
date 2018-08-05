@@ -4,7 +4,7 @@ import setuptools
 with open("README.md") as f:
     long_description = f.read()
 
-version = "0.1.2"
+version = "0.1.3"
 print("""------------------------
 Installing metapi version {}
 ------------------------
