@@ -23,6 +23,7 @@ setuptools.setup(
     packages=['metapi'],
     package_data={'metapi': ['metapi/Snakefile',
                              'metapi/metaconfig.yaml'
+                             'metapi/metacluster.yaml',
                              'metapi/rules/step.smk',
                              'metapi/rules/simulation.smk',
                              'metapi/rules/fastqc.smk',

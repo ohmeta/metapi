@@ -26,7 +26,7 @@ def update_config(yaml_file_old, yaml_file_new, yaml_content, remove=True):
         yaml.dump(yaml_content, f)
 
 
-class config:
+class metaconfig:
     '''
     config project directory
     '''
@@ -56,7 +56,7 @@ class config:
         if not os.path.exists(self.work_dir):
             os.mkdir(self.work_dir)
 
-        for sub_dir in config.sub_dirs:
+        for sub_dir in metaconfig.sub_dirs:
             loc = os.path.join(self.work_dir, sub_dir)
             if not os.path.exists(loc):
                 os.mkdir(loc)

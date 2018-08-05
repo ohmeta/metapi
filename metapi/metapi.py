@@ -6,7 +6,7 @@ import sys
 
 import pandas
 
-import metaconfig
+from metapi.metaconfig import metaconfig
 
 __version__ = "0.1.0"
 
@@ -24,7 +24,7 @@ workflow_steps = [
 
 def initialization(args):
     if args.workdir:
-        project = metaconfig.config(args.workdir)
+        project = metaconfig(args.workdir)
         print(project.__str__())
         project.create_dirs()
         config = project.get_config()

@@ -1,0 +1,16 @@
+include metapi/Snakefile
+include metapi/metaconfig.yaml
+include metapi/metacluster.yaml
+include metapi/rules/step.smk
+include metapi/rules/simulation.smk
+include metapi/rules/fastqc.smk
+include metapi/rules/trimming.smk
+include metapi/rules/rmhost.smk
+include metapi/rules/assembly.smk
+include metapi/rules/alignment.smk
+include metapi/rules/binning.smk
+include metapi/rules/checkm.smk
+include metapi/rules/dereplication.smk
+include metapi/rules/classification.smk
+include metapi/rules/annotation.smk
+include metapi/rules/profilling.smk
