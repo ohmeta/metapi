@@ -27,7 +27,10 @@ rule metaphlan2_merge:
         os.path.join(config["results"]["profilling"]["metaphlan2"]["base_dir"], "metaphlan2.merged.profile")
     log:
         os.path.join(config["logs"]["profilling"]["metaphlan2"], "metaphlan2.merged.log")
+    params:
+        metaphlan2_env = config["params"]["profilling"]["metaphlan2"]["env"]
     shell:
         '''
+        set +u; source activate {params.metaphlan2_env}; set -u;
         merge_metaphlan_tables.py {input} > {output} 2> {log}
         '''
