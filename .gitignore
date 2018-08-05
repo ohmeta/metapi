@@ -17,4 +17,4 @@ metapi/__pycache__/
 # pipenv
 build/
 dist/
-metapipe.egg-info/
+metapi.egg-info/
