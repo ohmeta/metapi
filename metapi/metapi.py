@@ -111,9 +111,9 @@ def workflow(args):
 
 def main():
     parser = argparse.ArgumentParser(
-        prog='metapipe',
-        usage='metapipe [subcommand] [options]',
-        description='metapipe, a metagenomics data process pipeline')
+        prog='metapi',
+        usage='metapi [subcommand] [options]',
+        description='metapi, a metagenomics data process pipeline')
     parser.add_argument(
         '-v',
         '--version',
@@ -130,19 +130,19 @@ def main():
     parser_init = subparsers.add_parser(
         'init',
         parents=[parent_parser],
-        prog='metapipe init',
-        description='a metapipe initialization',
-        help='a metapipe initialization')
+        prog='metapi init',
+        description='a metagenomics project initialization',
+        help='a metagenomics project initialization')
     parser_simulation = subparsers.add_parser(
         'simulation',
         parents=[parent_parser],
-        prog='metapipe simulation',
+        prog='metapi simulation',
         description='a simulation on metagenomics data',
         help='a simulation on metagenomics data')
     parser_workflow = subparsers.add_parser(
         'workflow',
         parents=[parent_parser],
-        prog='metapipe workflow',
+        prog='metapi workflow',
         description='a workflow on real metagenomics data',
         help='a workflow on real metagenomics data')
 
@@ -220,11 +220,11 @@ def main():
     args = parser.parse_args()
     try:
         if args.version:
-            print("metapipe version %s" % __version__)
+            print("metapi version %s" % __version__)
             sys.exit(0)
         args.func(args)
     except AttributeError as e:
-        # print(e)
+        print(e)
         parser.print_help()
 
 

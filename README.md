@@ -1,4 +1,4 @@
-# **metapipe**
+# **metapi**
 
 hello, metagenomics!
 
@@ -125,7 +125,7 @@ hello, metagenomics!
 * install metapipe
 
     ```bash
-    git clone https://github.com/ohmeta/metapipe
+    git clone https://github.com/ohmeta/metapi
     ```
 
 ## example
@@ -154,7 +154,7 @@ hello, metagenomics!
 * a simulated metagenomics data test(uncomplete)
 
     ```bash
-    # in metapipe/example/basic_test directory
+    # in metapi/example/basic_test directory
     cd example/basic_test
 
     # look
@@ -175,15 +175,15 @@ hello, metagenomics!
     ```bash
     # in metapipe directory
     # look
-    cd metapipe
+    cd metapi
     snakemake --dag | dot -Tsvg > ../docs/dat.svg
     ```
     <img src="docs/dat.svg">
 
     ```bash
     # run on local
-    snakemake --snakefile metapipe/Snakefile --configfile metapipe/metaconfig.yaml
+    snakemake --snakefile metapi/Snakefile --configfile metapi/metaconfig.yaml
 
     # run on SGE cluster
-    snakemake --snakefile metapipe/Snakefile --configfile metapipe/metaconfig.yaml --cores 32 --jobs 80 --cluster "qsub -S /bin/bash -cwd -q {queue} -P {project_id} -l vf=8G,p=8"
+    snakemake --snakefile metapi/Snakefile --configfile metapi/metaconfig.yaml --cores 32 --jobs 80 --cluster "qsub -S /bin/bash -cwd -q {queue} -P {project_id} -l vf=8G,p=8"
     ```
