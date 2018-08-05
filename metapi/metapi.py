@@ -8,8 +8,6 @@ import pandas
 
 from metapi.metaconfig import metaconfig
 
-__version__ = "0.1.0"
-
 simulation_steps = [
     "simulation", "fastqc", "trim", "rmhost", "qc_report", "assembly",
     "alignment", "binning", "checkm", "dereplication", "classification",

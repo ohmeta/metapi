@@ -1,4 +1,4 @@
 #!/usr/bin/env python
 
-name = "metapipe"
-__version__ = "0.1.0"
+name = "metapi"
+__version__ = "0.1.1"
