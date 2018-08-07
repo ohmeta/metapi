@@ -22,12 +22,13 @@ fastqc_output = expand(
     out=["html", "zip"])
 
 oas1_output = expand(
-    ["{trimming}/{sample}.trimmed.{read}.fq.gz",
-     "{trimming}/{sample}.trimmed.stat_out"],
+    [
+        "{trimming}/{sample}.trimmed.{read}.fq.gz",
+        "{trimming}/{sample}.trimmed.stat_out"
+    ],
     trimming=config["results"]["trimming"],
     read=["1", "2", "single"],
-    sample=_samples.index
-)
+    sample=_samples.index)
 
 sickle_output = expand(
     "{trimming}/{sample}.trimmed.{read}.fq.gz",
@@ -38,7 +39,9 @@ sickle_output = expand(
 fastp_output = expand(
     [
         "{trimming}/{sample}.trimmed.{read}.fq.gz",
-        "{trimming}/{sample}.fastp.html", "{trimming}/{sample}.fastp.json"
+        "{trimming}/{sample}.fastp.html", "{trimming}/{sample}.fastp.json",
+        "{trimming}/fastp_multiqc_report.html",
+        "{trimming}/fastp_multiqc_report_data"
     ],
     sample=_samples.index,
     trimming=config["results"]["trimming"],
@@ -113,9 +116,11 @@ annotation_output = expand(
     sample=_samples.index)
 
 profilling_output = expand(
-    ["{bowtie2out}/{sample}.bowtie2.gz",
-     "{profile}/{sample}.metaphlan2.profile",
-     "{metaphlan2}/metaphlan2.merged.profile"],
+    [
+        "{bowtie2out}/{sample}.bowtie2.gz",
+        "{profile}/{sample}.metaphlan2.profile",
+        "{metaphlan2}/metaphlan2.merged.profile"
+    ],
     bowtie2out=config["results"]["profilling"]["metaphlan2"]["bowtie2_out"],
     profile=config["results"]["profilling"]["metaphlan2"]["profile"],
     metaphlan2=config["results"]["profilling"]["metaphlan2"]["base_dir"],

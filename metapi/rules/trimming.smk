@@ -72,3 +72,20 @@ if config["params"]["trimming"]["fastp"]["do"]:
             --html {output.html} \
             --json {output.json} 2> {log}
             '''
+
+    rule multiqc_fastp:
+        input:
+            expand("{trimming}/{sample}.fastp.json",
+                   trimming=config["results"]["trimming"],
+                   sample=_samples.index)
+        output:
+            html = os.path.join(config["results"]["trimming"], "fastp_multiqc_report.html"),
+            data_dir = directory(os.path.join(config["results"]["trimming"], "fastp_multiqc_report_data"))
+        log:
+            os.path.join(config["logs"]["trimming"], "multiqc_fastp.log")
+        params:
+            outdir = config["results"]["trimming"]
+        shell:
+            '''
+            multiqc --outdir {params.outdir} --title fastp --module fastp {input} 2> {log}
+            '''

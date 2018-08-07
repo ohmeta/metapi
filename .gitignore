@@ -1,6 +1,9 @@
 # vscode
 .vscode
 
+# pycharm
+.idea
+
 # test
 example/basic_test/data/01.trimmed
 example/basic_test/data/02.assembly
