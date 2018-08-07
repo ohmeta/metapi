@@ -14,7 +14,8 @@ rule assembly_megahit:
     input:
         reads = assembly_inputs
     output:
-        os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa.gz")
+        contigs = os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa.gz"),
+        temp_file = temp(directory(os.path.join(config["results"]["assembly"], "{sample}.megahit_out/intermediate_contigs")))
     params:
         min_contig = config["params"]["assembly"]["megahit"]["min_contig"],
         out_dir = os.path.join(config["results"]["assembly"], "{sample}.megahit_out"),
