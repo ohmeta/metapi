@@ -71,6 +71,20 @@ metaspades_output = expand(
     assembly=config["results"]["assembly"],
     sample=_samples.index)
 
+metaquast_output = expand(
+    [
+        "{metaquast}/{sample}.metaquast_out/report.html",
+        "{metaquast}/{sample}.metaquast_out/icarus.html",
+        "{metaquast}/{sample}.metaquast_out/combined_reference",
+        "{metaquast}/{sample}.metaquast_out/icarus_viewers",
+        "{metaquast}/{sample}.metaquast_out/krona_charts",
+        "{metaquast}/{sample}.metaquast_out/not_aligned",
+        "{metaquast}/{sample}.metaquast_out/runs_per_reference",
+        "{metaquast}/{sample}.metaquast_out/summary"
+    ],
+    metaquast=config["results"]["metaquast"],
+    sample=_samples.index)
+
 alignment_output = expand(
     ["{alignment}/{sample}.flagstat", "{alignment}/{sample}.sorted.bam"],
     alignment=config["results"]["alignment"],
@@ -147,6 +161,9 @@ if config["params"]["rmhost"]["do"]:
     assembly_target = (rmhost_target + assembly_output)
 else:
     assembly_target = (trimming_target + assembly_output)
+
+if config["params"]["metaquast"]["do"]:
+    assembly_target = (assembly_target + metaquast_output)
 
 alignment_target = (assembly_target + alignment_output)
 
