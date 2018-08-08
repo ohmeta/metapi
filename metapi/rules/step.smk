@@ -75,12 +75,14 @@ metaquast_output = expand(
     [
         "{metaquast}/{sample}.metaquast_out/report.html",
         "{metaquast}/{sample}.metaquast_out/icarus.html",
-        "{metaquast}/{sample}.metaquast_out/combined_reference",
+        "{metaquast}/{sample}.metaquast_out/combined_reference/report.tsv",
         "{metaquast}/{sample}.metaquast_out/icarus_viewers",
         "{metaquast}/{sample}.metaquast_out/krona_charts",
         "{metaquast}/{sample}.metaquast_out/not_aligned",
         "{metaquast}/{sample}.metaquast_out/runs_per_reference",
-        "{metaquast}/{sample}.metaquast_out/summary"
+        "{metaquast}/{sample}.metaquast_out/summary",
+        "{metaquast}/metaquast_multiqc_report.html",
+        "{metaquast}/metaquast_multiqc_report_data"
     ],
     metaquast=config["results"]["metaquast"],
     sample=_samples.index)

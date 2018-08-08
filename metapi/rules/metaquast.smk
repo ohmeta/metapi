@@ -4,8 +4,8 @@ rule metaquast_megahit:
     output:
         report = os.path.join(config["results"]["metaquast"], "{sample}.metaquast_out/report.html"),
         icarus = os.path.join(config["results"]["metaquast"], "{sample}.metaquast_out/icarus.html"),
-        combined_reference = directory(os.path.join(config["results"]["metaquast"],
-                                                    "{sample}.metaquast_out/combined_reference")),
+        combined_reference_tsv = os.path.join(config["results"]["metaquast"],
+                                                    "{sample}.metaquast_out/combined_reference/report.tsv"),
         icarus_viewers = directory(os.path.join(config["results"]["metaquast"],
                                                 "{sample}.metaquast_out/icarus_viewers")),
         krona_charts = directory(os.path.join(config["results"]["metaquast"],
@@ -28,6 +28,24 @@ rule metaquast_megahit:
         metaquast.py {input} -o {params.output_dir} \
         --min-contig {params.min_contig} \
         --threads {threads} 2> {log}
+        '''
+
+rule multiqc_metaquast:
+    input:
+        expand("{metaquast}/{sample}.metaquast_out/combined_reference/report.tsv",
+               metaquast=config["results"]["metaquast"],
+               sample=_samples.index)
+    output:
+        html = os.path.join(config["results"]["metaquast"], "metaquast_multiqc_report.html"),
+        data_dir = directory(os.path.join(config["results"]["metaquast"],
+                                          "metaquast_multiqc_report_data"))
+    log:
+        os.path.join(config["logs"]["metaquast"], "multiqc_metaquast.log")
+    params:
+        outdir = config["results"]["metaquast"]
+    shell:
+        '''
+        multiqc --outdir {params.outdir} --title metaquast --module quast {input} 2> {log}
         '''
 
 '''
