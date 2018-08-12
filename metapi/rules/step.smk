@@ -71,6 +71,11 @@ metaspades_output = expand(
     assembly=config["results"]["assembly"],
     sample=_samples.index)
 
+coassembly_megahit_output = expand(
+    "{coassembly_megahit}/contigs.fa.gz",
+    coassembly_megahit=config["results"]["coassembly"]["megahit"]
+)
+
 metaquast_output = expand(
     [
         "{metaquast}/{sample}.metaquast_out/report.html",
@@ -158,6 +163,8 @@ if config["params"]["assembly"]["idba_ud"]["do"]:
     assembly_output = (assembly_output + idba_ud_output)
 if config["params"]["assembly"]["metaspades"]["do"]:
     assembly_output = (assembly_output + metaspades_output)
+if config["params"]["coassembly"]["megahit"]["do"]:
+    assembly_output = (assembly_output + coassembly_megahit_output)
 
 if config["params"]["rmhost"]["do"]:
     assembly_target = (rmhost_target + assembly_output)

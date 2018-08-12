@@ -51,6 +51,11 @@ params:
       memory: 10
       threads: 8
       kmers: []
+  coassembly:
+    megahit:
+      do: True
+      threads: 8
+      min_contig: 500
   metaquast:
     do: True
     threads: 8
@@ -97,6 +102,8 @@ results:
   trimming: "results/01.trimming"
   rmhost: "results/02.rmhost"
   assembly: "results/03.assembly"
+  coassembly:
+    megahit: "results/03.coassembly/megahit"
   metaquast: "results/03.metaquast"
   alignment: "results/04.alignment"
   binning:
@@ -127,6 +134,7 @@ logs:
     megahit: "assay/03.assembly/megahit_logs"
     idba_ud: "assay/03.assembly/idba_ud_logs"
     metaspades: "assay/03.assembly/metaspades_logs"
+  coassembly: "assay/03.coassembly/logs"
   metaquast: "assay/03.metaquast/metaquast_logs"
   alignment: "assay/04.alignment/logs"
   binning:
