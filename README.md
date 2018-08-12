@@ -141,14 +141,15 @@ hello, metagenomics!
     output:
         bam = "sample.sort.bam",
         stat = "sample_flagstat.txt"
-    params:
-        bwa_t = 8,
-        samtools_t = 8
+    threads:
+        8
     shell:
-        "bwa mem -t {params.bwa_t} {input.ref} {input.r1} {input.r2} | "
-        "samtools view -@{params.samtools_t} -hbS - | "
-        "tee >(samtools flagstat -@{params.samtools_t} - > {output.stat}) | "
-        "samtools sort -@{params.samtools_t} -o {output.bam} -"
+        '''
+        bwa mem -t {threads} {input.ref} {input.r1} {input.r2} | \
+        samtools view -@{threads} -hbS - | \
+        tee >(samtools flagstat -@{threads} - > {output.stat}) | \
+        samtools sort -@{threads} -o {output.bam} -
+        '''
     ```
 
 * a simulated metagenomics data test(uncomplete)
