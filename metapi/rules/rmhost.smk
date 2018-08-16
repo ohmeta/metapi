@@ -26,10 +26,9 @@ rule rmhost:
                        rmhost=config["results"]["rmhost"],
                        read=["1", "2"])
     params:
-        bwa_mem_threads = config["params"]["rmhost"]["bwa_mem_threads"],
-        samtools_threads = config["params"]["rmhost"]["samtools_threads"],
+        threads = config["params"]["rmhost"]["threads"],
         prefix = config["results"]["host"]["prefix"]
     shell:
-        "bwa mem -t {params.bwa_mem_threads} {params.prefix} {input.reads} | "
-        "tee >(samtools flagstat -@{params.samtools_threads} - > {output.flagstat}) | "
-        "samtools fastq -@{params.samtools_threads} -f 12 -n -1 {output.reads[0]} -2 {output.reads[1]} -"
+        "bwa mem -t {threads} {params.prefix} {input.reads} | "
+        "tee >(samtools flagstat -@{threads} - > {output.flagstat}) | "
+        "samtools fastq -@{threads} -f 12 -n -1 {output.reads[0]} -2 {output.reads[1]} -"
