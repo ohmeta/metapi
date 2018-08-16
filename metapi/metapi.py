@@ -6,7 +6,8 @@ import sys
 
 import pandas
 
-from metapi.metaconfig import metaconfig, parse_yaml, update_config
+# from metapi.metaconfig import metaconfig, parse_yaml, update_config
+from metaconfig import metaconfig, parse_yaml, update_config
 
 simulation_steps = [
     "simulation", "fastqc", "trim", "rmhost", "qc_report", "assembly",
@@ -34,8 +35,8 @@ def initialization(args):
         if args.samples:
             config["results"]["raw"]["samples"] = args.samples
 
-        update_config(project.config_file, project.new_config_file, config,
-                      remove=False)
+        update_config(
+            project.config_file, project.new_config_file, config, remove=False)
     else:
         print("please supply a workdir!")
         sys.exit(1)
@@ -45,6 +46,7 @@ def simulation(args):
     if args.workdir:
         config_file = os.path.join(args.workdir, "metaconfig.yaml")
         config = parse_yaml(config_file)
+
         if args.taxid and not args.genomes:
             config["params"]["simulation"]["taxid"] = args.taxid
         if not args.taxid and args.genomes:
@@ -57,23 +59,22 @@ def simulation(args):
             config["params"]["simulation"]["n_reads"] = args.n_reads
         if args.model:
             config["params"]["simulation"]["model"] = args.model
-        if args.output_prefix:
-            config["params"]["simulation"][
-                "output_prefix"] = args.output_prefix
+
         update_config(config_file, config_file, config, remove=True)
-        r1 = os.path.join(
-            config["results"]["simulation"]["genomes"],
-            config["params"]["simulation"]["output_prefix"] + "_1.fq.gz")
-        r2 = os.path.join(
-            config["results"]["simulation"]["genomes"],
-            config["params"]["simulation"]["output_prefix"] + "_2.fq.gz")
-        samples_df = pandas.DataFrame(
-            {
-                "id": config["params"]["simulation"]["output_prefix"],
-                "fq1": r1,
-                "fq2": r2
-            },
-            index=['id'])
+
+        samples_df = pandas.DataFrame({
+            "id": ["s1", "s2", "s3"],
+            "fq1": [
+                os.path.join(config["results"]["raw"]["reads"], "s1_1.fq.gz"),
+                os.path.join(config["results"]["raw"]["reads"], "s2_1.fq.gz"),
+                os.path.join(config["results"]["raw"]["reads"], "s3_1.fq.gz")
+            ],
+            "fq2": [
+                os.path.join(config["results"]["raw"]["reads"], "s1_2.fq.gz"),
+                os.path.join(config["results"]["raw"]["reads"], "s2_2.fq.gz"),
+                os.path.join(config["results"]["raw"]["reads"], "s3_2.fq.gz")
+            ]
+        })
         samples_df.to_csv(
             config["results"]["raw"]["samples"],
             sep='\t',
@@ -183,11 +184,6 @@ def main():
         choices=['hiseq', 'novaseq', 'miseq'],
         default='hiseq',
         help='reads error model, default: hiseq')
-    parser_simulation.add_argument(
-        '-p',
-        '--output_prefix',
-        default='simulation',
-        help='reads prefix, eg: simulation.1.fq, simulation.2.fq')
     parser_simulation.add_argument(
         '-u',
         '--step',

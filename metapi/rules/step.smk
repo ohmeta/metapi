@@ -1,13 +1,12 @@
 simulation_output = expand(
     [
-        "{simulation}/species_metadata.tsv",
-        "{simulation}/merged_genome.fasta",
-        "{simulation}/{output_prefix}_{read}.fq.gz",
-        "{simulation}/{output_prefix}_abundance.txt"
+        "{simulation}/species_metadata.tsv", "{simulation}/{sample}_genome.fa",
+        "{raw}/{sample}_{read}.fq.gz", "{raw}/{sample}_abundance.txt"
     ],
-    simulation=config["results"]["simulation"]["genomes"],
-    output_prefix=config["params"]["simulation"]["output_prefix"],
-    read=["1", "2"])
+    simulation=config["results"]["simulation"],
+    raw=config["results"]["raw"]["reads"],
+    read=["1", "2"],
+    sample=_samples.index)
 
 fastqc_output = expand(
     [
@@ -72,9 +71,8 @@ metaspades_output = expand(
     sample=_samples.index)
 
 coassembly_megahit_output = expand(
-    "{coassembly_megahit}/contigs.fa.gz",
-    coassembly_megahit=config["results"]["coassembly"]["megahit"]
-)
+    "{coassembly_megahit}/final.contigs.fa.gz",
+    coassembly_megahit=config["results"]["coassembly"]["megahit"])
 
 metaquast_output = expand(
     [
@@ -163,6 +161,7 @@ if config["params"]["assembly"]["idba_ud"]["do"]:
     assembly_output = (assembly_output + idba_ud_output)
 if config["params"]["assembly"]["metaspades"]["do"]:
     assembly_output = (assembly_output + metaspades_output)
+
 if config["params"]["coassembly"]["megahit"]["do"]:
     assembly_output = (assembly_output + coassembly_megahit_output)
 
