@@ -26,17 +26,22 @@ def initialization(args):
         project = metaconfig(args.workdir)
         print(project.__str__())
         project.create_dirs()
-        config = project.get_config()
+        config, cluster = project.get_config()
 
-        if args.queue:
-            config["params"]["cluster"]["queue"] = args.queue
-        if args.project:
-            config["params"]["cluster"]["project"] = args.project
         if args.samples:
             config["results"]["raw"]["samples"] = args.samples
+        if args.queue:
+            cluster["__default__"]["queue"] = args.queue
+        if args.project:
+            cluster["__default__"]["project"] = args.project
 
         update_config(
             project.config_file, project.new_config_file, config, remove=False)
+        update_config(
+            project.cluster_file,
+            project.new_cluster_file,
+            cluster,
+            remove=False)
     else:
         print("please supply a workdir!")
         sys.exit(1)

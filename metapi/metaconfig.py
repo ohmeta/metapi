@@ -38,9 +38,12 @@ class metaconfig:
         self.work_dir = os.path.realpath(work_dir)
         self.config_file = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "metaconfig.yaml")
+        self.cluster_file = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "metacluster.yaml")
         self.snake_file = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "Snakefile")
         self.new_config_file = os.path.join(self.work_dir, "metaconfig.yaml")
+        self.new_cluster_file = os.path.join(self.work_dir, "metacluster.yaml")
         self.samples_tsv = os.path.join(self.work_dir,
                                         "results/00.raw/samples.tsv")
 
@@ -66,6 +69,5 @@ class metaconfig:
         get default configuration
         '''
         config = parse_yaml(self.config_file)
-        config["snakefile"] = self.snake_file
-        config["configfile"] = self.new_config_file
-        return config
+        cluster = parse_yaml(self.cluster_file)
+        return (config, cluster)

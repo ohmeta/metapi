@@ -1,0 +1,138 @@
+localrules: all, genome_download, genome_merge
+
+__default__:
+  queue: "st.q"
+  project: "st.m"
+  workdir: "./"
+  mem: "1G"
+  cores: 1
+
+genome_simulate:
+  mem: "2G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+fastqc:
+  mem: "512M"
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+multiqc_fastqc:
+  mem: "128M"
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+trimming_fastp:
+  mem: "1G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+multiqc_fastp:
+  mem: "128M"
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+build_host_index:
+  mem: "1G"
+  cores: 1
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+rmhost:
+  mem: "6G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+assembly_megahit:
+  mem: "10G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+assembly_idba_ud:
+  mem: "15"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+assembly_metaspades:
+  mem: "20G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+coassembly_megahit:
+  mem: "20G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+metaquast_megahit:
+  mem: "2G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+multiqc_metaquast:
+  mem: "128M"
+  cores: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+build_asmfa_index:
+  mem: "1G"
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+align_reads_to_asmfa:
+  mem: "1G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+coverage_metabat2:
+  mem: "1G"
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+coverage_maxbin2:
+  mem: "1G"
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+binning_metabat2:
+  mem: "2G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+binning_maxbin2:
+  mem: "1G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+checkm_lineage_wf:
+  mem: "20G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+prokka_bins:
+  mem: "1G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+metaphlan2_profilling:
+  mem: "8G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+metaphlan2_merge:
+  mem: "128M"
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
