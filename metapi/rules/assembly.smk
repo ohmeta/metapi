@@ -19,6 +19,7 @@ rule assembly_megahit:
     params:
         min_contig = config["params"]["assembly"]["megahit"]["min_contig"],
         out_dir = os.path.join(config["results"]["assembly"], "{sample}.megahit_out"),
+        contigs = os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa")
         out_prefix = "{sample}"
     threads:
         config["params"]["assembly"]["megahit"]["threads"]
@@ -28,7 +29,8 @@ rule assembly_megahit:
         '''
         rm -rf {params.out_dir}
         megahit -1 {input.reads[0]} -2 {input.reads[1]} -t {threads} --min-contig-len {params.min_contig} --out-dir {params.out_dir} --out-prefix {params.out_prefix} 2> {log}
-        pigz {params.out_dir}/{params.out_prefix}.contigs.fa
+        sed -i 's#^>#>'"{params.out_prefix}"'_#g' {params.contigs}
+        pigz {params.contigs}
         '''
 
 rule assembly_idba_ud:
