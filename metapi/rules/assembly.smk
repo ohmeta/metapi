@@ -19,7 +19,7 @@ rule assembly_megahit:
     params:
         min_contig = config["params"]["assembly"]["megahit"]["min_contig"],
         out_dir = os.path.join(config["results"]["assembly"], "{sample}.megahit_out"),
-        contigs = os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa")
+        contigs = os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa"),
         out_prefix = "{sample}"
     threads:
         config["params"]["assembly"]["megahit"]["threads"]
