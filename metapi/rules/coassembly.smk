@@ -1,31 +1,21 @@
-def coassembly_inputs(wildcards):
+def coassembly_inputs(read):
     if config["params"]["rmhost"]["do"]:
-        r1 = expand("{rmhost}/{sample}.rmhost.1.fq.gz",
-                       rmhost=config["results"]["rmhost"],
-                       sample=_samples.index)
-        r2 = expand("{rmhost}/{sample}.rmhost.2.fq.gz",
-                       rmhost=config["results"]["rmhost"],
-                       sample=_samples.index)
-        r1_ = ",".join(r1)
-        r2_ = ",".join(r2)
-        return [r1_, r2_]
+        return expand("{rmhost}/{sample}.rmhost.{read}.fq.gz",
+                      rmhost=config["results"]["rmhost"],
+                      read=read,
+                      sample=_samples.index),
     else:
-        r1 = expand("{trimming}/{sample}.trimmed.1.fq.gz",
-                       trimming=config["results"]["trimming"],
-                       sample=_samples.index)
-        r2 = expand("{trimming}/{sample}.trimmed.2.fq.gz",
-                       trimming=config["results"]["trimming"],
-                       sample=_samples.index)
-        r1_ = ",".join(r1)
-        r2_ = ",".join(r2)
-        return [r1_, r2_]
-
+        return expand("{trimming}/{sample}.trimmed.{read}.fq.gz",
+                      trimming=config["results"]["trimming"],
+                      read=read,
+                      sample=_samples.index),
 
 rule coassembly_megahit:
     input:
-        coassembly_inputs
+        r1 = coassembly_inputs("1"),
+        r2 = coassembly_inputs("2")
     output:
-        contigs = os.path.join(config["results"]["coassembly"]["megahit"], "contigs.fa.gz"),
+        contigs = os.path.join(config["results"]["coassembly"]["megahit"], "final.contigs.fa.gz"),
         temp_file = temp(directory(os.path.join(config["results"]["coassembly"]["megahit"],
                                                 "intermediate_contigs")))
     log:
@@ -35,7 +25,10 @@ rule coassembly_megahit:
         out_dir = config["results"]["coassembly"]["megahit"]
     threads:
         config["params"]["coassembly"]["megahit"]["threads"]
-    shell:
-        '''
-        meghait -1 {input[0]} -2 {input[1]} -t {threads} --min-contig-len {params.min_contig} --out-dir {params.out_dir} 2> {log}
-        '''
+    run:
+        r1_str = ",".join(input.r1)
+        r2_str = ",".join(input.r2)
+        shell('''rm -rf {params.out_dir}
+        megahit -1 {r1_str} -2 {r2_str} -t {threads} --min-contig-len {params.min_contig} --out-dir {params.out_dir} 2> {log}
+        pigz {params.out_dir}/final.contigs.fa
+        ''')
