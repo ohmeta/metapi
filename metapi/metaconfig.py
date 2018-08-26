@@ -70,4 +70,7 @@ class metaconfig:
         '''
         config = parse_yaml(self.config_file)
         cluster = parse_yaml(self.cluster_file)
+        config["snakefile"] = self.snake_file
+        config["configfile"] = self.new_config_file
+        config["clusterfile"] = self.new_cluster_file
         return (config, cluster)

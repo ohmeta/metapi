@@ -10,16 +10,59 @@ import pandas
 from metaconfig import metaconfig, parse_yaml, update_config
 
 simulation_steps = [
-    "simulation", "fastqc", "trim", "rmhost", "qc_report", "assembly",
-    "alignment", "binning", "checkm", "dereplication", "classification",
-    "annotation"
+    "genome_download",
+    "genome_merge",
+    "genome_simulate",
+    "fastqc",
+    "multiqc_fastqc",
+    "trimming_fastp",
+    "multiqc_fastp",
+    "build_host_index",
+    "rmhost",
+    "assembly_megahit",
+    "assembly_idba_ud",
+    "assembly_metaspades",
+    "coassembly_megahit",
+    "metaquast_megahit",
+    "multiqc_metaquast",
+    "build_asmfa_index",
+    "align_reads_to_asmfa",
+    "coverage_metabat2",
+    "coverage_maxbin2",
+    "binning_metabat2",
+    "binning_maxbin2",
+    "checkm_lineage_wf",
+    "prokka_bins",
+    "metaphlan2_profilling",
+    "metaphlan2_merge",
+    "all"
 ]
 
 workflow_steps = [
-    "fastqc", "trim", "rmhost", "qc_report", "assembly", "alignment",
-    "binning", "checkm", "dereplication", "classification", "annotation"
+    "fastqc",
+    "multiqc_fastqc",
+    "trimming_fastp",
+    "multiqc_fastp",
+    "build_host_index",
+    "rmhost",
+    "assembly_megahit",
+    "assembly_idba_ud",
+    "assembly_metaspades",
+    "coassembly_megahit",
+    "metaquast_megahit",
+    "multiqc_metaquast",
+    "build_asmfa_index",
+    "align_reads_to_asmfa",
+    "coverage_metabat2",
+    "coverage_maxbin2",
+    "binning_metabat2",
+    "binning_maxbin2",
+    "checkm_lineage_wf",
+    "prokka_bins",
+    "metaphlan2_profilling",
+    "metaphlan2_merge",
+    "all"
 ]
-
 
 def initialization(args):
     if args.workdir:
