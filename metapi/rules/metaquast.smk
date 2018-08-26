@@ -20,11 +20,13 @@ rule metaquast_megahit:
         os.path.join(config["logs"]["metaquast"], "{sample}.metaquast.log")
     params:
         output_dir = os.path.join(config["results"]["metaquast"], "{sample}.metaquast_out"),
-        min_contig = config["params"]["metaquast"]["min_contig"]
+        min_contig = config["params"]["metaquast"]["min_contig"],
+        metaquast_env = config["params"]["metaquast"]["env"]
     threads:
         config["params"]["metaquast"]["threads"]
     shell:
         '''
+        set +u; source activate {params.metaquast_env}; set -u;
         metaquast.py {input} -o {params.output_dir} \
         --min-contig {params.min_contig} \
         --threads {threads} 2> {log}

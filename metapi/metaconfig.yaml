@@ -55,6 +55,7 @@ params:
     do: True
     threads: 8
     min_contig: 500
+    env: "bioenv2"
   alignment:
     threads: 8
   binning:
