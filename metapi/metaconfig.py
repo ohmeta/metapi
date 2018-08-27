@@ -31,7 +31,8 @@ class metaconfig:
     config project directory
     '''
     sub_dirs = [
-        "assay", "results", "results/00.raw", "scripts", "sources", "study"
+        "assay", "assay/cluster_logs", "results", "results/00.raw", "scripts",
+        "sources", "study"
     ]
 
     def __init__(self, work_dir):
