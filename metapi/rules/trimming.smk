@@ -64,9 +64,15 @@ if config["params"]["trimming"]["fastp"]["do"]:
             config["params"]["trimming"]["fastp"]["threads"]
         shell:
             '''
-            fastp --in1 {input.r1} --in2 {input.r2} \
-            --out1 {output.r1} --out2 {output.r2} \
+            fastp \
+            --in1 {input.r1} \
+            --in2 {input.r2} \
+            --out1 {output.r1} \
+            --out2 {output.r2} \
             --compression {params.compression} \
+            --disable_adapter_trimming \
+            --cut_by_quality5 \
+            --cut_by_quality3 \
             --cut_mean_quality {params.cut_mean_quality} \
             --length_required {params.length_required} \
             --html {output.html} \
