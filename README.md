@@ -126,6 +126,8 @@ hello, metagenomics!
 
     ```bash
     git clone https://github.com/ohmeta/metapi
+    # or
+    pip install metapi
     ```
 
 ## example
@@ -168,7 +170,9 @@ hello, metagenomics!
     snakemake
 
     # run on SGE cluster
-    snakemake --jobs 80 --cluster "qsub -S /bin/bash -cwd -q {queue} -P {project_id} -l vf=8G,p=8"
+    snakemake \
+    --jobs 80 \
+    --cluster "qsub -S /bin/bash -cwd -q {queue} -P {project} -l vf={mem},p={cores} -binding linear:{cores}"
     ```
 
 * a real world metagenomics data process(uncomplete)
@@ -183,8 +187,18 @@ hello, metagenomics!
 
     ```bash
     # run on local
-    snakemake --snakefile metapi/Snakefile --configfile metapi/metaconfig.yaml
+    snakemake \
+    --cores 8 \
+    --snakefile metapi/Snakefile \
+    --configfile metapi/metaconfig.yaml \
+    --until all
 
     # run on SGE cluster
-    snakemake --snakefile metapi/Snakefile --configfile metapi/metaconfig.yaml --cores 32 --jobs 80 --cluster "qsub -S /bin/bash -cwd -q {queue} -P {project_id} -l vf=8G,p=8"
+    snakemake \
+    --snakefile metapi/Snakefile \
+    --configfile metapi/metaconfig.yaml \
+    --cluster-config metapi/metacluster.yaml \
+    --jobs 80 \
+    --cluster "qsub -S /bin/bash -cwd -q {cluster.queue} -P {cluster.project} -l vf={cluster.mem},p={cluster.cores} -o {cluster.output} -e {cluster.error}"
+    --until all
     ```
