@@ -26,6 +26,7 @@ include: "rules/binning.smk"
 include: "rules/checkm.smk"
 include: "rules/annotation.smk"
 include: "rules/profilling.smk"
+include: "rules/burst.smk"
 
 
 '''
@@ -35,4 +36,4 @@ include: "rules/classification.smk"
 
 rule all:
     input:
-        profilling_target
+        burst_target

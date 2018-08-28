@@ -35,6 +35,7 @@ simulation_steps = [
     "prokka_bins",
     "metaphlan2_profilling",
     "metaphlan2_merge",
+    "burst_reads",
     "all"
 ]
 
@@ -61,6 +62,7 @@ workflow_steps = [
     "prokka_bins",
     "metaphlan2_profilling",
     "metaphlan2_merge",
+    "burst_reads",
     "all"
 ]
 

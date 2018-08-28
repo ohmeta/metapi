@@ -145,6 +145,11 @@ profilling_output = expand(
     metaphlan2=config["results"]["profilling"]["metaphlan2"]["base_dir"],
     sample=_samples.index)
 
+burst_output = expand(
+    "{burst}/{sample}.reads.burst.b6",
+    burst=config["results"]["burst"],
+    sample=_samples.index)
+
 if config["params"]["trimming"]["oas1"]["do"]:
     trimming_output = (oas1_output)
 if config["params"]["trimming"]["sickle"]["do"]:
@@ -187,6 +192,9 @@ checkm_target = (binning_target + checkm_output)
 annotation_target = (checkm_target + annotation_output)
 
 profilling_target = (annotation_target + profilling_output)
+
+burst_target = (profilling_target + burst_output)
+
 '''
 dereplication_target = (cehckm_target + dereplication_output)
 classification_target = (drep_target + classification_output)

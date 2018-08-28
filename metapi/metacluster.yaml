@@ -136,3 +136,9 @@ metaphlan2_merge:
   mem: "128M"
   output: "assay/cluster_logs/{rule}.{wildcards}.o"
   error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+burst_reads:
+  mem: "10G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"

@@ -83,6 +83,12 @@ params:
       env: "bioenv2"
       input_type: "fastq"
       threads: 8
+  burst:
+    references: "/path/to/references.edx"
+    accelerator: "/path/to/accelerator.acx"
+    identity: 0.97
+    mode: "ALLPATHS"
+    threads: 8
 
 results:
   host:
@@ -117,6 +123,7 @@ results:
       base_dir: "results/10.profilling/metaphlan2"
       bowtie2_out: "results/10.profilling/metaphlan2/bowtie2out"
       profile: "results/10.profilling/metaphlan2/profile"
+  burst: "results/12.burst"
 
 logs:
   simulation: "assay/00.simulation/iss_logs"
@@ -142,3 +149,4 @@ logs:
     prokka: "assay/09.annotation/prokka_logs"
   profilling:
     metaphlan2: "assay/10.profilling/metaphlan2_logs"
+  burst: "assay/12.burst/burst12_logs"

@@ -1,4 +1,4 @@
-def assembly_inputs(wildcards):
+def clean_reads(wildcards):
     if config["params"]["rmhost"]["do"]:
         return expand("{rmhost}/{sample}.rmhost.{read}.fq.gz",
                       rmhost=config["results"]["rmhost"],
@@ -12,7 +12,7 @@ def assembly_inputs(wildcards):
 
 rule assembly_megahit:
     input:
-        reads = assembly_inputs
+        reads = clean_reads
     output:
         contigs = os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa.gz"),
         temp_file = temp(directory(os.path.join(config["results"]["assembly"], "{sample}.megahit_out/intermediate_contigs")))
@@ -35,7 +35,7 @@ rule assembly_megahit:
 
 rule assembly_idba_ud:
     input:
-        reads = assembly_inputs
+        reads = clean_reads
     output:
         os.path.join(config["results"]["assembly"], "{sample}.idba_ud_out/{sample}.scaffolds.fa.gz")
     params:
@@ -66,7 +66,7 @@ rule assembly_idba_ud:
 
 rule assembly_metaspades:
     input:
-        reads = assembly_inputs
+        reads = clean_reads
     output:
         os.path.join(config["results"]["assembly"], "{sample}.metaspades_out/{sample}.scaffolds.fa.gz")
     params:

@@ -13,7 +13,7 @@ rule build_asmfa_index:
 
 rule align_reads_to_asmfa:
     input:
-        reads = assembly_inputs,
+        reads = clean_reads,
         index = expand("{assembly}/{{sample}}.megahit_out/{{sample}}.contigs.fa.gz.{suffix}",
                        assembly=config["results"]["assembly"],
                        suffix=["amb", "ann", "bwt", "pac", "sa"])
