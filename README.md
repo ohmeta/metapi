@@ -199,6 +199,7 @@ hello, metagenomics!
     --configfile metapi/metaconfig.yaml \
     --cluster-config metapi/metacluster.yaml \
     --jobs 80 \
-    --cluster "qsub -S /bin/bash -cwd -q {cluster.queue} -P {cluster.project} -l vf={cluster.mem},p={cluster.cores} -o {cluster.output} -e {cluster.error}"
+    --cluster "qsub -S /bin/bash -cwd -q {cluster.queue} -P {cluster.project} -l vf={cluster.mem},p={cluster.cores} -binding linear:{cluster.cores} -o {cluster.output} -e {cluster.error}"
+    --latency-wait 360 \
     --until all
     ```
