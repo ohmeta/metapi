@@ -3,6 +3,7 @@ import argparse
 import csv
 import os
 import re
+from decimal import *
 
 
 """
@@ -50,6 +51,7 @@ def mapping_rate(flagstat_list, out_file):
         'singletons_rate', 'mate_mapped_num', 'mate_mapped_num_mapQge5'
     ]
     mapping_info = []
+    getcontext().prec = 8
 
     with open(flagstat_list, 'r') as list_handle:
         for flagstat_file in list_handle:
@@ -62,13 +64,14 @@ def mapping_rate(flagstat_list, out_file):
             info['read_2_num'] = stat_list[7].split(' ')[0]
             mapped = re.split(r'\(|\s+', stat_list[4])
             info['mapped_num'] = mapped[0]
-            info['mapped_rate'] = mapped[5]
+            info['mapped_rate'] = Decimal(mapped[5].rstrip('%')) / Decimal(100)
             paired = re.split(r'\(|\s+', stat_list[8])
             info['paired_num'] = paired[0]
-            info['paired_rate'] = paired[6]
+            info['paired_rate'] = Decimal(paired[6].rstrip('%')) / Decimal(100)
             singletons = re.split(r'\(|\s+', stat_list[-3])
             info['singletons_num'] = singletons[0]
-            info['singletons_rate'] = singletons[5]
+            info['singletons_rate'] = Decimal(
+                singletons[5].rstrip('%')) / Decimal(100)
             info['mate_mapped_num'] = re.split(r'\(|\s+', stat_list[-2])[0]
             info['mate_mapped_num_mapQge5'] = re.split(r'\(|\s+',
                                                        stat_list[-1])[0]
