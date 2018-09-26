@@ -21,9 +21,9 @@ def coverage_summary(clist, cout):
     headers = [
         'sample_id', 'contigs_num', 'contigs_len', 'contigs_binned_num',
         'contigs_binned_len', 'contigs_unbinned_num', 'contigs_unbinned_len',
-        'contigs_coverage_mean',
-        'contigs_binned_coverage_mean', 'contigs_unbinned_coverage_mean',
-        'contigs_mapped_reads_mean', 'contigs_binned_mapped_reads_mean',
+        'contigs_coverage_mean', 'contigs_binned_coverage_mean',
+        'contigs_unbinned_coverage_mean', 'contigs_mapped_reads_mean',
+        'contigs_binned_mapped_reads_mean',
         'contigs_unbinned_mapped_reads_mean'
     ]
     coverage_info = []
@@ -32,6 +32,7 @@ def coverage_summary(clist, cout):
             info = {i: 0 for i in headers[1:]}
             info['sample_id'] = os.path.basename(cfile.strip()).split('.')[0]
             with open(cfile.strip(), 'r') as c_handle:
+                print("processing %s" % cfile.strip())
                 next(c_handle)
                 for line in c_handle:
                     cinfo = line.strip().split('\t')
@@ -49,10 +50,10 @@ def coverage_summary(clist, cout):
                             cinfo[-2])
                         info['contigs_binned_mapped_reads_mean'] += int(
                             cinfo[-1])
-                info[
-                    'contigs_num'] = info['contigs_binned_num'] + info['contigs_unbinned_num']
-                info[
-                    'contigs_len'] = info['contigs_binned_len'] + info['contigs_unbinned_len']
+                info['contigs_num'] = info['contigs_binned_num'] + info[
+                    'contigs_unbinned_num']
+                info['contigs_len'] = info['contigs_binned_len'] + info[
+                    'contigs_unbinned_len']
                 info['contigs_coverage_mean'] = (
                     info['contigs_binned_coverage_mean'] +
                     info['contigs_unbinned_coverage_mean']
@@ -99,7 +100,7 @@ def profile_summary(plist, pout):
                 next(p_handle)
                 for line in p_handle:
                     pinfo = re.split(r'\s+', line.strip())
-                    if pinfo[0].startswith('R0'):
+                    if not pinfo[0].startswith('-') and pinfo[0] != 'unbinned':
                         info['bins_num'] += 1
                         info['binned_size(MB)'] += float(pinfo[1])
                         info['binned_mapped_reads'] += int(pinfo[2])
@@ -147,7 +148,7 @@ def main():
         help='summary profile for checkm profile based many samples')
     args = parser.parse_args()
 
-    # coverage_summary(args.clist, args.cout)
+    coverage_summary(args.clist, args.cout)
     profile_summary(args.plist, args.pout)
 
 
