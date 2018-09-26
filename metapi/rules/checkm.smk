@@ -51,5 +51,5 @@ rule checkm_profile:
     shell:
         '''
         set +u; source activate {params.checkm_env}; set -u;
-        checkm profile -f {output} --tab_table {input} 2> {log}
+        checkm profile -f {output} {input} 2> {log}
         '''
