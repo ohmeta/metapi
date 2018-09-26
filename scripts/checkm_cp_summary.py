@@ -19,7 +19,7 @@ def coverage_summary(clist, cout):
     binned or unbinned
     """
     headers = [
-        'sample_id', 'contigs_num', 'contigs_len', 'contigs_binned_num',
+        'fastq_id', 'contigs_num', 'contigs_len', 'contigs_binned_num',
         'contigs_binned_len', 'contigs_unbinned_num', 'contigs_unbinned_len',
         'contigs_coverage_mean', 'contigs_binned_coverage_mean',
         'contigs_unbinned_coverage_mean', 'contigs_mapped_reads_mean',
@@ -30,7 +30,7 @@ def coverage_summary(clist, cout):
     with open(clist, 'r') as list_handle:
         for cfile in list_handle:
             info = {i: 0 for i in headers[1:]}
-            info['sample_id'] = os.path.basename(cfile.strip()).split('.')[0]
+            info['fastq_id'] = os.path.basename(cfile.strip()).split('.')[0]
             with open(cfile.strip(), 'r') as c_handle:
                 print("processing %s" % cfile.strip())
                 next(c_handle)
@@ -81,7 +81,7 @@ def profile_summary(plist, pout):
     bins information
     """
     headers = [
-        'sample_id', 'bins_num', 'binned_size(MB)', 'unbinned_size(MB)',
+        'fastq_id', 'bins_num', 'binned_size(MB)', 'unbinned_size(MB)',
         'binned_size_mean', 'binned_mapped_reads', 'binned_mapped_reads_mean',
         'binned_mapped_rate', 'binned_mapped_rate_mean',
         'unbinned_mapped_reads', 'unbinned_mapped_rate',
@@ -92,7 +92,7 @@ def profile_summary(plist, pout):
     with open(plist, 'r') as list_handle:
         for pfile in list_handle:
             info = {i: 0 for i in headers[1:]}
-            info['sample_id'] = os.path.basename(pfile.strip()).split('.')[0]
+            info['fastq_id'] = os.path.basename(pfile.strip()).split('.')[0]
             with open(pfile.strip(), 'r') as p_handle:
                 print("processing %s" % pfile.strip())
                 next(p_handle)

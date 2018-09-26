@@ -23,7 +23,7 @@ __date__ = 'Apr 16, 2018'
 
 def get_checkm_out(checkmout_list, out_tsv):
     headers = [
-        "sample_id", "bin_number", "completeness_ge70_num",
+        "fastq_id", "bin_number", "completeness_ge70_num",
         "completeness_ge80_num", "completeness_ge90_num",
         "completeness_ge70_rate", "completeness_ge80_rate",
         "completeness_ge90_rate", "contamination_le30_num",
@@ -36,7 +36,7 @@ def get_checkm_out(checkmout_list, out_tsv):
     with open(checkmout_list, "r") as list_handle:
         for checkmout in list_handle:
             bin_info = {}
-            bin_info["sample_id"] = os.path.basename(
+            bin_info["fastq_id"] = os.path.basename(
                 checkmout.strip()).split(".")[0]
             bin_info["bin_number"] = 0
 
