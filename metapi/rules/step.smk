@@ -1,33 +1,30 @@
-simulation_output = expand(
-    [
-        "{simulation}/species_metadata.tsv", "{simulation}/{sample}_genome.fa",
-        "{raw}/{sample}_{read}.fq.gz", "{raw}/{sample}_abundance.txt"
-    ],
-    simulation=config["results"]["simulation"],
-    raw=config["results"]["raw"]["reads"],
-    read=["1", "2"],
-    sample=_samples.index)
+simulation_output = expand([
+    "{simulation}/species_metadata.tsv", "{simulation}/{sample}_genome.fa",
+    "{raw}/{sample}_{read}.fq.gz", "{raw}/{sample}_abundance.txt"
+],
+                           simulation=config["results"]["simulation"],
+                           raw=config["results"]["raw"]["reads"],
+                           read=["1", "2"],
+                           sample=_samples.index)
 
-fastqc_output = expand(
-    [
-        "{fastqc}/{sample}_{read}_fastqc.{out}",
-        "{multiqc}/fastqc_multiqc_report.html",
-        "{multiqc}/fastqc_multiqc_report_data"
-    ],
-    fastqc=config["results"]["raw"]["fastqc"],
-    multiqc=config["results"]["raw"]["multiqc"],
-    sample=_samples.index,
-    read=["1", "2"],
-    out=["html", "zip"])
+fastqc_output = expand([
+    "{fastqc}/{sample}_{read}_fastqc.{out}",
+    "{multiqc}/fastqc_multiqc_report.html",
+    "{multiqc}/fastqc_multiqc_report_data"
+],
+                       fastqc=config["results"]["raw"]["fastqc"],
+                       multiqc=config["results"]["raw"]["multiqc"],
+                       sample=_samples.index,
+                       read=["1", "2"],
+                       out=["html", "zip"])
 
-oas1_output = expand(
-    [
-        "{trimming}/{sample}.trimmed.{read}.fq.gz",
-        "{trimming}/{sample}.trimmed.stat_out"
-    ],
-    trimming=config["results"]["trimming"],
-    read=["1", "2", "single"],
-    sample=_samples.index)
+oas1_output = expand([
+    "{trimming}/{sample}.trimmed.{read}.fq.gz",
+    "{trimming}/{sample}.trimmed.stat_out"
+],
+                     trimming=config["results"]["trimming"],
+                     read=["1", "2", "single"],
+                     sample=_samples.index)
 
 sickle_output = expand(
     "{trimming}/{sample}.trimmed.{read}.fq.gz",
@@ -35,25 +32,23 @@ sickle_output = expand(
     sample=_samples.index,
     read=["1", "2", "single"])
 
-fastp_output = expand(
-    [
-        "{trimming}/{sample}.trimmed.{read}.fq.gz",
-        "{trimming}/{sample}.fastp.html", "{trimming}/{sample}.fastp.json",
-        "{trimming}/fastp_multiqc_report.html",
-        "{trimming}/fastp_multiqc_report_data"
-    ],
-    sample=_samples.index,
-    trimming=config["results"]["trimming"],
-    read=["1", "2"])
+fastp_output = expand([
+    "{trimming}/{sample}.trimmed.{read}.fq.gz",
+    "{trimming}/{sample}.fastp.html", "{trimming}/{sample}.fastp.json",
+    "{trimming}/fastp_multiqc_report.html",
+    "{trimming}/fastp_multiqc_report_data"
+],
+                      sample=_samples.index,
+                      trimming=config["results"]["trimming"],
+                      read=["1", "2"])
 
-rmhost_output = expand(
-    [
-        "{rmhost}/{sample}.rmhost.flagstat.txt",
-        "{rmhost}/{sample}.rmhost.{read}.fq.gz"
-    ],
-    rmhost=config["results"]["rmhost"],
-    sample=_samples.index,
-    read=["1", "2"])
+rmhost_output = expand([
+    "{rmhost}/{sample}.rmhost.flagstat.txt",
+    "{rmhost}/{sample}.rmhost.{read}.fq.gz"
+],
+                       rmhost=config["results"]["rmhost"],
+                       sample=_samples.index,
+                       read=["1", "2"])
 
 megahit_output = expand(
     "{assembly}/{sample}.megahit_out/{sample}.contigs.fa.gz",
@@ -74,51 +69,54 @@ coassembly_megahit_output = expand(
     "{coassembly_megahit}/final.contigs.fa.gz",
     coassembly_megahit=config["results"]["coassembly"]["megahit"])
 
-metaquast_output = expand(
-    [
-        "{metaquast}/{sample}.metaquast_out/report.html",
-        "{metaquast}/{sample}.metaquast_out/icarus.html",
-        "{metaquast}/{sample}.metaquast_out/combined_reference/report.tsv",
-        "{metaquast}/{sample}.metaquast_out/icarus_viewers",
-        "{metaquast}/{sample}.metaquast_out/krona_charts",
-        "{metaquast}/{sample}.metaquast_out/not_aligned",
-        "{metaquast}/{sample}.metaquast_out/runs_per_reference",
-        "{metaquast}/{sample}.metaquast_out/summary",
-        "{metaquast}/metaquast_multiqc_report.html",
-        "{metaquast}/metaquast_multiqc_report_data"
-    ],
-    metaquast=config["results"]["metaquast"],
-    sample=_samples.index)
+metaquast_output = expand([
+    "{metaquast}/{sample}.metaquast_out/report.html",
+    "{metaquast}/{sample}.metaquast_out/icarus.html",
+    "{metaquast}/{sample}.metaquast_out/combined_reference/report.tsv",
+    "{metaquast}/{sample}.metaquast_out/icarus_viewers",
+    "{metaquast}/{sample}.metaquast_out/krona_charts",
+    "{metaquast}/{sample}.metaquast_out/not_aligned",
+    "{metaquast}/{sample}.metaquast_out/runs_per_reference",
+    "{metaquast}/{sample}.metaquast_out/summary",
+    "{metaquast}/metaquast_multiqc_report.html",
+    "{metaquast}/metaquast_multiqc_report_data"
+],
+                          metaquast=config["results"]["metaquast"],
+                          sample=_samples.index)
 
-alignment_output = expand(
-    ["{alignment}/{sample}.flagstat", "{alignment}/{sample}.sorted.bam"],
-    alignment=config["results"]["alignment"],
-    sample=_samples.index)
+alignment_output = expand([
+    "{alignment}/{sample}.flagstat", "{alignment}/{sample}.sorted.bam",
+    "{alignment}/{sample}.sorted.bam.bai"
+],
+                          alignment=config["results"]["alignment"],
+                          sample=_samples.index)
 
-metabat2_output = expand(
-    [
-        "{depth}/{sample}.metabat2.depth.txt", "{bins}/{sample}.metabat2_out",
-        "{logs}/{sample}.metabat2.done", "{logs}/{sample}.metabat2.log"
-    ],
-    depth=config["results"]["binning"]["depth"],
-    bins=config["results"]["binning"]["bins"],
-    logs=config["logs"]["binning"]["metabat2"],
-    sample=_samples.index)
+metabat2_output = expand([
+    "{depth}/{sample}.metabat2.depth.txt", "{bins}/{sample}.metabat2_out",
+    "{logs}/{sample}.metabat2.done", "{logs}/{sample}.metabat2.log"
+],
+                         depth=config["results"]["binning"]["depth"],
+                         bins=config["results"]["binning"]["bins"],
+                         logs=config["logs"]["binning"]["metabat2"],
+                         sample=_samples.index)
 
-maxbin2_output = expand(
-    [
-        "{depth}/{sample}.bbmap.depth.txt",
-        "{depth}/{sample}.maxbin2.depth.txt",
-        "{bins}/{sample}.maxbin2_out/{sample}.bin.summary"
-    ],
-    depth=config["results"]["binning"]["depth"],
-    bins=config["results"]["binning"]["bins"],
-    sample=_samples.index)
+maxbin2_output = expand([
+    "{depth}/{sample}.bbmap.depth.txt", "{depth}/{sample}.maxbin2.depth.txt",
+    "{bins}/{sample}.maxbin2_out/{sample}.bin.summary"
+],
+                        depth=config["results"]["binning"]["depth"],
+                        bins=config["results"]["binning"]["bins"],
+                        sample=_samples.index)
 
-checkm_output = expand(
+checkm_lineage_wf_output = expand(
     ["{out}/{sample}.checkm.txt", "{data}/{sample}"],
     out=config["results"]["checkm"]["out"],
     data=config["results"]["checkm"]["data"],
+    sample=_samples.index)
+
+checkm_coverage_output = expand(
+    "{coverage}/{sample}.checkm_coverage.tsv",
+    coverage=config["results"]["checkm"]["coverage"],
     sample=_samples.index)
 '''
 dereplication_output = expand(
@@ -187,6 +185,7 @@ if config['params']["binning"]["maxbin2"]["do"]:
 
 binning_target = (alignment_target + binning_output)
 
+checkm_output = checkm_lineage_wf_output + checkm_coverage_output
 checkm_target = (binning_target + checkm_output)
 
 annotation_target = (checkm_target + annotation_output)
@@ -194,7 +193,6 @@ annotation_target = (checkm_target + annotation_output)
 profilling_target = (annotation_target + profilling_output)
 
 burst_target = (profilling_target + burst_output)
-
 '''
 dereplication_target = (cehckm_target + dereplication_output)
 classification_target = (drep_target + classification_output)

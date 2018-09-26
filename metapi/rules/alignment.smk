@@ -25,9 +25,23 @@ rule align_reads_to_asmfa:
     params:
         prefix = os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa.gz")
     threads:
-        threads = config["params"]["alignment"]["threads"],
+        config["params"]["alignment"]["threads"],
     shell:
         "bwa mem -t {threads} {params.prefix} {input.reads} | "
         "samtools view -@{threads} -hbS - | "
         "tee >(samtools flagstat -@{threads} - > {output.flagstat}) | "
         "samtools sort -@{threads} -o {output.bam} - 2> {log}"
+
+rule index_bam:
+    input:
+        os.path.join(config["results"]["alignment"], "{sample}.sorted.bam")
+    output:
+        os.path.join(config["results"]["alignment"], "{sample}.sorted.bam.bai")
+    log:
+        os.path.join(config["logs"]["alignment"], "{sample}_bam_index.log")
+    threads:
+        config["params"]["alignment"]["threads"]
+    shell:
+        '''
+        samtools index -@{threads} {input} {output}
+        '''
