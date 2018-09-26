@@ -92,6 +92,12 @@ align_reads_to_asmfa:
   output: "assay/cluster_logs/{rule}.{wildcards}.o"
   error: "assay/cluster_logs/{rule}.{wildcards}.e"
 
+index_bam:
+  mem: "1G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
 coverage_metabat2:
   mem: "1G"
   output: "assay/cluster_logs/{rule}.{wildcards}.o"
@@ -117,6 +123,17 @@ binning_maxbin2:
 checkm_lineage_wf:
   mem: "20G"
   cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+checkm_coverage:
+  mem: "512M"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
+checkm_profile:
+  mem: "512M"
   output: "assay/cluster_logs/{rule}.{wildcards}.o"
   error: "assay/cluster_logs/{rule}.{wildcards}.e"
 
