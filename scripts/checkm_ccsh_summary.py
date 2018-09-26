@@ -66,7 +66,7 @@ def get_checkm_out(checkmout_list, out_tsv):
                 next(checkmout_handle)
                 next(checkmout_handle)
                 for info in checkmout_handle:
-                    if info.strip().startswith("R0"):
+                    if not info.strip().startswith("-"):
                         info_list = re.split(r'\s+', info.strip())
                         bin_info["bin_number"] += 1
 
