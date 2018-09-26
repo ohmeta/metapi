@@ -118,6 +118,11 @@ checkm_coverage_output = expand(
     "{coverage}/{sample}.checkm_coverage.tsv",
     coverage=config["results"]["checkm"]["coverage"],
     sample=_samples.index)
+
+checkm_profile_output = expand(
+    "{profile}/{sample}.checkm_profile.tsv",
+    profile=config["results"]["checkm"]["profile"],
+    sample=_samples.index)
 '''
 dereplication_output = expand(
 
@@ -185,7 +190,7 @@ if config['params']["binning"]["maxbin2"]["do"]:
 
 binning_target = (alignment_target + binning_output)
 
-checkm_output = checkm_lineage_wf_output + checkm_coverage_output
+checkm_output = checkm_lineage_wf_output + checkm_coverage_output + checkm_profile_output
 checkm_target = (binning_target + checkm_output)
 
 annotation_target = (checkm_target + annotation_output)

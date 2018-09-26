@@ -38,3 +38,18 @@ rule checkm_coverage:
         set +u; source activate {params.checkm_env}; set -u;
         checkm coverage -x fa {input.bins_dir} {output} {input.bam} -t {threads} 2> {log}
         '''
+
+rule checkm_profile:
+    input:
+        os.path.join(config["results"]["checkm"]["coverage"], "{sample}.checkm_coverage.tsv")
+    output:
+        os.path.join(config["results"]["checkm"]["profile"], "{sample}.checkm_profile.tsv")
+    log:
+        os.path.join(config["logs"]["checkm"], "{sample}.checkm_profile.log")
+    params:
+        checkm_env = config["params"]["checkm"]["env"]
+    shell:
+        '''
+        set +u; source activate {params.checkm_env}; set -u;
+        checkm profile -f {output} --tab_table {input} 2> {log}
+        '''
