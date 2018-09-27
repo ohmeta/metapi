@@ -50,5 +50,5 @@ rule multiqc_prokka_bins:
         outdir = config["results"]["annotation"]["multiqc_prokka"]
     shell:
         '''
-        multiqc --outdir {params.outdir} --title prokka --module prokka {params.inputdir} 2> {log}
+        multiqc --cl_config "prokka_fn_snames: True" --outdir {params.outdir} --title prokka --module prokka {params.inputdir} 2> {log}
         '''
