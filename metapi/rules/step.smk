@@ -133,7 +133,7 @@ classification_output = expand(
 )
 '''
 annotation_output = expand(
-    "{prokka}/{sample}.prokka_out",
+    "{prokka}/{sample}.prokka_out/done",
     prokka=config["results"]["annotation"]["prokka"],
     sample=_samples.index)
 
