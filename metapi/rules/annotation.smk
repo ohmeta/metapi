@@ -33,3 +33,22 @@ rule prokka_bins:
         if rc == 0:
             with open(output.default, 'w') as out:
                 out.write("Hello, Prokka!")
+
+
+rule multiqc_prokka_bins:
+    input:
+        expand("{prokka}/{sample}.prokka_out/done",
+               prokka=config["results"]["annotation"]["prokka"],
+               sample=_samples.index)
+    output:
+        html = os.path.join(config["results"]["annotation"]["multiqc_prokka"], "prokka_multiqc_report.html"),
+        data_dir = directory(os.path.join(config["results"]["annotation"]["multiqc_prokka"], "prokka_multiqc_report_data"))
+    log:
+        os.path.join(config["logs"]["annotation"]["prokka"], "multiqc_prokka.log")
+    params:
+        inputdir = config["results"]["annotation"]["prokka"],
+        outdir = config["results"]["annotation"]["multiqc_prokka"]
+    shell:
+        '''
+        multiqc --outdir {params.outdir} --title prokka --module prokka {params.inputdir} 2> {log}
+        '''

@@ -119,6 +119,7 @@ results:
   classification: "results/08.classification"
   annotation:
     prokka: "results/09.annotation/prokka"
+    multiqc_prokka: "results/09.annotation/multiqc_prokka"
   profilling:
     metaphlan2:
       base_dir: "results/10.profilling/metaphlan2"

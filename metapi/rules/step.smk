@@ -133,8 +133,13 @@ classification_output = expand(
 )
 '''
 annotation_output = expand(
-    "{prokka}/{sample}.prokka_out/done",
+    [
+        "{prokka}/{sample}.prokka_out/done",
+        "{multiqc_prokka}/prokka_multiqc_report.html",
+        "{multiqc_prokka}/prokka_multiqc_report_data"
+    ],
     prokka=config["results"]["annotation"]["prokka"],
+    multiqc_prokka=config["results"]["annotation"]["multiqc_prokka"],
     sample=_samples.index)
 
 profilling_output = expand(
