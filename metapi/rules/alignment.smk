@@ -28,9 +28,8 @@ rule align_reads_to_asmfa:
         config["params"]["alignment"]["threads"],
     shell:
         "bwa mem -t {threads} {params.prefix} {input.reads} | "
-        "samtools view -@{threads} -hbS - | "
-        "tee >(samtools flagstat -@{threads} - > {output.flagstat}) | "
-        "samtools sort -@{threads} -o {output.bam} - 2> {log}"
+        "tee >(samtools flagstat -@ {threads} - > {output.flagstat}) | "
+        "samtools sort -@ {threads} -o {output.bam} - 2> {log}"
 
 rule index_bam:
     input:
@@ -43,5 +42,5 @@ rule index_bam:
         config["params"]["alignment"]["threads"]
     shell:
         '''
-        samtools index -@{threads} {input} {output}
+        samtools index -@ {threads} {input} {output}
         '''
