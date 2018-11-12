@@ -7,7 +7,9 @@ import pandas
 
 
 def parse_samples(samples_tsv):
-    samples = pandas.read_table(samples_tsv).set_index("id", drop=False)
+    samples = pandas.read_table(
+        samples_tsv, sep='\s+').set_index(
+            "id", drop=False)
     return samples
 
 
