@@ -53,7 +53,7 @@ assembly_megahit:
   error: "assay/cluster_logs/{rule}.{wildcards}.e"
 
 assembly_idba_ud:
-  mem: "15"
+  mem: "15G"
   cores: 8
   output: "assay/cluster_logs/{rule}.{wildcards}.o"
   error: "assay/cluster_logs/{rule}.{wildcards}.e"
