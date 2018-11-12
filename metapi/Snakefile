@@ -11,13 +11,16 @@ shell.executable("bash")
 
 configfile: "metaconfig.yaml"
 
-_samples = parse_samples(config["results"]["raw"]["samples"])
+_samples = parse_samples(config["params"]["samples"])
 
 include: "rules/step.smk"
-include: "rules/simulation.smk"
-include: "rules/fastqc.smk"
-include: "rules/trimming.smk"
-include: "rules/rmhost.smk"
+
+if config["params"]["begin"] == "raw":
+    include: "rules/simulation.smk"
+    include: "rules/fastqc.smk"
+    include: "rules/trimming.smk"
+    include: "rules/rmhost.smk"
+
 include: "rules/assembly.smk"
 include: "rules/coassembly.smk"
 include: "rules/metaquast.smk"

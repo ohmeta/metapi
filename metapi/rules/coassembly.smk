@@ -1,14 +1,19 @@
 def coassembly_inputs(read):
-    if config["params"]["rmhost"]["do"]:
+    if config["params"]["begin"] == "assembly":
+        if read == "1":
+            return _samples.fq1
+        elif read == "2":
+            return _samples.fq2
+    elif config["params"]["rmhost"]["do"]:
         return expand("{rmhost}/{sample}.rmhost.{read}.fq.gz",
                       rmhost=config["results"]["rmhost"],
                       read=read,
-                      sample=_samples.index),
+                      sample=_samples.index)
     else:
         return expand("{trimming}/{sample}.trimmed.{read}.fq.gz",
                       trimming=config["results"]["trimming"],
                       read=read,
-                      sample=_samples.index),
+                      sample=_samples.index)
 
 rule coassembly_megahit:
     input:

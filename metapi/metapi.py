@@ -10,61 +10,26 @@ import pandas
 from metaconfig import metaconfig, parse_yaml, update_config
 
 simulation_steps = [
-    "genome_download",
-    "genome_merge",
-    "genome_simulate",
-    "fastqc",
-    "multiqc_fastqc",
-    "trimming_fastp",
-    "multiqc_fastp",
-    "build_host_index",
-    "rmhost",
-    "assembly_megahit",
-    "assembly_idba_ud",
-    "assembly_metaspades",
-    "coassembly_megahit",
-    "metaquast_megahit",
-    "multiqc_metaquast",
-    "build_asmfa_index",
-    "align_reads_to_asmfa",
-    "coverage_metabat2",
-    "coverage_maxbin2",
-    "binning_metabat2",
-    "binning_maxbin2",
-    "checkm_lineage_wf",
-    "prokka_bins",
-    "metaphlan2_profilling",
-    "metaphlan2_merge",
-    "burst_reads",
-    "all"
+    "genome_download", "genome_merge", "genome_simulate", "fastqc",
+    "multiqc_fastqc", "trimming_fastp", "multiqc_fastp", "build_host_index",
+    "rmhost", "assembly_megahit", "assembly_idba_ud", "assembly_metaspades",
+    "coassembly_megahit", "metaquast_megahit", "multiqc_metaquast",
+    "build_asmfa_index", "align_reads_to_asmfa", "coverage_metabat2",
+    "coverage_maxbin2", "binning_metabat2", "binning_maxbin2",
+    "checkm_lineage_wf", "prokka_bins", "metaphlan2_profilling",
+    "metaphlan2_merge", "burst_reads", "all"
 ]
 
 workflow_steps = [
-    "fastqc",
-    "multiqc_fastqc",
-    "trimming_fastp",
-    "multiqc_fastp",
-    "build_host_index",
-    "rmhost",
-    "assembly_megahit",
-    "assembly_idba_ud",
-    "assembly_metaspades",
-    "coassembly_megahit",
-    "metaquast_megahit",
-    "multiqc_metaquast",
-    "build_asmfa_index",
-    "align_reads_to_asmfa",
-    "coverage_metabat2",
-    "coverage_maxbin2",
-    "binning_metabat2",
-    "binning_maxbin2",
-    "checkm_lineage_wf",
-    "prokka_bins",
-    "metaphlan2_profilling",
-    "metaphlan2_merge",
-    "burst_reads",
-    "all"
+    "fastqc", "multiqc_fastqc", "trimming_fastp", "multiqc_fastp",
+    "build_host_index", "rmhost", "assembly_megahit", "assembly_idba_ud",
+    "assembly_metaspades", "coassembly_megahit", "metaquast_megahit",
+    "multiqc_metaquast", "build_asmfa_index", "align_reads_to_asmfa",
+    "coverage_metabat2", "coverage_maxbin2", "binning_metabat2",
+    "binning_maxbin2", "checkm_lineage_wf", "prokka_bins",
+    "metaphlan2_profilling", "metaphlan2_merge", "burst_reads", "all"
 ]
+
 
 def initialization(args):
     if args.workdir:
@@ -73,8 +38,12 @@ def initialization(args):
         project.create_dirs()
         config, cluster = project.get_config()
 
+        if args.begin:
+            config["params"]["begin"] = args.begin
         if args.samples:
-            config["results"]["raw"]["samples"] = args.samples
+            config["params"]["samples"] = args.samples
+        else:
+            print("please supply a samples list!")
         if args.queue:
             cluster["__default__"]["queue"] = args.queue
         if args.project:
@@ -126,7 +95,7 @@ def simulation(args):
             ]
         })
         samples_df.to_csv(
-            config["results"]["raw"]["samples"],
+            config["samples"],
             sep='\t',
             index=False,
             columns=["id", "fq1", "fq2"])
@@ -143,7 +112,7 @@ def workflow(args):
     if args.workdir:
         config_file = os.path.join(args.workdir, "metaconfig.yaml")
         config = parse_yaml(config_file)
-        if not os.path.exists(config["results"]["raw"]["samples"]):
+        if not os.path.exists(config["params"]["samples"]):
             print("please specific samples list on initialization step")
             sys.exit(1)
         if args.rmhost:
@@ -200,6 +169,13 @@ def main():
     parser_init.add_argument(
         '-p', '--project', default='st.m', help='project id')
     parser_init.add_argument('-s', '--samples', help='raw fastq samples list')
+    parser_init.add_argument(
+        '-b',
+        '--begin',
+        type=str,
+        default='raw',
+        choices=['raw', 'assembly'],
+        help='begin to run pipeline from a specific step')
     parser_init._optionals.title = 'arguments'
     parser_init.set_defaults(func=initialization)
 
@@ -238,7 +214,6 @@ def main():
         '-u',
         '--step',
         type=str,
-        # metavar='<str>',
         choices=simulation_steps,
         default='checkm',
         help='run step')
@@ -255,7 +230,7 @@ def main():
         '-u',
         '--step',
         type=str,
-        # metavar='<str>',
+        choices=workflow_steps,
         default='checkm',
         help='run step')
     parser_workflow._optionals.title = 'arguments'

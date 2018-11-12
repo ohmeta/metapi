@@ -178,7 +178,9 @@ if config["params"]["assembly"]["metaspades"]["do"]:
 if config["params"]["coassembly"]["megahit"]["do"]:
     assembly_output = (assembly_output + coassembly_megahit_output)
 
-if config["params"]["rmhost"]["do"]:
+if config["params"]["begin"] == "assembly":
+    assembly_target = (assembly_output)
+elif config["params"]["rmhost"]["do"]:
     assembly_target = (rmhost_target + assembly_output)
 else:
     assembly_target = (trimming_target + assembly_output)

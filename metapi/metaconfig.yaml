@@ -1,4 +1,6 @@
 params:
+  samples: "samples.tsv"
+  begin: "raw"
   simulation:
     taxid: ["362948", "321967", "1125630", "702459", "226186", "272563"]
     genomes: ''
@@ -96,7 +98,6 @@ results:
     prefix: "results/00.host/host.fa"
   simulation: "results/00.simulation"
   raw:
-    samples: "results/00.raw/samples.tsv"
     reads: "results/00.raw/reads"
     fastqc: "results/00.raw/fastqc"
     multiqc: "results/00.raw/multiqc"

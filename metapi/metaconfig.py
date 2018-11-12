@@ -31,7 +31,7 @@ class metaconfig:
     config project directory
     '''
     sub_dirs = [
-        "assay", "assay/cluster_logs", "results", "results/00.raw", "scripts",
+        "assay", "assay/cluster_logs", "results", "results", "scripts",
         "sources", "study"
     ]
 
@@ -45,8 +45,6 @@ class metaconfig:
             os.path.dirname(os.path.abspath(__file__)), "Snakefile")
         self.new_config_file = os.path.join(self.work_dir, "metaconfig.yaml")
         self.new_cluster_file = os.path.join(self.work_dir, "metacluster.yaml")
-        self.samples_tsv = os.path.join(self.work_dir,
-                                        "results/00.raw/samples.tsv")
 
     def __str__(self):
         message = "a metagenomics project has been created at {0}".format(
