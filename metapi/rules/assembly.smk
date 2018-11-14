@@ -59,8 +59,13 @@ rule assembly_idba_ud:
         '''
         rm -rf {params.out_dir}
         mkdir {params.out_dir}
-        zcat {input.reads[0]} > {params.r1}
-        zcat {input.reads[1]} > {params.r2}
+        if [[ $(file --mime-type -b {input.reads[0]}) == application/x-gzip ]]; then
+            zcat {input.reads[0]} > {params.r1}
+            zcat {input.reads[1]} > {params.r2}
+        else
+            ln -s $(realpath {input.reads[0]}) {params.r1}
+            ln -s $(realpath {input.reads[0]}) {params.r2}
+        fi
         fq2fa --merge {params.r1} {params.r2} {params.pe_fa}
         idba_ud -r {params.pe_fa} --mink {params.mink} --maxk {params.maxk} --step {params.step} --min_contig {params.min_contig} -o {params.out_dir} --num_threads {threads} --pre_correction 2> {log}
         pigz {params.out_dir}/scaffold.fa
