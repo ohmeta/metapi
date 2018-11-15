@@ -77,7 +77,7 @@ def reassembly(assembler, mapped_reads_df, output_dir):
 
 def megahit(mapped_reads_df, output_dir):
     megahit_cmd_df = pd.DataFrame(columns=["cmd"])
-    asm_dir = os.path.join(output_dir, "02.assembly")
+    asm_dir = os.path.join(output_dir, "02.assembly/megahit.asm_out")
     os.makedirs(asm_dir, exist_ok=True)
     for bin_id in mapped_reads_df.index.unique():
         bin_assembly_dir = os.path.join(asm_dir, bin_id)
