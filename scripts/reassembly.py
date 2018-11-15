@@ -77,10 +77,10 @@ def reassembly(assembler, mapped_reads_df, output_dir):
 
 def megahit(mapped_reads_df, output_dir):
     megahit_cmd_df = pd.DataFrame(columns=["cmd"])
-    asm_dir = os.path.join(output_dir, "02.assembly/megahit.asm_out")
+    asm_dir = os.path.join(output_dir, "02.assembly")
     os.makedirs(asm_dir, exist_ok=True)
     for bin_id in mapped_reads_df.index.unique():
-        bin_assembly_dir = os.path.join(asm_dir, bin_id)
+        bin_assembly_dir = os.path.join(asm_dir, bin_id + ".megahit_out")
         r1 = ",".join(mapped_reads_df.loc[bin_id]["r1"])
         r2 = ",".join(mapped_reads_df.loc[bin_id]["r2"])
         cmd = "megahit -1 %s -2 %s -t 8 --min-contig-len 500 --out-dir %s --out-prefix %s --continue" % (
