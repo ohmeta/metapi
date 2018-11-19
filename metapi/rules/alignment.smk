@@ -1,29 +1,29 @@
-rule build_asmfa_index:
+rule bwa_index_scaftigs:
     input:
-        os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa.gz")
+        os.path.join(config["results"]["assembly"], "{sample}.{assembler}_out/{sample}.{assembler}.scaftigs.fa.gz")
     output:
-        expand("{assembly}/{{sample}}.megahit_out/{{sample}}.contigs.fa.gz.{suffix}",
+        expand("{assembly}/{{sample}}.{{assembler}}_out/{{sample}}.{{assembler}}.scaftigs.fa.gz.{suffix}",
                assembly=config["results"]["assembly"],
                suffix=["amb", "ann", "bwt", "pac", "sa"])
     log:
-        os.path.join(config["logs"]["alignment"], "{sample}_bwa_index.log")
+        os.path.join(config["logs"]["alignment"], "{sample}.{assembler}_bwa_index_scaftigs.log")
     shell:
         "bwa index {input} 2> {log}"
 
 
-rule align_reads_to_asmfa:
+rule bwa_mem_scaftigs:
     input:
         reads = clean_reads,
-        index = expand("{assembly}/{{sample}}.megahit_out/{{sample}}.contigs.fa.gz.{suffix}",
+        index = expand("{assembly}/{{sample}}.{{assembler}}_out/{{sample}}.{{assembler}}.scaftigs.fa.gz.{suffix}",
                        assembly=config["results"]["assembly"],
                        suffix=["amb", "ann", "bwt", "pac", "sa"])
     output:
-        flagstat = os.path.join(config["results"]["alignment"], "{sample}.flagstat"),
-        bam = os.path.join(config["results"]["alignment"], "{sample}.sorted.bam")
+        flagstat = os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.flagstat"),
+        bam = os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam")
     log:
-        os.path.join(config["logs"]["alignment"], "{sample}_bwa_mem.log")
+        os.path.join(config["logs"]["alignment"], "{sample}.{assembler}_bwa_mem_scaftigs.log")
     params:
-        prefix = os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa.gz")
+        prefix = os.path.join(config["results"]["assembly"], "{sample}.{assembler}_out/{sample}.{assembler}.scaftigs.fa.gz")
     threads:
         config["params"]["alignment"]["threads"],
     shell:
@@ -31,13 +31,13 @@ rule align_reads_to_asmfa:
         "tee >(samtools flagstat -@ {threads} - > {output.flagstat}) | "
         "samtools sort -@ {threads} -o {output.bam} - 2> {log}"
 
-rule index_bam:
+rule bwa_index_bam:
     input:
-        os.path.join(config["results"]["alignment"], "{sample}.sorted.bam")
+        os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam")
     output:
-        os.path.join(config["results"]["alignment"], "{sample}.sorted.bam.bai")
+        os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam.bai")
     log:
-        os.path.join(config["logs"]["alignment"], "{sample}_bam_index.log")
+        os.path.join(config["logs"]["alignment"], "{sample}.{assembler}_bam_index_bam.log")
     threads:
         config["params"]["alignment"]["threads"]
     shell:

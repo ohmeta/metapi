@@ -40,6 +40,8 @@ def initialization(args):
 
         if args.begin:
             config["params"]["begin"] = args.begin
+        if args.assembler:
+            config["params"]["assembler"] = args.assembler
         if args.samples:
             config["params"]["samples"] = args.samples
         else:
@@ -95,7 +97,7 @@ def simulation(args):
             ]
         })
         samples_df.to_csv(
-            config["samples"],
+            config["params"]["samples"],
             sep='\t',
             index=False,
             columns=["id", "fq1", "fq2"])
@@ -176,6 +178,13 @@ def main():
         default='raw',
         choices=['raw', 'assembly'],
         help='begin to run pipeline from a specific step')
+    parser_init.add_argument(
+        '-a',
+        '--assembler',
+        nargs='*',
+        metavar='<str>',
+        default='metaspades',
+        help='support metaspades, idba_ud, megahit')
     parser_init._optionals.title = 'arguments'
     parser_init.set_defaults(func=initialization)
 

@@ -1,10 +1,10 @@
 rule prokka_bins:
     input:
-        directory(os.path.join(config["results"]["binning"]["bins"], "{sample}.metabat2_out"))
+        directory(os.path.join(config["results"]["binning"]["bins"], "{sample}.{assembler}.metabat2_out"))
     output:
-        default = os.path.join(config["results"]["annotation"]["prokka"], "{sample}.prokka_out/done")
+        default = os.path.join(config["results"]["annotation"]["prokka"], "{sample}.{assembler}.prokka_out/done")
     params:
-        outdir = directory(os.path.join(config["results"]["annotation"]["prokka"], "{sample}.prokka_out")),
+        outdir = directory(os.path.join(config["results"]["annotation"]["prokka"], "{sample}.{assembler}.prokka_out")),
         logdir = config["logs"]["annotation"]["prokka"],
         kingdom = config["params"]["annotation"]["prokka"]["kingdom"],
         metagenome = "--metagenome" if config["params"]["annotation"]["prokka"]["metagenome"] else ""
@@ -37,8 +37,9 @@ rule prokka_bins:
 
 rule multiqc_prokka_bins:
     input:
-        expand("{prokka}/{sample}.prokka_out/done",
+        expand("{prokka}/{sample}.{assembler}.prokka_out/done",
                prokka=config["results"]["annotation"]["prokka"],
+               assembler=config["params"]["assembler"],
                sample=_samples.index)
     output:
         html = os.path.join(config["results"]["annotation"]["multiqc_prokka"], "prokka_multiqc_report.html"),

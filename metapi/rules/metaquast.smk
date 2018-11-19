@@ -1,25 +1,25 @@
-rule metaquast_megahit:
+rule metaquast:
     input:
-        os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa.gz")
+        os.path.join(config["results"]["assembly"], "{sample}.{assembler}_out/{sample}.{assembler}.scaftigs.fa.gz")
     output:
-        report = os.path.join(config["results"]["metaquast"], "{sample}.metaquast_out/report.html"),
-        icarus = os.path.join(config["results"]["metaquast"], "{sample}.metaquast_out/icarus.html"),
+        report = os.path.join(config["results"]["metaquast"], "{sample}.{assembler}.metaquast_out/report.html"),
+        icarus = os.path.join(config["results"]["metaquast"], "{sample}.{assembler}.metaquast_out/icarus.html"),
         combined_reference_tsv = os.path.join(config["results"]["metaquast"],
-                                                    "{sample}.metaquast_out/combined_reference/report.tsv"),
+                                              "{sample}.{assembler}.metaquast_out/combined_reference/report.tsv"),
         icarus_viewers = directory(os.path.join(config["results"]["metaquast"],
-                                                "{sample}.metaquast_out/icarus_viewers")),
+                                                "{sample}.{assembler}.metaquast_out/icarus_viewers")),
         krona_charts = directory(os.path.join(config["results"]["metaquast"],
-                                              "{sample}.metaquast_out/krona_charts")),
+                                              "{sample}.{assembler}.metaquast_out/krona_charts")),
         not_aligned = directory(os.path.join(config["results"]["metaquast"],
-                                             "{sample}.metaquast_out/not_aligned")),
+                                             "{sample}.{assembler}.metaquast_out/not_aligned")),
         runs_per_reference = directory(os.path.join(config["results"]["metaquast"],
-                                                    "{sample}.metaquast_out/runs_per_reference")),
+                                                    "{sample}.{assembler}.metaquast_out/runs_per_reference")),
         summary = directory(os.path.join(config["results"]["metaquast"],
-                                         "{sample}.metaquast_out/summary"))
+                                         "{sample}.{assembler}.metaquast_out/summary"))
     log:
-        os.path.join(config["logs"]["metaquast"], "{sample}.metaquast.log")
+        os.path.join(config["logs"]["metaquast"], "{sample}.{assembler}.metaquast.log")
     params:
-        output_dir = os.path.join(config["results"]["metaquast"], "{sample}.metaquast_out"),
+        output_dir = os.path.join(config["results"]["metaquast"], "{sample}.{assembler}.metaquast_out"),
         min_contig = config["params"]["metaquast"]["min_contig"],
         metaquast_env = config["params"]["metaquast"]["env"]
     threads:
@@ -34,8 +34,9 @@ rule metaquast_megahit:
 
 rule multiqc_metaquast:
     input:
-        expand("{metaquast}/{sample}.metaquast_out/combined_reference/report.tsv",
+        expand("{metaquast}/{sample}.{assembler}.metaquast_out/combined_reference/report.tsv",
                metaquast=config["results"]["metaquast"],
+               assembler=config["params"]["assembler"],
                sample=_samples.index)
     output:
         html = os.path.join(config["results"]["metaquast"], "metaquast_multiqc_report.html"),
@@ -49,21 +50,3 @@ rule multiqc_metaquast:
         '''
         multiqc --outdir {params.outdir} --title metaquast --module quast {input} 2> {log}
         '''
-
-'''
-rule metaquast_idba_ud:
-    input:
-    output:
-    log:
-    params:
-    threads:
-    shell:
-
-rule metaquast_metaspades:
-    input:
-    output:
-    log:
-    params:
-    threads:
-    shell:
-'''

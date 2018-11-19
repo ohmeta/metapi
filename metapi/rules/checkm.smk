@@ -1,11 +1,11 @@
 rule checkm_lineage_wf:
     input:
-        default = os.path.join(config["logs"]["binning"]["metabat2"], "{sample}.metabat2.done"),
-        bins_dir = directory(os.path.join(config["results"]["binning"]["bins"], "{sample}.metabat2_out"))
+        default = os.path.join(config["logs"]["binning"]["metabat2"], "{sample}.{assembler}.metabat2.done"),
+        bins_dir = directory(os.path.join(config["results"]["binning"]["bins"], "{sample}.{assembler}.metabat2_out"))
     output:
         checkm_txt = os.path.join(config["results"]["checkm"]["out"],
-                                  "{sample}.checkm.txt"),
-        checkm_data_dir = directory(os.path.join(config["results"]["checkm"]["data"], "{sample}"))
+                                  "{sample}.{assembler}.checkm.txt"),
+        checkm_data_dir = directory(os.path.join(config["results"]["checkm"]["data"], "{sample}.{assembler}"))
     params:
         txt_dir = directory(config["results"]["checkm"]["out"]),
         data_dir = directory(config["results"]["checkm"]["data"]),
@@ -22,13 +22,13 @@ rule checkm_lineage_wf:
 
 rule checkm_coverage:
     input:
-        bins_dir = directory(os.path.join(config["results"]["binning"]["bins"], "{sample}.metabat2_out")),
-        bam = os.path.join(config["results"]["alignment"], "{sample}.sorted.bam"),
-        bai = os.path.join(config["results"]["alignment"], "{sample}.sorted.bam.bai")
+        bins_dir = directory(os.path.join(config["results"]["binning"]["bins"], "{sample}.{assembler}.metabat2_out")),
+        bam = os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam"),
+        bai = os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam.bai")
     output:
-        os.path.join(config["results"]["checkm"]["coverage"], "{sample}.checkm_coverage.tsv")
+        os.path.join(config["results"]["checkm"]["coverage"], "{sample}.{assembler}.checkm_coverage.tsv")
     log:
-        os.path.join(config["logs"]["checkm"], "{sample}.checkm_coverage.log")
+        os.path.join(config["logs"]["checkm"], "{sample}.{assembler}.checkm_coverage.log")
     params:
         checkm_env = config["params"]["checkm"]["env"]
     threads:
@@ -41,11 +41,11 @@ rule checkm_coverage:
 
 rule checkm_profile:
     input:
-        os.path.join(config["results"]["checkm"]["coverage"], "{sample}.checkm_coverage.tsv")
+        os.path.join(config["results"]["checkm"]["coverage"], "{sample}.{assembler}.checkm_coverage.tsv")
     output:
-        os.path.join(config["results"]["checkm"]["profile"], "{sample}.checkm_profile.tsv")
+        os.path.join(config["results"]["checkm"]["profile"], "{sample}.{assembler}.checkm_profile.tsv")
     log:
-        os.path.join(config["logs"]["checkm"], "{sample}.checkm_profile.log")
+        os.path.join(config["logs"]["checkm"], "{sample}.{assembler}.checkm_profile.log")
     params:
         checkm_env = config["params"]["checkm"]["env"]
     shell:

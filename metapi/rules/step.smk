@@ -51,17 +51,17 @@ rmhost_output = expand([
                        read=["1", "2"])
 
 megahit_output = expand(
-    "{assembly}/{sample}.megahit_out/{sample}.contigs.fa.gz",
+    "{assembly}/{sample}.megahit_out/{sample}.megahit.scaftigs.fa.gz",
     assembly=config["results"]["assembly"],
     sample=_samples.index)
 
 idba_ud_output = expand(
-    "{assembly}/{sample}.idba_ud_out/{sample}.scaffolds.fa.gz",
+    "{assembly}/{sample}.idba_ud_out/{sample}.idba_ud.scaftigs.fa.gz",
     assembly=config["results"]["assembly"],
     sample=_samples.index)
 
 metaspades_output = expand(
-    "{assembly}/{sample}.metaspades_out/{sample}.scaffolds.fa.gz",
+    "{assembly}/{sample}.metaspades_out/{sample}.metaspades.scaftigs.fa.gz",
     assembly=config["results"]["assembly"],
     sample=_samples.index)
 
@@ -70,58 +70,69 @@ coassembly_megahit_output = expand(
     coassembly_megahit=config["results"]["coassembly"]["megahit"])
 
 metaquast_output = expand([
-    "{metaquast}/{sample}.metaquast_out/report.html",
-    "{metaquast}/{sample}.metaquast_out/icarus.html",
-    "{metaquast}/{sample}.metaquast_out/combined_reference/report.tsv",
-    "{metaquast}/{sample}.metaquast_out/icarus_viewers",
-    "{metaquast}/{sample}.metaquast_out/krona_charts",
-    "{metaquast}/{sample}.metaquast_out/not_aligned",
-    "{metaquast}/{sample}.metaquast_out/runs_per_reference",
-    "{metaquast}/{sample}.metaquast_out/summary",
+    "{metaquast}/{sample}.{assembler}.metaquast_out/report.html",
+    "{metaquast}/{sample}.{assembler}.metaquast_out/icarus.html",
+    "{metaquast}/{sample}.{assembler}.metaquast_out/combined_reference/report.tsv",
+    "{metaquast}/{sample}.{assembler}.metaquast_out/icarus_viewers",
+    "{metaquast}/{sample}.{assembler}.metaquast_out/krona_charts",
+    "{metaquast}/{sample}.{assembler}.metaquast_out/not_aligned",
+    "{metaquast}/{sample}.{assembler}.metaquast_out/runs_per_reference",
+    "{metaquast}/{sample}.{assembler}.metaquast_out/summary",
     "{metaquast}/metaquast_multiqc_report.html",
     "{metaquast}/metaquast_multiqc_report_data"
 ],
                           metaquast=config["results"]["metaquast"],
+                          assembler=config["params"]["assembler"],
                           sample=_samples.index)
 
 alignment_output = expand([
-    "{alignment}/{sample}.flagstat", "{alignment}/{sample}.sorted.bam",
-    "{alignment}/{sample}.sorted.bam.bai"
+    "{alignment}/{sample}.bwa_out/{sample}.{assembler}.flagstat",
+    "{alignment}/{sample}.bwa_out/{sample}.{assembler}.sorted.bam",
+    "{alignment}/{sample}.bwa_out/{sample}.{assembler}.sorted.bam.bai"
 ],
                           alignment=config["results"]["alignment"],
+                          assembler=config["params"]["assembler"],
                           sample=_samples.index)
 
 metabat2_output = expand([
-    "{depth}/{sample}.metabat2.depth.txt", "{bins}/{sample}.metabat2_out",
-    "{logs}/{sample}.metabat2.done", "{logs}/{sample}.metabat2.log"
+    "{depth}/{sample}.{assembler}.metabat2.depth.txt",
+    "{bins}/{sample}.{assembler}.metabat2_out",
+    "{logs}/{sample}.{assembler}.metabat2.done",
+    "{logs}/{sample}.{assembler}.metabat2.log"
 ],
                          depth=config["results"]["binning"]["depth"],
                          bins=config["results"]["binning"]["bins"],
                          logs=config["logs"]["binning"]["metabat2"],
+                         assembler=config["params"]["assembler"],
                          sample=_samples.index)
 
 maxbin2_output = expand([
-    "{depth}/{sample}.bbmap.depth.txt", "{depth}/{sample}.maxbin2.depth.txt",
-    "{bins}/{sample}.maxbin2_out/{sample}.bin.summary"
+    "{depth}/{sample}.{assembler}.bbmap.depth.txt",
+    "{depth}/{sample}.{assembler}.maxbin2.depth.txt",
+    "{bins}/{sample}.{assembler}.maxbin2_out/{sample}.bin.summary"
 ],
                         depth=config["results"]["binning"]["depth"],
                         bins=config["results"]["binning"]["bins"],
+                        assembler=config["params"]["assembler"],
                         sample=_samples.index)
 
 checkm_lineage_wf_output = expand(
-    ["{out}/{sample}.checkm.txt", "{data}/{sample}"],
+    ["{out}/{sample}.{assembler}.checkm.txt", "{data}/{sample}.{assembler}"],
     out=config["results"]["checkm"]["out"],
     data=config["results"]["checkm"]["data"],
+    assembler=config["params"]["assembler"],
     sample=_samples.index)
 
 checkm_coverage_output = expand(
-    "{coverage}/{sample}.checkm_coverage.tsv",
+    "{coverage}/{sample}.{assembler}.checkm_coverage.tsv",
     coverage=config["results"]["checkm"]["coverage"],
+    assembler=config["params"]["assembler"],
     sample=_samples.index)
 
 checkm_profile_output = expand(
-    "{profile}/{sample}.checkm_profile.tsv",
+    "{profile}/{sample}.{assembler}.checkm_profile.tsv",
     profile=config["results"]["checkm"]["profile"],
+    assembler=config["params"]["assembler"],
     sample=_samples.index)
 '''
 dereplication_output = expand(
@@ -134,12 +145,13 @@ classification_output = expand(
 '''
 annotation_output = expand(
     [
-        "{prokka}/{sample}.prokka_out/done",
+        "{prokka}/{sample}.{assembler}.prokka_out/done",
         "{multiqc_prokka}/prokka_multiqc_report.html",
         "{multiqc_prokka}/prokka_multiqc_report_data"
     ],
     prokka=config["results"]["annotation"]["prokka"],
     multiqc_prokka=config["results"]["annotation"]["multiqc_prokka"],
+    assembler=config["params"]["assembler"],
     sample=_samples.index)
 
 profilling_output = expand(

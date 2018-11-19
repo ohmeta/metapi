@@ -2,6 +2,8 @@ def clean_reads(wildcards):
     if config["params"]["begin"] == "assembly":
         r1 = get_sample_id(_samples, wildcards, "fq1")
         r2 = get_sample_id(_samples, wildcards, "fq2")
+        print(r1 + "\t" + r2)
+        print(type(r1))
         return [r1, r2]
     elif config["params"]["rmhost"]["do"]:
         return expand("{rmhost}/{sample}.rmhost.{read}.fq.gz",
@@ -18,13 +20,13 @@ rule assembly_megahit:
     input:
         reads = clean_reads
     output:
-        contigs = os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa.gz"),
+        contigs = os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.megahit.scaftigs.fa.gz"),
         temp_file = temp(directory(os.path.join(config["results"]["assembly"], "{sample}.megahit_out/intermediate_contigs")))
     params:
         min_contig = config["params"]["assembly"]["megahit"]["min_contig"],
         out_dir = os.path.join(config["results"]["assembly"], "{sample}.megahit_out"),
-        contigs = os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.contigs.fa"),
-        out_prefix = "{sample}"
+        contigs = os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.{megahit}.contigs.fa"),
+        out_prefix = "{sample}.megahit"
     threads:
         config["params"]["assembly"]["megahit"]["threads"]
     log:
@@ -35,13 +37,14 @@ rule assembly_megahit:
         megahit -1 {input.reads[0]} -2 {input.reads[1]} -t {threads} --min-contig-len {params.min_contig} --out-dir {params.out_dir} --out-prefix {params.out_prefix} 2> {log}
         sed -i 's#^>#>'"{params.out_prefix}"'_#g' {params.contigs}
         pigz {params.contigs}
+        mv {params.contigs}.gz {output.contigs}
         '''
 
 rule assembly_idba_ud:
     input:
         reads = clean_reads
     output:
-        os.path.join(config["results"]["assembly"], "{sample}.idba_ud_out/{sample}.scaffolds.fa.gz")
+        os.path.join(config["results"]["assembly"], "{sample}.idba_ud_out/{sample}.idba_ud.scaftigs.fa.gz")
     params:
         out_dir = os.path.join(config["results"]["assembly"], "{sample}.idba_ud_out"),
         r1 = temp(os.path.join(config["results"]["assembly"], "{sample}.idba_ud_out/{sample}.r1.fq")),
@@ -77,7 +80,7 @@ rule assembly_metaspades:
     input:
         reads = clean_reads
     output:
-        os.path.join(config["results"]["assembly"], "{sample}.metaspades_out/{sample}.scaffolds.fa.gz")
+        os.path.join(config["results"]["assembly"], "{sample}.metaspades_out/{sample}.metaspades.scaftigs.fa.gz")
     params:
         memory = config["params"]["assembly"]["metaspades"]["memory"],
         out_dir = os.path.join(config["results"]["assembly"], "{sample}.metaspades_out")
