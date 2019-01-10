@@ -24,11 +24,27 @@ rule rmhost:
         flagstat = os.path.join(config["results"]["rmhost"], "{sample}.flagstat.txt"),
         reads = expand("{rmhost}/{{sample}}.rmhost.{read}.fq.gz",
                        rmhost=config["results"]["rmhost"],
-                       read=["1", "2"])
+                       read=["1", "2"]),
+        bam = os.path.join(config["results"]["rmhost"], "{sample}.host.sorted.bam")
+    log:
+        os.path.join(config["logs"]["rmhost"], "{sample}.rmhost.log")
     params:
         threads = config["params"]["rmhost"]["threads"],
+        save_bam = config["params"]["rmhost"]["save_bam"],
         prefix = config["results"]["host"]["prefix"]
-    shell:
-        "bwa mem -t {threads} {params.prefix} {input.reads} | "
-        "tee >(samtools flagstat -@{threads} - > {output.flagstat}) | "
-        "samtools fastq -@{threads} -f 12 -n -1 {output.reads[0]} -2 {output.reads[1]} -"
+    run:
+        if {params.save_bam}:
+            shell(
+                '''
+                bwa mem -t {threads} {params.prefix} {input.reads} |
+                tee >(samtools flagstat -@{threads} - > {output.flagstat}) |
+                tee >(samtools fastq -@{threads} -f 12 -F 256 -1 {output.reads[0]} -2 {output.reads[1]} -) |
+                samtools sort -@{threads} -o {output.bam} - 2>{log}
+                ''')
+        else:
+           shell(
+               '''
+               bwa mem -t {threads} {params.prefix} {input.reads} |
+               tee >(samtools flagstat -@{threads} - > {output.flagstat}) |
+               samtools fastq -@{threads} -f 12 -F 256 -1 {output.reads[0]} -2 {output.reads[1]} - 2>{log}
+               ''')

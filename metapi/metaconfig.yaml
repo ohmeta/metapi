@@ -31,6 +31,7 @@ params:
   rmhost:
     do: False
     threads: 8
+    save_bam: True
   assembler: ["megahit", "idba_ud", "metaspades"]
   assembly:
     megahit:
