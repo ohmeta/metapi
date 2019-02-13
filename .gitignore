@@ -4,6 +4,10 @@
 # pycharm
 .idea
 
+# kdevelop
+.kdev4
+metapi.kdev4
+
 # test
 example/basic_test/data/01.trimmed
 example/basic_test/data/02.assembly
@@ -11,6 +15,8 @@ example/basic_test/data/03.alignment
 example/basic_test/data/04.binning
 example/basic_test/data/05.checkm
 example/basic_test/data/logs
+
+
 
 # snakemake
 .snakemake
@@ -21,3 +27,7 @@ metapi/__pycache__/
 build/
 dist/
 metapi.egg-info/
+
+conda/*.gz
+
+notebooks/
