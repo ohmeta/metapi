@@ -1,0 +1,149 @@
+params:
+  cluster:
+    queue: "st.q"
+    project: "st.m"
+  simulation:
+    taxid: ["362948", "321967", "1125630", "702459", "226186", "272563"]
+    genomes: ''
+    n_genomes: 6
+    n_reads: "5M"
+    model:  "hiseq"
+    output_prefix: "simulate"
+    threads: 8
+  trimming:
+    oas1:
+      do: False
+      qual_system: 33
+      min_length: 30
+      seed_oa: 0.9
+      fragment_oa: 0.8
+    sickle:
+      do: False
+      qual_type: "sanger"
+      sickle_pe: ""
+      length_cutoff: 51
+      qual_cutoff: 20
+    fastp:
+      do: True
+      threads: 8
+      disable_adapter_trimming: True
+      compression: 6
+      cut_mean_quality: 20
+      length_required: 51
+  rmhost:
+    do: False
+    bwa_mem_threads: 8
+    samtools_threads: 8
+  assembly:
+    megahit:
+      do: True
+      threads: 8
+      min_contig: 500
+    idba_ud:
+      do: True
+      mink: 27
+      maxk: 127
+      step: 10
+      min_contig: 500
+      threads: 8
+    metaspades:
+      do: True
+      memory: 10
+      threads: 8
+      kmers: []
+  coassembly:
+    megahit:
+      do: True
+      threads: 8
+      min_contig: 500
+  metaquast:
+    do: True
+    threads: 8
+    min_contig: 500
+  alignment:
+    bwa_mem_threads: 8
+    samtools_threads: 8
+  binning:
+    metabat2:
+      do: True
+      min_contig: 2500
+      seed: 2018
+    maxbin2:
+      do: False
+      threads: 8
+  checkm:
+    env: "bioenv2"
+    threads: 8
+    completeness: 90
+    contamination: 10
+  dereplication: ""
+  classification: ""
+  annotation:
+    prokka:
+      kingdom: Bacteria
+      metagenome: False
+      threads: 8
+  profilling:
+    metaphlan2:
+      env: "bioenv2"
+      input_type: "fastq"
+      threads: 8
+
+results:
+  host:
+    fasta: "results/00.host/host.fa"
+    prefix: "results/00.host/host.fa"
+  simulation:
+    genomes: "results/00.simulation"
+  raw:
+    samples:
+    fastqc: "results/00.raw/fastqc"
+    multiqc: "results/00.raw/multiqc"
+  trimming: "results/01.trimming"
+  rmhost: "results/02.rmhost"
+  assembly: "results/03.assembly"
+  coassembly:
+    megahit: "results/03.coassembly/megahit"
+  metaquast: "results/03.metaquast"
+  alignment: "results/04.alignment"
+  binning:
+    depth: "results/05.binning/coverage"
+    bins: "results/05.binning/bins"
+  checkm:
+    links: "results/06.checkm/checkm_input"
+    out: "results/06.checkm/checkm_out"
+    data: "results/06.checkm/checkm_data"
+  dereplication: "results/07.dereplication"
+  classification: "results/08.classification"
+  annotation:
+    prokka: "results/09.annotation/prokka"
+  profilling:
+    metaphlan2:
+      base_dir: "results/10.profilling/metaphlan2"
+      bowtie2_out: "results/10.profilling/metaphlan2/bowtie2out"
+      profile: "results/10.profilling/metaphlan2/profile"
+
+logs:
+  simulation: "assay/00.simulation/iss_logs"
+  raw:
+    fastqc: "assay/00.raw/fastqc_logs"
+    multiqc: "assay/00.raw/multiqc_logs"
+  trimming: "assay/01.trimming/logs"
+  rmhost: "assay/02.rmhost/logs"
+  assembly:
+    megahit: "assay/03.assembly/megahit_logs"
+    idba_ud: "assay/03.assembly/idba_ud_logs"
+    metaspades: "assay/03.assembly/metaspades_logs"
+  coassembly: "assay/03.coassembly/logs"
+  metaquast: "assay/03.metaquast/metaquast_logs"
+  alignment: "assay/04.alignment/logs"
+  binning:
+    metabat2: "assay/05.binning/metabat2_logs"
+    maxbin2: "assay/05.binning/maxbin2_logs"
+  checkm: "assay/06.checkm/logs"
+  dereplication: "assay/07.dereplication/logs"
+  classification: "assay/08.classification/logs"
+  annotation:
+    prokka: "assay/09.annotation/prokka_logs"
+  profilling:
+    metaphlan2: "assay/10.profilling/metaphlan2_logs"

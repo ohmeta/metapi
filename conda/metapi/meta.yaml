@@ -1,0 +1,57 @@
+package:
+  name: metapi
+  version: "0.1.3"
+
+source:
+  url: https://github.com/ohmeta/metapi/archive/v0.1.3.tar.gz
+  sha256: 22be565154c8cbfd10c21069b0ef4195e84b801b83cf3937f551a173a89ec9df
+
+build:
+  number: 0
+  preserve_egg_dir: True
+
+requirements:
+  host:
+    - python
+    - setuptools
+    - pandas
+    - ruamel.yaml
+    - snakemake
+
+  run:
+    - python
+    - setuptools
+    - pandas
+    - ruamel.yaml
+    - snakemake
+    - ncbi-genome-download
+    - pigz
+    - fastp
+    - sickle-trim
+    - multiqc
+    - bwa
+    - samtools
+    - bbamp
+    - spades
+    - idba
+    - megahit
+    - maxbin2
+    - prokka
+
+test:
+  imports:
+    - metapi
+
+commands:
+  - metapi --version
+  - metapi init --help
+
+about:
+  home: https://github.com/ohmeta/metapi
+  license: GNU General Public License V3 (GPLv3)
+  summary: 'a metagenomics data processing pipeline to help research'
+  license_family: GPL3
+
+extra:
+  identifiers:
+    - biotools:metapi
