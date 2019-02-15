@@ -203,3 +203,149 @@ hello, metagenomics!
     --latency-wait 360 \
     --until all
     ```
+    
+    ```bash
+    metapi --help
+    
+    usage: metapi [subcommand] [options]
+    
+    metapi, a metagenomics data process pipeline
+
+    optional arguments:
+        -h, --help     show this help message and exit
+        -v, --version  print software version and exit
+
+    available subcommands:
+    
+        init         a metagenomics project initialization
+        simulation   a simulation on metagenomics data
+        workflow     a workflow on real metagenomics data
+
+    ```
+    
+    ```bash
+    metapi init --help
+    
+    usage: metapi init [-h] [-d <str>] [-q QUEUE] [-p PROJECT] [-s SAMPLES]
+                       [-b {raw,assembly}] [-a [<str> [<str> ...]]]
+
+    a metagenomics project initialization
+    
+    arguments:
+        -h, --help            show this help message and exit
+        -d <str>, --workdir <str>
+                              project workdir
+        -q QUEUE, --queue QUEUE
+                          　　　cluster queue
+        -p PROJECT, --project PROJECT
+                          　　　project id
+    　　　-s SAMPLES, --samples SAMPLES
+                          　　　raw fastq samples list
+    　　　-b {raw,assembly}, --begin {raw,assembly}
+                          　　　begin to run pipeline from a specific step
+    　　　-a [<str> [<str> ...]], --assembler [<str> [<str> ...]]
+                          　　　support metaspades, idba_ud, megahit
+    ```
+    
+    ```bash
+    metapi simulation --help
+    
+    usage: metapi simulation [-h] [-d <str>] [-t [<int> [<int> ...]]]
+                             [-g <genomes.fasta>] [-ng <int>] [-nr <str>]
+                             [-m {hiseq,novaseq,miseq}]
+                             [-u {genome_download,
+                                  genome_merge,
+                                  genome_simulate,
+                                  fastqc,multiqc_fastqc,
+                                  trimming_fastp,
+                                  multiqc_fastp,
+                                  build_host_index,
+                                  rmhost,
+                                  assembly_megahit,
+                                  assembly_idba_ud,
+                                  assembly_metaspades,
+                                  coassembly_megahit,
+                                  metaquast_megahit,
+                                  multiqc_metaquast,
+                                  build_asmfa_index,
+                                  align_reads_to_asmfa,
+                                  coverage_metabat2,
+                                  coverage_maxbin2,
+                                  binning_metabat2,
+                                  binning_maxbin2,
+                                  checkm_lineage_wf,
+                                  prokka_bins,
+                                  metaphlan2_profilling,
+                                  metaphlan2_merge,
+                                  burst_reads,all}]
+　　
+   a simulation on metagenomics data
+    
+   arguments:
+        -h, --help            show this help message and exit
+        -d <str>, --workdir <str>
+                              project workdir
+        -t [<int> [<int> ...]], --taxid [<int> [<int> ...]]
+                            　reference database species id(sapce-separated)
+　　　　　-g <genomes.fasta>, --genomes <genomes.fasta>
+　　　　　　　　　　　　　　　　　　genomes fasta, default: None
+　　　　　-ng <int>, --n_genomes <int>
+　　　　　　　　　　　　　　　　　　genomes number, default: 6
+        -nr <str>, --n_reads <str>
+                              reads coverage, default: 5M
+        -m {hiseq,novaseq,miseq}, --model {hiseq,novaseq,miseq}
+                              reads error model, default: hiseq
+        -u {genome_download,
+            genome_merge,
+            genome_simulate,
+            fastqc,
+            multiqc_fastqc,
+            trimming_fastp,
+            multiqc_fastp,
+            build_host_index,
+            rmhost,
+            assembly_megahit,
+            assembly_idba_ud,
+            assembly_metaspades,
+            coassembly_megahit,
+            metaquast_megahit,
+            multiqc_metaquast,
+            build_asmfa_index,
+            align_reads_to_asmfa,
+            coverage_metabat2,
+            coverage_maxbin2,
+            binning_metabat2,
+            binning_maxbin2,
+            checkm_lineage_wf,
+            prokka_bins,
+            metaphlan2_profilling,
+            metaphlan2_merge,
+            burst_reads,all}, 
+        --step {genome_download,
+                genome_merge,
+                genome_simulate,
+                fastqc,
+                multiqc_fastqc,
+                trimming_fastp,
+                multiqc_fastp,
+                build_host_index,
+                rmhost,
+                assembly_megahit,
+                assembly_idba_ud,
+                assembly_metaspades,
+                coassembly_megahit,
+                metaquast_megahit,
+                multiqc_metaquast,
+                build_asmfa_index,
+                align_reads_to_asmfa,
+                coverage_metabat2,
+                coverage_maxbin2,
+                binning_metabat2,
+                binning_maxbin2,
+                checkm_lineage_wf,
+                prokka_bins,
+                metaphlan2_profilling,
+                metaphlan2_merge,
+                burst_reads,all}
+                run step
+    ```
