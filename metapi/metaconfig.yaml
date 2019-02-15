@@ -23,11 +23,18 @@ params:
       qual_cutoff: 20
     fastp:
       do: True
-      threads: 8
+      threads: 4
       disable_adapter_trimming: True
+      use_slide_window: False
       compression: 6
-      cut_mean_quality: 20
+      cut_front_window_size: 4
+      cut_front_mean_quality: 20
+      cut_tail_window_size: 4
+      cut_tail_mean_quality: 20
+      cut_right_window_size: 4
+      cut_right_mean_quality: 20
       length_required: 51
+      n_base_limit: 5
   rmhost:
     do: False
     threads: 8

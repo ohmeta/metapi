@@ -25,7 +25,7 @@ multiqc_fastqc:
 
 trimming_fastp:
   mem: "1G"
-  cores: 8
+  cores: 4
   output: "assay/cluster_logs/{rule}.{wildcards}.o"
   error: "assay/cluster_logs/{rule}.{wildcards}.e"
 
