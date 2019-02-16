@@ -15,12 +15,10 @@ _samples = parse_samples(config["params"]["samples"])
 print(_samples.index)
 
 include: "rules/step.smk"
-
-if config["params"]["begin"] == "raw":
-    include: "rules/trimming.smk"
-    include: "rules/rmhost.smk"
+include: "rules/trimming.smk"
+include: "rules/rmhost.smk"
 
 
 rule all:
     input:
-        rmhost_target
+        rmhost_output
