@@ -1,5 +1,5 @@
 fastp_output = expand([
-    "{trimming}/{sample}_trimmed_{read,[12]}.fq.gz",
+    "{trimming}/{sample}_trimmed_{read[12]}.fq.gz",
     "{trimming}/{sample}_fastp.html",
     "{trimming}/{sample}_fastp.json",
     "{trimming}/fastp_multiqc_report.html",
@@ -10,7 +10,7 @@ fastp_output = expand([
                       read=["1", "2"])
 
 rmhost_output = expand([
-    "{rmhost}/{sample}_rmhost_{read,[12]}.fq.gz",
+    "{rmhost}/{sample}_rmhost_{read[12]}.fq.gz",
     "{rmhost}/{sample}_rmhost_flagstat.txt",
     "{rmhost}/{sample}_host_sorted.bam"
 ],
