@@ -180,6 +180,7 @@ trimming_target = (fastqc_output + trimming_output)
 
 rmhost_target = (trimming_target + rmhost_output)
 
+assembly_output = ([])
 if config["params"]["assembly"]["megahit"]["do"]:
     assembly_output = (megahit_output)
 if config["params"]["assembly"]["idba_ud"]["do"]:
