@@ -21,7 +21,7 @@ rule rmhost:
                        prefix=config["results"]["host"]["prefix"],
                        suffix=["amb", "ann", "bwt", "pac", "sa"])
     output:
-        flagstat = os.path.join(config["results"]["rmhost"], "{sample}.flagstat.txt"),
+        flagstat = os.path.join(config["results"]["rmhost"], "{sample}.rmhost.flagstat.txt"),
         reads = expand("{rmhost}/{{sample}}.rmhost.{read}.fq.gz",
                        rmhost=config["results"]["rmhost"],
                        read=["1", "2"]),
