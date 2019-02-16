@@ -12,31 +12,15 @@ shell.executable("bash")
 configfile: "metaconfig.yaml"
 
 _samples = parse_samples(config["params"]["samples"])
+print(_samples.index)
 
 include: "rules/step.smk"
 
 if config["params"]["begin"] == "raw":
-    include: "rules/simulation.smk"
-    include: "rules/fastqc.smk"
     include: "rules/trimming.smk"
     include: "rules/rmhost.smk"
 
-include: "rules/assembly.smk"
-include: "rules/coassembly.smk"
-include: "rules/metaquast.smk"
-include: "rules/alignment.smk"
-include: "rules/binning.smk"
-include: "rules/checkm.smk"
-include: "rules/annotation.smk"
-include: "rules/profilling.smk"
-include: "rules/burst.smk"
-
-
-'''
-include: "rules/dereplication.smk"
-include: "rules/classification.smk"
-'''
 
 rule all:
     input:
-        burst_target
+        rmhost_target
