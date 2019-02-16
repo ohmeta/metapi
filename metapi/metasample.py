@@ -7,10 +7,7 @@ import pandas
 
 
 def parse_samples(samples_tsv):
-    samples = pandas.read_table(
-        samples_tsv, sep='\s+').set_index(
-            "id", drop=False)
-    return samples
+    return pandas.read_csv(samples_tsv, sep='\s+').set_index("id", drop=False)
 
 
 def parse_bins(bins_dir):
