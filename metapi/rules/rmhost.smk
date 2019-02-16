@@ -14,13 +14,13 @@ if not os.path.exists(os.path.join(config["results"]["host"]["prefix"], "bwt")):
 
 rule rmhost:
     input:
-        r1 = os.path.join(config["results"]["trimming"], "{sample}.trimmed.1.fq.gz"),
-        r2 = os.path.join(config["results"]["trimming"], "{sample}.trimmed.2.fq.gz")
+        r1 = os.path.join(config["results"]["trimming"], "{sample}_trimmed.1.fq.gz"),
+        r2 = os.path.join(config["results"]["trimming"], "{sample}_trimmed.2.fq.gz")
     output:
-        flagstat = os.path.join(config["results"]["rmhost"], "{sample}.flagstat.txt"),
-        r1 = os.path.join(config["results"]["rmhost"], "rmhost.{sample}.rmhost.1.fq.gz"),
-        r2 = os.path.join(config["results"]["rmhost"], "rmhost.{sample}.rmhost.2.fq.gz"),
-        bam = os.path.join(config["results"]["rmhost"], "{sample}.host.sorted.bam")
+        flagstat = os.path.join(config["results"]["rmhost"], "{sample}_flagstat.txt"),
+        r1 = os.path.join(config["results"]["rmhost"], "{sample}_rmhost_1.fq.gz"),
+        r2 = os.path.join(config["results"]["rmhost"], "{sample}_rmhost_2.fq.gz"),
+        bam = os.path.join(config["results"]["rmhost"], "{sample}_host_sorted.bam")
     log:
         os.path.join(config["logs"]["rmhost"], "{sample}.rmhost.log")
     params:
