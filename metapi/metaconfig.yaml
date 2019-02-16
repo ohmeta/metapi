@@ -38,7 +38,7 @@ params:
   rmhost:
     do: False
     threads: 8
-    save_bam: True
+    save_bam: False
   assembler: ["megahit", "idba_ud", "metaspades"]
   assembly:
     megahit:
@@ -56,7 +56,7 @@ params:
       do: True
       memory: 10
       threads: 8
-      kmers: []
+      kmers: ['21', '29', '39', '59', '79', '99']
   coassembly:
     megahit:
       do: True
