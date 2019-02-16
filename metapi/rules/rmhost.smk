@@ -1,4 +1,4 @@
-if not os.path.exists(os.path.join(config["results"]["host"]["prefix"], "bwt")):
+if not os.path.exists(config["results"]["host"]["prefix"] + ".bwt"):
     rule build_host_index:
         input:
             config["results"]["host"]["fasta"]
