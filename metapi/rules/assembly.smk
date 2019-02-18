@@ -76,22 +76,24 @@ rule assembly_idba_ud:
         rm -rf {params.out_dir}/kmer {params.out_dir}/contig-* {params.out_dir}/align-* {params.out_dir}/graph-* {params.out_dir}/local-contig-*
         '''
 
-
 kmer_list = ["21", "33", "55"]
 if len(config["params"]["assembly"]["metaspades"]["kmers"]) > 0:
     kmer_list = config["params"]["assembly"]["metaspades"]["kmers"]
+
+def get_kmer_dirs(wildcards):
+    return expand(directory(temp(os.path.join(config["results"]["assembly"], "{sample}.metaspades_out/K{kmer}"))),
+                  sample=wildcards.sample, kmer=kmer_list)
 
 rule assembly_metaspades:
     input:
         reads = clean_reads
     output:
-        scaftigs = protected(os.path.join(config["results"]["assembly"], "{sample}.metaspades_out/{sample}.metaspades.scaftigs.fa.gz")),
-        kmer_dir = expand(temp(os.path.join(config["results"]["assembly"], "{{sample}}.metaspades_out/K{kmer}")),
-                          kmer=kmer_list)
+        scaftigs = protected(os.path.join(config["results"]["assembly"], "{sample}.metaspades_out/{sample}.metaspades.scaftigs.fa.gz"))
     params:
         kmers = "auto" if len(config["params"]["assembly"]["metaspades"]["kmers"]) == 0 else ",".join(config["params"]["assembly"]["metaspades"]["kmers"]),
         memory = config["params"]["assembly"]["metaspades"]["memory"],
-        out_dir = os.path.join(config["results"]["assembly"], "{sample}.metaspades_out")
+        out_dir = os.path.join(config["results"]["assembly"], "{sample}.metaspades_out"),
+        kmer_dirs = get_kmer_dirs
     threads:
         config["params"]["assembly"]["metaspades"]["threads"]
     log:
@@ -107,4 +109,5 @@ rule assembly_metaspades:
         -o {params.out_dir} 2> {log}
         pigz {params.out_dir}/scaffolds.fasta
         mv {params.out_dir}/scaffolds.fasta.gz {output.scaftigs}
+        rm -rf {params.kmer_dirs}
         '''
