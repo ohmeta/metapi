@@ -1,6 +1,6 @@
 rule prokka_bins:
     input:
-        directory(os.path.join(config["results"]["binning"]["bins"], "{sample}.{assembler}.metabat2_out"))
+        os.path.join(config["results"]["binning"]["bins"], "{sample}.{assembler}.metabat2_out")
     output:
         default = os.path.join(config["results"]["annotation"]["prokka"], "{sample}.{assembler}.prokka_out/done")
     params:

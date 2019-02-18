@@ -1,7 +1,7 @@
 rule checkm_lineage_wf:
     input:
         default = os.path.join(config["logs"]["binning"]["metabat2"], "{sample}.{assembler}.metabat2.done"),
-        bins_dir = directory(os.path.join(config["results"]["binning"]["bins"], "{sample}.{assembler}.metabat2_out"))
+        bins_dir = os.path.join(config["results"]["binning"]["bins"], "{sample}.{assembler}.metabat2_out")
     output:
         checkm_txt = os.path.join(config["results"]["checkm"]["out"],
                                   "{sample}.{assembler}.checkm.txt"),
@@ -22,7 +22,7 @@ rule checkm_lineage_wf:
 
 rule checkm_coverage:
     input:
-        bins_dir = directory(os.path.join(config["results"]["binning"]["bins"], "{sample}.{assembler}.metabat2_out")),
+        bins_dir = os.path.join(config["results"]["binning"]["bins"], "{sample}.{assembler}.metabat2_out"),
         bam = os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam"),
         bai = os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam.bai")
     output:
