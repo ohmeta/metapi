@@ -42,11 +42,11 @@ params:
   assembler: ["megahit", "idba_ud", "metaspades"]
   assembly:
     megahit:
-      do: True
+      do: False
       threads: 8
       min_contig: 500
     idba_ud:
-      do: True
+      do: False
       mink: 27
       maxk: 127
       step: 10
