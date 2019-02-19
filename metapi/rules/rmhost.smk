@@ -33,7 +33,7 @@ rule rmhost:
         save_bam = config["params"]["rmhost"]["save_bam"],
         prefix = config["results"]["host"]["prefix"]
     run:
-        if {params.save_bam}:
+        if params.save_bam:
             shell(
                 '''
                 bwa mem -t {threads} {params.prefix} {input.reads} |
@@ -42,9 +42,9 @@ rule rmhost:
                 samtools sort -@{threads} -o {output.bam} - 2>{log}
                 ''')
         else:
-           shell(
-               '''
-               bwa mem -t {threads} {params.prefix} {input.reads} |
-               tee >(samtools flagstat -@{threads} - > {output.flagstat}) |
-               samtools fastq -@{threads} -N -f 12 -F 256 -1 {output.reads[0]} -2 {output.reads[1]} - 2>{log}
-               ''')
+            shell(
+                '''
+                bwa mem -t {threads} {params.prefix} {input.reads} |
+                tee >(samtools flagstat -@{threads} - > {output.flagstat}) |
+                samtools fastq -@{threads} -N -f 12 -F 256 -1 {output.reads[0]} -2 {output.reads[1]} - 2>{log}
+                ''')
