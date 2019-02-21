@@ -93,6 +93,7 @@ rule assembly_metaspades:
         kmers = "auto" if len(config["params"]["assembly"]["metaspades"]["kmers"]) == 0 else ",".join(config["params"]["assembly"]["metaspades"]["kmers"]),
         memory = config["params"]["assembly"]["metaspades"]["memory"],
         out_dir = os.path.join(config["results"]["assembly"], "{sample}.metaspades_out"),
+        corrected = os.path.join(config["results"]["assembly"], "{sample}.metaspades_out/corrected"),
         kmer_dirs = get_kmer_dirs
     threads:
         config["params"]["assembly"]["metaspades"]["threads"]
@@ -107,7 +108,8 @@ rule assembly_metaspades:
         --threads {threads} \
         --memory {params.memory} \
         -o {params.out_dir} 2> {log}
-        pigz {params.out_dir}/scaffolds.fasta
+        pigz -p {threads} {params.out_dir}/scaffolds.fasta
         mv {params.out_dir}/scaffolds.fasta.gz {output.scaftigs}
         rm -rf {params.kmer_dirs}
+        rm -rf {params.corrected}
         '''
