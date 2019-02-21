@@ -70,7 +70,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
         threads:
             config["params"]["trimming"]["fastp"]["threads"]
         run:
-            if {params.use_slide_window}:
+            if params.use_slide_window:
                 shell(
                     '''
                     fastp \
