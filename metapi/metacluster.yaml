@@ -82,78 +82,86 @@ coassembly_megahit:
   output: "assay/cluster_logs/{rule}.{wildcards}.o"
   error: "assay/cluster_logs/{rule}.{wildcards}.e"
 
-metaquast_megahit:
+metaquast:
   mem: "2G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 multiqc_metaquast:
   mem: "128M"
-  cores: "assay/cluster_logs/{rule}.{wildcards}.o"
+  cores: 1
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
   error: "assay/cluster_logs/{rule}.{wildcards}.e"
 
-build_asmfa_index:
-  mem: "1G"
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+build_index_for_scaftigs:
+  mem: "3G"
+  cores: 1
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
-align_reads_to_asmfa:
+align_reads_to_scaftigs:
   mem: "1G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
-index_bam:
+build_index_for_bam:
   mem: "1G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 coverage_metabat2:
   mem: "1G"
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 coverage_maxbin2:
   mem: "1G"
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 binning_metabat2:
   mem: "2G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 binning_maxbin2:
   mem: "1G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 checkm_lineage_wf:
   mem: "20G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 checkm_coverage:
   mem: "512M"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 checkm_profile:
   mem: "512M"
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 prokka_bins:
   mem: "1G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+
+multiqc_prokka_bins:
+  mem: "1G"
+  cores: 1
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
 
 metaphlan2_profilling:
   mem: "8G"
