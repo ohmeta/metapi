@@ -1,4 +1,4 @@
-rule bwa_index_scaftigs:
+rule build_index_for_scaftigs:
     input:
         os.path.join(config["results"]["assembly"], "{sample}.{assembler}_out/{sample}.{assembler}.scaftigs.fa.gz")
     output:
@@ -8,10 +8,12 @@ rule bwa_index_scaftigs:
     log:
         os.path.join(config["logs"]["alignment"], "{sample}.{assembler}_bwa_index_scaftigs.log")
     shell:
-        "bwa index {input} 2> {log}"
+        '''
+        bwa index {input} 2> {log}
+        '''
 
 
-rule bwa_mem_scaftigs:
+rule align_reads_to_scaftigs:
     input:
         reads = clean_reads,
         index = expand("{assembly}/{{sample}}.{{assembler}}_out/{{sample}}.{{assembler}}.scaftigs.fa.gz.{suffix}",
@@ -25,13 +27,16 @@ rule bwa_mem_scaftigs:
     params:
         prefix = os.path.join(config["results"]["assembly"], "{sample}.{assembler}_out/{sample}.{assembler}.scaftigs.fa.gz")
     threads:
-        config["params"]["alignment"]["threads"],
+        config["params"]["alignment"]["threads"]
     shell:
-        "bwa mem -t {threads} {params.prefix} {input.reads} | "
-        "tee >(samtools flagstat -@ {threads} - > {output.flagstat}) | "
-        "samtools sort -@ {threads} -o {output.bam} - 2> {log}"
+        '''
+        bwa mem -t {threads} {params.prefix} {input.reads} |
+        tee >(samtools flagstat -@ {threads} - > {output.flagstat}) |
+        samtools sort -b -@{threads} -o {output.bam} - 2> {log}
+        '''
 
-rule bwa_index_bam:
+
+rule build_index_for_bam:
     input:
         os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam")
     output:
@@ -42,5 +47,5 @@ rule bwa_index_bam:
         config["params"]["alignment"]["threads"]
     shell:
         '''
-        samtools index -@ {threads} {input} {output}
+        samtools index -@{threads} {input} {output}
         '''
