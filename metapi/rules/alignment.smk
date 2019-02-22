@@ -32,7 +32,7 @@ rule align_reads_to_scaftigs:
         '''
         bwa mem -t {threads} {params.prefix} {input.reads} |
         tee >(samtools flagstat -@ {threads} - > {output.flagstat}) |
-        samtools sort -b -@{threads} -o {output.bam} - 2> {log}
+        samtools sort -@{threads} -O BAM -o {output.bam} - 2> {log}
         '''
 
 

@@ -40,7 +40,7 @@ rule rmhost:
                 bwa mem -t {threads} {params.prefix} {input.reads} |
                 tee >(samtools flagstat -@{threads} - > {output.flagstat}) |
                 tee >(samtools fastq -@{threads} -N -f 12 -F 256 -1 {output.reads[0]} -2 {output.reads[1]} -) |
-                samtools sort -@{threads} -o {params.bam} - 2>{log}
+                samtools sort -@{threads} -O BAM -o {params.bam} - 2>{log}
                 ''')
         else:
             shell(
