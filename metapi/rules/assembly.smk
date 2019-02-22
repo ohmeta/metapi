@@ -2,8 +2,6 @@ def clean_reads(wildcards):
     if config["params"]["begin"] == "assembly":
         r1 = get_sample_id(_samples, wildcards, "fq1")
         r2 = get_sample_id(_samples, wildcards, "fq2")
-        print(r1 + "\t" + r2)
-        print(type(r1))
         return [r1, r2]
     elif config["params"]["rmhost"]["do"]:
         return expand("{rmhost}/{sample}.rmhost.{read}.fq.gz",

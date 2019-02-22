@@ -1,10 +1,4 @@
 #!/usr/bin/env snakemake
-
-import os
-import sys
-import shutil
-import pandas
-
 from metasample import parse_samples, parse_bins, get_sample_id, get_bin_id
 
 shell.executable("bash")
