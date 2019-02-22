@@ -1,6 +1,6 @@
 #!/usr/bin/env snakemake
 from metasample import parse_samples, parse_bins, get_sample_id, get_bin_id
-from metareport import flagstat_summary
+from metareport import flagstats_summary
 
 shell.executable("bash")
 
