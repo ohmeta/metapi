@@ -61,5 +61,4 @@ rule summary_scaftigs_flagstat:
     output:
         os.path.join(config["results"]["alignment"], "scaftigs_flagstat_summary.tsv")
     run:
-        from metapi import metareport
-        metareport.mapping_rate(input, output, 2)
+        flagstats_summary(input, output, 2)

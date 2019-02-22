@@ -40,7 +40,7 @@ checkm_coverage
 """
 
 
-def mapping_rate(flagstats, out_file, method):
+def flagstats_summary(flagstats, out_file, method):
     """
     get alignment rate from sorted bam file
     samtools -flagstat --threads 8 sample.sort.bam
@@ -114,10 +114,10 @@ def main():
     args = parser.parse_args()
     if args.statlist:
         method = 1
-        mapping_rate(args.statlist, args.outfile, method)
+        flagstats_summary(args.statlist, args.outfile, method)
     if args.statfiles:
         method = 2
-        mapping_rate(args.statfiles, args.outfile, method)
+        flagstats_summary(args.statfiles, args.outfile, method)
 
 
 if __name__ == '__main__':
