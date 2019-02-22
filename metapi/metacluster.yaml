@@ -20,8 +20,8 @@ fastqc:
 
 multiqc_fastqc:
   mem: "128M"
-  output: "assay/cluster_logs/{rule}.{wildcards}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+  output: "assay/cluster_logs/{rule}.o"
+  error: "assay/cluster_logs/{rule}.e"
 
 trimming_oas1:
   mem: "1G"
@@ -43,14 +43,14 @@ trimming_fastp:
 
 multiqc_fastp:
   mem: "128M"
-  output: "assay/cluster_logs/{rule}.{wildcards}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+  output: "assay/cluster_logs/{rule}.o"
+  error: "assay/cluster_logs/{rule}.e"
 
 build_host_index:
   mem: "1G"
   cores: 1
-  output: "assay/cluster_logs/{rule}.{wildcards}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+  output: "assay/cluster_logs/{rule}.o"
+  error: "assay/cluster_logs/{rule}.e"
 
 rmhost:
   mem: "6G"
@@ -79,8 +79,8 @@ assembly_metaspades:
 coassembly_megahit:
   mem: "20G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+  output: "assay/cluster_logs/{rule}.o"
+  error: "assay/cluster_logs/{rule}.e"
 
 metaquast:
   mem: "2G"
@@ -91,8 +91,8 @@ metaquast:
 multiqc_metaquast:
   mem: "128M"
   cores: 1
-  output: "assay/cluster_logs/{rule}.{wildcards}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+  output: "assay/cluster_logs/{rule}.o"
+  error: "assay/cluster_logs/{rule}.e"
 
 build_index_for_scaftigs:
   mem: "3G"
@@ -115,8 +115,8 @@ build_index_for_bam:
 summary_scaftigs_flagstat:
   mem: "128M"
   cores: 1
-  output: "assay/cluster_logs/{rule}.{wildcards}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+  output: "assay/cluster_logs/{rule}.o"
+  error: "assay/cluster_logs/{rule}.e"
 
 coverage_metabat2:
   mem: "1G"
@@ -166,8 +166,8 @@ prokka_bins:
 multiqc_prokka_bins:
   mem: "1G"
   cores: 1
-  output: "assay/cluster_logs/{rule}.{wildcards}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+  output: "assay/cluster_logs/{rule}.o"
+  error: "assay/cluster_logs/{rule}.e"
 
 metaphlan2_profilling:
   mem: "8G"
@@ -177,8 +177,8 @@ metaphlan2_profilling:
 
 metaphlan2_merge:
   mem: "128M"
-  output: "assay/cluster_logs/{rule}.{wildcards}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+  output: "assay/cluster_logs/{rule}.o"
+  error: "assay/cluster_logs/{rule}.e"
 
 burst_reads:
   mem: "10G"
