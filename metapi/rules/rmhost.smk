@@ -1,16 +1,16 @@
-if not os.path.exists(config["results"]["host"]["prefix"] + ".bwt"):
-    rule build_host_index:
-        input:
-            config["results"]["host"]["fasta"]
-        output:
-            expand("{prefix}.{suffix}",
-                prefix=config["results"]["host"]["prefix"],
-                suffix=["amb", "ann", "bwt", "pac", "sa"])
-        params:
-            prefix = config["results"]["host"]["prefix"]
-        shell:
-            "bwa index {input} -p {params.prefix}"
-
+rule build_host_index:
+    input:
+        config["results"]["host"]["fasta"]
+    output:
+        expand("{prefix}.{suffix}",
+            prefix=config["results"]["host"]["prefix"],
+            suffix=["amb", "ann", "bwt", "pac", "sa"])
+    params:
+        prefix = config["results"]["host"]["fasta"]
+    shell:
+        '''
+        bwa index {input} -p {params.prefix}
+        '''
 
 rule rmhost:
     input:

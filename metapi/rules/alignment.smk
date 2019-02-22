@@ -5,11 +5,13 @@ rule build_index_for_scaftigs:
         expand("{assembly}/{{sample}}.{{assembler}}_out/{{sample}}.{{assembler}}.scaftigs.fa.gz.{suffix}",
                assembly=config["results"]["assembly"],
                suffix=["amb", "ann", "bwt", "pac", "sa"])
+    params:
+        prefix = os.path.join(config["results"]["assembly"], "{sample}.{assembler}_out/{sample}.{assembler}.scaftigs.fa.gz")
     log:
-        os.path.join(config["logs"]["alignment"], "{sample}.{assembler}_bwa_index_scaftigs.log")
+        os.path.join(config["logs"]["alignment"], "{sample}.{assembler}_build_index_for_scaftigs.log")
     shell:
         '''
-        bwa index {input} 2> {log}
+        bwa index {input} -p {params.prefix} 2> {log}
         '''
 
 
@@ -23,7 +25,7 @@ rule align_reads_to_scaftigs:
         flagstat = os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.flagstat"),
         bam = os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam")
     log:
-        os.path.join(config["logs"]["alignment"], "{sample}.{assembler}_bwa_mem_scaftigs.log")
+        os.path.join(config["logs"]["alignment"], "{sample}.{assembler}_align_reads_to_scaftigs.log")
     params:
         prefix = os.path.join(config["results"]["assembly"], "{sample}.{assembler}_out/{sample}.{assembler}.scaftigs.fa.gz")
     threads:
@@ -42,7 +44,7 @@ rule build_index_for_bam:
     output:
         os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam.bai")
     log:
-        os.path.join(config["logs"]["alignment"], "{sample}.{assembler}_bam_index_bam.log")
+        os.path.join(config["logs"]["alignment"], "{sample}.{assembler}_build_index_for_bam.log")
     threads:
         config["params"]["alignment"]["threads"]
     shell:

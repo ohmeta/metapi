@@ -104,7 +104,6 @@ params:
 results:
   host:
     fasta: "results/00.host/host.fa"
-    prefix: "results/00.host/host.fa"
   simulation: "results/00.simulation"
   raw:
     reads: "results/00.raw/reads"
