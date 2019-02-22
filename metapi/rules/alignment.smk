@@ -51,3 +51,14 @@ rule build_index_for_bam:
         '''
         samtools index -@{threads} {input} {output}
         '''
+
+
+rule summary_scaftigs_flagstat:
+    input:
+        expand(os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.flagstat"))
+    output:
+        os.path.join(config["results"]["alignment"], "align_reads_to_scaftigs.flagstat.summary.tsv")
+    run:
+        from ..metareport import mapping_rate
+
+        mapping_rate(input, output, 2)

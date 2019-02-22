@@ -112,6 +112,12 @@ build_index_for_bam:
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
+summary_scaftigs_flagstat:
+  mem: "128M"
+  cores: 1
+  output: "assay/cluster_logs/{rule}.{wildcards}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards}.e"
+
 coverage_metabat2:
   mem: "1G"
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
