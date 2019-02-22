@@ -88,8 +88,8 @@ metaquast_output = expand([
 alignment_output = expand([
     "{alignment}/{sample}.bwa_out/{sample}.{assembler}.flagstat",
     "{alignment}/{sample}.bwa_out/{sample}.{assembler}.sorted.bam",
-    "{alignment}/{sample}.bwa_out/{sample}.{assembler}.sorted.bam.bai"
-    "{alignment}/align_reads_to_scaftigs.flagstat.summary.tsv"
+    "{alignment}/{sample}.bwa_out/{sample}.{assembler}.sorted.bam.bai",
+    "{alignment}/scaftigs_flagstat_summary.tsv"
 ],
                           alignment=config["results"]["alignment"],
                           assembler=config["params"]["assembler"],

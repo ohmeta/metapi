@@ -59,7 +59,7 @@ rule summary_scaftigs_flagstat:
                         sample=_samples.index,
                         assembler=config["params"]["assembler"]))
     output:
-        os.path.join(config["results"]["alignment"], "align_reads_to_scaftigs.flagstat.summary.tsv")
+        os.path.join(config["results"]["alignment"], "scaftigs_flagstat_summary.tsv")
     run:
         from ..metareport import mapping_rate
 
