@@ -204,6 +204,7 @@ if config["params"]["metaquast"]["do"]:
 
 alignment_target = (assembly_target + alignment_output)
 
+binning_output = ([])
 if config["params"]["binning"]["metabat2"]["do"]:
     binning_output = (metabat2_output)
 if config['params']["binning"]["maxbin2"]["do"]:

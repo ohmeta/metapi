@@ -55,12 +55,12 @@ rule build_index_for_bam:
 
 rule summary_scaftigs_flagstat:
     input:
-        " ".join(expand(os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.flagstat"),
+        expand(os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.flagstat"),
                         sample=_samples.index,
-                        assembler=config["params"]["assembler"]))
+                        assembler=config["params"]["assembler"])
     output:
         os.path.join(config["results"]["alignment"], "scaftigs_flagstat_summary.tsv")
     run:
         from ..metareport import mapping_rate
-
-        mapping_rate(input, output, 2)
+        input_list = " ".join(input)
+        mapping_rate(input_list, output, 2)
