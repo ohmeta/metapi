@@ -55,7 +55,9 @@ rule build_index_for_bam:
 
 rule summary_scaftigs_flagstat:
     input:
-        expand(os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.flagstat"))
+        " ".join(expand(os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.flagstat"),
+                        sample=_samples.index,
+                        assembler=config["params"]["assembler"]))
     output:
         os.path.join(config["results"]["alignment"], "align_reads_to_scaftigs.flagstat.summary.tsv")
     run:
