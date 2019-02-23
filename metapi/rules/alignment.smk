@@ -61,4 +61,7 @@ rule summary_scaftigs_flagstat:
     output:
         os.path.join(config["results"]["alignment"], "scaftigs_flagstat_summary.tsv")
     run:
-        flagstats_summary(input, output, 2)
+        input_list = []
+        for i in input:
+            input_list.append(str(i))
+        flagstats_summary(input_list, output, 2)
