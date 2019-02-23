@@ -64,4 +64,5 @@ rule summary_scaftigs_flagstat:
         input_list = []
         for i in input:
             input_list.append(str(i))
-        flagstats_summary(input_list, output, 2)
+        output_str = str(output)
+        flagstats_summary(input_list, output_str, 2)
