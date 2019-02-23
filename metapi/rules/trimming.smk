@@ -4,9 +4,9 @@ if config["params"]["trimming"]["oas1"]["do"]:
             r1 = lambda wildcards: get_sample_id(_samples, wildcards, "fq1"),
             r2 = lambda wildcards: get_sample_id(_samples, wildcards, "fq2")
         output:
-            r1 = os.path.join(config["results"]["trimming"], "{sample}.trimmed.1.fq.gz"),
-            r2 = os.path.join(config["results"]["trimming"], "{sample}.trimmed.2.fq.gz"),
-            single = os.path.join(config["results"]["trimming"], "{sample}.trimmed.single.fq.gz"),
+            r1 = temp(os.path.join(config["results"]["trimming"], "{sample}.trimmed.1.fq.gz")),
+            r2 = temp(os.path.join(config["results"]["trimming"], "{sample}.trimmed.2.fq.gz")),
+            single = temp(os.path.join(config["results"]["trimming"], "{sample}.trimmed.single.fq.gz")),
             stat_out = os.path.join(config["results"]["trimming"], "{sample}.trimmed.stat_out")
         params:
             prefix = "{sample}",
@@ -25,7 +25,7 @@ if config["params"]["trimming"]["sickle"]["do"]:
             r1 = lambda wildcards: get_sample_id(_samples, wildcards, "fq1"),
             r2 = lambda wildcards: get_sample_id(_samples, wildcards, "fq2")
         output:
-            expand("{trimming}/{{sample}}.trimmed.{read}.fq.gz",
+            expand(temp("{trimming}/{{sample}}.trimmed.{read}.fq.gz"),
                    trimming=config["results"]["trimming"],
                    read=["1", "2", "single"])
         params:
@@ -50,8 +50,8 @@ if config["params"]["trimming"]["fastp"]["do"]:
             r1 = lambda wildcards: get_sample_id(_samples, wildcards, "fq1"),
             r2 = lambda wildcards: get_sample_id(_samples, wildcards, "fq2")
         output:
-            r1 = os.path.join(config["results"]["trimming"], "{sample}.trimmed.1.fq.gz"),
-            r2 = os.path.join(config["results"]["trimming"], "{sample}.trimmed.2.fq.gz"),
+            r1 = temp(os.path.join(config["results"]["trimming"], "{sample}.trimmed.1.fq.gz")),
+            r2 = temp(os.path.join(config["results"]["trimming"], "{sample}.trimmed.2.fq.gz")),
             html = os.path.join(config["results"]["trimming"], "{sample}.fastp.html"),
             json = os.path.join(config["results"]["trimming"], "{sample}.fastp.json")
         params:
