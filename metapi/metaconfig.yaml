@@ -36,9 +36,18 @@ params:
       length_required: 51
       n_base_limit: 5
   rmhost:
-    do: False
-    threads: 8
-    save_bam: False
+    host_fasta: /path/to/host.fa
+    bwa:
+      do: False
+      index_prefix: /path/to/host.fa
+      threads: 8
+      save_bam: False
+    bowtie2:
+      do: True
+      index_prefix: /path/to/host
+      threads: 8
+      save_bam: False
+      additional_params: "--no-unal"
   assembler: ["megahit", "idba_ud", "metaspades"]
   assembly:
     megahit:
@@ -102,8 +111,6 @@ params:
     threads: 8
 
 results:
-  host:
-    fasta: "results/00.host/host.fa"
   simulation: "results/00.simulation"
   raw:
     reads: "results/00.raw/reads"
