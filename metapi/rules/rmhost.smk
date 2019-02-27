@@ -3,7 +3,7 @@ rule build_host_index:
         config["results"]["host"]["fasta"]
     output:
         expand("{prefix}.{suffix}",
-            prefix=config["results"]["host"]["prefix"],
+            prefix=config["results"]["host"]["fasta"],
             suffix=["amb", "ann", "bwt", "pac", "sa"])
     params:
         prefix = config["results"]["host"]["fasta"]
