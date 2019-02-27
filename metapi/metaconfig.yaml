@@ -36,6 +36,7 @@ params:
       length_required: 51
       n_base_limit: 5
   rmhost:
+    do: True
     host_fasta: /path/to/host.fa
     bwa:
       do: False

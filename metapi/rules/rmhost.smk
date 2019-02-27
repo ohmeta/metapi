@@ -94,20 +94,20 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                 shell(
                     '''
                     bowtie2 --threads {threads} -x {params.index_prefix} \
-                    -1 {input.r1} -2 {input.r2} {params.additional_params} - 2> {log} |
+                    -1 {input.r1} -2 {input.r2} {params.additional_params} 2> {log} |
                     tee >(samtools flagstat -@{threads} - > {output.flagstat}) |
-                    tee >(samtools sort -@{threads} -O BAM -o {params.bam} ) |
-                    samtools view -@{threads} -SF4 - | cut -f 1 | sort | uniq |
-                    tee >(awk '{print $0 "/1"}' - | seqtk subseq {input.r1} - | pigz -p {threads} -c > {output.r1}) |
-                    awk '{print $0 "/2"}' - | seqtk subseq {input.r2} - | pigz -p {threads} -c > {output.r2}
+                    tee >(samtools sort -@{threads} -O BAM -o {params.bam}) |
+                    samtools view -@{threads} -SF4 - | awk -F'[/\t]' '{{print $1}}' | sort | uniq |
+                    tee >(awk '{{print $0 "/1"}}' - | seqtk subseq {input.r1} - | pigz -p {threads} -c > {output.r1}) |
+                    awk '{{print $0 "/2"}}' - | seqtk subseq {input.r2} - | pigz -p {threads} -c > {output.r2}
                     ''')
             else:
                 shell(
                     '''
                     bowtie2 --threads {threads} -x {params.index_prefix} \
-                    -1 {input.r1} -2 {input.r2} {params.additional_params} - 2> {log} |
+                    -1 {input.r1} -2 {input.r2} {params.additional_params} 2> {log} |
                     tee >(samtools flagstat -@{threads} - > {output.flagstat}) |
-                    samtools view -@{threads} -SF4 - | cut -f 1 | sort | uniq |
-                    tee >(awk '{print $0 "/1"}' - | seqtk subseq {input.r1} - | pigz -p {threads} -c > {output.r1}) |
-                    awk '{print $0 "/2"}' - | seqtk subseq {input.r2} - | pigz -p {threads} -c > {output.r2}
+                    samtools view -@{threads} -SF4 - | awk -F'[/\t]' '{{print $1}}' | sort | uniq |
+                    tee >(awk '{{print $0 "/1"}}' - | seqtk subseq {input.r1} - | pigz -p {threads} -c > {output.r1}) |
+                    awk '{{print $0 "/2"}}' - | seqtk subseq {input.r2} - | pigz -p {threads} -c > {output.r2}
                     ''')
