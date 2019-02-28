@@ -46,13 +46,25 @@ multiqc_fastp:
   output: "assay/cluster_logs/{rule}.o"
   error: "assay/cluster_logs/{rule}.e"
 
-build_host_index:
+build_host_index_for_bwa:
   mem: "1G"
   cores: 1
   output: "assay/cluster_logs/{rule}.o"
   error: "assay/cluster_logs/{rule}.e"
 
-rmhost:
+rmhost_bwa:
+  mem: "6G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+
+build_host_index_for_bowtie2:
+  mem: "1G"
+  cores: 1
+  output: "assay/cluster_logs/{rule}.o"
+  error: "assay/cluster_logs/{rule}.e"
+
+rmhost_bowtie2:
   mem: "6G"
   cores: 8
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
