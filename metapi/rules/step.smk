@@ -19,7 +19,7 @@ fastqc_output = expand([
                        out=["html", "zip"])
 
 oas1_output = expand([
-    temp("{trimming}/{sample}.trimmed.{read}.fq.gz"),
+    "{trimming}/{sample}.trimmed.{read}.fq.gz",
     "{trimming}/{sample}.trimmed.stat_out"
 ],
                      trimming=config["results"]["trimming"],
@@ -27,13 +27,13 @@ oas1_output = expand([
                      sample=_samples.index)
 
 sickle_output = expand(
-    temp("{trimming}/{sample}.trimmed.{read}.fq.gz"),
+    "{trimming}/{sample}.trimmed.{read}.fq.gz",
     trimming=config["results"]["trimming"],
     sample=_samples.index,
     read=["1", "2", "single"])
 
 fastp_output = expand([
-    temp("{trimming}/{sample}.trimmed.{read}.fq.gz"),
+    "{trimming}/{sample}.trimmed.{read}.fq.gz",
     "{trimming}/{sample}.fastp.html", "{trimming}/{sample}.fastp.json",
     "{trimming}/fastp_multiqc_report.html",
     "{trimming}/fastp_multiqc_report_data"
@@ -179,7 +179,8 @@ if config["params"]["trimming"]["fastp"]["do"]:
     trimming_output = (fastp_output)
 trimming_target = (fastqc_output + trimming_output)
 
-rmhost_target = (trimming_target + rmhost_output)
+# rmhost_target = (trimming_target + rmhost_output)
+rmhost_target = (rmhost_output)
 
 assembly_output = ([])
 if config["params"]["assembly"]["megahit"]["do"]:
