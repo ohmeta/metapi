@@ -19,7 +19,7 @@ fastqc_output = expand([
                        out=["html", "zip"])
 
 oas1_output = expand([
-    "{trimming}/{sample}.trimmed.{read}.fq.gz",
+    temp("{trimming}/{sample}.trimmed.{read}.fq.gz"),
     "{trimming}/{sample}.trimmed.stat_out"
 ],
                      trimming=config["results"]["trimming"],
@@ -27,13 +27,13 @@ oas1_output = expand([
                      sample=_samples.index)
 
 sickle_output = expand(
-    "{trimming}/{sample}.trimmed.{read}.fq.gz",
+    temp("{trimming}/{sample}.trimmed.{read}.fq.gz"),
     trimming=config["results"]["trimming"],
     sample=_samples.index,
     read=["1", "2", "single"])
 
 fastp_output = expand([
-    "{trimming}/{sample}.trimmed.{read}.fq.gz",
+    temp("{trimming}/{sample}.trimmed.{read}.fq.gz"),
     "{trimming}/{sample}.fastp.html", "{trimming}/{sample}.fastp.json",
     "{trimming}/fastp_multiqc_report.html",
     "{trimming}/fastp_multiqc_report_data"
