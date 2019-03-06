@@ -1,7 +1,7 @@
 rule metaphlan2_profilling:
     input:
-        r1 = lambda wildcards: get_sample_id(_samples, wildcards, "fq1"),
-        r2 = lambda wildcards: get_sample_id(_samples, wildcards, "fq2")
+        r1 = os.path.join(config["results"]["rmhost"], "{sample}.rmhost.1.fq.gz"),
+        r2 = os.path.join(config["results"]["rmhost"], "{sample}.rmhost.2.fq.gz")
     output:
         bt2_out = os.path.join(config["results"]["profilling"]["metaphlan2"]["bowtie2_out"], "{sample}.bowtie2.gz"),
         profile = os.path.join(config["results"]["profilling"]["metaphlan2"]["profile"], "{sample}.metaphlan2.profile")
