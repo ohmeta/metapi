@@ -23,9 +23,9 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                            prefix=config["params"]["rmhost"]["bwa"]["index_prefix"],
                            suffix=["amb", "ann", "bwt", "pac", "sa"])
         output:
-            flagstat = os.path.join(config["results"]["rmhost"], "{sample}.rmhost.flagstat.txt"),
-            r1 = os.path.join(config["results"]["rmhost"], "{sample}.rmhost.1.fq.gz"),
-            r2 = os.path.join(config["results"]["rmhost"], "{sample}.rmhost.2.fq.gz")
+            flagstat = protected(os.path.join(config["results"]["rmhost"], "{sample}.rmhost.flagstat.txt")),
+            r1 = protected(os.path.join(config["results"]["rmhost"], "{sample}.rmhost.1.fq.gz")),
+            r2 = protected(os.path.join(config["results"]["rmhost"], "{sample}.rmhost.2.fq.gz"))
         log:
             os.path.join(config["logs"]["rmhost"], "{sample}.bwa.rmhost.log")
         params:
@@ -77,9 +77,9 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                            prefix=config["params"]["rmhost"]["bowtie2"]["index_prefix"],
                            suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
         output:
-            flagstat = os.path.join(config["results"]["rmhost"], "{sample}.rmhost.flagstat.txt"),
-            r1 = os.path.join(config["results"]["rmhost"], "{sample}.rmhost.1.fq.gz"),
-            r2 = os.path.join(config["results"]["rmhost"], "{sample}.rmhost.2.fq.gz")
+            flagstat = protected(os.path.join(config["results"]["rmhost"], "{sample}.rmhost.flagstat.txt")),
+            r1 = protected(os.path.join(config["results"]["rmhost"], "{sample}.rmhost.1.fq.gz")),
+            r2 = protected(os.path.join(config["results"]["rmhost"], "{sample}.rmhost.2.fq.gz"))
         log:
             os.path.join(config["logs"]["rmhost"], "{sample}.bowtie2.rmhost.log")
         params:

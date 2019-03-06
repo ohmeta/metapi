@@ -7,7 +7,7 @@ if config["params"]["trimming"]["oas1"]["do"]:
             r1 = temp(os.path.join(config["results"]["trimming"], "{sample}.trimmed.1.fq.gz")),
             r2 = temp(os.path.join(config["results"]["trimming"], "{sample}.trimmed.2.fq.gz")),
             single = temp(os.path.join(config["results"]["trimming"], "{sample}.trimmed.single.fq.gz")),
-            stat_out = os.path.join(config["results"]["trimming"], "{sample}.trimmed.stat_out")
+            stat_out = protected(os.path.join(config["results"]["trimming"], "{sample}.trimmed.stat_out"))
         params:
             prefix = "{sample}",
             qual_system = config["params"]["trimming"]["oas1"]["qual_system"],
@@ -52,8 +52,8 @@ if config["params"]["trimming"]["fastp"]["do"]:
         output:
             r1 = temp(os.path.join(config["results"]["trimming"], "{sample}.trimmed.1.fq.gz")),
             r2 = temp(os.path.join(config["results"]["trimming"], "{sample}.trimmed.2.fq.gz")),
-            html = os.path.join(config["results"]["trimming"], "{sample}.fastp.html"),
-            json = os.path.join(config["results"]["trimming"], "{sample}.fastp.json")
+            html = protected(os.path.join(config["results"]["trimming"], "{sample}.fastp.html")),
+            json = protected(os.path.join(config["results"]["trimming"], "{sample}.fastp.json"))
         params:
             compression = config["params"]["trimming"]["fastp"]["compression"],
             use_slide_window = config["params"]["trimming"]["fastp"]["use_slide_window"],
@@ -119,7 +119,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
                    trimming=config["results"]["trimming"],
                    sample=_samples.index)
         output:
-            html = os.path.join(config["results"]["trimming"], "fastp_multiqc_report.html"),
+            html = protected(os.path.join(config["results"]["trimming"], "fastp_multiqc_report.html")),
             data_dir = directory(os.path.join(config["results"]["trimming"], "fastp_multiqc_report_data"))
         log:
             os.path.join(config["logs"]["trimming"], "multiqc_fastp.log")
