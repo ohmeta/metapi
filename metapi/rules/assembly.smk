@@ -112,6 +112,6 @@ rule assembly_metaspades:
         rm -rf {params.out_dir}/tmp
         
         if [ {params.only_save_scaftigs} ]; then
-            find {params.out_dir} -type f ! -name {output.scaftigs} -delete
+            find {params.out_dir} -type f ! -name "{output.scaftigs}" -delete
         fi
         '''
