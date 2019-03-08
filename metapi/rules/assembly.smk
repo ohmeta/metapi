@@ -92,7 +92,8 @@ rule assembly_metaspades:
         out_dir = os.path.join(config["results"]["assembly"], "{sample}.metaspades_out"),
         corrected = os.path.join(config["results"]["assembly"], "{sample}.metaspades_out/corrected"),
         kmer_dirs = get_kmer_dirs,
-        only_save_scaftigs = config["params"]["assembly"]["metaspades"]["only_save_scaftigs"]
+        only_save_scaftigs = config["params"]["assembly"]["metaspades"]["only_save_scaftigs"],
+        tar_results = os.path.join(config["results"]["assembly"], "{sample}.metaspades_out/{sample}.metaspades.tar")
     threads:
         config["params"]["assembly"]["metaspades"]["threads"]
     log:
@@ -109,9 +110,14 @@ rule assembly_metaspades:
         mv {params.out_dir}/scaffolds.fasta.gz {output.scaftigs}
         rm -rf {params.kmer_dirs}
         rm -rf {params.corrected}
-        rm -rf {params.out_dir}/tmp
         
         if [ {params.only_save_scaftigs} ]; then
             find {params.out_dir} -type f ! -wholename "{output.scaftigs}" -delete
+        else
+            find {params.out_dir} -type f ! -wholename "{output.scaftigs} ! -wholename "{output.tar_results}" | xargs -I % sh -c 'tar -rf {params.tar_results} %; rm -rf %'
+            pigz -p {threads} {params.tar_results}
         fi
+        
+        rm -rf {params.out_dir}/tmp
+        rm -rf {params.out_dir}/misc
         '''
