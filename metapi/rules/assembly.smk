@@ -111,7 +111,7 @@ rule assembly_metaspades:
         rm -rf {params.kmer_dirs}
         rm -rf {params.corrected}
         
-        if [ {params.only_save_scaftigs} ]; then
+        if {params.only_save_scaftigs}; then
             find {params.out_dir} -type f ! -wholename "{output.scaftigs}" -delete
         else
             find {params.out_dir} -type f ! -wholename "{output.scaftigs}" ! -wholename "{params.tar_results}" | xargs -I % sh -c 'tar -rf {params.tar_results} %; rm -rf %'
