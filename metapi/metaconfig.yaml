@@ -64,6 +64,7 @@ params:
       threads: 8
     metaspades:
       do: True
+      only_save_scaftigs: False
       memory: 10
       threads: 8
       kmers: ['21', '29', '39', '59', '79', '99']

@@ -91,7 +91,8 @@ rule assembly_metaspades:
         kmers = "auto" if len(config["params"]["assembly"]["metaspades"]["kmers"]) == 0 else ",".join(config["params"]["assembly"]["metaspades"]["kmers"]),
         out_dir = os.path.join(config["results"]["assembly"], "{sample}.metaspades_out"),
         corrected = os.path.join(config["results"]["assembly"], "{sample}.metaspades_out/corrected"),
-        kmer_dirs = get_kmer_dirs
+        kmer_dirs = get_kmer_dirs,
+        only_save_scaftigs = config["params"]["assembly"]["metaspades"]["only_save_scaftigs"]
     threads:
         config["params"]["assembly"]["metaspades"]["threads"]
     log:
@@ -108,4 +109,9 @@ rule assembly_metaspades:
         mv {params.out_dir}/scaffolds.fasta.gz {output.scaftigs}
         rm -rf {params.kmer_dirs}
         rm -rf {params.corrected}
+        rm -rf {params.output_dir}/tmp
+        
+        if [ {params.only_save_scaftigs} ]; then
+            find {params.out_dir} -type f ! -name {output.scaftigs} -delete
+        fi
         '''
