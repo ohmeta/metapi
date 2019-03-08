@@ -4,6 +4,7 @@ hello, metagenomics!
 
 ## brother project
 
+* [anvio](https://github.com/merenlab/anvio)
 * [atlas](https://github.com/pnnl/atlas)
 * [sunbeam](https://github.com/sunbeam-labs/sunbeam)
 
@@ -89,7 +90,6 @@ hello, metagenomics!
   * [MultiQC](https://github.com/ewels/MultiQC)
   * [bwa](https://github.com/lh3/bwa)
   * [samtools](https://github.com/samtools/samtools)
-  * [bbmap](https://sourceforge.net/projects/bbmap)
   * [spades](https://github.com/ablab/spades)
   * [idba](https://github.com/loneknightpy/idba)
   * [megahit](https://github.com/voutcn/megahit)
@@ -125,8 +125,9 @@ hello, metagenomics!
 * install metapi
 
     ```bash
+    # recommand
     git clone https://github.com/ohmeta/metapi
-    # or
+    # or (maybe not latest)
     pip install metapi
     ```
 
@@ -136,22 +137,22 @@ hello, metagenomics!
 
     ```python
     rule bwa_mem:
-    input:
-        r1 = "fastq/sample_1.fq.gz",
-        r2 = "fastq/sample_2.fq.gz",
-        ref = "ref/ref.index
-    output:
-        bam = "sample.sort.bam",
-        stat = "sample_flagstat.txt"
-    threads:
-        8
-    shell:
-        '''
-        bwa mem -t {threads} {input.ref} {input.r1} {input.r2} | \
-        samtools view -@{threads} -hbS - | \
-        tee >(samtools flagstat -@{threads} - > {output.stat}) | \
-        samtools sort -@{threads} -o {output.bam} -
-        '''
+        input:
+            r1 = "fastq/sample_1.fq.gz",
+            r2 = "fastq/sample_2.fq.gz",
+            ref = "ref/ref.index
+        output:
+            bam = "sample.sort.bam",
+            stat = "sample_flagstat.txt"
+        threads:
+            8
+        shell:
+            '''
+            bwa mem -t {threads} {input.ref} {input.r1} {input.r2} | \
+            samtools view -@{threads} -hbS - | \
+            tee >(samtools flagstat -@{threads} - > {output.stat}) | \
+            samtools sort -@{threads} -o {output.bam} -
+            '''
     ```
 
 * a simulated metagenomics data test(uncomplete)
@@ -224,9 +225,36 @@ hello, metagenomics!
         init         a metagenomics project initialization
         simulation   a simulation on metagenomics data
         workflow     a workflow on real metagenomics data
-
     ```
     
+    
+    please supply samples.tsv    
+    format     
+    | id |    fq1     |     fq2    |  
+    |----|------------|------------|  
+    | s1 | s1.1.fq.gz | s1.2.fq.gz |  
+    | s2 | s2.1.fq.gz | s2.2.fq.gz |    
+    
+    
+   ```bash
+   python /path/to/metapi/metapi/metapi.py init -d . -s samples.tsv -b raw -a metaspades
+   ```
+
+* list
+    
+    ```bash
+    snakemake --snakefile /path/to/metapi/metapi/Snakefile --configfile metaconfig.yaml --list
+    ``` 
+  
+* debug
+
+    ```bash      
+    snakemake --snakefile /path/to/metapi/metapi/Snakefile \
+        --configfile metaconfig.yaml \
+        -p -r -n --debug-dag \
+        --until checkm_lineage_wf
+    ```
+
 * simulation
 
 * workflow
