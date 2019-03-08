@@ -114,7 +114,7 @@ rule assembly_metaspades:
         if [ {params.only_save_scaftigs} ]; then
             find {params.out_dir} -type f ! -wholename "{output.scaftigs}" -delete
         else
-            find {params.out_dir} -type f ! -wholename "{output.scaftigs} ! -wholename "{params.tar_results}" | xargs -I % sh -c 'tar -rf {params.tar_results} %; rm -rf %'
+            find {params.out_dir} -type f ! -wholename "{output.scaftigs}" ! -wholename "{params.tar_results}" | xargs -I % sh -c 'tar -rf {params.tar_results} %; rm -rf %'
             pigz -p {threads} {params.tar_results}
         fi
         
