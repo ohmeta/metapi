@@ -109,7 +109,7 @@ rule assembly_metaspades:
         mv {params.out_dir}/scaffolds.fasta.gz {output.scaftigs}
         rm -rf {params.kmer_dirs}
         rm -rf {params.corrected}
-        rm -rf {params.output_dir}/tmp
+        rm -rf {params.out_dir}/tmp
         
         if [ {params.only_save_scaftigs} ]; then
             find {params.out_dir} -type f ! -name {output.scaftigs} -delete
