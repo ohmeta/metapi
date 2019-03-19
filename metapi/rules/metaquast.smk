@@ -1,6 +1,23 @@
+def clean_reads(wildcards):
+    if config["params"]["begin"] == "assembly":
+        r1 = get_sample_id(_samples, wildcards, "fq1")
+        r2 = get_sample_id(_samples, wildcards, "fq2")
+        return [r1, r2]
+    elif config["params"]["rmhost"]["do"]:
+        return expand("{rmhost}/{sample}.rmhost.{read}.fq.gz",
+                      rmhost=config["results"]["rmhost"],
+                      sample=wildcards.sample,
+                      read=["1", "2"])
+    else:
+        return expand("{trimming}/{sample}.trimmed.{read}.fq.gz",
+                      trimming=config["results"]["trimming"],
+                      sample=wildcards.sample,
+                      read=["1", "2"])
+
 rule metaquast:
     input:
-        os.path.join(config["results"]["assembly"], "{sample}.{assembler}_out/{sample}.{assembler}.scaftigs.fa.gz")
+        reads = clean_reads,
+        scaftigs = os.path.join(config["results"]["assembly"], "{sample}.{assembler}_out/{sample}.{assembler}.scaftigs.fa.gz")
     output:
         report = os.path.join(config["results"]["metaquast"], "{sample}.{assembler}.metaquast_out/report.html"),
         icarus = os.path.join(config["results"]["metaquast"], "{sample}.{assembler}.metaquast_out/icarus.html"),
@@ -20,15 +37,18 @@ rule metaquast:
         os.path.join(config["logs"]["metaquast"], "{sample}.{assembler}.metaquast.log")
     params:
         output_dir = os.path.join(config["results"]["metaquast"], "{sample}.{assembler}.metaquast_out"),
-        min_contig = config["params"]["metaquast"]["min_contig"],
+        labels = "{sample}.{assembler}",
         metaquast_env = config["params"]["metaquast"]["env"]
     threads:
         config["params"]["metaquast"]["threads"]
     shell:
         '''
         set +u; source activate {params.metaquast_env}; set -u;
-        metaquast.py {input} -o {params.output_dir} \
-        --min-contig {params.min_contig} \
+        metaquast.py {input.scaftigs} \
+        --pe1 {input.reads[0]} \
+        --pe2 {input.reads[1]} \
+        -o {params.output_dir} \
+        --labels {params.labels} \
         --threads {threads} 2> {log}
         '''
 
