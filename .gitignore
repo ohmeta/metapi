@@ -31,3 +31,5 @@ metapi.egg-info/
 conda/*.gz
 
 notebooks/
+
+test/
