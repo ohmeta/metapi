@@ -107,7 +107,7 @@ multiqc_metaquast:
   error: "assay/cluster_logs/{rule}.e"
 
 build_index_for_scaftigs:
-  mem: "3G"
+  mem: "512M"
   cores: 1
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
@@ -119,7 +119,7 @@ align_reads_to_scaftigs:
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 build_index_for_bam:
-  mem: "1G"
+  mem: "512M"
   cores: 8
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"

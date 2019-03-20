@@ -23,7 +23,7 @@ rule align_reads_to_scaftigs:
                        suffix=["amb", "ann", "bwt", "pac", "sa"])
     output:
         flagstat = os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.flagstat"),
-        bam = os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam")
+        bam = temp(os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam"))
     log:
         os.path.join(config["logs"]["alignment"], "{sample}.{assembler}_align_reads_to_scaftigs.log")
     params:
@@ -42,7 +42,7 @@ rule build_index_for_bam:
     input:
         os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam")
     output:
-        os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam.bai")
+        temp(os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam.bai"))
     log:
         os.path.join(config["logs"]["alignment"], "{sample}.{assembler}_build_index_for_bam.log")
     threads:

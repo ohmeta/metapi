@@ -1,6 +1,6 @@
 rule coverage_metabat2:
     input:
-        scaftigs_flagstat_summary = os.path.join(config["results"]["alignment"], "scaftigs_flagstat_summary.tsv"),
+        # scaftigs_flagstat_summary = os.path.join(config["results"]["alignment"], "scaftigs_flagstat_summary.tsv"),
         bam = os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam")
     output:
         depth = os.path.join(config["results"]["binning"]["depth"], "{sample}.{assembler}.metabat2.depth.txt")
@@ -72,4 +72,4 @@ rule dastools:
     shell:
 '''
 
-ruleorder: summary_scaftigs_flagstat > coverage_metabat2
+# ruleorder: summary_scaftigs_flagstat > coverage_metabat2
