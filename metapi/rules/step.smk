@@ -85,6 +85,15 @@ metaquast_output = expand([
                           assembler=config["params"]["assembler"],
                           sample=_samples.index)
 
+prediction_output = expand([
+    "{prediction}/{sample}.prodigal_out/{sample}.pep.faa",
+    "{prediction}/{sample}.prodigal_out/{sample}.cds.ffn",
+    "{prediction}/{sample}.prodigal_out/{sample}.cds.gff",
+    "{prediction}/{sample}.prodigal_out/{sample}.score.gff"
+],
+                          prediction=config["results"]["prediction"],
+                          sample=_samples.index)
+
 alignment_output = expand([
     "{alignment}/{sample}.bwa_out/{sample}.{assembler}.flagstat",
     "{alignment}/{sample}.bwa_out/{sample}.{assembler}.sorted.bam",
@@ -202,6 +211,9 @@ else:
 
 if config["params"]["metaquast"]["do"]:
     assembly_target = (assembly_target + metaquast_output)
+
+if config["params"]["prediction"]["prodigal"]["do"]:
+    assembly_target = (assembly_target + prediction_output)
 
 alignment_target = (assembly_target + alignment_output)
 

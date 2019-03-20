@@ -78,6 +78,11 @@ params:
     threads: 8
     min_contig: 500
     env: "bioenv2"
+  prediction:
+    prodigal:
+      do: False
+      format: "gff"
+      mode: "meta"
   alignment:
     threads: 8
   binning:
@@ -124,6 +129,7 @@ results:
   coassembly:
     megahit: "results/03.coassembly/megahit"
   metaquast: "results/03.metaquast"
+  prediction: "results/04.prediction"
   alignment: "results/04.alignment"
   binning:
     depth: "results/05.binning/coverage"
@@ -158,6 +164,7 @@ logs:
     metaspades: "assay/03.assembly/metaspades_logs"
   coassembly: "assay/03.coassembly/logs"
   metaquast: "assay/03.metaquast/metaquast_logs"
+  prediction: "assay/04.prediction/logs"
   alignment: "assay/04.alignment/logs"
   binning:
     metabat2: "assay/05.binning/metabat2_logs"
