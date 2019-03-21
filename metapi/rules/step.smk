@@ -225,7 +225,8 @@ if config["params"]["binning"]["metabat2"]["do"]:
 if config['params']["binning"]["maxbin2"]["do"]:
     binning_output = (binning_output + maxbin2_output)
 
-binning_target = (alignment_target + binning_output)
+# binning_target = (alignment_target + binning_output)
+binning_target = (binning_output)
 
 checkm_output = checkm_lineage_wf_output + checkm_coverage_output + checkm_profile_output
 checkm_target = (binning_target + checkm_output)
