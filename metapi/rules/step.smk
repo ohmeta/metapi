@@ -107,7 +107,7 @@ alignment_output = expand([
 
 metabat2_output = expand([
     "{depth}/{sample}.{assembler}.metabat2.depth.txt",
-    "{bins}/{sample}.{assembler}.metabat2_out/{sample}.{assembler}.metabat2.done",
+    "{bins}/{sample}.{assembler}.metabat2_out",
     "{logs}/{sample}.{assembler}.metabat2.log"
 ],
                          depth=config["results"]["binning"]["depth"],
