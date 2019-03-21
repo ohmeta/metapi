@@ -16,10 +16,11 @@ rule checkm_lineage_wf:
         '''
         mkdir -p {params.txt_dir}
         mkdir -p {params.data_dir}
+        mkdir -p {output.checkm_data_dir}
         num=$(find {input.bins_dir} -type f -name "*.fa" | wc -l)
         if [[ $num > 0 ]]; then
-            set +u; source activate {params.checkm_env}; set -u;    
-            checkm lineage_wf -f {output.checkm_txt} -t {threads} -x fa {input.bins_dir}/ {output.checkm_data_dir}/ 2> {log}
+            set +u; source activate {params.checkm_env}; set -u;
+            checkm lineage_wf -f {output.checkm_txt} -t {threads} --force_overwrite -x fa {input.bins_dir}/ {output.checkm_data_dir}/ 2> {log}
         else
             echo "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------" > {output.checkm_txt}
             echo "Bin Id                                              Marker lineage             # genomes   # markers   # marker sets    0     1     2    3    4    5+   Completeness   Contamination   Strain heterogeneity    " >> {output.checkm_txt} 
