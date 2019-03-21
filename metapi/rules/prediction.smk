@@ -9,7 +9,7 @@ if config["params"]["prediction"]["prodigal"]["do"]:
             gff = os.path.join(config["results"]["prediction"], "{sample}.prodigal_out/{sample}.{assembler}.cds.gff"),
             score = os.path.join(config["results"]["prediction"], "{sample}.prodigal_out/{sample}.{assembler}.score.gff")
         log:
-            os.path.join(config["logs"]["prediction"], "{sample}.prodigal.log")
+            os.path.join(config["logs"]["prediction"], "{sample}.{assembler}.prodigal.log")
         params:
             format = config["params"]["prediction"]["prodigal"]["format"],
             mode = config["params"]["prediction"]["prodigal"]["mode"]
