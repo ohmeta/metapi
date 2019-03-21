@@ -126,12 +126,14 @@ maxbin2_output = expand([
                         assembler=config["params"]["assembler"],
                         sample=_samples.index)
 
-checkm_lineage_wf_output = expand(
-    ["{out}/{sample}.{assembler}.checkm.txt", "{data}/{sample}.{assembler}"],
-    out=config["results"]["checkm"]["out"],
-    data=config["results"]["checkm"]["data"],
-    assembler=config["params"]["assembler"],
-    sample=_samples.index)
+checkm_lineage_wf_output = expand([
+    "{out}/{sample}.{assembler}.checkm.txt",
+    "{data}/{sample}.{assembler}.checkm.data.tar.gz"
+],
+                        out=config["results"]["checkm"]["out"],
+                        data=config["results"]["checkm"]["data"],
+                        assembler=config["params"]["assembler"],
+                        sample=_samples.index)
 
 '''
 checkm_coverage_output = expand(

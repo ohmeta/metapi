@@ -3,10 +3,11 @@ rule checkm_lineage_wf:
         bins_dir = os.path.join(config["results"]["binning"]["bins"], "{sample}.{assembler}.metabat2_out")
     output:
         checkm_txt = os.path.join(config["results"]["checkm"]["out"], "{sample}.{assembler}.checkm.txt"),
-        checkm_data_dir = directory(os.path.join(config["results"]["checkm"]["data"], "{sample}.{assembler}"))
+        checkm_targz = os.path.join(config["results"]["checkm"]["data"], "{sample}.{assembler}.checkm.data.tar.gz")
     params:
         txt_dir = directory(config["results"]["checkm"]["out"]),
         data_dir = directory(config["results"]["checkm"]["data"]),
+        checkm_data_dir = directory(os.path.join(config["results"]["checkm"]["data"], "{sample}.{assembler}")),
         checkm_env = config["params"]["checkm"]["env"]
     log:
         os.path.join(config["logs"]["checkm"], "{sample}.{assembler}.checkm.log")
@@ -26,6 +27,8 @@ rule checkm_lineage_wf:
             echo "Bin Id                                              Marker lineage             # genomes   # markers   # marker sets    0     1     2    3    4    5+   Completeness   Contamination   Strain heterogeneity    " >> {output.checkm_txt} 
             echo "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------" >> {output.checkm_txt}
         fi
+        tar -czvf {output.checkm_targz} {params.checkm_data_dir}/
+        rm -rf {params.checkm_data_dir}
         '''
 
 
