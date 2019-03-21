@@ -29,19 +29,19 @@ rule binning_metabat2:
         scaftigs = os.path.join(config["results"]["assembly"], "{sample}.{assembler}_out/{sample}.{assembler}.scaftigs.fa.gz"),
         depth = os.path.join(config["results"]["binning"]["depth"], "{sample}.{assembler}.metabat2.depth.txt")
     output:
-        default = os.path.join(config["results"]["binning"]["done"], "{sample}.{assembler}.metabat2.done"),
-        bins_dir = directory(os.path.join(config["results"]["binning"]["bins"], "{sample}.{assembler}.metabat2_out"))
+        done = os.path.join(config["results"]["binning"]["bins"], "{sample}.{assembler}.metabat2_out/{sample}.{assembler}.metabat2.done")
     log:
         os.path.join(config["logs"]["binning"]["metabat2"], "{sample}.{assembler}.metabat2.log")
     params:
+        bins_dir = os.path.join(config["results"]["binning"]["bins"], "{sample}.{assembler}.metabat2_out"),
         bin_prefix = os.path.join(config["results"]["binning"]["bins"], "{sample}.{assembler}.metabat2_out/{sample}.{assembler}.bin"),
         min_contig = config["params"]["binning"]["metabat2"]["min_contig"],
         seed = config["params"]["binning"]["metabat2"]["seed"]
     shell:
         '''
-        mkdir -p {output.bins_dir}
+        mkdir -p {params.bins_dir}
         metabat2 -i {input.scaftigs} -a {input.depth} -o {params.bin_prefix} -m {params.min_contig} --seed {params.seed} -v 2> {log}
-        echo "done" > {output.default}
+        echo "done" > {output.done}
         '''
 
 rule binning_maxbin2:

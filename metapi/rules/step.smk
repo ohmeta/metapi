@@ -135,6 +135,7 @@ checkm_lineage_wf_output = expand(
     assembler=config["params"]["assembler"],
     sample=_samples.index)
 
+'''
 checkm_coverage_output = expand(
     "{coverage}/{sample}.{assembler}.checkm_coverage.tsv",
     coverage=config["results"]["checkm"]["coverage"],
@@ -146,6 +147,8 @@ checkm_profile_output = expand(
     profile=config["results"]["checkm"]["profile"],
     assembler=config["params"]["assembler"],
     sample=_samples.index)
+'''
+
 '''
 dereplication_output = expand(
 
@@ -182,6 +185,7 @@ burst_output = expand(
     burst=config["results"]["burst"],
     sample=_samples.index)
 
+trimming_output = ([])
 if config["params"]["trimming"]["oas1"]["do"]:
     trimming_output = (oas1_output)
 if config["params"]["trimming"]["sickle"]["do"]:
@@ -228,7 +232,8 @@ if config['params']["binning"]["maxbin2"]["do"]:
 
 binning_target = (assembly_target + binning_output)
 
-checkm_output = checkm_lineage_wf_output + checkm_coverage_output + checkm_profile_output
+# checkm_output = checkm_lineage_wf_output + checkm_coverage_output + checkm_profile_output
+checkm_output = checkm_lineage_wf_output
 checkm_target = (binning_target + checkm_output)
 
 annotation_target = (checkm_target + annotation_output)
