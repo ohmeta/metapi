@@ -109,8 +109,8 @@ multiqc_metaquast:
 prediction:
   mem: "1G"
   cores: 1
-  output: "assay/cluster_logs/{rule}.o"
-  error: "assay/cluster_logs/{rule}.e"
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 build_index_for_scaftigs:
   mem: "512M"
