@@ -86,12 +86,13 @@ metaquast_output = expand([
                           sample=_samples.index)
 
 prediction_output = expand([
-    "{prediction}/{sample}.prodigal_out/{sample}.pep.faa",
-    "{prediction}/{sample}.prodigal_out/{sample}.cds.ffn",
-    "{prediction}/{sample}.prodigal_out/{sample}.cds.gff",
-    "{prediction}/{sample}.prodigal_out/{sample}.score.gff"
+    "{prediction}/{sample}.prodigal_out/{sample}.{assembler}.pep.faa",
+    "{prediction}/{sample}.prodigal_out/{sample}.{assembler}.cds.ffn",
+    "{prediction}/{sample}.prodigal_out/{sample}.{assembler}.cds.gff",
+    "{prediction}/{sample}.prodigal_out/{sample}.{assembler}.score.gff"
 ],
                           prediction=config["results"]["prediction"],
+                          assembler=config["params"]["assembler"],
                           sample=_samples.index)
 
 alignment_output = expand([
@@ -202,6 +203,7 @@ if config["params"]["assembly"]["metaspades"]["do"]:
 if config["params"]["coassembly"]["megahit"]["do"]:
     assembly_output = (assembly_output + coassembly_megahit_output)
 
+assembly_target = ([])
 if config["params"]["begin"] == "assembly":
     assembly_target = (assembly_output)
 elif config["params"]["rmhost"]["do"]:
