@@ -1,6 +1,6 @@
 rule checkm_lineage_wf:
     input:
-        done = os.path.join(config["results"]["binning"]["done"], "{sample}.{assembler}.metabat2_out/{sample}.{assembler}.metabat2.done")
+        done = os.path.join(config["results"]["binning"]["bins"], "{sample}.{assembler}.metabat2_out/{sample}.{assembler}.metabat2.done")
     output:
         checkm_txt = os.path.join(config["results"]["checkm"]["out"], "{sample}.{assembler}.checkm.txt"),
         checkm_data_dir = directory(os.path.join(config["results"]["checkm"]["data"], "{sample}.{assembler}"))
