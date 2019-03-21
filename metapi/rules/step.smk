@@ -108,11 +108,12 @@ alignment_output = expand([
 metabat2_output = expand([
     "{depth}/{sample}.{assembler}.metabat2.depth.txt",
     "{bins}/{sample}.{assembler}.metabat2_out",
-    "{logs}/{sample}.{assembler}.metabat2.done",
+    "{done}/{sample}.{assembler}.metabat2.done",
     "{logs}/{sample}.{assembler}.metabat2.log"
 ],
                          depth=config["results"]["binning"]["depth"],
                          bins=config["results"]["binning"]["bins"],
+                         done=config["results"]["binning"]["done"],
                          logs=config["logs"]["binning"]["metabat2"],
                          assembler=config["params"]["assembler"],
                          sample=_samples.index)
@@ -225,8 +226,7 @@ if config["params"]["binning"]["metabat2"]["do"]:
 if config['params']["binning"]["maxbin2"]["do"]:
     binning_output = (binning_output + maxbin2_output)
 
-# binning_target = (alignment_target + binning_output)
-binning_target = (binning_output)
+binning_target = (assembly_target + binning_output)
 
 checkm_output = checkm_lineage_wf_output + checkm_coverage_output + checkm_profile_output
 checkm_target = (binning_target + checkm_output)

@@ -29,7 +29,7 @@ rule binning_metabat2:
         scaftigs = os.path.join(config["results"]["assembly"], "{sample}.{assembler}_out/{sample}.{assembler}.scaftigs.fa.gz"),
         depth = os.path.join(config["results"]["binning"]["depth"], "{sample}.{assembler}.metabat2.depth.txt")
     output:
-        default = os.path.join(config["logs"]["binning"]["metabat2"], "{sample}.{assembler}.metabat2.done"),
+        default = os.path.join(config["results"]["binning"]["done"], "{sample}.{assembler}.metabat2.done"),
         bins_dir = directory(os.path.join(config["results"]["binning"]["bins"], "{sample}.{assembler}.metabat2_out"))
     log:
         os.path.join(config["logs"]["binning"]["metabat2"], "{sample}.{assembler}.metabat2.log")
@@ -40,7 +40,7 @@ rule binning_metabat2:
     shell:
         '''
         mkdir -p {output.bins_dir}
-        metabat2 -i {input.scaftigs} -a {input.depth} -o {params.bin_prefix} -m {params.min_contig} --seed {params.seed} -v > {log}
+        metabat2 -i {input.scaftigs} -a {input.depth} -o {params.bin_prefix} -m {params.min_contig} --seed {params.seed} -v 2> {log}
         echo "done" > {output.default}
         '''
 

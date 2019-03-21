@@ -1,6 +1,6 @@
 rule checkm_lineage_wf:
     input:
-        default = os.path.join(config["logs"]["binning"]["metabat2"], "{sample}.{assembler}.metabat2.done"),
+        default = os.path.join(config["results"]["binning"]["done"], "{sample}.{assembler}.metabat2.done"),
         bins_dir = os.path.join(config["results"]["binning"]["bins"], "{sample}.{assembler}.metabat2_out")
     output:
         checkm_txt = os.path.join(config["results"]["checkm"]["out"],

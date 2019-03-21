@@ -134,6 +134,7 @@ results:
   binning:
     depth: "results/05.binning/coverage"
     bins: "results/05.binning/bins"
+    done: "results/05.binning/done"
   checkm:
     out: "results/06.checkm/checkm_out"
     data: "results/06.checkm/checkm_data"
