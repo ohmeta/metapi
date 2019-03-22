@@ -15,6 +15,7 @@ TRIM_TEMPLATE = '''fastp --in1 {raw_r1} --in2 {raw_r2} \
 --cut_right_mean_quality {cut_right_mean_quality} \
 --n_base_limit {n_base_limit} \
 --length_required {length_required} \
+--thread {threads} \
 --html {html} --json {json} 2> {trim_log}'''
 
 RMHOST_BWA_TEMPLATE = '''bwa mem -t {threads} {host_index_base} \
@@ -43,7 +44,7 @@ def get_fqpath(sample_df, sample_id, col):
 
 
 class trimmer:
-    def __init__(self, sample_id, raw_r1, raw_r2, outdir):
+    def __init__(self, sample_id, raw_r1, raw_r2, outdir, threads = 8):
         self.raw_r1 = raw_r1
         self.raw_r2 = raw_r2
         self.trimmed_r1 = os.path.join(outdir, sample_id + ".trimmed.1.fq.gz")
@@ -55,6 +56,7 @@ class trimmer:
         self.cut_right_mean_quality = 20
         self.n_base_limit = 5
         self.length_required = 36
+        self.threads = threads
         self.html = os.path.join(outdir, sample_id + ".fastp.html")
         self.json = os.path.join(outdir, sample_id + ".fastp.json")
         self.trim_log = os.path.join(outdir, sample_id + ".fastp.log")
@@ -124,7 +126,7 @@ def main():
             r1 = get_fqpath(samples_df, sample_id, "fq1")
             r2 = get_fqpath(samples_df, sample_id, "fq2")
 
-            trim_cmd = TRIM_TEMPLATE.format_map(vars(trimmer(sample_id, r1, r2, trim_outdir)))
+            trim_cmd = TRIM_TEMPLATE.format_map(vars(trimmer(sample_id, r1, r2, trim_outdir, 8)))
             rmhost_cmd = ""
             if args.database is not None:
                 if args.aligner == "bwa":
