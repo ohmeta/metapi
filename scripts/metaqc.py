@@ -19,13 +19,15 @@ TRIM_TEMPLATE = '''fastp --in1 {raw_r1} --in2 {raw_r2} \
 
 RMHOST_BWA_TEMPLATE = '''bwa mem -t {threads} {host_index_base} \
 {trimmed_r1} {trimmed_r2} | \
-tee >(samtools flagstat -@{threads} - > {samflagstat}) | \
+tee >(samtools flagstat -@{threads} - > {flagstat}) | \
+tee >(samtools stat -@{threads} - > {stat}) | \
 tee >(samtools fastq -@{threads} -N -f 12 -F 256 -1 {rmhosted_r1} -2 {rmhosted_r2} -) | \
 samtools sort -@%{threads} -O BAM -o {sorted_bam} - 2> {rmhost_log}'''
 
 RMHOST_BOWTIE2_TEMPLATE = '''bowtie2 --threads {threads} -x {host_index_base} \
 -1 {trimmed_r1} -2 {trimmed_r2} {additional_params} 2> {rmhost_log} | \
-tee >(samtools flagstat -@{threads} - > {samflagstat}) | \
+tee >(samtools flagstat -@{threads} - > {flagstat}) | \
+tee >(samtools stat -@{threads} - > {stat}) | \
 tee >(samtools sort -@{threads} -O BAM -o {sorted_bam}) | \
 samtools view -@{threads} -SF4 - | awk -F'[/\\t]' '{{print $1}}' | sort | uniq | \
 tee >(awk '{{print $0 "/1"}}' - | seqtk subseq -r {trimmed_r1} - | pigz -p {threads} -c > {rmhosted_r1}) | \
@@ -67,7 +69,8 @@ class rmhoster:
         self.trimmed_r2 = os.path.join(trim_dir, sample_id + ".trimmed.2.fq.gz")
         self.rmhosted_r1 = os.path.join(rmhost_dir, sample_id + ".rmhosted.1.fq.gz")
         self.rmhosted_r2 = os.path.join(rmhost_dir, sample_id + ".rmhosted.2.fq.gz")
-        self.samflagstat = os.path.join(rmhost_dir, sample_id + ".flagstat")
+        self.flagstat = os.path.join(rmhost_dir, sample_id + ".flagstat")
+        self.stat = os.path.join(rmhost_dir, sample_id + ".alignstat")
         self.sorted_bam = os.path.join(rmhost_dir, sample_id + ".sorted.bam")
         self.rmhost_log = os.path.join(rmhost_dir, sample_id + ".rmhost.log")
 
