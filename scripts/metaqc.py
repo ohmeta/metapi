@@ -118,7 +118,8 @@ def main():
 
     samples_df = parse_samples(args.samples)
 
-    with open(os.path.join(args.output, "01.trim.sh"), 'w') as oh1, open(os.path.join(args.output), "02.rmhost.sh") as oh2:
+    with open(os.path.join(args.output, "01.trim.sh"), 'w') as oh1,\
+         open(os.path.join(args.output, "02.rmhost.sh"), 'w') as oh2:
         for sample_id in samples_df.index:
             r1 = get_fqpath(samples_df, sample_id, "fq1")
             r2 = get_fqpath(samples_df, sample_id, "fq2")
