@@ -20,6 +20,7 @@ TRIM_TEMPLATE = '''fastp --in1 {raw_r1} --in2 {raw_r2} \
 RMHOST_TEMPLATE = '''bwa mem -t {threads} {host_index_base} \
 {trimmed_r1} {trimmed_r2} | \
 tee >(samtools flagstat -@{threads} - > {samflagstat}) | \
+tee >(samtools fastq -@{threads} -N -f 12 -F 256 -1 {rmhosted_r1} -2 {rmhosted_r2} -) | \
 samtools sort -@%{threads} -O BAM -o {sorted_bam} - 2> {rmhost_log}'''
 
 
@@ -55,6 +56,8 @@ class rmhoster:
         self.host_index_base = host_index_base
         self.trimmed_r1 = os.path.join(trim_dir, sample_id + ".trimmed.1.fq.gz")
         self.trimmed_r2 = os.path.join(trim_dir, sample_id + ".trimmed.2.fq.gz")
+        self.rmhosted_r1 = os.path.join(rmhost_dir, sample_id + ".rmhosted.1.fq.gz")
+        self.rmhosted_r2 = os.path.join(rmhost_dir, sample_id + ".rmhosted.2.fq.gz")
         self.samflagstat = os.path.join(rmhost_dir, sample_id + ".flagstat")
         self.sorted_bam = os.path.join(rmhost_dir, sample_id + ".sorted.bam")
         self.rmhost_log = os.path.join(rmhost_dir, sample_id + ".rmhost.log")
@@ -66,8 +69,8 @@ def insert_sizer():
 
 def main():
     parser = argparse.ArgumentParser(
-        prog='insert_size_pipe',
-        usage='insert_size_pipe -s <samples.tsv> -o <output_dir> -d <host_index>',
+        prog='metagenomics raw data quality control pipeline',
+        usage='metaqc.py -s <samples.tsv> -o <output_dir> -d <host_index>',
         description='a simple pipeline to calculate insert size on many samples')
     parser.add_argument(
         '-s',
