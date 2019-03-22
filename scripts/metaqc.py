@@ -83,7 +83,7 @@ def main():
     parser = argparse.ArgumentParser(
         prog='metagenomics raw data quality control pipeline',
         usage='metaqc.py -s <samples.tsv> -o <output_dir> -d <host_index>',
-        description='a simple pipeline to calculate insert size on many samples')
+        description='a simple pipeline to do quality control on metagenomics data')
     parser.add_argument(
         '-s',
         '--samples',
@@ -117,22 +117,23 @@ def main():
         os.makedirs(rmhost_outdir, exist_ok=True)
 
     samples_df = parse_samples(args.samples)
-    for sample_id in samples_df.index:
-        r1 = get_fqpath(samples_df, sample_id, "fq1")
-        r2 = get_fqpath(samples_df, sample_id, "fq2")
 
-        trim_cmd = TRIM_TEMPLATE.format_map(vars(trimmer(sample_id, r1, r2, trim_outdir)))
-        rmhost_cmd = ""
-        if args.database is not None:
-            if args.aligner == "bwa":
-                rmhost_cmd = RMHOST_BWA_TEMPLATE.format_map(
-                    vars(rmhoster(sample_id, args.database, trim_outdir, rmhost_outdir)))
-            elif args.aligner == "bowtie2":
-                rmhost_cmd = RMHOST_BOWTIE2_TEMPLATE.format_map(
-                    vars(rmhoster(sample_id, args.database, trim_outdir, rmhost_outdir, "--no-unal")))
+    with open(os.path.join(args.output, "01.trim.sh"), 'w') as oh1, open(os.path.join(args.output), "02.rmhost.sh") as oh2:
+        for sample_id in samples_df.index:
+            r1 = get_fqpath(samples_df, sample_id, "fq1")
+            r2 = get_fqpath(samples_df, sample_id, "fq2")
 
-        print(trim_cmd)
-        print(rmhost_cmd)
+            trim_cmd = TRIM_TEMPLATE.format_map(vars(trimmer(sample_id, r1, r2, trim_outdir)))
+            rmhost_cmd = ""
+            if args.database is not None:
+                if args.aligner == "bwa":
+                    rmhost_cmd = RMHOST_BWA_TEMPLATE.format_map(
+                        vars(rmhoster(sample_id, args.database, trim_outdir, rmhost_outdir)))
+                elif args.aligner == "bowtie2":
+                    rmhost_cmd = RMHOST_BOWTIE2_TEMPLATE.format_map(
+                        vars(rmhoster(sample_id, args.database, trim_outdir, rmhost_outdir, "--no-unal")))
+            oh1.write(trim_cmd + "\n")
+            oh2.write(rmhost_cmd + "\n")
 
 
 if __name__ == '__main__':
