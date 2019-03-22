@@ -27,9 +27,10 @@ RMHOST_BOWTIE2_TEMPLATE = '''bowtie2 --threads {threads} -x {host_index_base} \
 -1 {trimmed_r1} -2 {trimmed_r2} {additional_params} 2> {rmhost_log} | \
 tee >(samtools flagstat -@{threads} - > {samflagstat}) | \
 tee >(samtools sort -@{threads} -O BAM -o {sorted_bam}) | \
-samtools view -@{threads} -SF4 - | awk -F'[/\t]' '{print a$1}' | sort | uniq | \
-tee >(awk '{print $0 "/1"}' - | seqtk subseq -r {trimmed_r1} - | pigz -p {threads} -c > {rmhosted_r1}) | \
-awk '{print $0 "/2"}' - | seqtk subseq -r {trimmed_r2} - | pigz -p {threads} -c > {rmhosted_r2}'''
+samtools view -@{threads} -SF4 - | awk -F'[/\\t]' '{{print $1}}' | sort | uniq | \
+tee >(awk '{{print $0 "/1"}}' - | seqtk subseq -r {trimmed_r1} - | pigz -p {threads} -c > {rmhosted_r1}) | \
+awk '{{print $0 "/2"}}' - | seqtk subseq -r {trimmed_r2} - | pigz -p {threads} -c > {rmhosted_r2}'''
+
 
 def parse_samples(samples_tsv):
     return pd.read_csv(samples_tsv, sep='\s+').set_index("id", drop=False)
@@ -118,6 +119,7 @@ def main():
         r2 = get_fqpath(samples_df, sample_id, "fq2")
 
         trim_cmd = TRIM_TEMPLATE.format_map(vars(trimmer(sample_id, r1, r2, trim_outdir)))
+        rmhost_cmd = ""
         if args.database is not None:
             if args.aligner == "bwa":
                 rmhost_cmd = RMHOST_BWA_TEMPLATE.format_map(
@@ -125,10 +127,7 @@ def main():
             elif args.aligner == "bowtie2":
                 rmhost_cmd = RMHOST_BOWTIE2_TEMPLATE.format_map(
                     vars(rmhoster(sample_id, args.database, trim_outdir, rmhost_outdir, "--no-unal")))
-            else:
-                rmhost_cmd = ""
-        else:
-            rmhost_cmd = ""
+
         print(trim_cmd)
         print(rmhost_cmd)
 
