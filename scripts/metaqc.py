@@ -118,8 +118,8 @@ def main():
 
     samples_df = parse_samples(args.samples)
 
-    with open(os.path.join(args.output, "01.trim.sh"), 'w') as oh1,\
-         open(os.path.join(args.output, "02.rmhost.sh"), 'w') as oh2:
+    with open(os.path.join(args.output, "trim.sh"), 'w') as oh1,\
+         open(os.path.join(args.output, "rmhost.sh"), 'w') as oh2:
         for sample_id in samples_df.index:
             r1 = get_fqpath(samples_df, sample_id, "fq1")
             r2 = get_fqpath(samples_df, sample_id, "fq2")
@@ -135,6 +135,9 @@ def main():
                         vars(rmhoster(sample_id, args.database, trim_outdir, rmhost_outdir, "--no-unal")))
             oh1.write(trim_cmd + "\n")
             oh2.write(rmhost_cmd + "\n")
+
+    os.chmod(os.path.join(args.output, "trim.sh"), 0o755)
+    os.chmod(os.path.join(args.output, "rmhost.sh"), 0o755)
 
 
 if __name__ == '__main__':
