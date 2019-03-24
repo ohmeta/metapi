@@ -29,7 +29,7 @@ RMHOST_BOWTIE2_TEMPLATE = '''bowtie2 --threads {threads} -x {host_index_base} \
 -1 {trimmed_r1} -2 {trimmed_r2} {additional_params} 2> {rmhost_log} | \
 tee >(samtools flagstat -@{threads} - > {flagstat}) | \
 tee >(samtools stat -@{threads} - > {stat}) | \
-tee >(samtools sort -@{threads} -O BAM -o {sorted_bam}) | \
+tee >(samtools sort -@{threads} -O BAM -o {sorted_bam} -) | \
 samtools view -@{threads} -SF4 - | awk -F'[/\\t]' '{{print $1}}' | sort | uniq | \
 tee >(awk '{{print $0 "/1"}}' - | seqtk subseq -r {trimmed_r1} - | pigz -p {threads} -c > {rmhosted_r1}) | \
 awk '{{print $0 "/2"}}' - | seqtk subseq -r {trimmed_r2} - | pigz -p {threads} -c > {rmhosted_r2}'''
