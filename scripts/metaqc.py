@@ -34,6 +34,8 @@ samtools view -@{threads} -SF4 - | awk -F'[/\\t]' '{{print $1}}' | sort | uniq |
 tee >(awk '{{print $0 "/1"}}' - | seqtk subseq -r {trimmed_r1} - | pigz -p {threads} -c > {rmhosted_r1}) | \
 awk '{{print $0 "/2"}}' - | seqtk subseq -r {trimmed_r2} - | pigz -p {threads} -c > {rmhosted_r2}'''
 
+PLOT_BAMSTATS_TEMPLATE = '''plot-bamstats -p {prefix} {stat}'''
+
 
 def parse_samples(samples_tsv):
     return pd.read_csv(samples_tsv, sep='\s+').set_index("id", drop=False)
@@ -77,8 +79,10 @@ class rmhoster:
         self.rmhost_log = os.path.join(rmhost_dir, sample_id + ".rmhost.log")
 
 
-def insert_sizer():
-    pass
+class bam_ploter:
+    def __init__(self, sample_id, rmhost_dir, plot_dir):
+        self.prefix = os.path.join(plot_dir, sample_id)
+        self.stat = os.path.join(rmhost_dir, sample_id + ".alignstat")
 
 
 def main():
@@ -112,22 +116,24 @@ def main():
 
     trim_outdir = os.path.join(args.output, "00.trimmed")
     rmhost_outdir = os.path.join(args.output, "01.rmhosted")
+    plot_outdir = os.path.join(args.output, "02.bam_plots")
 
-    if not os.path.exists(trim_outdir):
-        os.makedirs(trim_outdir, exist_ok=True)
-    if not os.path.exists(rmhost_outdir):
-        os.makedirs(rmhost_outdir, exist_ok=True)
+    for i in [trim_outdir, rmhost_outdir, plot_outdir]:
+        if not os.path.exists(i):
+            os.makedirs(i, exist_ok=True)
 
     samples_df = parse_samples(args.samples)
 
-    with open(os.path.join(args.output, "trim.sh"), 'w') as oh1,\
-         open(os.path.join(args.output, "rmhost.sh"), 'w') as oh2:
+    with open(os.path.join(args.output, "trim.sh"), 'w') as oh1, \
+         open(os.path.join(args.output, "rmhost.sh"), 'w') as oh2, \
+         open(os.path.join(args.output, "plotbam.sh"), 'w') as oh3:
         for sample_id in samples_df.index:
             r1 = get_fqpath(samples_df, sample_id, "fq1")
             r2 = get_fqpath(samples_df, sample_id, "fq2")
 
             trim_cmd = TRIM_TEMPLATE.format_map(vars(trimmer(sample_id, r1, r2, trim_outdir, 8)))
             rmhost_cmd = ""
+            plotbam_cmd = ""
             if args.database is not None:
                 if args.aligner == "bwa":
                     rmhost_cmd = RMHOST_BWA_TEMPLATE.format_map(
@@ -135,11 +141,16 @@ def main():
                 elif args.aligner == "bowtie2":
                     rmhost_cmd = RMHOST_BOWTIE2_TEMPLATE.format_map(
                         vars(rmhoster(sample_id, args.database, trim_outdir, rmhost_outdir, "--no-unal")))
+                plotbam_cmd = PLOT_BAMSTATS_TEMPLATE.format_map(
+                    vars(bam_ploter(sample_id, rmhost_outdir, plot_outdir))
+                )
             oh1.write(trim_cmd + "\n")
             oh2.write(rmhost_cmd + "\n")
+            oh3.write(plotbam_cmd + '\n')
 
     os.chmod(os.path.join(args.output, "trim.sh"), 0o755)
     os.chmod(os.path.join(args.output, "rmhost.sh"), 0o755)
+    os.chmod(os.path.join(args.output, "plotbam.sh"), 0o755)
 
 
 if __name__ == '__main__':
