@@ -64,7 +64,8 @@ if config["params"]["trimming"]["fastp"]["do"]:
             cut_right_window_size = config["params"]["trimming"]["fastp"]["cut_right_window_size"],
             cut_right_mean_quality = config["params"]["trimming"]["fastp"]["cut_right_mean_quality"],
             length_required = config["params"]["trimming"]["fastp"]["length_required"],
-            n_base_limit = config["params"]["trimming"]["fastp"]["n_base_limit"]
+            n_base_limit = config["params"]["trimming"]["fastp"]["n_base_limit"],
+            adapter_trimming = 'disable_adapter_trimming' if config["params"]["trimming"]["fastp"]["disable_adapter_trimming"] else ""
         log:
             os.path.join(config["logs"]["trimming"], "{sample}.fastp.log")
         threads:
@@ -79,7 +80,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
                     --out1 {output.r1} \
                     --out2 {output.r2} \
                     --compression {params.compression} \
-                    --disable_adapter_trimming \
+                    --{params.adapter_trimming} \
                     --cut_front \
                     --cut_right \
                     --cut_front_window_size {params.cut_front_window_size} \
@@ -101,7 +102,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
                     --out1 {output.r1} \
                     --out2 {output.r2} \
                     --compression {params.compression} \
-                    --disable_adapter_trimming \
+                    --{params.adapter_trimming} \
                     --cut_front \
                     --cut_tail \
                     --cut_front_window_size {params.cut_front_window_size} \
