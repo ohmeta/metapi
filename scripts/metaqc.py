@@ -8,11 +8,11 @@ TRIM_TEMPLATE = '''fastp --in1 {raw_r1} --in2 {raw_r2} \
 --out1 {trimmed_r1} --out2 {trimmed_r2} \
 --compression {compression} \
 {adapter_trim_params} \
---cut_front --cut_right \
+--cut_front --cut_tail \
 --cut_front_window_size {cut_front_window_size} \
 --cut_front_mean_quality {cut_front_mean_quality} \
---cut_right_window_size {cut_right_window_size} \
---cut_right_mean_quality {cut_right_mean_quality} \
+--cut_tail_window_size {cut_tail_window_size} \
+--cut_tail_mean_quality {cut_tail_mean_quality} \
 --n_base_limit {n_base_limit} \
 --length_required {length_required} \
 --thread {threads} \
@@ -54,8 +54,8 @@ class trimmer:
         self.compression = 6
         self.cut_front_window_size = 4
         self.cut_front_mean_quality = 20
-        self.cut_right_window_size = 4
-        self.cut_right_mean_quality = 20
+        self.cut_tail_window_size = 4
+        self.cut_tail_mean_quality = 20
         self.n_base_limit = 5
         self.length_required = 36
         self.threads = threads
