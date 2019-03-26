@@ -7,8 +7,8 @@ import pandas as pd
 TRIM_TEMPLATE = '''fastp --in1 {raw_r1} --in2 {raw_r2} \
 --out1 {trimmed_r1} --out2 {trimmed_r2} \
 --compression {compression} \
- --disable_adapter_trimming \
- --cut_front --cut_right \
+{adapter_trim_params} \
+--cut_front --cut_right \
 --cut_front_window_size {cut_front_window_size} \
 --cut_front_mean_quality {cut_front_mean_quality} \
 --cut_right_window_size {cut_right_window_size} \
@@ -19,17 +19,17 @@ TRIM_TEMPLATE = '''fastp --in1 {raw_r1} --in2 {raw_r2} \
 --html {html} --json {json} 2> {trim_log}'''
 
 RMHOST_BWA_TEMPLATE = '''bwa mem -t {threads} {host_index_base} \
-{trimmed_r1} {trimmed_r2} | \
+{trimmed_r1} {trimmed_r2} 2> {rmhost_log} | \
 tee >(samtools flagstat -@{threads} - > {flagstat}) | \
 tee >(samtools stats -@{threads} - > {stat}) | \
-tee >(samtools fastq -@{threads} -N -f 12 -F 256 -1 {rmhosted_r1} -2 {rmhosted_r2} -) | \
-samtools sort -@%{threads} -O BAM -o {sorted_bam} - 2> {rmhost_log}'''
+{save_bam_params} \
+samtools fastq -@{threads} -N -f 12 -F 256 -1 {rmhosted_r1} -2 {rmhosted_r2} -'''
 
 RMHOST_BOWTIE2_TEMPLATE = '''bowtie2 --threads {threads} -x {host_index_base} \
 -1 {trimmed_r1} -2 {trimmed_r2} {additional_params} 2> {rmhost_log} | \
 tee >(samtools flagstat -@{threads} - > {flagstat}) | \
 tee >(samtools stats -@{threads} - > {stat}) | \
-tee >(samtools sort -@{threads} -O BAM -o {sorted_bam} -) | \
+{save_bam_params} \
 samtools view -@{threads} -SF4 - | awk -F'[/\\t]' '{{print $1}}' | sort | uniq | \
 tee >(awk '{{print $0 "/1"}}' - | seqtk subseq -r {trimmed_r1} - | pigz -p {threads} -c > {rmhosted_r1}) | \
 awk '{{print $0 "/2"}}' - | seqtk subseq -r {trimmed_r2} - | pigz -p {threads} -c > {rmhosted_r2}'''
@@ -46,7 +46,7 @@ def get_fqpath(sample_df, sample_id, col):
 
 
 class trimmer:
-    def __init__(self, sample_id, raw_r1, raw_r2, outdir, threads = 8):
+    def __init__(self, sample_id, raw_r1, raw_r2, outdir, adapter_trim, threads):
         self.raw_r1 = raw_r1
         self.raw_r2 = raw_r2
         self.trimmed_r1 = os.path.join(outdir, sample_id + ".trimmed.1.fq.gz")
@@ -62,11 +62,15 @@ class trimmer:
         self.html = os.path.join(outdir, sample_id + ".fastp.html")
         self.json = os.path.join(outdir, sample_id + ".fastp.json")
         self.trim_log = os.path.join(outdir, sample_id + ".fastp.log")
+        if adapter_trim:
+            self.adapter_trim_params = ""
+        else:
+            self.adapter_trim_params = "--disable_adapter_trimming"
 
 
 class rmhoster:
-    def __init__(self, sample_id, host_index_base, trim_dir, rmhost_dir, params=""):
-        self.threads = 8
+    def __init__(self, sample_id, host_index_base, trim_dir, rmhost_dir, thread, save_bam, params=""):
+        self.threads = thread
         self.additional_params = params
         self.host_index_base = host_index_base
         self.trimmed_r1 = os.path.join(trim_dir, sample_id + ".trimmed.1.fq.gz")
@@ -75,8 +79,12 @@ class rmhoster:
         self.rmhosted_r2 = os.path.join(rmhost_dir, sample_id + ".rmhosted.2.fq.gz")
         self.flagstat = os.path.join(rmhost_dir, sample_id + ".flagstat")
         self.stat = os.path.join(rmhost_dir, sample_id + ".alignstat")
-        self.sorted_bam = os.path.join(rmhost_dir, sample_id + ".sorted.bam")
         self.rmhost_log = os.path.join(rmhost_dir, sample_id + ".rmhost.log")
+        if save_bam:
+            self.save_bam_params = "tee >(samtools sort -@{t} -O BAM -o {sorted_bam} -) |".\
+                format(t=thread, sorted_bam=os.path.join(rmhost_dir, sample_id + ".sorted.bam"))
+        else:
+            self.save_bam_params = ""
 
 
 class bam_ploter:
@@ -108,6 +116,25 @@ def main():
         choices=["bwa", "bowtie2"],
         help='which aligner to do rmhost')
     parser.add_argument(
+        '-a',
+        '--adapter_trim',
+        default=False,
+        action='store_true',
+        help='adapter trimming, defalut: false'
+    )
+    parser.add_argument(
+        '-b',
+        '--save_bam',
+        default=False,
+        action='store_true',
+        help='same host bam, default: false')
+    parser.add_argument(
+        '-t',
+        '--threads',
+        type=int,
+        default=8,
+        help='fastp and bwa, bowtie2, samtools threads')
+    parser.add_argument(
         '-o',
         '--output',
         type=str,
@@ -131,19 +158,32 @@ def main():
             r1 = get_fqpath(samples_df, sample_id, "fq1")
             r2 = get_fqpath(samples_df, sample_id, "fq2")
 
-            trim_cmd = TRIM_TEMPLATE.format_map(vars(trimmer(sample_id, r1, r2, trim_outdir, 8)))
+            trim_cmd = TRIM_TEMPLATE.format_map(
+                vars(trimmer(sample_id, r1, r2, trim_outdir, args.adapter_trim, args.threads)))
             rmhost_cmd = ""
             plotbam_cmd = ""
+
             if args.database is not None:
                 if args.aligner == "bwa":
                     rmhost_cmd = RMHOST_BWA_TEMPLATE.format_map(
-                        vars(rmhoster(sample_id, args.database, trim_outdir, rmhost_outdir)))
+                        vars(rmhoster(sample_id,
+                                      args.database,
+                                      trim_outdir,
+                                      rmhost_outdir,
+                                      args.threads,
+                                      args.save_bam, "")))
                 elif args.aligner == "bowtie2":
                     rmhost_cmd = RMHOST_BOWTIE2_TEMPLATE.format_map(
-                        vars(rmhoster(sample_id, args.database, trim_outdir, rmhost_outdir, "--no-unal")))
+                        vars(rmhoster(sample_id,
+                                      args.database,
+                                      trim_outdir,
+                                      rmhost_outdir,
+                                      args.threads,
+                                      args.save_bam, "--no-unal")))
+
                 plotbam_cmd = PLOT_BAMSTATS_TEMPLATE.format_map(
-                    vars(bam_ploter(sample_id, rmhost_outdir, plot_outdir))
-                )
+                    vars(bam_ploter(sample_id, rmhost_outdir, plot_outdir)))
+
             oh1.write(trim_cmd + "\n")
             oh2.write(rmhost_cmd + "\n")
             oh3.write(plotbam_cmd + '\n')
