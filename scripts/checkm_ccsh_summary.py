@@ -66,7 +66,7 @@ def get_checkm_out(checkmout_list, out_tsv):
         "strain_heterogeneity_le10_num", "strain_heterogeneity_le20_num", "strain_heterogeneity_le30_num",
         "completeness_ge90_rate", "completeness_ge80_rate", "completeness_ge70_rate",
         "contamination_le10_rate", "contamination_le20_rate", "contamination_le30_rate",
-        "strain_heterogeneity_le10_rate", "strain_heterogeneity_le20_rate", "strain_heterogeneity_le30_rate"
+        "strain_heterogeneity_le10_rate", "strain_heterogeneity_le20_rate", "strain_heterogeneity_le30_rate",
         "high_quality_num", "medium_quality_num",
         "high_quality_rate", "medium_quality_rate"
     ]
