@@ -23,20 +23,20 @@ __date__ = 'Apr 16, 2018'
 
 def get_checkm_out(checkmout_list, out_tsv):
     headers = [
-        "fastq_id", "bin_number", "completeness_ge70_num",
-        "completeness_ge80_num", "completeness_ge90_num",
-        "completeness_ge70_rate", "completeness_ge80_rate",
-        "completeness_ge90_rate", "contamination_le30_num",
-        "contamination_le20_num", "contamination_le10_num",
-        "contamination_le30_rate", "contamination_le20_rate",
-        "contamination_le10_rate", "strain_heterogeneity_100_num",
-        "strain_heterogeneity_100_rate"
+        "sample_id", "bin_number",
+        "completeness_ge90_num", "completeness_ge80_num", "completeness_ge70_num",
+        "contamination_le10_num", "contamination_le20_num", "contamination_le30_num",
+        "strain_heterogeneity_le10_num", "strain_heterogeneity_le20_num", "strain_heterogeneity_le30_num",
+        "completeness_ge90_rate", "completeness_ge80_rate", "completeness_ge70_rate",
+        "contamination_le10_rate", "contamination_le20_rate", "contamination_le30_rate",
+        "strain_heterogeneity_le10_rate", "strain_heterogeneity_le20_rate", "strain_heterogeneity_le30_rate"
     ]
     samples_bin_info = []
     with open(checkmout_list, "r") as list_handle:
+        num = 0
         for checkmout in list_handle:
             bin_info = {}
-            bin_info["fastq_id"] = os.path.basename(
+            bin_info["sample_id"] = os.path.basename(
                 checkmout.strip()).split(".")[0]
             bin_info["bin_number"] = 0
 
@@ -48,7 +48,9 @@ def get_checkm_out(checkmout_list, out_tsv):
             bin_info["contamination_le20_num"] = 0
             bin_info["contamination_le10_num"] = 0
 
-            bin_info["strain_heterogeneity_100_num"] = 0
+            bin_info["strain_heterogeneity_le10_num"] = 0
+            bin_info["strain_heterogeneity_le20_num"] = 0
+            bin_info["strain_heterogeneity_le30_num"] = 0
 
             bin_info["completeness_ge70_rate"] = 0.00
             bin_info["completeness_ge80_rate"] = 0.00
@@ -58,20 +60,29 @@ def get_checkm_out(checkmout_list, out_tsv):
             bin_info["contamination_le20_rate"] = 0.00
             bin_info["contamination_le10_rate"] = 0.00
 
-            bin_info["strain_heterogeneity_100_rate"] = 0.00
+            bin_info["strain_heterogeneity_le10_rate"] = 0.00
+            bin_info["strain_heterogeneity_le20_rate"] = 0.00
+            bin_info["strain_heterogeneity_le30_rate"] = 0.00
 
+            num += 1
             with open(checkmout.strip(), 'r') as checkmout_handle:
-                print("processing %s" % checkmout.strip())
+                has_bin = False
+                print("processing bin %d : %s" % (num, checkmout.strip()))
                 next(checkmout_handle)
                 next(checkmout_handle)
                 next(checkmout_handle)
                 for info in checkmout_handle:
+                    has_bin = True
                     if not info.strip().startswith("-"):
                         info_list = re.split(r'\s+', info.strip())
                         bin_info["bin_number"] += 1
 
-                        if float(info_list[-1]) == 100.00:
-                            bin_info["strain_heterogeneity_100_num"] += 1
+                        if float(info_list[-1]) <= 10.00:
+                            bin_info["strain_heterogeneity_le10_num"] += 1
+                        if float(info_list[-1]) <= 20.00:
+                            bin_info["strain_heterogeneity_le20_num"] += 1
+                        if float(info_list[-1]) <= 30.00:
+                            bin_info["strain_heterogeneity_le30_num"] += 1
 
                         if float(info_list[-2]) <= 10.00:
                             bin_info["contamination_le10_num"] += 1
@@ -87,20 +98,27 @@ def get_checkm_out(checkmout_list, out_tsv):
                         if float(info_list[-3]) >= 90.00:
                             bin_info["completeness_ge90_num"] += 1
 
-                bin_info["completeness_ge70_rate"] = bin_info[
-                    "completeness_ge70_num"] / bin_info["bin_number"]
-                bin_info["completeness_ge80_rate"] = bin_info[
-                    "completeness_ge80_num"] / bin_info["bin_number"]
-                bin_info["completeness_ge90_rate"] = bin_info[
-                    "completeness_ge90_num"] / bin_info["bin_number"]
-                bin_info["contamination_le30_rate"] = bin_info[
-                    "contamination_le30_num"] / bin_info["bin_number"]
-                bin_info["contamination_le20_rate"] = bin_info[
-                    "contamination_le20_num"] / bin_info["bin_number"]
-                bin_info["contamination_le10_rate"] = bin_info[
-                    "contamination_le10_num"] / bin_info["bin_number"]
-                bin_info["strain_heterogeneity_100_rate"] = bin_info[
-                    "strain_heterogeneity_100_num"] / bin_info["bin_number"]
+                if has_bin:
+                    bin_info["completeness_ge70_rate"] = bin_info[
+                        "completeness_ge70_num"] / bin_info["bin_number"]
+                    bin_info["completeness_ge80_rate"] = bin_info[
+                        "completeness_ge80_num"] / bin_info["bin_number"]
+                    bin_info["completeness_ge90_rate"] = bin_info[
+                        "completeness_ge90_num"] / bin_info["bin_number"]
+
+                    bin_info["contamination_le30_rate"] = bin_info[
+                        "contamination_le30_num"] / bin_info["bin_number"]
+                    bin_info["contamination_le20_rate"] = bin_info[
+                        "contamination_le20_num"] / bin_info["bin_number"]
+                    bin_info["contamination_le10_rate"] = bin_info[
+                        "contamination_le10_num"] / bin_info["bin_number"]
+
+                    bin_info["strain_heterogeneity_le10_rate"] = bin_info[
+                        "strain_heterogeneity_le10_num"] / bin_info["bin_number"]
+                    bin_info["strain_heterogeneity_le20_rate"] = bin_info[
+                        "strain_heterogeneity_le20_num"] / bin_info["bin_number"]
+                    bin_info["strain_heterogeneity_le30_rate"] = bin_info[
+                        "strain_heterogeneity_le30_num"] / bin_info["bin_number"]
 
             samples_bin_info.append(bin_info)
 
