@@ -5,6 +5,7 @@ from Bio import SeqIO
 import argparse
 import re
 import os
+import time
 
 
 def parse_mgs(mgs_profile):
@@ -21,13 +22,26 @@ def parse_mgs(mgs_profile):
 
 def extract(contigs_list, bins, outdir):
     files = []
-    for i in contigs_list:
-        files.append(i)
+    with open(contigs_list, 'r') as ih:
+        for line in ih:
+            files.append(line.strip())
+
+    begin = time.time()
     records = SeqIO.index_db(":memory:", files, "fasta", generic_dna)
+    end = time.time()
+    print("index db: %.2f s" % (end - begin))
+
+    begin = time.time()
     for bin_id in bins:
-        with open(os.path.join(outdir, "bin_id.fa"), 'w') as oh:
+        with open(os.path.join(outdir, bin_id + ".fa"), 'w') as oh:
             for contig_id in bins[bin_id]:
-                SeqIO.write(records[contig_id], oh, 'fasta')
+                if contig_id in records:
+                    SeqIO.write(records[contig_id], oh, 'fasta')
+                else:
+                    print("%s has not find %s" % (bin_id, contig_id))
+    records.close()
+    end = time.time()
+    print("extract all bins: %.2f s" % (end - begin))
 
 
 def main():
@@ -37,6 +51,9 @@ def main():
     parser.add_argument('-o', '--outdir', type=str, help='bins output dir')
 
     args = parser.parse_args()
+    if not os.path.exists(args.outdir):
+        os.makedirs(args.outdir, exist_ok=True)
+
     bins = parse_mgs(args.profile)
     extract(args.contigs_list, bins, args.outdir)
 
