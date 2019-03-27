@@ -4,38 +4,30 @@ from Bio.Alphabet import generic_dna
 from Bio import SeqIO
 import argparse
 import re
+import os
 
 
-def parse_mgs(mgs_profile, default=True):
-    cag = {}
+def parse_mgs(mgs_profile):
+    bins = {}
     with open(mgs_profile, 'r') as ih:
         for line in ih:
             line_list = re.split(r"\s+|,", line)
-            cag_id = line_list[0]
-            # seq_count = line_list[1]
-            cag[cag_id] = {}
+            bin_id = line_list[0]
+            bins[bin_id] = []
             for contig_id in line_list[2:]:
-                sample_id = contig_id.split('_')[0]
-                if sample_id not in cag[cag_id]:
-                    cag[cag_id][sample_id] = []
-                if default:
-                    cag[cag_id][sample_id].append(contig_id)
-                else:
-                    if "cov" in contig_id:
-                        spades_contig_id = "node_" + "_".join(contig_id.split("_")[1:])
-                        cag[cag_id][sample_id].append(spades_contig_id)
-                    else:
-                        # megahit_contig_id = "K99" + "_".join(contig_id.split("_")[1:])
-                        megahit_contig_id = "K199" + "_".join(contig_id.split("_")[1:])
-                        cag[cag_id][sample_id].append(megahit_contig_id)
-    return cag
+                bins[bin_id].append(contig_id)
+    return bins
 
 
-def contigs_index(contigs_list):
+def extract(contigs_list, bins, outdir):
     files = []
     for i in contigs_list:
         files.append(i)
-    records = SeqIO.index_db(":memory:", files, generic_dna)
+    records = SeqIO.index_db(":memory:", files, "fasta", generic_dna)
+    for bin_id in bins:
+        with open(os.path.join(outdir, "bin_id.fa"), 'w') as oh:
+            for contig_id in bins[bin_id]:
+                SeqIO.write(records[contig_id], oh, 'fasta')
 
 
 def main():
@@ -45,7 +37,8 @@ def main():
     parser.add_argument('-o', '--outdir', type=str, help='bins output dir')
 
     args = parser.parse_args()
-
+    bins = parse_mgs(args.profile)
+    extract(args.contigs_list, bins, args.outdir)
 
 
 if __name__ == '__main__':
