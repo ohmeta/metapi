@@ -158,6 +158,30 @@ binning_maxbin2:
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
+filter_scaftigs_to_cds:
+  mem: "128M"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+
+vsearch_clust_cds:
+  mem: "1G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+
+choose_cds_marker:
+  mem: "128M"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+
+index_marker_cds:
+  mem: "128M"
+  cores: 1
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+
 checkm_lineage_wf:
   mem: "20G"
   cores: 8

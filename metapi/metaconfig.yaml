@@ -93,6 +93,11 @@ params:
     maxbin2:
       do: False
       threads: 8
+  cobinning:
+    threads: 8
+    scaftigs_length: 1000
+    vsearch:
+      identity: 0.75
   checkm:
     env: "bioenv2"
     threads: 8
@@ -134,6 +139,10 @@ results:
   binning:
     depth: "results/05.binning/coverage"
     bins: "results/05.binning/bins"
+  cobinning:
+    scaftigs: "results/05.cobinning/scaftigs"
+    cds: "results/05.cobinning/cds"
+    bam: "results/05.cobinning/bam"
   checkm:
     out: "results/06.checkm/checkm_out"
     data: "results/06.checkm/checkm_data"
@@ -169,6 +178,7 @@ logs:
   binning:
     metabat2: "assay/05.binning/metabat2_logs"
     maxbin2: "assay/05.binning/maxbin2_logs"
+  cobinning: "assay/05.cobinning/logs"
   checkm: "assay/06.checkm/logs"
   dereplication: "assay/07.dereplication/logs"
   classification: "assay/08.classification/logs"
