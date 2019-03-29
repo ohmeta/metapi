@@ -69,6 +69,7 @@ rule choose_cds_marker:
                     hit.add(item[-2])
                 elif 'C' in item[0]:
                     clust.add(item[-2])
+        # understand it
         marker_cds = clust - hit
 
         with gzip.open(input.cds, 'rt') as ih, gzip.open(output.cds, 'wb') as oh:
@@ -106,16 +107,19 @@ rule alignment_to_marker_cds:
                                         "{{sample_}}/{{sample_}}.{{assembler}}.cds.marker.fa.gz"),
                     suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
     output:
-        os.path.join(config["results"]["cobinning"]["bam"],
-                     "{sample}/{sample}.alignto.{sample_}.{assembler}.sorted.bam")
-    log:
-        os.path.join(config["logs"]["cobinning"], "{sample}.alignto.{sample_}.{assembler}.cds.marker.log")
+        os.path.join(config["results"]["cobinning"]["depth"],
+                     "{sample}/{sample}.{sample_}.{assembler}.metabat2.depth.txt")
     params:
-        index = os.path.join(config["results"]["cobinning"]["cds"], "{sample_}/{sample_}.{assembler}.cds.marker.fa.gz")
+        index = os.path.join(config["results"]["cobinning"]["cds"], "{sample_}/{sample_}.{assembler}.cds.marker.fa.gz"),
+        bam = os.path.join(config["results"]["cobinning"]["depth"],
+                           "{sample}/{sample}.{sample_}.{assembler}.sorted.bam")
     threads:
         config["params"]["cobinning"]["threads"]
     shell:
          '''
-         bowtie2 --threads {threads} -x {params.index} -1 {input.reads[0]} -2 {input.reads[1]} 2> {log} |
-         samtools sort -@{threads} -O BAM -o {output} -
+         bowtie2 --threads {threads} -x {params.index} -1 {input.reads[0]} -2 {input.reads[1]} |
+         samtools sort -@{threads} -O BAM -o {params.bam} -
+         jgi_summarize_bam_contig_depths --outputDepth {output} {params.bam}
+         rm -rf {params.bam}
          '''
+
