@@ -98,41 +98,24 @@ rule index_marker_cds:
         '''
 
 
-def clean_reads_(wildcards):
-    if config["params"]["begin"] == "assembly":
-        r1 = get_sample_id_(_samples, wildcards, "fq1")
-        r2 = get_sample_id_(_samples, wildcards, "fq2")
-        return [r1, r2]
-    elif config["params"]["rmhost"]["do"]:
-        return expand("{rmhost}/{sample_}.rmhost.{read}.fq.gz",
-                      rmhost=config["results"]["rmhost"],
-                      sample=wildcards.sample_,
-                      read=["1", "2"])
-    else:
-        return expand("{trimming}/{sample_}.trimmed.{read}.fq.gz",
-                      trimming=config["results"]["trimming"],
-                      sample=wildcards.sample_,
-                      read=["1", "2"])
-
-
 rule alignment_to_marker_cds:
     input:
-        reads = clean_reads_,
+        reads = clean_reads,
         db = expand("{prefix}.{suffix}",
                     prefix=os.path.join(config["results"]["cobinning"]["cds"],
-                                        "{{sample}}/{{sample}}.{{assembler}}.cds.marker.fa.gz"),
+                                        "{{sample_}}/{{sample_}}.{{assembler}}.cds.marker.fa.gz"),
                     suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
     output:
         os.path.join(config["results"]["cobinning"]["bam"],
-                     "{sample}/{sample_}.alignto.{sample}.{assembler}.sorted.bam")
+                     "{sample}/{sample}.alignto.{sample_}.{assembler}.sorted.bam")
     log:
-        os.path.join(config["logs"]["cobinning"], "{sample}.{sample_}.alignment.log")
+        os.path.join(config["logs"]["cobinning"], "{sample}.alignto.{sample_}.{assembler}.cds.marker.log")
     params:
-        index = os.path.join(config["results"]["cobinning"]["cds"], "{sample}/{sample}.{assembler}.cds.marker.fa.gz")
+        index = os.path.join(config["results"]["cobinning"]["cds"], "{sample_}/{sample_}.{assembler}.cds.marker.fa.gz")
     threads:
         config["params"]["cobinning"]["threads"]
     shell:
          '''
-         bowtie2 --threads {threads} -x {params.index} -1 {reads[0]} -2 {reads[1]} 2> {log} |
-         samtools sort -@{threads} -O BAM -o {output} - 
+         bowtie2 --threads {threads} -x {params.index} -1 {input.reads[0]} -2 {input.reads[1]} 2> {log} |
+         samtools sort -@{threads} -O BAM -o {output} -
          '''

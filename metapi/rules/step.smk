@@ -143,7 +143,7 @@ cobin_vsearch_clust_output = expand([
     assembler=config["params"]["assembler"])
 
 cobin_alignment_cds_output = expand(
-    "{bam}/{sample}/{sample_}.alignto.{sample}.{assembler}.sorted.bam",
+    "{bam}/{sample}/{sample}.alignto.{sample_}.{assembler}.sorted.bam",
     bam=config["results"]["cobinning"]["bam"],
     sample=_samples.index,
     sample_=_samples.index,
