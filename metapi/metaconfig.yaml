@@ -94,6 +94,7 @@ params:
       do: False
       threads: 8
   cobinning:
+    do: False
     threads: 8
     scaftigs_length: 1000
     vsearch:

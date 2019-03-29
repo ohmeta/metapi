@@ -25,5 +25,9 @@ def get_sample_id(sample_df, wildcards, col):
     return sample_df.loc[wildcards.sample, [col]].dropna()[0]
 
 
+def get_sample_id_(sample_df, wildcards, col):
+    return sample_df.loc[wildcards.sample_, [col]].dropna()[0]
+
+
 def get_bin_id(bin_df, wildcards, col):
     return bin_df.loc[wildcards.bin, [col]].dropna()[0]

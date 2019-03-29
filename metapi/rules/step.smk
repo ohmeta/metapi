@@ -126,6 +126,29 @@ maxbin2_output = expand([
                         assembler=config["params"]["assembler"],
                         sample=_samples.index)
 
+cobin_prediction_output = expand([
+    "{cds}/{sample}/{sample}.{assembler}.cds.fa.gz",
+    "{cds}/{sample}/{sample}.{assembler}.cds.gff.gz"
+],
+    cds=config["results"]["cobinning"]["cds"],
+    sample=_samples.index,
+    assembler=config["params"]["assembler"])
+
+cobin_vsearch_clust_output = expand([
+    "{cds}/{sample}/{sample}.{assembler}.cds.uc.gz",
+    "{cds}/{sample}/{sample}.{assembler}.cds.marker.fa.gz"
+],
+    cds=config["results"]["cobinning"]["cds"],
+    sample=_samples.index,
+    assembler=config["params"]["assembler"])
+
+cobin_alignment_cds_output = expand(
+    "{bam}/{sample}/{sample_}.alignto.{sample}.{assembler}.sorted.bam",
+    bam=config["results"]["cobinning"]["bam"],
+    sample=_samples.index,
+    sample_=_samples.index,
+    assembler=config["params"]["assembler"])
+
 checkm_lineage_wf_output = expand([
     "{out}/{sample}.{assembler}.checkm.txt",
     "{data}/{sample}.{assembler}.checkm.data.tar.gz"
@@ -231,6 +254,11 @@ if config['params']["binning"]["maxbin2"]["do"]:
     binning_output = (binning_output + maxbin2_output)
 
 binning_target = (assembly_target + binning_output)
+
+cobinning_output = (cobin_prediction_output + cobin_vsearch_clust_output + cobin_alignment_cds_output)
+
+if config["params"]["cobinning"]["do"]:
+    binning_target = (binning_target + cobinning_output)
 
 # checkm_output = checkm_lineage_wf_output + checkm_coverage_output + checkm_profile_output
 checkm_output = checkm_lineage_wf_output
