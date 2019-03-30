@@ -1,7 +1,6 @@
 rule metaphlan2_profilling:
     input:
-        r1 = os.path.join(config["results"]["rmhost"], "{sample}.rmhost.1.fq.gz"),
-        r2 = os.path.join(config["results"]["rmhost"], "{sample}.rmhost.2.fq.gz")
+        reads = clean_reads
     output:
         bt2_out = os.path.join(config["results"]["profilling"]["metaphlan2"]["bowtie2_out"], "{sample}.bowtie2.gz"),
         profile = os.path.join(config["results"]["profilling"]["metaphlan2"]["profile"], "{sample}.metaphlan2.profile")
@@ -15,7 +14,7 @@ rule metaphlan2_profilling:
     shell:
         '''
         set +u; source activate {params.metaphlan2_env}; set -u;
-        metaphlan2.py {input.r1},{input.r2} --bowtie2out {output.bt2_out} --nproc {threads} --input_type {params.input_type} > {output.profile} 2> {log}
+        metaphlan2.py {input.reads[0]},{input.reads[1]} --bowtie2out {output.bt2_out} --nproc {threads} --input_type {params.input_type} > {output.profile} 2> {log}
         '''
 
 rule metaphlan2_merge:
