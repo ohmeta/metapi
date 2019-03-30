@@ -14,11 +14,58 @@ import shutil
 import subprocess
 import sys
 import textwrap
+import pandas as pd
 from argparse import RawTextHelpFormatter
 
 __author__ = 'Jie Zhu, Xing Liu, Zhi Feng Wang'
-__version__ = '1.0.0'
-__date__ = 'January 16, 2018'
+__version__ = '2.0.0'
+__date__ = 'March 30, 2019'
+
+def parse_samples(samples_tsv):
+    return pd.read_csv(samples_tsv, sep='\s+').set_index("id", drop=False)
+
+
+def get_fqpath(sample_df, sample_id, col):
+    return sample_df.loc[sample_id, [col]].dropna()[0]
+
+
+METASPADES_TEMPLATE = '''metaspades.py \
+-1 {reads1} \
+-2 {reads2} \
+-k {kmers} \
+{only_assembler} \
+--threads {threads} \
+-o {out_dir} 2> {log}
+pigz -p {threads} {out_dir}/scaffolds.fasta
+mv {out_dir}/scaffolds.fasta.gz {scaftigs}
+rm -rf {kmer_dirs}
+rm -rf {out_dir}/corrected    
+if {only_save_scaftigs}; then
+    find {out_dir} -type f ! -wholename "{scaftigs}" -delete
+else
+    find {out_dir} -type f ! -wholename "{scaftigs}" ! -wholename "{tar_results}" | xargs -I % sh -c 'tar -rf {tar_results} %; rm -rf %'
+    pigz -p {threads} {tar_results}
+fi       
+rm -rf {out_dir}/tmp
+rm -rf {out_dir}/misc'''
+
+
+class metaspadeser:
+    def __init__(self, sample_id, reads1, reads2, only_assembler, kmers, threads, out_dir, only_save_scaftigs, log):
+        self.reads1 = reads1
+        self.reads2 = reads2
+        self.kmers = ",".join(kmers)
+        self.threads = threads
+        self.out_dir = out_dir
+        self.only_save_scaftigs = only_save_scaftigs
+        self.tar_results = os.path.join(out_dir, sample_id + ".metaspades.tar")
+        self.log = log
+        self.scaftigs = os.path.join(out_dir, sample_id + ".scaftigs.fa.gz")
+        self.kmer_dirs = " ".join([os.path.join(out_dir, "K" + str(kmer)) for kmer in kmers])
+        if only_assembler:
+            self.only_assembler = "--only-assembler"
+        else:
+            self.only_assembler = ""
 
 
 def parse_line(line, addse):
@@ -57,6 +104,20 @@ def sge_init(assembler, out_dir, job_dir, job_line, project, queue, resource):
     with open(sge["submit_script"], 'w') as submit_h:
         submit_h.write(submit_cmd)
     return sge
+
+
+def gen_metaspades_sge(sge, samples, only_assembler, klist, only_save_scaftigs, threads, logdir):
+    samples_df = parse_samples(samples)
+    with open(sge["assembly_script"], 'w') as assembly_handle:
+        for sample_id in samples_df.index:
+            r1 = get_fqpath(samples_df, sample_id, "fq1")
+            r2 = get_fqpath(samples_df, sample_id, "fq2")
+            out_dir_asm = os.path.join(sge["out_dir"],
+                                       sample_id + ".metaspades_out")
+            log = os.path.join(logdir, sample_id + ".metaspades.log")
+            metaspades_cmd = METASPADES_TEMPLATE.format_map(
+                vars(metaspadeser(sample_id, r1, r2, only_assembler, klist, threads, out_dir_asm, only_save_scaftigs, log)))
+            assembly_handle.write(metaspades_cmd + "\n")
 
 
 def gen_megahit_sge(sge, addse, fq_list, nomercy, mincount, klist, kmin, kmax,
@@ -267,18 +328,43 @@ def main():
         type=int,
         default=10,
         help='kmer step, must be even number, default: 10')
+    parser.add_argument(
+        '--klist',
+        type=str,
+        nargs='*',
+        help='all must be odd, in the range 15-255, increment <= 28, [21,29,39,59,79,99,119,141]'
+    )
+
+    metaspades_group = parser.add_argument_group("metaspades", "args for metaspades")
+    metaspades_group.add_argument(
+        '--samples',
+        type=str,
+        help='samples tsv, id, fq1, fq2'
+    )
+    metaspades_group.add_argument(
+        '--only_assembler',
+        default=False,
+        action='store_true',
+        help='runs only assembling(without read error correction)'
+    )
+    metaspades_group.add_argument(
+        '--only_save_scaftigs',
+        default=False,
+        action='store_true',
+        help='only save scaftigs'
+    )
+    metaspades_group.add_argument(
+        '--asmlogdir',
+        type=str,
+        help='metaspades assembly log dir'
+    )
 
     megahit_group = parser.add_argument_group("megahit", "args for megahit")
     megahit_group.add_argument(
         '--mincount',
         type=int,
         default=2,
-        help='minimum multiplicity for filtering (k_min+1)-mers')
-    megahit_group.add_argument(
-        '--klist',
-        type=str,
-        help=
-        'all must be odd, in the range 15-255, increment <= 28, [21,29,39,59,79,99,119,141]'
+        help='minimum multiplicity for filtering (k_min+1)-mers'
     )
     megahit_group.add_argument(
         '--nomercy',
@@ -335,7 +421,13 @@ def main():
         if int(args.resource_list.split("=")[-1]) != int(args.threads):
             sys.exit("Please let sge resource_list p = threads")
 
-    if args.platform == "sge" and args.assembler == "megahit":
+    if args.platform == "sge" and args.assembler == "metaspades":
+        sge = sge_init(args.assembler, args.outdir, args.jobdir, 13,
+                       args.project_name, args.queue, args.resource_list)
+        gen_metaspades_sge(sge, args.samples, args.only_assembler,
+                           args.klist, args.only_save_scaftigs, args.threads, args.asmlogdir)
+
+    elif args.platform == "sge" and args.assembler == "megahit":
         sge = sge_init(args.assembler, args.outdir, args.jobdir, 1,
                        args.project_name, args.queue, args.resource_list)
         gen_megahit_sge(sge, args.addse, args.fqlist, args.nomercy,
