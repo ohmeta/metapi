@@ -93,7 +93,7 @@ rule assembly_metaspades:
         corrected = os.path.join(config["results"]["assembly"], "{sample}.metaspades_out/corrected"),
         kmer_dirs = get_kmer_dirs,
         only_assembler = "--only-assembler" if config["params"]["assembly"]["metaspades"]["only_assembler"] else "",
-        only_save_scaftigs = config["params"]["assembly"]["metaspades"]["only_save_scaftigs"],
+        only_save_scaftigs = "true" if config["params"]["assembly"]["metaspades"]["only_save_scaftigs"] else "false",
         tar_results = os.path.join(config["results"]["assembly"], "{sample}.metaspades_out/{sample}.metaspades.tar")
     threads:
         config["params"]["assembly"]["metaspades"]["threads"]
