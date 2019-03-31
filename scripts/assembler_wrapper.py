@@ -58,6 +58,10 @@ class metaspadeser:
         self.threads = threads
         self.out_dir = out_dir
         self.only_save_scaftigs = only_save_scaftigs
+        if only_save_scaftigs:
+            self.only_save_scaftigs = "true"
+        else:
+            self.only_save_scaftigs = "false"
         self.tar_results = os.path.join(out_dir, sample_id + ".metaspades.tar")
         self.log = log
         self.scaftigs = os.path.join(out_dir, sample_id + ".scaftigs.fa.gz")
