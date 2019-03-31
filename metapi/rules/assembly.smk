@@ -92,6 +92,7 @@ rule assembly_metaspades:
         out_dir = os.path.join(config["results"]["assembly"], "{sample}.metaspades_out"),
         corrected = os.path.join(config["results"]["assembly"], "{sample}.metaspades_out/corrected"),
         kmer_dirs = get_kmer_dirs,
+        only_assembler = "--only-assembler" if config["params"]["assembly"]["metaspades"]["only_assembler"] else "",
         only_save_scaftigs = config["params"]["assembly"]["metaspades"]["only_save_scaftigs"],
         tar_results = os.path.join(config["results"]["assembly"], "{sample}.metaspades_out/{sample}.metaspades.tar")
     threads:
@@ -104,6 +105,7 @@ rule assembly_metaspades:
         -1 {input.reads[0]} \
         -2 {input.reads[1]} \
         -k {params.kmers} \
+        {params.only_assembler} \
         --threads {threads} \
         -o {params.out_dir} 2> {log}
         pigz -p {threads} {params.out_dir}/scaffolds.fasta

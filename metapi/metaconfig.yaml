@@ -64,6 +64,7 @@ params:
       threads: 8
     metaspades:
       do: True
+      only_assembler: false
       only_save_scaftigs: False
       memory: 10
       threads: 8
