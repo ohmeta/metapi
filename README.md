@@ -105,11 +105,11 @@ hello, metagenomics!
   ```bash
   # in python3 environment
   conda install snakemake pigz ncbi-genome-download sickle-trim fastp bwa samtools \
-                bbmap spades idba megahit maxbin2 prokka metabat2 drep quast
+                bbmap spades idba megahit maxbin2 prokka metabat2 drep quast checkm-genome
   pip install insilicoseq
 
   # in python2 envrionment
-  conda install checkm-genome metaphlan2
+  conda install metaphlan2
 
   # database configuration
   wget https://data.ace.uq.edu.au/public/CheckM_databases/checkm_data_2015_01_16.tar.gz
@@ -119,7 +119,7 @@ hello, metagenomics!
   cd ..
   ln -s checkm_data checkm_data_latest
 
-  # activate python2 environment where checkm in
+  # activate python3 environment where checkm in
   checkm data setRoot checkm_data_latest
   ```
 
