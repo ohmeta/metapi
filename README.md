@@ -52,6 +52,7 @@ hello, metagenomics!
         include: "rules/assembly.smk"
         include: "rules/alignment.smk"
         include: "rules/binning.smk"
+        include: "rules/cobinning.smk"
         include: "rules/checkm.smk"
         include: "rules/dereplication.smk"
         include: "rules/classification.smk"
@@ -103,12 +104,12 @@ hello, metagenomics!
 
   ```bash
   # in python3 environment
-  conda install snakemake pigz ncbi-genome-download sickle-trim fastp bwa samtools bbmap spades idba megahit maxbin2 prokka
-  conda install -c ursky metabat2
-  pip install drep insilicoseq
+  conda install snakemake pigz ncbi-genome-download sickle-trim fastp bwa samtools \
+                bbmap spades idba megahit maxbin2 prokka metabat2 drep quast
+  pip install insilicoseq
 
   # in python2 envrionment
-  conda install quast checkm-genome metaphlan2
+  conda install checkm-genome metaphlan2
 
   # database configuration
   wget https://data.ace.uq.edu.au/public/CheckM_databases/checkm_data_2015_01_16.tar.gz
