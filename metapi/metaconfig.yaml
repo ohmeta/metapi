@@ -96,6 +96,7 @@ params:
       threads: 8
   cobinning:
     do: False
+    samples_id: "samples.id"
     threads: 8
     scaftigs_length: 1000
     vsearch:

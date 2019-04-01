@@ -25,5 +25,16 @@ def get_sample_id(sample_df, wildcards, col):
     return sample_df.loc[wildcards.sample, [col]].dropna()[0]
 
 
+def get_sample_id_(sample_df, wildcards, col):
+    return sample_df.loc[wildcards.sample_, [col]].dropna()[0]
+
+
 def get_bin_id(bin_df, wildcards, col):
     return bin_df.loc[wildcards.bin, [col]].dropna()[0]
+
+
+def parse_cobin_samples_id(query_list):
+    samples_id = []
+    with open(query_list, 'r') as ih:
+        samples_id = [line.strip() for line in ih]
+    return samples_id

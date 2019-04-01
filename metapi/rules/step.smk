@@ -143,10 +143,10 @@ cobin_vsearch_clust_output = expand([
     assembler=config["params"]["assembler"])
 
 cobin_alignment_cds_output = expand(
-    "{depth}/{sample}/{sample}.{sample_}.{assembler}.metabat2.depth.txt",
+    "{depth}/{sample_}/{sample_}.{sample}.{assembler}.metabat2.depth.txt",
     depth=config["results"]["cobinning"]["depth"],
+    sample_= _samples_id,
     sample=_samples.index,
-    sample_=_samples.index,
     assembler=config["params"]["assembler"])
 
 checkm_lineage_wf_output = expand([
@@ -259,6 +259,7 @@ cobinning_output = (cobin_prediction_output + cobin_vsearch_clust_output + cobin
 
 if config["params"]["cobinning"]["do"]:
     binning_target = (binning_target + cobinning_output)
+    # pprint(binning_target)
 
 # checkm_output = checkm_lineage_wf_output + checkm_coverage_output + checkm_profile_output
 checkm_output = checkm_lineage_wf_output

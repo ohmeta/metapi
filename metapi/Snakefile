@@ -1,12 +1,19 @@
 #!/usr/bin/env snakemake
-from metasample import parse_samples, parse_bins, get_sample_id, get_bin_id
+from metasample import parse_samples, parse_bins, get_sample_id, get_sample_id_, get_bin_id, parse_cobin_samples_id
 from metareport import flagstats_summary
+from pprint import pprint
 
 shell.executable("bash")
 
 configfile: "metaconfig.yaml"
 
 _samples = parse_samples(config["params"]["samples"])
+
+_samples_id = []
+if config["params"]["cobinning"]["do"]:
+    _samples_id = parse_cobin_samples_id(config["params"]["cobinning"]["samples_id"])
+
+pprint(_samples_id)
 
 include: "rules/step.smk"
 
