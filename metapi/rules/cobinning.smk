@@ -110,16 +110,13 @@ rule alignment_to_marker_cds:
         os.path.join(config["results"]["cobinning"]["depth"],
                      "{sample}/{sample}.{sample_}.{assembler}.metabat2.depth.txt")
     params:
-        index = os.path.join(config["results"]["cobinning"]["cds"], "{sample_}/{sample_}.{assembler}.cds.marker.fa.gz"),
-        bam = os.path.join(config["results"]["cobinning"]["depth"],
-                           "{sample}/{sample}.{sample_}.{assembler}.sorted.bam")
+        index = os.path.join(config["results"]["cobinning"]["cds"], "{sample_}/{sample_}.{assembler}.cds.marker.fa.gz")
     threads:
         config["params"]["cobinning"]["threads"]
     shell:
          '''
          bowtie2 --threads {threads} -x {params.index} -1 {input.reads[0]} -2 {input.reads[1]} |
-         samtools sort -@{threads} -O BAM -o {params.bam} -
-         jgi_summarize_bam_contig_depths --outputDepth {output} {params.bam}
-         rm -rf {params.bam}
+         samtools sort -@{threads} -O BAM - |
+         jgi_summarize_bam_contig_depths --outputDepth {output} - 
          '''
 
