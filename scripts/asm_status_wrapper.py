@@ -20,7 +20,7 @@ class statswrapper:
 def gen_shell(ilist, mlen, split, prefix, output):
 	files = open(ilist, 'r').readlines()
 	total = len(files)
-	assert total < split, "can't split"
+	assert total >= split, "can't split"
 	step = total // split
 	m = total % split
 	count = 0
@@ -29,14 +29,14 @@ def gen_shell(ilist, mlen, split, prefix, output):
 	for i in range(0, total, step):
 		count += 1
 		if count <= split:
-			sub_files = [f.strip() for f in files[i, i + step]]
+			sub_files = [f.strip() for f in files[i:(i + step)]]
 			output_ = "%s.%d.tsv" % (prefix, count)
 			cmd = STATSWRAPPER_TEMPLATE.format_map(
 				vars(statswrapper(sub_files, mlen, output_)))
 			cmds.append(cmd)
 
 		if (count > split) and (m > 0):
-			sub_files += [f.strip() for f in files[total - m, total]]
+			sub_files += [f.strip() for f in files[(total - m):total]]
 			output_ = "%s.%d.tsv" % (prefix, split)
 			cmd = STATSWRAPPER_TEMPLATE.format_map(
 				vars(statswrapper(sub_files, mlen, output_)))
@@ -56,7 +56,7 @@ def main():
 	parser.add_argument('-o', '--output', type=str, default=sys.stdout, help='write cmd to file, default: stdout')
 	args = parser.parse_args()
 
-	gen_shell(args.list, args.min_len, args.prefix, args.output)
+	gen_shell(args.list, args.min_len, args.split, args.prefix, args.output)
 
 
 if __name__ == '__main__':
