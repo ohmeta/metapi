@@ -40,7 +40,7 @@ def gen_shell(ilist, mlen, split, prefix, output):
 			output_ = "%s.%d.tsv" % (prefix, split)
 			cmd = STATSWRAPPER_TEMPLATE.format_map(
 				vars(statswrapper(sub_files, mlen, output_)))
-			cmds[split] = cmd
+			cmds[split - 1] = cmd
 
 	with open(output, 'w') as oh:
 		for i in cmds:
