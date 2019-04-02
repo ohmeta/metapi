@@ -123,7 +123,7 @@ def clean_reads_(wildcards):
                       read=["1", "2"])
 
 
-rule alignment_to_marker_cds:
+rule get_marker_contigs_depth:
     input:
         reads = clean_reads_,
         db = expand("{prefix}.{suffix}",

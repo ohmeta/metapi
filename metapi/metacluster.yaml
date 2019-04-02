@@ -158,8 +158,8 @@ binning_maxbin2:
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
-filter_scaftigs_to_cds:
-  mem: "128M"
+filter_rename_prediction:
+  mem: "512M"
   cores: 8
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
@@ -177,10 +177,16 @@ choose_cds_marker:
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 index_marker_cds:
-  mem: "128M"
+  mem: "1G"
   cores: 1
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+
+get_marker_contigs_depth:
+  mem: "4G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards.sample_}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample_}.{wildcards.sample}.{wildcards.assembler}.e"
 
 checkm_lineage_wf:
   mem: "20G"

@@ -59,9 +59,7 @@ class metaconfig:
             os.mkdir(self.work_dir)
 
         for sub_dir in metaconfig.sub_dirs:
-            loc = os.path.join(self.work_dir, sub_dir)
-            if not os.path.exists(loc):
-                os.mkdir(loc)
+            os.makedirs(os.path.join(self.work_dir, sub_dir), exist_ok=True)
 
     def get_config(self):
         '''
