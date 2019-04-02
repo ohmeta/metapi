@@ -64,7 +64,7 @@ rule choose_cds_marker:
         from Bio import SeqIO
         import gzip
 
-        logh = open(log, 'w')
+        logh = open(str(log), 'w')
 
         clust = set()
         hit = set()
