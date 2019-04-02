@@ -24,7 +24,7 @@ rule filter_rename_prediction:
         '''
         if [[ {params.assembler} == "metaspades" ]]; then
             seqkit seq --min-len {params.length} --threads {threads} --quiet {input} | 
-            seqkit replace --pattern "^\w+?_(\d+)?_.*" --replacement '{params.id}_$1' |
+            seqkit replace --threads {threads} --pattern "^\w+?_(\d+)?_.*" --replacement '{params.id}_$1' |
             prodigal -d {params.cds} -o {params.gff} -f gff -p meta -q
             pigz {params.cds}
             pigz {params.gff}
