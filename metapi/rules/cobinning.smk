@@ -68,7 +68,7 @@ rule choose_cds_marker:
 
         clust = set()
         hit = set()
-        with gzip.open(input.uc, 'r') as uch:
+        with gzip.open(input.uc, 'rt') as uch:
             for line in uch:
                 item = line.strip().split('\t')
                 if 'H' in item[0]:
