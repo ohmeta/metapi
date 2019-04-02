@@ -10,10 +10,14 @@ configfile: "metaconfig.yaml"
 _samples = parse_samples(config["params"]["samples"])
 
 _samples_id = []
+
 if config["params"]["cobinning"]["do"]:
     _samples_id = parse_cobin_samples_id(config["params"]["cobinning"]["samples_id"])
+    if config["params"]["cobinning"]["rename"]:
+        _samples["id_2"] = ["S" + str(i + 1) for i in range(len(_samples))]
+        _samples.loc[:, ["id", "id_2"]].to_csv(config["params"]["rename_id"], sep='\t', index=False)
 
-pprint(_samples_id)
+# pprint(_samples_id)
 
 include: "rules/step.smk"
 

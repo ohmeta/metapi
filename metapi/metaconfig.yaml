@@ -1,5 +1,6 @@
 params:
   samples: "samples.tsv"
+  rename_id: "samples_rename.id"
   begin: "raw"
   simulation:
     taxid: ["362948", "321967", "1125630", "702459", "226186", "272563"]
@@ -96,6 +97,7 @@ params:
       threads: 8
   cobinning:
     do: False
+    rename: False
     samples_id: "samples.id"
     threads: 8
     scaftigs_length: 1000

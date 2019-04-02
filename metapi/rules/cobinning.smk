@@ -1,3 +1,7 @@
+def renamed_id(wildcards):
+    return get_sample_id(_samples, wildcards, "id_2")
+
+
 rule filter_rename_prediction:
     input:
         os.path.join(config["results"]["assembly"], "{sample}.{assembler}_out/{sample}.{assembler}.scaftigs.fa.gz")
@@ -12,16 +16,19 @@ rule filter_rename_prediction:
         gff = os.path.join(config["results"]["cobinning"]["cds"],
                            "{sample}/{sample}.{assembler}.cds.gff"),
         length = config["params"]["cobinning"]["scaftigs_length"],
-        id = "{sample}"
+        id =  renamed_id if config["params"]["cobinning"]["rename"] else "{sample}",
+        assembler = "{assembler}"
     threads:
         config["params"]["cobinning"]["threads"]
     shell:
         '''
-        seqkit seq --min-len {params.length} --threads {threads} --quiet {input} | 
-        seqkit replace --pattern "^(.+)" --replacement '{params.id}_$1' |
-        prodigal -d {params.cds} -o {params.gff} -f gff -p meta -q
-        pigz {params.cds}
-        pigz {params.gff}
+        if [[ {params.assembler} == "metaspades" ]]; then
+            seqkit seq --min-len {params.length} --threads {threads} --quiet {input} | 
+            seqkit replace --pattern "^\w+?_(\d+)?_.*" --replacement '{params.id}_$1' |
+            prodigal -d {params.cds} -o {params.gff} -f gff -p meta -q
+            pigz {params.cds}
+            pigz {params.gff}
+        fi
         '''
 
 
@@ -136,4 +143,3 @@ rule alignment_to_marker_cds:
          samtools sort -@{threads} -O BAM - |
          jgi_summarize_bam_contig_depths --outputDepth {output} - 
          '''
-
