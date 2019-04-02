@@ -143,7 +143,7 @@ cobin_vsearch_clust_output = expand([
     assembler=config["params"]["assembler"])
 
 cobin_alignment_cds_output = expand(
-    "{depth}/{sample_}/{sample_}.{sample}.{assembler}.metabat2.depth.txt",
+    "{depth}/{sample_}/{sample_}.{sample}.{assembler}.metabat2.depth.txt.gz",
     depth=config["results"]["cobinning"]["depth"],
     sample_= _samples_id,
     sample=_samples.index,

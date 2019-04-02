@@ -132,14 +132,19 @@ rule alignment_to_marker_cds:
                     suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
     output:
         os.path.join(config["results"]["cobinning"]["depth"],
-                     "{sample_}/{sample_}.{sample}.{assembler}.metabat2.depth.txt")
+                     "{sample_}/{sample_}.{sample}.{assembler}.metabat2.depth.txt.gz")
     params:
-        index = os.path.join(config["results"]["cobinning"]["cds"], "{sample}/{sample}.{assembler}.cds.marker.fa.gz")
+        index = os.path.join(config["results"]["cobinning"]["cds"], "{sample}/{sample}.{assembler}.cds.marker.fa.gz"),
+        depth = os.path.join(config["results"]["cobinning"]["depth"],
+                             "{sample_}/{sample_}.{sample}.{assembler}.metabat2.depth.txt")
     threads:
         config["params"]["cobinning"]["threads"]
     shell:
          '''
          bowtie2 --threads {threads} -x {params.index} -1 {input.reads[0]} -2 {input.reads[1]} |
          samtools sort -@{threads} -O BAM - |
-         jgi_summarize_bam_contig_depths --outputDepth {output} - 
+         jgi_summarize_bam_contig_depths --outputDepth {params.depth} - 
+         pigz {params.depth}
          '''
+
+
