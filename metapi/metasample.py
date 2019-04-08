@@ -2,12 +2,31 @@
 
 import glob
 import os
+import sys
 
 import pandas
 
 
-def parse_samples(samples_tsv):
-    return pandas.read_csv(samples_tsv, sep='\s+').set_index("id", drop=False)
+def samples_validator(sample_df):
+    error_count = 0
+    for i in sample_df.index:
+        fq1, fq2 = sample_df.loc[i, ["fq1", "fq2"]]
+        if (not os.path.exists(fq1)) or (not os.path.exists(fq2)):
+            print("error:\t%s\t%s\t%s" % (i, fq1, fq2))
+            error_count += 1
+    return error_count
+
+
+def parse_samples(samples_tsv, check=True):
+    samples_df = pandas.read_csv(samples_tsv, sep='\s+').set_index("id", drop=False)
+    if check:
+        error_count = samples_validator(samples_df)
+        if error_count == 0:
+            return samples_df
+        else:
+            print("find %d error" % error_count)
+    else:
+        return samples_df
 
 
 def parse_bins(bins_dir):
