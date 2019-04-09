@@ -1,9 +1,6 @@
 #!/usr/bin/env python
-
 import glob
 import os
-import sys
-
 import pandas
 
 
@@ -33,13 +30,17 @@ def parse_samples(samples_tsv, check=True):
 
 def parse_bins(bins_dir):
     bin_list = []
-    for bin in glob.glob(bins_dir + "/*/*bin*fa"):
-        bin_dict = {}
-        bin_dict["path"] = bin.strip()
-        bin_dict["id"] = os.path.basename(bin).rstrip(".fa")
+    for bin_ in glob.glob(bins_dir + "/*/*bin*fa"):
+        bin_dict = dict()
+        bin_dict["path"] = bin_.strip()
+        bin_dict["id"] = os.path.basename(bin_).rstrip(".fa")
         bin_list.append(bin_dict)
     bins = pandas.DataFrame(bin_list).set_index("id", drop=False)
     return bins
+
+
+def get_reads(sample_df, wildcards, col):
+    return sample_df.loc[[wildcards.sample], col].dropna().tolist()
 
 
 def get_sample_id(sample_df, wildcards, col):
@@ -55,7 +56,6 @@ def get_bin_id(bin_df, wildcards, col):
 
 
 def parse_cobin_samples_id(query_list):
-    samples_id = []
     with open(query_list, 'r') as ih:
         samples_id = [line.strip() for line in ih]
     return samples_id
