@@ -10,10 +10,12 @@ import pandas
 def samples_validator(sample_df):
     error_count = 0
     for i in sample_df.index:
-        fq1, fq2 = sample_df.loc[i, ["fq1", "fq2"]]
-        if (not os.path.exists(fq1)) or (not os.path.exists(fq2)):
-            print("error:\t%s\t%s\t%s" % (i, fq1, fq2))
-            error_count += 1
+        fq1 = sample_df.loc[[i], "fq1"].dropna().tolist()
+        fq2 = sample_df.loc[[i], "fq2"].dropna().tolist()
+        for r1, r2 in zip(fq1, fq2):
+            if (not os.path.exists(r1)) or (not os.path.exists(r2)):
+                print("error:\t%s\t%s\t%s" % (i, r1, r2))
+                error_count += 1
     return error_count
 
 

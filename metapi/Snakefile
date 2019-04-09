@@ -9,6 +9,11 @@ configfile: "metaconfig.yaml"
 
 _samples = parse_samples(config["params"]["samples"])
 
+print(_samples.loc[['s1'], "fq1"].dropna().tolist())
+print(_samples.loc[['s2'], "fq1"].dropna().tolist())
+print(_samples.loc[['s3'], "fq1"].dropna().tolist())
+print(_samples.index.unique())
+
 _samples_id = []
 
 if config["params"]["cobinning"]["do"]:
@@ -21,8 +26,10 @@ if config["params"]["cobinning"]["do"]:
 
 include: "rules/step.smk"
 
-if config["params"]["begin"] == "raw":
+if config["params"]["simulation"]["do"]:
     include: "rules/simulation.smk"
+
+if config["params"]["begin"] == "raw":
     include: "rules/fastqc.smk"
     include: "rules/trimming.smk"
     include: "rules/rmhost.smk"
