@@ -1,12 +1,24 @@
 #!/usr/bin/env snakemake
+import sys
 from metasample import *
 from metareport import flagstats_summary
+
 
 shell.executable("bash")
 
 configfile: "metaconfig.yaml"
 
 _samples = parse_samples(config["params"]["samples"])
+
+if config["params"]["begin"] == "assembly":
+    cancel_task = False
+    for i in _samples.index.unique():
+        count = len(_samples.loc[[i], "fq1"].dropna().tolist())
+        if count > 1:
+            cancel_task = True
+            print("exists duplicated sample: %s" % i)
+    if cancel_task:
+        sys.exit(1)
 
 _samples_id = []
 
