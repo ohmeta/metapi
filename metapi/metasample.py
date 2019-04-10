@@ -59,3 +59,6 @@ def parse_cobin_samples_id(query_list):
     with open(query_list, 'r') as ih:
         samples_id = [line.strip() for line in ih]
     return samples_id
+
+def renamed_id(samples_df, wildcards):
+    return samples_df.loc[[wildcards.sample], "id_2"].dropna().tolist()[0]

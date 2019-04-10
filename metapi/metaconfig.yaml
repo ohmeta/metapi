@@ -1,6 +1,6 @@
 params:
   samples: "samples.tsv"
-  rename_id: "samples_rename.id"
+  rename_id: "samples_id_renamed.tsv"
   begin: "raw"
   simulation:
     do: False
@@ -99,7 +99,7 @@ params:
   cobinning:
     do: False
     rename: False
-    samples_id: "samples.id"
+    samples_id: "samples_id.txt"
     threads: 8
     scaftigs_length: 1000
     vsearch:
