@@ -1,8 +1,9 @@
 params:
   samples: "samples.tsv"
-  rename_id: "samples_rename.id"
+  rename_id: "samples_id_renamed.tsv"
   begin: "raw"
   simulation:
+    do: False
     taxid: ["362948", "321967", "1125630", "702459", "226186", "272563"]
     genomes: ''
     n_genomes: 4
@@ -98,7 +99,7 @@ params:
   cobinning:
     do: False
     rename: False
-    samples_id: "samples.id"
+    samples_id: "samples_id.txt"
     threads: 8
     scaftigs_length: 1000
     vsearch:

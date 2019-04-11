@@ -1,7 +1,7 @@
 #!/usr/bin/env snakemake
-from metasample import parse_samples, parse_bins, get_sample_id, get_sample_id_, get_bin_id, parse_cobin_samples_id
+import sys
+from metasample import *
 from metareport import flagstats_summary
-from pprint import pprint
 
 shell.executable("bash")
 
@@ -9,20 +9,31 @@ configfile: "metaconfig.yaml"
 
 _samples = parse_samples(config["params"]["samples"])
 
+if config["params"]["begin"] == "assembly":
+    cancel_task = False
+    for i in _samples.index.unique():
+        count = len(_samples.loc[[i], "fq1"].dropna().tolist())
+        if count > 1:
+            cancel_task = True
+            print("exists duplicated sample: %s" % i)
+    if cancel_task:
+        sys.exit(1)
+
 _samples_id = []
 
 if config["params"]["cobinning"]["do"]:
     _samples_id = parse_cobin_samples_id(config["params"]["cobinning"]["samples_id"])
     if config["params"]["cobinning"]["rename"]:
-        _samples["id_2"] = ["S" + str(i + 1) for i in range(len(_samples))]
-        _samples.loc[:, ["id", "id_2"]].to_csv(config["params"]["rename_id"], sep='\t', index=False)
-
-# pprint(_samples_id)
+        rename_dict = { k : "S" + str(v + 1) for k,v in zip(_samples.index.unique(), range(len(_samples.index.unique())))}
+        _samples = _samples.assign(id_2=_samples.id.apply(lambda x: rename_dict[x]))
+        _samples.loc[:, ["id", "id_2"]].drop_duplicates(["id", "id_2"]).to_csv(config["params"]["rename_id"], sep='\t', index=False)
 
 include: "rules/step.smk"
 
-if config["params"]["begin"] == "raw":
+if config["params"]["simulation"]["do"]:
     include: "rules/simulation.smk"
+
+if config["params"]["begin"] == "raw":
     include: "rules/fastqc.smk"
     include: "rules/trimming.smk"
     include: "rules/rmhost.smk"

@@ -1,19 +1,18 @@
 #!/usr/bin/env python
-
 import glob
 import os
-import sys
-
 import pandas
 
 
 def samples_validator(sample_df):
     error_count = 0
     for i in sample_df.index:
-        fq1, fq2 = sample_df.loc[i, ["fq1", "fq2"]]
-        if (not os.path.exists(fq1)) or (not os.path.exists(fq2)):
-            print("error:\t%s\t%s\t%s" % (i, fq1, fq2))
-            error_count += 1
+        fq1 = sample_df.loc[[i], "fq1"].dropna().tolist()
+        fq2 = sample_df.loc[[i], "fq2"].dropna().tolist()
+        for r1, r2 in zip(fq1, fq2):
+            if (not os.path.exists(r1)) or (not os.path.exists(r2)):
+                print("error:\t%s\t%s\t%s" % (i, r1, r2))
+                error_count += 1
     return error_count
 
 
@@ -31,13 +30,17 @@ def parse_samples(samples_tsv, check=True):
 
 def parse_bins(bins_dir):
     bin_list = []
-    for bin in glob.glob(bins_dir + "/*/*bin*fa"):
-        bin_dict = {}
-        bin_dict["path"] = bin.strip()
-        bin_dict["id"] = os.path.basename(bin).rstrip(".fa")
+    for bin_ in glob.glob(bins_dir + "/*/*bin*fa"):
+        bin_dict = dict()
+        bin_dict["path"] = bin_.strip()
+        bin_dict["id"] = os.path.basename(bin_).rstrip(".fa")
         bin_list.append(bin_dict)
     bins = pandas.DataFrame(bin_list).set_index("id", drop=False)
     return bins
+
+
+def get_reads(sample_df, wildcards, col):
+    return sample_df.loc[[wildcards.sample], col].dropna().tolist()
 
 
 def get_sample_id(sample_df, wildcards, col):
@@ -53,7 +56,9 @@ def get_bin_id(bin_df, wildcards, col):
 
 
 def parse_cobin_samples_id(query_list):
-    samples_id = []
     with open(query_list, 'r') as ih:
         samples_id = [line.strip() for line in ih]
     return samples_id
+
+def renamed_id(samples_df, wildcards):
+    return samples_df.loc[[wildcards.sample], "id_2"].dropna().tolist()[0]

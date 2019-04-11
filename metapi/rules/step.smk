@@ -5,7 +5,7 @@ simulation_output = expand([
                            simulation=config["results"]["simulation"],
                            raw=config["results"]["raw"]["reads"],
                            read=["1", "2"],
-                           sample=_samples.index)
+                           sample=_samples.index.unique())
 
 fastqc_output = expand([
     "{fastqc}/{sample}_{read}_fastqc.{out}",
@@ -14,7 +14,7 @@ fastqc_output = expand([
 ],
                        fastqc=config["results"]["raw"]["fastqc"],
                        multiqc=config["results"]["raw"]["multiqc"],
-                       sample=_samples.index,
+                       sample=_samples.index.unique(),
                        read=["1", "2"],
                        out=["html", "zip"])
 
@@ -24,12 +24,12 @@ oas1_output = expand([
 ],
                      trimming=config["results"]["trimming"],
                      read=["1", "2", "single"],
-                     sample=_samples.index)
+                     sample=_samples.index.unique())
 
 sickle_output = expand(
     "{trimming}/{sample}.trimmed.{read}.fq.gz",
     trimming=config["results"]["trimming"],
-    sample=_samples.index,
+    sample=_samples.index.unique(),
     read=["1", "2", "single"])
 
 fastp_output = expand([
@@ -38,7 +38,7 @@ fastp_output = expand([
     "{trimming}/fastp_multiqc_report.html",
     "{trimming}/fastp_multiqc_report_data"
 ],
-                      sample=_samples.index,
+                      sample=_samples.index.unique(),
                       trimming=config["results"]["trimming"],
                       read=["1", "2"])
 
@@ -47,23 +47,23 @@ rmhost_output = expand([
     "{rmhost}/{sample}.rmhost.{read}.fq.gz"
 ],
                        rmhost=config["results"]["rmhost"],
-                       sample=_samples.index,
+                       sample=_samples.index.unique(),
                        read=["1", "2"])
 
 megahit_output = expand(
     "{assembly}/{sample}.megahit_out/{sample}.megahit.scaftigs.fa.gz",
     assembly=config["results"]["assembly"],
-    sample=_samples.index)
+    sample=_samples.index.unique())
 
 idba_ud_output = expand(
     "{assembly}/{sample}.idba_ud_out/{sample}.idba_ud.scaftigs.fa.gz",
     assembly=config["results"]["assembly"],
-    sample=_samples.index)
+    sample=_samples.index.unique())
 
 metaspades_output = expand(
     "{assembly}/{sample}.metaspades_out/{sample}.metaspades.scaftigs.fa.gz",
     assembly=config["results"]["assembly"],
-    sample=_samples.index)
+    sample=_samples.index.unique())
 
 coassembly_megahit_output = expand(
     "{coassembly_megahit}/final.contigs.fa.gz",
@@ -83,7 +83,7 @@ metaquast_output = expand([
 ],
                           metaquast=config["results"]["metaquast"],
                           assembler=config["params"]["assembler"],
-                          sample=_samples.index)
+                          sample=_samples.index.unique())
 
 prediction_output = expand([
     "{prediction}/{sample}.prodigal_out/{sample}.{assembler}.pep.faa",
@@ -93,7 +93,7 @@ prediction_output = expand([
 ],
                           prediction=config["results"]["prediction"],
                           assembler=config["params"]["assembler"],
-                          sample=_samples.index)
+                          sample=_samples.index.unique())
 
 alignment_output = expand([
     "{alignment}/{sample}.bwa_out/{sample}.{assembler}.flagstat",
@@ -103,7 +103,7 @@ alignment_output = expand([
 ],
                           alignment=config["results"]["alignment"],
                           assembler=config["params"]["assembler"],
-                          sample=_samples.index)
+                          sample=_samples.index.unique())
 
 metabat2_output = expand([
     "{depth}/{sample}.{assembler}.metabat2.depth.txt",
@@ -114,7 +114,7 @@ metabat2_output = expand([
                          bins=config["results"]["binning"]["bins"],
                          logs=config["logs"]["binning"]["metabat2"],
                          assembler=config["params"]["assembler"],
-                         sample=_samples.index)
+                         sample=_samples.index.unique())
 
 maxbin2_output = expand([
     "{depth}/{sample}.{assembler}.bbmap.depth.txt",
@@ -124,14 +124,14 @@ maxbin2_output = expand([
                         depth=config["results"]["binning"]["depth"],
                         bins=config["results"]["binning"]["bins"],
                         assembler=config["params"]["assembler"],
-                        sample=_samples.index)
+                        sample=_samples.index.unique())
 
 cobin_prediction_output = expand([
     "{cds}/{sample}/{sample}.{assembler}.cds.fa.gz",
     "{cds}/{sample}/{sample}.{assembler}.cds.gff.gz"
 ],
     cds=config["results"]["cobinning"]["cds"],
-    sample=_samples.index,
+    sample=_samples.index.unique(),
     assembler=config["params"]["assembler"])
 
 cobin_vsearch_clust_output = expand([
@@ -139,14 +139,14 @@ cobin_vsearch_clust_output = expand([
     "{cds}/{sample}/{sample}.{assembler}.cds.marker.fa.gz"
 ],
     cds=config["results"]["cobinning"]["cds"],
-    sample=_samples.index,
+    sample=_samples.index.unique(),
     assembler=config["params"]["assembler"])
 
 cobin_alignment_cds_output = expand(
     "{depth}/{sample_}/{sample_}.{sample}.{assembler}.metabat2.depth.txt.gz",
     depth=config["results"]["cobinning"]["depth"],
     sample_= _samples_id,
-    sample=_samples.index,
+    sample=_samples.index.unique(),
     assembler=config["params"]["assembler"])
 
 checkm_lineage_wf_output = expand([
@@ -156,7 +156,7 @@ checkm_lineage_wf_output = expand([
                         out=config["results"]["checkm"]["out"],
                         data=config["results"]["checkm"]["data"],
                         assembler=config["params"]["assembler"],
-                        sample=_samples.index)
+                        sample=_samples.index.unique())
 
 '''
 checkm_coverage_output = expand(
@@ -190,7 +190,7 @@ annotation_output = expand(
     prokka=config["results"]["annotation"]["prokka"],
     multiqc_prokka=config["results"]["annotation"]["multiqc_prokka"],
     assembler=config["params"]["assembler"],
-    sample=_samples.index)
+    sample=_samples.index.unique())
 
 profilling_output = expand(
     [
@@ -201,12 +201,12 @@ profilling_output = expand(
     bowtie2out=config["results"]["profilling"]["metaphlan2"]["bowtie2_out"],
     profile=config["results"]["profilling"]["metaphlan2"]["profile"],
     metaphlan2=config["results"]["profilling"]["metaphlan2"]["base_dir"],
-    sample=_samples.index)
+    sample=_samples.index.unique())
 
 burst_output = expand(
     "{burst}/{sample}.reads.burst.b6",
     burst=config["results"]["burst"],
-    sample=_samples.index)
+    sample=_samples.index.unique())
 
 trimming_output = ([])
 if config["params"]["trimming"]["oas1"]["do"]:

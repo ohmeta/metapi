@@ -1,5 +1,3 @@
-def renamed_id(wildcards):
-    return get_sample_id(_samples, wildcards, "id_2")
 
 
 rule filter_rename_prediction:
@@ -16,7 +14,8 @@ rule filter_rename_prediction:
         gff = os.path.join(config["results"]["cobinning"]["cds"],
                            "{sample}/{sample}.{assembler}.cds.gff"),
         length = config["params"]["cobinning"]["scaftigs_length"],
-        id =  renamed_id if config["params"]["cobinning"]["rename"] else "{sample}",
+        id = lambda wildcards: renamed_id(_samples, wildcards) \
+                               if config["params"]["cobinning"]["rename"] else "{sample}",
         assembler = "{assembler}"
     threads:
         config["params"]["cobinning"]["threads"]
@@ -146,5 +145,3 @@ rule get_marker_contigs_depth:
          jgi_summarize_bam_contig_depths --outputDepth {params.depth} - 
          pigz {params.depth}
          '''
-
-
