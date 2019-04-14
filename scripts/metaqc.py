@@ -18,6 +18,20 @@ TRIM_TEMPLATE = '''fastp --in1 {raw_r1} --in2 {raw_r2} \
 --thread {threads} \
 --html {html} --json {json} 2> {trim_log}'''
 
+TRIM_TEMPLATE_SLIDE_WINDOW = '''fastp --in1 {raw_r1} --in2 {raw_r2} \
+--out1 {trimmed_r1} --out2 {trimmed_r2} \
+--compression {compression} \
+{adapter_trim_params} \
+--cut_front --cut_right \
+--cut_front_window_size {cut_front_window_size} \
+--cut_front_mean_quality {cut_front_mean_quality} \
+--cut_right_window_size {cut_right_window_size} \
+--cut_right_mean_quality {cut_right_mean_quality} \
+--n_base_limit {n_base_limit} \
+--length_required {length_required} \
+--thread {threads} \
+--html {html} --json {json} 2> {trim_log}'''
+
 RMHOST_BWA_TEMPLATE = '''bwa mem -t {threads} -k {seed} {host_index_base} \
 {trimmed_r1} {trimmed_r2} 2> {rmhost_log} | \
 tee >(samtools flagstat -@{threads} - > {flagstat}) | \
@@ -55,7 +69,7 @@ def get_fqpath(sample_df, sample_id, col):
 
 
 class trimmer:
-    def __init__(self, sample_id, raw_r1, raw_r2, outdir, adapter_trim, threads):
+    def __init__(self, sample_id, raw_r1, raw_r2, outdir, n_limit, min_len, adapter_trim, threads):
         self.raw_r1 = raw_r1
         self.raw_r2 = raw_r2
         self.trimmed_r1 = os.path.join(outdir, sample_id + ".trimmed.1.fq.gz")
@@ -65,8 +79,10 @@ class trimmer:
         self.cut_front_mean_quality = 20
         self.cut_tail_window_size = 4
         self.cut_tail_mean_quality = 20
-        self.n_base_limit = 5
-        self.length_required = 36
+        self.cut_right_window_size = 4
+        self.cut_right_mean_quality = 20
+        self.n_base_limit = n_limit
+        self.length_required = min_len
         self.threads = threads
         self.html = os.path.join(outdir, sample_id + ".fastp.html")
         self.json = os.path.join(outdir, sample_id + ".fastp.json")
@@ -108,24 +124,25 @@ def main():
         prog='metagenomics raw data quality control pipeline',
         usage='metaqc.py -s <samples.tsv> -o <output_dir> -d <host_index>',
         description='a simple pipeline to do quality control on metagenomics data')
-    parser.add_argument(
+    group = parser.add_argument_group("Options")
+    group.add_argument(
         '-s',
         '--samples',
         type=str,
         help='samples.tsv')
-    parser.add_argument(
+    group.add_argument(
         '-d',
         '--database',
         type=str,
         default=None,
         help='host index base path')
-    parser.add_argument(
+    group.add_argument(
         '-m',
         '--aligner',
         type=str,
         choices=["bwa", "bowtie2"],
         help='which aligner to do rmhost')
-    parser.add_argument(
+    group.add_argument(
         '-p',
         '--platform',
         type=str,
@@ -133,26 +150,59 @@ def main():
         choices=['illumina', 'bgiseq'],
         help='PE reads come from which platform'
     )
-    parser.add_argument(
+    group.add_argument(
+        '-t',
+        '--threads',
+        type=int,
+        default=8,
+        help='fastp and bwa, bowtie2, samtools threads')
+
+    group = parser.add_argument_group("trimming options")
+    group.add_agument(
+        '-n',
+        '--n_limit',
+        default=5,
+        type=int,
+        help='max unknown base allowed'
+    )
+    group.add_argument(
+        '-l',
+        '--min_len',
+        default=51,
+        type=int,
+        help='minimum reads length required'
+    )
+    group.add_argument(
         '-a',
         '--adapter_trim',
         default=False,
         action='store_true',
         help='adapter trimming, defalut: false'
     )
-    parser.add_argument(
+    group.add_argument(
+        '-w',
+        '--no_slide_window',
+        default=False,
+        action='store_true',
+        help='not use slide window, default: false'
+    )
+    group = parser.add_argument_group("rmhost options")
+    group.add_argument(
         '-b',
         '--save_bam',
         default=False,
         action='store_true',
         help='same host bam, default: false')
-    parser.add_argument(
-        '-t',
-        '--threads',
+
+    group = parser.add_argument_group("bwa options(it will take effect when aligner = bwa)")
+    group.add_argument(
+        '-k',
+        '--min_seed_len',
+        default=19,
         type=int,
-        default=8,
-        help='fastp and bwa, bowtie2, samtools threads')
-    parser.add_argument(
+        help='minimum seed length for bwa mem algorithms'
+    )
+    group.add_argument(
         '-o',
         '--output',
         type=str,
