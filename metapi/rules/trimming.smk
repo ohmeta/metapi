@@ -110,10 +110,10 @@ if config["params"]["trimming"]["fastp"]["do"]:
             config["params"]["trimming"]["fastp"]["threads"]
         shell:
             '''
-            if [ {params.count} -gt 1 ]: then
+            if [ {params.count} -gt 1 ]; then
                 cat {params.r1_str} > {params.r1}
                 cat {params.r2_str} > {params.r2}
-                if {params.use_slide_window}: then
+                if {params.use_slide_window}; then
                     fastp --in1 {params.r1} --in2 {params.r2} --out1 {output.r1} --out2 {output.r2} \
                     --compression {params.compression} {params.adapter_trimming} \
                     --cut_front --cut_right \
@@ -137,7 +137,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
                 rm -rf {params.r1}
                 rm -rf {params.r2}
             else
-                if {params.use_slide_window}: then
+                if {params.use_slide_window}; then
                     fastp --in1 {input.r1[0]} --in2 {input.r2[0]} --out1 {output.r1} --out2 {output.r2} \
                     --compression {params.compression} {params.adapter_trimming} \
                     --cut_front --cut_right \

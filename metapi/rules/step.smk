@@ -277,5 +277,18 @@ annotation_target = (classification_target + annotation_output)
 '''
 
 all_target = (
-    fastqc_output + trimming_output + rmhost_output + assembly_output +
-    alignment_output + binning_output + checkm_output + annotation_output)
+    simulation_output +
+    fastqc_output +
+    trimming_output +
+    rmhost_output +
+    assembly_output +
+    coassembly_megahit_output +
+    metaquast_output +
+    prediction_output +
+    alignment_output +
+    binning_output +
+    cobinning_output +
+    checkm_output +
+    annotation_output +
+    profilling_output +
+    burst_output)
