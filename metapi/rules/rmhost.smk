@@ -36,7 +36,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
             config["params"]["rmhost"]["bwa"]["threads"]
         shell:
             '''
-            if {params.save_bam}: then
+            if {params.save_bam}; then
                 bwa mem -t {threads} {params.index_prefix} {input.r1} {input.r2} | \
                 tee >(samtools flagstat -@{threads} - > {output.flagstat}) | \
                 tee >(samtools fastq -@{threads} -N -f 12 -F 256 -1 {output.r1} -2 {output.r2} -) | \
@@ -87,7 +87,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
             config["params"]["rmhost"]["bowtie2"]["threads"]
         shell:
             '''
-            if {params.save_bam}: then
+            if {params.save_bam}; then
                 bowtie2 --threads {threads} -x {params.index_prefix} \
                 -1 {input.r1} -2 {input.r2} {params.additional_params} 2> {log} | \
                 tee >(samtools flagstat -@{threads} - > {output.flagstat}) | \
