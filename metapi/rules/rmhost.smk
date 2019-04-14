@@ -29,6 +29,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
         log:
             os.path.join(config["logs"]["rmhost"], "{sample}.bwa.rmhost.log")
         params:
+            minimum_seed_length = config["params"]["rmhost"]["bwa"]["minimum_seed_length"],
             save_bam = "true" if config["params"]["rmhost"]["bwa"]["save_bam"] else "false",
             index_prefix = config["params"]["rmhost"]["bwa"]["index_prefix"],
             bam = os.path.join(config["results"]["rmhost"], "{sample}.bwa.host.sorted.bam")
@@ -37,12 +38,12 @@ if config["params"]["rmhost"]["bwa"]["do"]:
         shell:
             '''
             if {params.save_bam}; then
-                bwa mem -t {threads} {params.index_prefix} {input.r1} {input.r2} | \
+                bwa mem -k {params.minimum_seed_length} -t {threads} {params.index_prefix} {input.r1} {input.r2} | \
                 tee >(samtools flagstat -@{threads} - > {output.flagstat}) | \
                 tee >(samtools fastq -@{threads} -N -f 12 -F 256 -1 {output.r1} -2 {output.r2} -) | \
                 samtools sort -@{threads} -O BAM -o {params.bam} - 2>{log}
             else
-                bwa mem -t {threads} {params.prefix} {input.r1} {input.r2} | \
+                bwa mem -k {params.minimum_seed_length} -t {threads} {params.prefix} {input.r1} {input.r2} | \
                 tee >(samtools flagstat -@{threads} - > {output.flagstat}) | \
                 samtools fastq -@{threads} -N -f 12 -F 256 -1 {output.r1} -2 {output.r2} - 2>{log}
             fi

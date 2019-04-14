@@ -44,6 +44,7 @@ params:
       do: False
       index_prefix: /path/to/host.fa
       threads: 8
+      minimum_seed_length: 19
       save_bam: False
     bowtie2:
       do: True
