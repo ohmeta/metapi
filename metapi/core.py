@@ -189,7 +189,7 @@ def main():
     parser = argparse.ArgumentParser(
         prog='metapi',
         usage='metapi [subcommand] [options]',
-        description='metapi, a metagenomics data process pipeline')
+        description='metapi, a pipeline to construct a genome catalogue from metagenomics data')
     parser.add_argument(
         '-v',
         '--version',

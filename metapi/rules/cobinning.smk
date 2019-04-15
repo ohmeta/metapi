@@ -1,5 +1,3 @@
-
-
 rule filter_rename_prediction:
     input:
         os.path.join(config["results"]["assembly"], "{sample}.{assembler}_out/{sample}.{assembler}.scaftigs.fa.gz")
@@ -14,7 +12,7 @@ rule filter_rename_prediction:
         gff = os.path.join(config["results"]["cobinning"]["cds"],
                            "{sample}/{sample}.{assembler}.cds.gff"),
         length = config["params"]["cobinning"]["scaftigs_length"],
-        id = lambda wildcards: renamed_id(_samples, wildcards) \
+        id = lambda wildcards: sample.renamed_id(_samples, wildcards) \
                                if config["params"]["cobinning"]["rename"] else "{sample}",
         assembler = "{assembler}"
     threads:

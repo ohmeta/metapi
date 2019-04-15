@@ -28,7 +28,7 @@ params:
       do: True
       threads: 4
       disable_adapter_trimming: True
-      use_slide_window: False
+      use_slide_window: True
       compression: 6
       cut_front_window_size: 4
       cut_front_mean_quality: 20
@@ -45,7 +45,7 @@ params:
       do: False
       index_prefix: /path/to/host.fa
       threads: 8
-      minimum_seed_length: 19
+      minimum_seed_length: 23
       save_bam: False
     bowtie2:
       do: True
@@ -68,18 +68,18 @@ params:
       threads: 8
     metaspades:
       do: True
-      only_assembler: false
+      only_assembler: False
       only_save_scaftigs: False
-      memory: 10
+      memory: 20
       threads: 8
       kmers: ['21', '29', '39', '59', '79', '99']
   coassembly:
     megahit:
-      do: True
+      do: False
       threads: 8
       min_contig: 500
   metaquast:
-    do: True
+    do: False
     threads: 8
     min_contig: 500
     env: "bioenv2"
@@ -93,8 +93,8 @@ params:
   binning:
     metabat2:
       do: True
-      min_contig: 2500
-      seed: 2018
+      min_contig: 1500
+      seed: 2020
     maxbin2:
       do: False
       threads: 8
