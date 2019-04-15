@@ -62,10 +62,6 @@ class trimmer:
         self.compression = 6
         self.cut_front_window_size = 4
         self.cut_front_mean_quality = 20
-        self.cut_tail_window_size = 4
-        self.cut_tail_mean_quality = 20
-        self.cut_right_window_size = 4
-        self.cut_right_mean_quality = 20
         if not no_use_slide_window:
             self.use_slide_window = '--cut_right --cut_right_window_size {ws} --cut_right_mean_quality {mq}'.\
                 format(ws=4, mq=20)
@@ -85,29 +81,37 @@ class trimmer:
 
 
 class rmhoster:
-    def __init__(self, sample_id, seed, host_index_base, trim_dir, rmhost_dir, thread, save_bam, params=""):
+    def __init__(self, sample_id, seed, host_index_base, trim_dir, rmhost_dir, thread, save_bam, prefix, params=""):
         self.threads = thread
         self.seed = seed
         self.additional_params = params
         self.host_index_base = host_index_base
         self.trimmed_r1 = os.path.join(trim_dir, sample_id + ".trimmed.1.fq.gz")
         self.trimmed_r2 = os.path.join(trim_dir, sample_id + ".trimmed.2.fq.gz")
-        self.rmhosted_r1 = os.path.join(rmhost_dir, sample_id + ".rmhosted.1.fq.gz")
-        self.rmhosted_r2 = os.path.join(rmhost_dir, sample_id + ".rmhosted.2.fq.gz")
-        self.flagstat = os.path.join(rmhost_dir, sample_id + ".flagstat")
-        self.stat = os.path.join(rmhost_dir, sample_id + ".alignstat")
-        self.rmhost_log = os.path.join(rmhost_dir, sample_id + ".rmhost.log")
+        if prefix is None:
+            prefix_ = ""
+        else:
+            prefix_ = "." + prefix
+        self.rmhosted_r1 = os.path.join(rmhost_dir, sample_id + ".rmhosted" + prefix_ + ".1.fq.gz")
+        self.rmhosted_r2 = os.path.join(rmhost_dir, sample_id + ".rmhosted" + prefix_ + ".2.fq.gz")
+        self.flagstat = os.path.join(rmhost_dir, sample_id + prefix_ + ".flagstat")
+        self.stat = os.path.join(rmhost_dir, sample_id + prefix_ + ".alignstat")
+        self.rmhost_log = os.path.join(rmhost_dir, sample_id + prefix_ + ".rmhost.log")
         if save_bam:
             self.save_bam_params = "tee >(samtools sort -@{t} -O BAM -o {sorted_bam} -) |".\
-                format(t=thread, sorted_bam=os.path.join(rmhost_dir, sample_id + ".sorted.bam"))
+                format(t=thread, sorted_bam=os.path.join(rmhost_dir, sample_id + prefix_ + ".sorted.bam"))
         else:
             self.save_bam_params = ""
 
 
 class bam_ploter:
-    def __init__(self, sample_id, rmhost_dir, plot_dir):
+    def __init__(self, sample_id, rmhost_dir, plot_dir, k):
         self.prefix = os.path.join(plot_dir, sample_id)
-        self.stat = os.path.join(rmhost_dir, sample_id + ".alignstat")
+        if k is None:
+            k_ = ""
+        else:
+            k_ = "." + k
+        self.stat = os.path.join(rmhost_dir, sample_id + k_ + ".alignstat")
 
 
 def main():
@@ -198,6 +202,13 @@ def main():
         '--output',
         type=str,
         help='output directory')
+    group.add_argument(
+        '-P',
+        '--prefix',
+        default=None,
+        type=str,
+        help='output prefix'
+    )
     args = parser.parse_args()
 
     trim_outdir = os.path.join(args.output, "00.trimmed")
@@ -218,8 +229,13 @@ def main():
             r2 = get_fqpath(samples_df, sample_id, "fq2")
 
             trim_cmd = TRIM_TEMPLATE.format_map(
-                vars(trimmer(sample_id, r1, r2, os.path.basename(trim_outdir),
-                             args.n_limit, args.min_len, args.adapter_trim, args.threads, args.no_slide_window)))
+                vars(trimmer(sample_id, r1, r2,
+                             os.path.basename(trim_outdir),
+                             args.n_limit,
+                             args.min_len,
+                             args.adapter_trim,
+                             args.threads,
+                             args.no_slide_window)))
             rmhost_cmd = ""
             plotbam_cmd = ""
 
@@ -232,7 +248,8 @@ def main():
                                       os.path.basename(trim_outdir),
                                       os.path.basename(rmhost_outdir),
                                       args.threads,
-                                      args.save_bam, "")))
+                                      args.save_bam,
+                                      args.prefix, "")))
                 elif args.aligner == "bowtie2":
                     if args.platform == "bgiseq":
                         rmhost_cmd = RMHOST_BOWTIE2_TEMPLATE_BGISEQ.format_map(
@@ -240,9 +257,10 @@ def main():
                                           args.min_seed_len,
                                           args.database,
                                           os.path.basename(trim_outdir),
-                                          os.path.baename(rmhost_outdir),
+                                          os.path.basename(rmhost_outdir),
                                           args.threads,
-                                          args.save_bam, "--no-unal")))
+                                          args.save_bam,
+                                          args.prefix, "--no-unal")))
                     elif args.platform == "illumina":
                         rmhost_cmd = RMHOST_BOWTIE2_TEMPLATE_ILLUMINA.format_map(
                             vars(rmhoster(sample_id,
@@ -251,12 +269,16 @@ def main():
                                           os.path.basename(trim_outdir),
                                           os.path.basename(rmhost_outdir),
                                           args.threads,
-                                          args.save_bam, "--no-unal")))
+                                          args.save_bam,
+                                          args.prefix, "--no-unal")))
                     else:
                         print("unknown platform")
 
                 plotbam_cmd = PLOT_BAMSTATS_TEMPLATE.format_map(
-                    vars(bam_ploter(sample_id, os.path.basename(rmhost_outdir), os.path.basename(plot_outdir))))
+                    vars(bam_ploter(sample_id,
+                                    os.path.basename(rmhost_outdir),
+                                    os.path.basename(plot_outdir),
+                                    args.prefix)))
 
             oh1.write(trim_cmd + "\n")
             oh2.write(rmhost_cmd + "\n")
