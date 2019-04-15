@@ -1,3 +1,9 @@
+sra2fq_output = expand(
+    "{sra2fq}/{sample}.{read}.fq.gz",
+    sra2fq=config["results"]["sra2fq"],
+    read=["1", "2"],
+    sample=_samples.index.unique())
+
 simulation_output = expand([
     "{simulation}/species_metadata.tsv", "{simulation}/{sample}_genome.fa",
     "{raw}/{sample}_{read}.fq.gz", "{raw}/{sample}_abundance.txt"
@@ -233,7 +239,10 @@ if config["params"]["coassembly"]["megahit"]["do"]:
 
 assembly_target = ([])
 if config["params"]["begin"] == "assembly":
-    assembly_target = (assembly_output)
+    if config["params"]["type"] == "fastq":
+        assembly_target = (assembly_output)
+    elif config["params"]["type"] == "sra":
+        assembly_target = (sra2fq_output + assembly_output)
 elif config["params"]["rmhost"]["do"]:
     assembly_target = (rmhost_target + assembly_output)
 else:
@@ -277,6 +286,7 @@ annotation_target = (classification_target + annotation_output)
 '''
 
 all_target = (
+    sra2fq_output +
     simulation_output +
     fastqc_output +
     trimming_output +
