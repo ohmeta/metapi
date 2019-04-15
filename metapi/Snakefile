@@ -7,7 +7,7 @@ shell.executable("bash")
 
 configfile: "metaconfig.yaml"
 
-_samples = parse_samples(config["params"]["samples"])
+_samples = parse_samples(config["params"]["samples"], config["params"]["type"])
 
 if config["params"]["begin"] == "assembly":
     cancel_task = False
@@ -29,6 +29,9 @@ if config["params"]["cobinning"]["do"]:
         _samples.loc[:, ["id", "id_2"]].drop_duplicates(["id", "id_2"]).to_csv(config["params"]["rename_id"], sep='\t', index=False)
 
 include: "rules/step.smk"
+
+if config["params"]["type"] == "sra":
+    include: "rules/sra2fq.smk"
 
 if config["params"]["simulation"]["do"]:
     include: "rules/simulation.smk"

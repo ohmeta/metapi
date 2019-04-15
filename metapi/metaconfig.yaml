@@ -1,4 +1,5 @@
 params:
+  type: "fastq"
   samples: "samples.tsv"
   rename_id: "samples_id_renamed.tsv"
   begin: "raw"
@@ -130,6 +131,7 @@ params:
     threads: 8
 
 results:
+  sra2fq: "results/00.sra2fq"
   simulation: "results/00.simulation"
   raw:
     reads: "results/00.raw/reads"
