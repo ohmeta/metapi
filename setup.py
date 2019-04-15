@@ -4,7 +4,7 @@ import setuptools
 with open("README.md") as f:
     long_description = f.read()
 
-version = "0.5.2"
+version = "0.5.3"
 print("""------------------------
 Installing metapi version {}
 ------------------------
@@ -22,14 +22,14 @@ setuptools.setup(
     long_description_content_type='text/markdown',
     packages=['metapi'],
     package_data={'metapi': ['metapi/Snakefile',
-                             'metapi/metaconfig.yaml'
-                             'metapi/metacluster.yaml',
+                             'metapi/config.yaml'
+                             'metapi/cluster.yaml',
                              'metapi/__init__py',
-                             'metapi/metacheck.py',
-                             'metapi/metaconfig.py',
-                             'metapi/metapi.py',
-                             'metapi/metareport.py',
-                             'metapi/metasample.py',
+                             'metapi/check.py',
+                             'metapi/config.py',
+                             'metapi/core.py',
+                             'metapi/report.py',
+                             'metapi/sample.py',
                              'metapi/rules/alignment.smk',
                              'metapi/rules/annotation.smk',
                              'metapi/rules/assembly.smk',
@@ -54,7 +54,7 @@ setuptools.setup(
     zip_safe=False,
     entry_points={
         'console_scripts': [
-            'metapi = metapi.metapi:main']
+            'metapi = metapi.core:main']
     },
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',

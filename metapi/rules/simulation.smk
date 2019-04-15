@@ -31,7 +31,6 @@ rule genome_merge:
         import glob
         import gzip
         import re
-        import subprocess
         from Bio import SeqIO
 
         genomes_list = glob.glob(params.outdir + "/refseq/bacteria/*/*.fna.gz")

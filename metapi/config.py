@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-
 import os
-
 from ruamel.yaml import YAML
 
 
@@ -38,13 +36,13 @@ class metaconfig:
     def __init__(self, work_dir):
         self.work_dir = os.path.realpath(work_dir)
         self.config_file = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "metaconfig.yaml")
+            os.path.dirname(os.path.abspath(__file__)), "config.yaml")
         self.cluster_file = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "metacluster.yaml")
+            os.path.dirname(os.path.abspath(__file__)), "cluster.yaml")
         self.snake_file = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "Snakefile")
-        self.new_config_file = os.path.join(self.work_dir, "metaconfig.yaml")
-        self.new_cluster_file = os.path.join(self.work_dir, "metacluster.yaml")
+        self.new_config_file = os.path.join(self.work_dir, "config.yaml")
+        self.new_cluster_file = os.path.join(self.work_dir, "cluster.yaml")
 
     def __str__(self):
         message = "a metagenomics project has been created at {0}".format(

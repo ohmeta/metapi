@@ -1,13 +1,14 @@
 #!/usr/bin/env snakemake
 import sys
-from metasample import *
-from metareport import flagstats_summary
+from metapi import sample
+from metapi import report
 
 shell.executable("bash")
 
 configfile: "metaconfig.yaml"
 
-_samples = parse_samples(config["params"]["samples"], config["params"]["type"])
+_samples = sample.parse_samples(config["params"]["samples"],
+                                config["params"]["type"])
 
 if config["params"]["begin"] == "assembly":
     cancel_task = False
@@ -22,11 +23,15 @@ if config["params"]["begin"] == "assembly":
 _samples_id = []
 
 if config["params"]["cobinning"]["do"]:
-    _samples_id = parse_cobin_samples_id(config["params"]["cobinning"]["samples_id"])
+    _samples_id = sample.parse_cobin_samples_id(config["params"]["cobinning"]["samples_id"])
     if config["params"]["cobinning"]["rename"]:
-        rename_dict = { k : "S" + str(v + 1) for k,v in zip(_samples.index.unique(), range(len(_samples.index.unique())))}
+        rename_dict = { k : "S" + str(v + 1) \
+                        for k,v in zip(_samples.index.unique(),
+                                       range(len(_samples.index.unique())))}
         _samples = _samples.assign(id_2=_samples.id.apply(lambda x: rename_dict[x]))
-        _samples.loc[:, ["id", "id_2"]].drop_duplicates(["id", "id_2"]).to_csv(config["params"]["rename_id"], sep='\t', index=False)
+        _samples.loc[:, ["id", "id_2"]]\
+                .drop_duplicates(["id", "id_2"])\
+                .to_csv(config["params"]["rename_id"], sep='\t', index=False)
 
 include: "rules/step.smk"
 

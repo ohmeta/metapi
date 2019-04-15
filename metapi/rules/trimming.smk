@@ -1,8 +1,8 @@
 if config["params"]["trimming"]["oas1"]["do"]:
     rule trimming_oas1:
         input:
-            r1 = lambda wildcards: get_reads(_samples, wildcards, "fq1"),
-            r2 = lambda wildcards: get_reads(_samples, wildcards, "fq2")
+            r1 = lambda wildcards: sample.get_reads(_samples, wildcards, "fq1"),
+            r2 = lambda wildcards: sample.get_reads(_samples, wildcards, "fq2")
         output:
             r1 = temp(os.path.join(config["results"]["trimming"], "{sample}.trimmed.1.fq.gz")),
             r2 = temp(os.path.join(config["results"]["trimming"], "{sample}.trimmed.2.fq.gz")),
@@ -36,8 +36,8 @@ if config["params"]["trimming"]["oas1"]["do"]:
 if config["params"]["trimming"]["sickle"]["do"]:
     rule trimming_sickle:
         input:
-            r1 = lambda wildcards: get_reads(_samples, wildcards, "fq1"),
-            r2 = lambda wildcards: get_reads(_samples, wildcards, "fq2")
+            r1 = lambda wildcards: sample.get_reads(_samples, wildcards, "fq1"),
+            r2 = lambda wildcards: sample.get_reads(_samples, wildcards, "fq2")
         output:
             expand(temp("{trimming}/{{sample}}.trimmed.{read}.fq.gz"),
                    trimming=config["results"]["trimming"],
@@ -80,8 +80,8 @@ if config["params"]["trimming"]["sickle"]["do"]:
 if config["params"]["trimming"]["fastp"]["do"]:
     rule trimming_fastp:
         input:
-            r1 = lambda wildcards: get_reads(_samples, wildcards, "fq1"),
-            r2 = lambda wildcards: get_reads(_samples, wildcards, "fq2")
+            r1 = lambda wildcards: sample.get_reads(_samples, wildcards, "fq1"),
+            r2 = lambda wildcards: sample.get_reads(_samples, wildcards, "fq2")
         output:
             r1 = temp(os.path.join(config["results"]["trimming"], "{sample}.trimmed.1.fq.gz")),
             r2 = temp(os.path.join(config["results"]["trimming"], "{sample}.trimmed.2.fq.gz")),

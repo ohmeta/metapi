@@ -1,6 +1,6 @@
 rule sra2fq:
     input:
-        lambda wildcards: get_reads(_samples, wildcards, "sra")
+        lambda wildcards: sample.get_reads(_samples, wildcards, "sra")
     output:
         r1 = temp(os.path.join(config["results"]["sra2fq"], "{sample}.1.fq.gz")),
         r2 = temp(os.path.join(cofnig["results"]["sra2fq"], "{sample}.2.fq.gz"))

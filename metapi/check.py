@@ -2,6 +2,7 @@
 import shutil
 import sys
 
+
 program_list = ["sickle", "bwa", "samtools", "megahit", "metabat2", "pigz"]
 
 

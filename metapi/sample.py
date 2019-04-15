@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import glob
 import os
-import pandas
+import pandas as pd
 
 
 def samples_validator(sample_df, input_type):
@@ -25,7 +25,7 @@ def samples_validator(sample_df, input_type):
 
 
 def parse_samples(samples_tsv, input_type, check=True):
-    samples_df = pandas.read_csv(samples_tsv, sep='\s+').set_index("id", drop=False)
+    samples_df = pd.read_csv(samples_tsv, sep='\s+').set_index("id", drop=False)
     if check:
         error_count = samples_validator(samples_df, input_type)
         if error_count == 0:
@@ -43,7 +43,7 @@ def parse_bins(bins_dir):
         bin_dict["path"] = bin_.strip()
         bin_dict["id"] = os.path.basename(bin_).rstrip(".fa")
         bin_list.append(bin_dict)
-    bins = pandas.DataFrame(bin_list).set_index("id", drop=False)
+    bins = pd.DataFrame(bin_list).set_index("id", drop=False)
     return bins
 
 
@@ -67,6 +67,7 @@ def parse_cobin_samples_id(query_list):
     with open(query_list, 'r') as ih:
         samples_id = [line.strip() for line in ih]
     return samples_id
+
 
 def renamed_id(samples_df, wildcards):
     return samples_df.loc[[wildcards.sample], "id_2"].dropna().tolist()[0]

@@ -1,19 +1,3 @@
-def clean_reads(wildcards):
-    if config["params"]["begin"] == "assembly":
-        r1 = get_sample_id(_samples, wildcards, "fq1")
-        r2 = get_sample_id(_samples, wildcards, "fq2")
-        return [r1, r2]
-    elif config["params"]["rmhost"]["do"]:
-        return expand("{rmhost}/{sample}.rmhost.{read}.fq.gz",
-                      rmhost=config["results"]["rmhost"],
-                      sample=wildcards.sample,
-                      read=["1", "2"])
-    else:
-        return expand("{trimming}/{sample}.trimmed.{read}.fq.gz",
-                      trimming=config["results"]["trimming"],
-                      sample=wildcards.sample,
-                      read=["1", "2"])
-
 rule metaquast:
     input:
         reads = clean_reads,
@@ -51,6 +35,7 @@ rule metaquast:
         --labels {params.labels} \
         --threads {threads} 2> {log}
         '''
+
 
 rule multiqc_metaquast:
     input:

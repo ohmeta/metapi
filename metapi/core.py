@@ -1,49 +1,105 @@
 #!/usr/bin/env python
-
 import argparse
 import os
 import sys
+import pandas as pd
+from metapi import config
 
-import pandas
-
-# from metapi.metaconfig import metaconfig, parse_yaml, update_config
-from metaconfig import metaconfig, parse_yaml, update_config
 
 simulation_steps = [
-    "genome_download", "genome_merge", "genome_simulate", "fastqc",
-    "multiqc_fastqc", "trimming_fastp", "multiqc_fastp", "build_host_index",
-    "rmhost", "assembly_megahit", "assembly_idba_ud", "assembly_metaspades",
-    "coassembly_megahit", "metaquast_megahit", "multiqc_metaquast",
-    "build_asmfa_index", "align_reads_to_asmfa", "coverage_metabat2",
-    "coverage_maxbin2", "binning_metabat2", "binning_maxbin2",
-    "checkm_lineage_wf", "prokka_bins", "metaphlan2_profilling",
-    "metaphlan2_merge", "burst_reads", "all"
+    "genome_download",
+    "genome_merge",
+    "genome_simulate",
+    "fastqc",
+    "multiqc_fastqc",
+    "trimming_oas1",
+    "trimming_sickle",
+    "trimming_fastp",
+    "multiqc_fastp",
+    "build_host_index_for_bwa",
+    "rmhost_bwa",
+    "build_host_index_for_bowtie2",
+    "rmhost_bowtie2",
+    "assembly_megahit",
+    "assembly_idba_ud",
+    "assembly_metaspades",
+    "coassembly_megahit",
+    "metaquast",
+    "multiqc_metaquast",
+    "prediction",
+    "build_index_for_scaftigs",
+    "align_reads_to_scaftigs",
+    "coverage_metabat2",
+    "coverage_maxbin2",
+    "binning_metabat2",
+    "binning_maxbin2",
+    "filter_rename_prediction",
+    "vsearch_clust_cds",
+    "choose_cds_marker",
+    "index_marker_cds",
+    "get_marker_contigs_depth",
+    "checkm_lineage_wf",
+    "prokka_bins",
+    "multiqc_prokka_bins",
+    "metaphlan2_profilling",
+    "metaphlan2_merge",
+    "burst_reads",
+    "all"
 ]
 
 workflow_steps = [
-    "fastqc", "multiqc_fastqc", "trimming_fastp", "multiqc_fastp",
-    "build_host_index", "rmhost", "assembly_megahit", "assembly_idba_ud",
-    "assembly_metaspades", "coassembly_megahit", "metaquast_megahit",
-    "multiqc_metaquast", "build_asmfa_index", "align_reads_to_asmfa",
-    "coverage_metabat2", "coverage_maxbin2", "binning_metabat2",
-    "binning_maxbin2", "checkm_lineage_wf", "prokka_bins",
-    "metaphlan2_profilling", "metaphlan2_merge", "burst_reads", "all"
+    "sra2fq",
+    "fastqc",
+    "multiqc_fastqc",
+    "trimming_oas1",
+    "trimming_sickle",
+    "trimming_fastp",
+    "multiqc_fastp",
+    "build_host_index_for_bwa",
+    "rmhost_bwa",
+    "build_host_index_for_bowtie2",
+    "rmhost_bowtie2",
+    "assembly_megahit",
+    "assembly_idba_ud",
+    "assembly_metaspades",
+    "coassembly_megahit",
+    "metaquast",
+    "multiqc_metaquast",
+    "prediction",
+    "build_index_for_scaftigs",
+    "align_reads_to_scaftigs",
+    "coverage_metabat2",
+    "coverage_maxbin2",
+    "binning_metabat2",
+    "binning_maxbin2",
+    "filter_rename_prediction",
+    "vsearch_clust_cds",
+    "choose_cds_marker",
+    "index_marker_cds",
+    "get_marker_contigs_depth",
+    "checkm_lineage_wf",
+    "prokka_bins",
+    "multiqc_prokka_bins",
+    "metaphlan2_profilling",
+    "metaphlan2_merge",
+    "burst_reads",
+    "all"
 ]
 
 
 def initialization(args):
     if args.workdir:
-        project = metaconfig(args.workdir)
+        project = config.metaconfig(args.workdir)
         print(project.__str__())
         project.create_dirs()
-        config, cluster = project.get_config()
+        configuration, cluster = project.get_config()
 
         if args.begin:
-            config["params"]["begin"] = args.begin
+            configuration["params"]["begin"] = args.begin
         if args.assembler:
-            config["params"]["assembler"] = args.assembler
+            configuration["params"]["assembler"] = args.assembler
         if args.samples:
-            config["params"]["samples"] = args.samples
+            configuration["params"]["samples"] = args.samples
         else:
             print("please supply a samples list!")
         if args.queue:
@@ -51,9 +107,9 @@ def initialization(args):
         if args.project:
             cluster["__default__"]["project"] = args.project
 
-        update_config(
-            project.config_file, project.new_config_file, config, remove=False)
-        update_config(
+        config.update_config(
+            project.config_file, project.new_config_file, configuration, remove=False)
+        config.update_config(
             project.cluster_file,
             project.new_cluster_file,
             cluster,
@@ -65,25 +121,25 @@ def initialization(args):
 
 def simulation(args):
     if args.workdir:
-        config_file = os.path.join(args.workdir, "metaconfig.yaml")
-        config = parse_yaml(config_file)
+        config_file = os.path.join(args.workdir, "config.yaml")
+        configuration = config.parse_yaml(config_file)
 
         if args.taxid and not args.genomes:
-            config["params"]["simulation"]["taxid"] = args.taxid
+            configuration["params"]["simulation"]["taxid"] = args.taxid
         if not args.taxid and args.genomes:
-            config["params"]["simulation"]["genomes"] = args.genomes
+            configuration["params"]["simulation"]["genomes"] = args.genomes
         if args.taxid and args.genomes:
             print("can't specific taxid and genomes at same time")
         if args.n_genomes:
-            config["params"]["simulation"]["n_genomes"] = args.n_genomes
+            configuration["params"]["simulation"]["n_genomes"] = args.n_genomes
         if args.n_reads:
-            config["params"]["simulation"]["n_reads"] = args.n_reads
+            configuration["params"]["simulation"]["n_reads"] = args.n_reads
         if args.model:
-            config["params"]["simulation"]["model"] = args.model
+            configuration["params"]["simulation"]["model"] = args.model
 
-        update_config(config_file, config_file, config, remove=True)
+        config.update_config(config_file, config_file, configuration, remove=True)
 
-        samples_df = pandas.DataFrame({
+        samples_df = pd.DataFrame({
             "id": ["s1", "s2", "s3"],
             "fq1": [
                 os.path.join(config["results"]["raw"]["reads"], "s1_1.fq.gz"),
@@ -97,7 +153,7 @@ def simulation(args):
             ]
         })
         samples_df.to_csv(
-            config["params"]["samples"],
+            configuration["params"]["samples"],
             sep='\t',
             index=False,
             columns=["id", "fq1", "fq2"])
@@ -106,26 +162,26 @@ def simulation(args):
         sys.exit(1)
 
     snakecmd = "snakemake --snakefile %s --configfile %s --until %s" % (
-        config["snakefile"], config["configfile"], args.step)
+        configuration["snakefile"], configuration["configfile"], args.step)
     print(snakecmd)
 
 
 def workflow(args):
     if args.workdir:
-        config_file = os.path.join(args.workdir, "metaconfig.yaml")
-        config = parse_yaml(config_file)
-        if not os.path.exists(config["params"]["samples"]):
+        config_file = os.path.join(args.workdir, "config.yaml")
+        configuration = config.parse_yaml(config_file)
+        if not os.path.exists(configuration["params"]["samples"]):
             print("please specific samples list on initialization step")
             sys.exit(1)
         if args.rmhost:
-            config["params"]["rmhost"]["do"] = True
-        update_config(config_file, config_file, config, remove=True)
+            configuration["params"]["rmhost"]["do"] = True
+        config.update_config(config_file, config_file, configuration, remove=True)
     else:
         print("please supply a workdir!")
         sys.exit(1)
 
     snakecmd = "snakemake --snakefile %s --configfile %s --until %s" % (
-        config["snakefile"], config["configfile"], args.step)
+        configuration["snakefile"], configuration["configfile"], args.step)
     print(snakecmd)
 
 
