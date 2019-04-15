@@ -8,25 +8,10 @@ TRIM_TEMPLATE = '''fastp --in1 {raw_r1} --in2 {raw_r2} \
 --out1 {trimmed_r1} --out2 {trimmed_r2} \
 --compression {compression} \
 {adapter_trim_params} \
---cut_front --cut_tail \
+--cut_front \
 --cut_front_window_size {cut_front_window_size} \
 --cut_front_mean_quality {cut_front_mean_quality} \
---cut_tail_window_size {cut_tail_window_size} \
---cut_tail_mean_quality {cut_tail_mean_quality} \
---n_base_limit {n_base_limit} \
---length_required {length_required} \
---thread {threads} \
---html {html} --json {json} 2> {trim_log}'''
-
-TRIM_TEMPLATE_SLIDE_WINDOW = '''fastp --in1 {raw_r1} --in2 {raw_r2} \
---out1 {trimmed_r1} --out2 {trimmed_r2} \
---compression {compression} \
-{adapter_trim_params} \
---cut_front --cut_right \
---cut_front_window_size {cut_front_window_size} \
---cut_front_mean_quality {cut_front_mean_quality} \
---cut_right_window_size {cut_right_window_size} \
---cut_right_mean_quality {cut_right_mean_quality} \
+{use_slide_window} \
 --n_base_limit {n_base_limit} \
 --length_required {length_required} \
 --thread {threads} \
@@ -69,7 +54,7 @@ def get_fqpath(sample_df, sample_id, col):
 
 
 class trimmer:
-    def __init__(self, sample_id, raw_r1, raw_r2, outdir, n_limit, min_len, adapter_trim, threads):
+    def __init__(self, sample_id, raw_r1, raw_r2, outdir, n_limit, min_len, adapter_trim, threads, no_use_slide_window):
         self.raw_r1 = raw_r1
         self.raw_r2 = raw_r2
         self.trimmed_r1 = os.path.join(outdir, sample_id + ".trimmed.1.fq.gz")
@@ -81,6 +66,12 @@ class trimmer:
         self.cut_tail_mean_quality = 20
         self.cut_right_window_size = 4
         self.cut_right_mean_quality = 20
+        if not no_use_slide_window:
+            self.use_slide_window = '--cut_right --cut_right_window_size {ws} --cut_right_mean_quality {mq}'.\
+                format(ws=4, mq=20)
+        else:
+            self.use_slide_window = '--cut_tail --cut_tail_window_size {ws} --cut_tail_mean_quality {mq}'.\
+                format(ws=4, mq=20)
         self.n_base_limit = n_limit
         self.length_required = min_len
         self.threads = threads
@@ -94,9 +85,9 @@ class trimmer:
 
 
 class rmhoster:
-    def __init__(self, sample_id, host_index_base, trim_dir, rmhost_dir, thread, save_bam, params=""):
+    def __init__(self, sample_id, seed, host_index_base, trim_dir, rmhost_dir, thread, save_bam, params=""):
         self.threads = thread
-        self.seed = 23
+        self.seed = seed
         self.additional_params = params
         self.host_index_base = host_index_base
         self.trimmed_r1 = os.path.join(trim_dir, sample_id + ".trimmed.1.fq.gz")
@@ -158,7 +149,7 @@ def main():
         help='fastp and bwa, bowtie2, samtools threads')
 
     group = parser.add_argument_group("trimming options")
-    group.add_agument(
+    group.add_argument(
         '-n',
         '--n_limit',
         default=5,
@@ -227,7 +218,8 @@ def main():
             r2 = get_fqpath(samples_df, sample_id, "fq2")
 
             trim_cmd = TRIM_TEMPLATE.format_map(
-                vars(trimmer(sample_id, r1, r2, trim_outdir, args.adapter_trim, args.threads)))
+                vars(trimmer(sample_id, r1, r2, os.path.basename(trim_outdir),
+                             args.n_limit, args.min_len, args.adapter_trim, args.threads, args.no_slide_window)))
             rmhost_cmd = ""
             plotbam_cmd = ""
 
@@ -235,33 +227,36 @@ def main():
                 if args.aligner == "bwa":
                     rmhost_cmd = RMHOST_BWA_TEMPLATE.format_map(
                         vars(rmhoster(sample_id,
+                                      args.min_seed_len,
                                       args.database,
-                                      trim_outdir,
-                                      rmhost_outdir,
+                                      os.path.basename(trim_outdir),
+                                      os.path.basename(rmhost_outdir),
                                       args.threads,
                                       args.save_bam, "")))
                 elif args.aligner == "bowtie2":
                     if args.platform == "bgiseq":
                         rmhost_cmd = RMHOST_BOWTIE2_TEMPLATE_BGISEQ.format_map(
                             vars(rmhoster(sample_id,
+                                          args.min_seed_len,
                                           args.database,
-                                          trim_outdir,
-                                          rmhost_outdir,
+                                          os.path.basename(trim_outdir),
+                                          os.path.baename(rmhost_outdir),
                                           args.threads,
                                           args.save_bam, "--no-unal")))
                     elif args.platform == "illumina":
                         rmhost_cmd = RMHOST_BOWTIE2_TEMPLATE_ILLUMINA.format_map(
                             vars(rmhoster(sample_id,
+                                          args.min_seed_len,
                                           args.database,
-                                          trim_outdir,
-                                          rmhost_outdir,
+                                          os.path.basename(trim_outdir),
+                                          os.path.basename(rmhost_outdir),
                                           args.threads,
                                           args.save_bam, "--no-unal")))
                     else:
                         print("unknown platform")
 
                 plotbam_cmd = PLOT_BAMSTATS_TEMPLATE.format_map(
-                    vars(bam_ploter(sample_id, rmhost_outdir, plot_outdir)))
+                    vars(bam_ploter(sample_id, os.path.basename(rmhost_outdir), os.path.basename(plot_outdir))))
 
             oh1.write(trim_cmd + "\n")
             oh2.write(rmhost_cmd + "\n")
