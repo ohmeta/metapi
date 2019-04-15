@@ -1,8 +1,14 @@
 def clean_reads(wildcards):
     if config["params"]["begin"] == "assembly":
-        r1 = get_sample_id(_samples, wildcards, "fq1")
-        r2 = get_sample_id(_samples, wildcards, "fq2")
-        return [r1, r2]
+        if config["params"]["type"] == "fastq":
+            r1 = get_sample_id(_samples, wildcards, "fq1")
+            r2 = get_sample_id(_samples, wildcards, "fq2")
+            return [r1, r2]
+        elif config["params"]["type"] == "sra":
+            return expand("{sra2fq}/{sample}.{read}.fq.gz",
+                          sra2fq=config["results"]["sra2fq"],
+                          sample=wildcards.sample,
+                          read=[1, 2])
     elif config["params"]["rmhost"]["do"]:
         return expand("{rmhost}/{sample}.rmhost.{read}.fq.gz",
                       rmhost=config["results"]["rmhost"],

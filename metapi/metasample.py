@@ -4,22 +4,30 @@ import os
 import pandas
 
 
-def samples_validator(sample_df):
+def samples_validator(sample_df, input_type):
     error_count = 0
     for i in sample_df.index:
-        fq1 = sample_df.loc[[i], "fq1"].dropna().tolist()
-        fq2 = sample_df.loc[[i], "fq2"].dropna().tolist()
-        for r1, r2 in zip(fq1, fq2):
-            if (not os.path.exists(r1)) or (not os.path.exists(r2)):
-                print("error:\t%s\t%s\t%s" % (i, r1, r2))
-                error_count += 1
+        if input_type == "fastq":
+            fq1 = sample_df.loc[[i], "fq1"].dropna().tolist()
+            fq2 = sample_df.loc[[i], "fq2"].dropna().tolist()
+            for r1, r2 in zip(fq1, fq2):
+                if (not os.path.exists(r1)) or (not os.path.exists(r2)):
+                    print("error:\t%s\t%s\t%s" % (i, r1, r2))
+                    error_count += 1
+        elif input_type == "sra":
+            for sra in sample_df.loc[[i], "sra"].dropna().tolist():
+                if not os.path.exists(sra):
+                    print("error:\t%s\t%s" % (i, sra))
+                    error_count += 1
+        else:
+            print("wrong input type! just support fastq or sra")
     return error_count
 
 
-def parse_samples(samples_tsv, check=True):
+def parse_samples(samples_tsv, input_type, check=True):
     samples_df = pandas.read_csv(samples_tsv, sep='\s+').set_index("id", drop=False)
     if check:
-        error_count = samples_validator(samples_df)
+        error_count = samples_validator(samples_df, input_type)
         if error_count == 0:
             return samples_df
         else:
