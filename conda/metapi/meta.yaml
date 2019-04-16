@@ -1,13 +1,12 @@
-{% set version = "0.6.1" %}
-
+{% set version = "0.6.3" %}
 
 package:
   name: metapi
   version: {{ version }}
 
 source:
-  url: https://files.pythonhosted.org/packages/e8/bd/3e6375bb8545771110834d066d93ee147effc2392d1ecd9d4dd814f0d2a9/metapi-{{ version }}.tar.gz
-  sha256: 256dc3eb12ed2bc7365b39f629e3bef28d6f1cf5c731298ff2aadd5ecfb52e66
+  url: https://pypi.io/packages/source/m/metapi/metapi-{{ version }}.tar.gz
+  sha256: f39f2d57e539ac0fba78a6cc6faca99d10a984d057d7019a160613fe00031b07
 
 build:
   number: 0
