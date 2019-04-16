@@ -1,28 +1,36 @@
+{% set name = "metapi" %}
 {% set version = "0.6.3" %}
+{% set sha256 = "f39f2d57e539ac0fba78a6cc6faca99d10a984d057d7019a160613fe00031b07" %}
 
 package:
-  name: metapi
+  name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/m/metapi/metapi-{{ version }}.tar.gz
-  sha256: f39f2d57e539ac0fba78a6cc6faca99d10a984d057d7019a160613fe00031b07
+  fn: {{ name }}-{{ version }}.tar.gz
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: {{ sha256 }}
 
 build:
-  number: 0
   noarch: python
-  script: python -m pip install --no-deps --ignore-installed .
+  number: 0
+  script: "{{ PYTHON }} -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv"
   entry_points:
     - metapi = metapi.core:main
 
 requirements:
+  build:
+    - python >=3.5
+    - setuptools
+    - pip
+
   host:
     - python >=3.5
     - pip
     - setuptools
     - pandas
     - ruamel.yaml
-    - snakemake
+    - snakemake >=5.4
 
   run:
     - python >=3.5
@@ -31,7 +39,7 @@ requirements:
     - numpy
     - biopython
     - ruamel.yaml
-    - snakemake
+    - snakemake >=5.4
     - ncbi-genome-download
     - pigz
     - fastp
@@ -60,6 +68,8 @@ test:
 commands:
   - metapi --version
   - metapi init --help
+  - metapi simulation --help
+  - metapi workflow --help
 
 about:
   home: https://github.com/ohmeta/metapi
@@ -70,3 +80,5 @@ about:
 extra:
   identifiers:
     - biotools:metapi
+  recipe-maintainers:
+    - alienzj
