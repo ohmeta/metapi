@@ -4,7 +4,7 @@ import setuptools
 with open("README.md") as f:
     long_description = f.read()
 
-version = "0.6.1"
+version = "0.6.2"
 print("""------------------------
 Installing metapi version {}
 ------------------------
@@ -28,7 +28,7 @@ setuptools.setup(
                              'metapi/check.py',
                              'metapi/config.py',
                              'metapi/core.py',
-                             'metapi/report.py',
+                             'metapi/summary.py',
                              'metapi/sample.py',
                              'metapi/rules/alignment.smk',
                              'metapi/rules/annotation.smk',
@@ -67,8 +67,9 @@ setuptools.setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
-        'Topic :: Scientific/Engineering :: Bio-Informatics'
+        'Topic :: Scientific/Engineering :: Bio-Informatics',
     ],
+    python_requires='>=3.5',
 )
 
 print("""

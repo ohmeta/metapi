@@ -1,7 +1,7 @@
 #!/usr/bin/env snakemake
 import sys
 from metapi import sample
-from metapi import report
+from metapi import summary
 
 shell.executable("bash")
 
