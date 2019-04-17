@@ -3,7 +3,7 @@ rule sra2fq:
         lambda wildcards: sample.get_reads(_samples, wildcards, "sra")
     output:
         r1 = temp(os.path.join(config["results"]["sra2fq"], "{sample}.1.fq.gz")),
-        r2 = temp(os.path.join(cofnig["results"]["sra2fq"], "{sample}.2.fq.gz"))
+        r2 = temp(os.path.join(config["results"]["sra2fq"], "{sample}.2.fq.gz"))
     params:
         outdir = config["results"]["sra2fq"],
         reads_direction = str("+"),

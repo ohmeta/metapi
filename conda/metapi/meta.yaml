@@ -1,6 +1,6 @@
 {% set name = "metapi" %}
-{% set version = "0.6.3" %}
-{% set sha256 = "f39f2d57e539ac0fba78a6cc6faca99d10a984d057d7019a160613fe00031b07" %}
+{% set version = "0.6.4" %}
+{% set sha256 = "859b6b046dd561496f5e82b8f901ffb76ada59d85ea333f5e33e0d0a7ec38a30" %}
 
 package:
   name: {{ name|lower }}

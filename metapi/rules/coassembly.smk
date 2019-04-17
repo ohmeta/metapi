@@ -1,19 +1,25 @@
 def coassembly_inputs(read):
     if config["params"]["begin"] == "assembly":
-        if read == "1":
-            return _samples.fq1
-        elif read == "2":
-            return _samples.fq2
+        if config["params"]["type"] == "fastq":
+            if read == "1":
+                return _samples.fq1
+            elif read == "2":
+                return _samples.fq2
+        elif config["params"]["type"] == "sra":
+            return expand("{sra2fq}/{sample}.{read}.fq.gz",
+                          sra2fq=config["results"]["sra2fq"],
+                          read=read,
+                          sample=_samples.index.unique())
     elif config["params"]["rmhost"]["do"]:
         return expand("{rmhost}/{sample}.rmhost.{read}.fq.gz",
                       rmhost=config["results"]["rmhost"],
                       read=read,
-                      sample=_samples.index)
+                      sample=_samples.index.unique())
     else:
         return expand("{trimming}/{sample}.trimmed.{read}.fq.gz",
                       trimming=config["results"]["trimming"],
                       read=read,
-                      sample=_samples.index)
+                      sample=_samples.index.unique())
 
 rule coassembly_megahit:
     input:

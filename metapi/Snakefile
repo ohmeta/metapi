@@ -12,11 +12,12 @@ _samples = sample.parse_samples(config["params"]["samples"],
 
 if config["params"]["begin"] == "assembly":
     cancel_task = False
-    for i in _samples.index.unique():
-        count = len(_samples.loc[[i], "fq1"].dropna().tolist())
-        if count > 1:
-            cancel_task = True
-            print("exists duplicated sample: %s" % i)
+    if config["params"]["type"] == "fastq":
+        for i in _samples.index.unique():
+            count = len(_samples.loc[[i], "fq1"].dropna().tolist())
+            if count > 1:
+                cancel_task = True
+                print("exists duplicated sample: %s" % i)
     if cancel_task:
         sys.exit(1)
 
@@ -31,7 +32,7 @@ if config["params"]["cobinning"]["do"]:
         _samples = _samples.assign(id_2=_samples.id.apply(lambda x: rename_dict[x]))
         _samples.loc[:, ["id", "id_2"]]\
                 .drop_duplicates(["id", "id_2"])\
-                .to_csv(config["params"]["rename_id"], sep='\t', index=False)
+                .to_csv(config["params"]["cobinning"]["renamed_id"], sep='\t', index=False)
 
 include: "rules/step.smk"
 
