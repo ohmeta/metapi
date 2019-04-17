@@ -7,6 +7,12 @@ __default__:
   mem: "1G"
   cores: 1
 
+sra2fq:
+  mem: "512M"
+  cores: 1
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+
 genome_simulate:
   mem: "2G"
   cores: 8
