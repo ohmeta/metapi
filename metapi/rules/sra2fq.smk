@@ -3,8 +3,7 @@ rule sra2fq:
         lambda wildcards: sample.get_reads(_samples, wildcards, "sra")
     output:
         r1 = temp(os.path.join(config["results"]["sra2fq"], "{sample}.1.fq.gz")),
-        r2 = temp(os.path.join(config["results"]["sra2fq"], "{sample}.2.fq.gz")),
-        single = temp(os.path.join(config["results"]["sra2fq"], "{sample}.fastq.gz"))
+        r2 = temp(os.path.join(config["results"]["sra2fq"], "{sample}.2.fq.gz"))
     params:
         outdir = config["results"]["sra2fq"],
         reads_direction = str("+"),
@@ -22,6 +21,7 @@ rule sra2fq:
                 mv {params.outdir}/%s_1.fastq.gz {output.r1}
                 mv {params.outdir}/%s_2.fastq.gz {output.r2}
                 ''' % (sra_id, sra_id))
+            shell('''rm -rf {params.outdir}/%s.fastq.gz''' % sra_id)
         else:
             r1_list = []
             r2_list = []
@@ -36,9 +36,8 @@ rule sra2fq:
                     --defline-seq '{params.header_format}' \
                     --outdir {params.outdir} %s
                     ''' % sra_file)
+                shell('''rm -rf {params.outdir}/%s.fastq.gz''' % sra_id)
             r1_str = " ".join(r1_list)
             r2_str = " ".join(r2_list)
             shell('''cat %s > %s''' % (r1_str, output.r1))
             shell('''cat %s > %s''' % (r2_str, output.r2))
-
-
