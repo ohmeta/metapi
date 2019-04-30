@@ -1,60 +1,60 @@
 sra2fq_output = expand(
-    "{sra2fq}/{sample}.{read}.fq.gz",
+    "{sra2fq}/{sample}{read}.fq.gz",
     sra2fq=config["results"]["sra2fq"],
-    read=["1", "2"],
+    read=[".1", ".2"] if config["params"]["library_layout"] == "paried_end" else "",
     sample=_samples.index.unique())
 
 simulation_output = expand([
     "{simulation}/species_metadata.tsv", "{simulation}/{sample}_genome.fa",
-    "{raw}/{sample}_{read}.fq.gz", "{raw}/{sample}_abundance.txt"
+    "{raw}/{sample}{read}.fq.gz", "{raw}/{sample}_abundance.txt"
 ],
                            simulation=config["results"]["simulation"],
                            raw=config["results"]["raw"]["reads"],
-                           read=["1", "2"],
+                           read=[".1", ".2"] if config["params"]["library_layout"] == "paried_end" else "",
                            sample=_samples.index.unique())
 
 fastqc_output = expand([
-    "{fastqc}/{sample}_{read}_fastqc.{out}",
+    "{fastqc}/{sample}{read}_fastqc.{out}",
     "{multiqc}/fastqc_multiqc_report.html",
     "{multiqc}/fastqc_multiqc_report_data"
 ],
                        fastqc=config["results"]["raw"]["fastqc"],
                        multiqc=config["results"]["raw"]["multiqc"],
                        sample=_samples.index.unique(),
-                       read=["1", "2"],
+                       read=[".1", ".2"] if config["params"]["library_layout"] == "paried_end" else "",
                        out=["html", "zip"])
 
 oas1_output = expand([
-    "{trimming}/{sample}.trimmed.{read}.fq.gz",
+    "{trimming}/{sample}.trimmed{read}.fq.gz",
     "{trimming}/{sample}.trimmed.stat_out"
 ],
                      trimming=config["results"]["trimming"],
-                     read=["1", "2", "single"],
+                     read=[".1", ".2", ".single"] if config["params"]["library_layout"] == "paried_end" else "",
                      sample=_samples.index.unique())
 
 sickle_output = expand(
-    "{trimming}/{sample}.trimmed.{read}.fq.gz",
+    "{trimming}/{sample}.trimmed{read}.fq.gz",
     trimming=config["results"]["trimming"],
     sample=_samples.index.unique(),
-    read=["1", "2", "single"])
+    read=[".1", ".2", ".single"] if config["params"]["library_layout"] == "paried_end" else "")
 
 fastp_output = expand([
-    "{trimming}/{sample}.trimmed.{read}.fq.gz",
+    "{trimming}/{sample}.trimmed{read}.fq.gz",
     "{trimming}/{sample}.fastp.html", "{trimming}/{sample}.fastp.json",
     "{trimming}/fastp_multiqc_report.html",
     "{trimming}/fastp_multiqc_report_data"
 ],
                       sample=_samples.index.unique(),
                       trimming=config["results"]["trimming"],
-                      read=["1", "2"])
+                      read=[".1", ".2"] if config["params"]["library_layout"] == "paried_end" else "")
 
 rmhost_output = expand([
     "{rmhost}/{sample}.rmhost.flagstat.txt",
-    "{rmhost}/{sample}.rmhost.{read}.fq.gz"
+    "{rmhost}/{sample}.rmhost{read}.fq.gz"
 ],
                        rmhost=config["results"]["rmhost"],
                        sample=_samples.index.unique(),
-                       read=["1", "2"])
+                       read=[".1", ".2"] if config["params"]["library_layout"] == "paried_end" else "")
 
 megahit_output = expand(
     "{assembly}/{sample}.megahit_out/{sample}.megahit.scaftigs.fa.gz",

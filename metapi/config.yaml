@@ -1,5 +1,6 @@
 params:
   type: "fastq"
+  library_layout: "paired_end"
   samples: "samples.tsv"
   begin: "raw"
   simulation:
