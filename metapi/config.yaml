@@ -1,6 +1,6 @@
 params:
-  type: "fastq"
-  library_layout: "paired_end"
+  reads_format: "fastq"
+  reads_layout: "pe"
   samples: "samples.tsv"
   begin: "raw"
   simulation:
