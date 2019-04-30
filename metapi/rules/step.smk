@@ -1,7 +1,7 @@
 sra2fq_output = expand(
     "{sra2fq}/{sample}{read}.fq.gz",
     sra2fq=config["results"]["sra2fq"],
-    read=[".1", ".2"] if config["params"]["library_layout"] == "paried_end" else "",
+    read=[".1", ".2"] if config["params"]["library_layout"] == "paired_end" else "",
     sample=_samples.index.unique())
 
 simulation_output = expand([
@@ -10,7 +10,7 @@ simulation_output = expand([
 ],
                            simulation=config["results"]["simulation"],
                            raw=config["results"]["raw"]["reads"],
-                           read=[".1", ".2"] if config["params"]["library_layout"] == "paried_end" else "",
+                           read=[".1", ".2"] if config["params"]["library_layout"] == "paired_end" else "",
                            sample=_samples.index.unique())
 
 fastqc_output = expand([
@@ -21,7 +21,7 @@ fastqc_output = expand([
                        fastqc=config["results"]["raw"]["fastqc"],
                        multiqc=config["results"]["raw"]["multiqc"],
                        sample=_samples.index.unique(),
-                       read=[".1", ".2"] if config["params"]["library_layout"] == "paried_end" else "",
+                       read=[".1", ".2"] if config["params"]["library_layout"] == "paired_end" else "",
                        out=["html", "zip"])
 
 oas1_output = expand([
@@ -29,14 +29,14 @@ oas1_output = expand([
     "{trimming}/{sample}.trimmed.stat_out"
 ],
                      trimming=config["results"]["trimming"],
-                     read=[".1", ".2", ".single"] if config["params"]["library_layout"] == "paried_end" else "",
+                     read=[".1", ".2", ".single"] if config["params"]["library_layout"] == "paired_end" else "",
                      sample=_samples.index.unique())
 
 sickle_output = expand(
     "{trimming}/{sample}.trimmed{read}.fq.gz",
     trimming=config["results"]["trimming"],
     sample=_samples.index.unique(),
-    read=[".1", ".2", ".single"] if config["params"]["library_layout"] == "paried_end" else "")
+    read=[".1", ".2", ".single"] if config["params"]["library_layout"] == "paired_end" else "")
 
 fastp_output = expand([
     "{trimming}/{sample}.trimmed{read}.fq.gz",
@@ -46,7 +46,7 @@ fastp_output = expand([
 ],
                       sample=_samples.index.unique(),
                       trimming=config["results"]["trimming"],
-                      read=[".1", ".2"] if config["params"]["library_layout"] == "paried_end" else "")
+                      read=[".1", ".2"] if config["params"]["library_layout"] == "paired_end" else "")
 
 rmhost_output = expand([
     "{rmhost}/{sample}.rmhost.flagstat.txt",
@@ -54,7 +54,7 @@ rmhost_output = expand([
 ],
                        rmhost=config["results"]["rmhost"],
                        sample=_samples.index.unique(),
-                       read=[".1", ".2"] if config["params"]["library_layout"] == "paried_end" else "")
+                       read=[".1", ".2"] if config["params"]["library_layout"] == "paired_end" else "")
 
 megahit_output = expand(
     "{assembly}/{sample}.megahit_out/{sample}.megahit.scaftigs.fa.gz",
