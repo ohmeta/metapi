@@ -34,6 +34,8 @@ if config["params"]["cobinning"]["do"]:
                 .drop_duplicates(["id", "id_2"])\
                 .to_csv(config["params"]["cobinning"]["renamed_id"], sep='\t', index=False)
 
+IS_PE = True if config["params"]["reads_layout"] == "pe" else False
+
 include: "rules/step.smk"
 
 if config["params"]["type"] == "sra":
