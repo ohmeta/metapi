@@ -71,6 +71,11 @@ metaspades_output = expand(
     assembly=config["results"]["assembly"],
     sample=_samples.index.unique())
 
+spades_output = expand(
+    "{assembly}/{sample}.spades_out/{sample}.spades.scaftigs.fa.gz",
+    assembly=config["results"]["assembly"],
+    sample=_samples.index.unique())
+
 coassembly_megahit_output = expand(
     "{coassembly_megahit}/final.contigs.fa.gz",
     coassembly_megahit=config["results"]["coassembly"]["megahit"])
@@ -233,15 +238,17 @@ if config["params"]["assembly"]["idba_ud"]["do"]:
     assembly_output = (assembly_output + idba_ud_output)
 if config["params"]["assembly"]["metaspades"]["do"]:
     assembly_output = (assembly_output + metaspades_output)
+if config["params"]["assembly"]["spades"]["do"]:
+    assembly_output = (assembly_output + spades_output)
 
 if config["params"]["coassembly"]["megahit"]["do"]:
     assembly_output = (assembly_output + coassembly_megahit_output)
 
 assembly_target = ([])
 if config["params"]["begin"] == "assembly":
-    if config["params"]["type"] == "fastq":
+    if config["params"]["reads_format"] == "fastq":
         assembly_target = (assembly_output)
-    elif config["params"]["type"] == "sra":
+    elif config["params"]["reads_format"] == "sra":
         assembly_target = (sra2fq_output + assembly_output)
 elif config["params"]["rmhost"]["do"]:
     assembly_target = (rmhost_target + assembly_output)
