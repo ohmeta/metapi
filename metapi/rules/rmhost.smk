@@ -1,4 +1,4 @@
-def rmhost_inputs(wildcards, have_single):
+def trimmed_reads(wildcards, have_single):
     if have_single:
         return expand(temp(os.path.join(config["results"]["trimming"], "{sample}.trimmed{read}.fq.gz")),
                       sample=wildcards.sample,
@@ -28,7 +28,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
 
     rule rmhost_bwa:
         input:
-            reads = lambda wildcards: rmhost_inputs(wildcards, False),
+            reads = lambda wildcards: trimmed_reads(wildcards, False),
             index = expand("{prefix}.{suffix}",
                            prefix=config["params"]["rmhost"]["bwa"]["index_prefix"],
                            suffix=["amb", "ann", "bwt", "pac", "sa"])
@@ -85,7 +85,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
 
     rule rmhost_bowtie2:
         input:
-            reads = lambda wildcards: rmhost_inputs(wildcards, False),
+            reads = lambda wildcards: trimmed_reads(wildcards, False),
             index = expand("{prefix}.{suffix}",
                            prefix=config["params"]["rmhost"]["bowtie2"]["index_prefix"],
                            suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
