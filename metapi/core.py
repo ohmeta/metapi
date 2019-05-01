@@ -23,6 +23,7 @@ simulation_steps = [
     "assembly_megahit",
     "assembly_idba_ud",
     "assembly_metaspades",
+    "assembly_spades",
     "coassembly_megahit",
     "metaquast",
     "multiqc_metaquast",
@@ -62,6 +63,7 @@ workflow_steps = [
     "assembly_megahit",
     "assembly_idba_ud",
     "assembly_metaspades",
+    "assembly_spades",
     "coassembly_megahit",
     "metaquast",
     "multiqc_metaquast",
@@ -240,7 +242,7 @@ def main():
         nargs='*',
         metavar='<str>',
         default='metaspades',
-        help='support metaspades, idba_ud, megahit')
+        help='support metaspades, spades, idba_ud, megahit')
     parser_init._optionals.title = 'arguments'
     parser_init.set_defaults(func=initialization)
 

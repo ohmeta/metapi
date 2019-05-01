@@ -7,12 +7,15 @@ shell.executable("bash")
 
 configfile: "config.yaml"
 
+IS_PE = True if config["params"]["reads_layout"] == "pe" else False
+
 _samples = sample.parse_samples(config["params"]["samples"],
-                                config["params"]["type"])
+                                config["params"]["reads_format"],
+                                IS_PE, True)
 
 if config["params"]["begin"] == "assembly":
     cancel_task = False
-    if config["params"]["type"] == "fastq":
+    if config["params"]["reads_format"] == "fastq":
         for i in _samples.index.unique():
             count = len(_samples.loc[[i], "fq1"].dropna().tolist())
             if count > 1:
@@ -33,8 +36,6 @@ if config["params"]["cobinning"]["do"]:
         _samples.loc[:, ["id", "id_2"]]\
                 .drop_duplicates(["id", "id_2"])\
                 .to_csv(config["params"]["cobinning"]["renamed_id"], sep='\t', index=False)
-
-IS_PE = True if config["params"]["reads_layout"] == "pe" else False
 
 include: "rules/step.smk"
 
