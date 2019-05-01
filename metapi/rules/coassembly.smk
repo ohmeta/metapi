@@ -1,11 +1,11 @@
 def coassembly_inputs(read):
     if config["params"]["begin"] == "assembly":
-        if config["params"]["type"] == "fastq":
+        if config["params"]["reads_format"] == "fastq":
             if read == "1":
                 return _samples.fq1
             elif read == "2":
                 return _samples.fq2
-        elif config["params"]["type"] == "sra":
+        elif config["params"]["reads_format"] == "sra":
             return expand("{sra2fq}/{sample}.{read}.fq.gz",
                           sra2fq=config["results"]["sra2fq"],
                           read=read,

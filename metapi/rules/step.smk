@@ -1,60 +1,60 @@
 sra2fq_output = expand(
-    "{sra2fq}/{sample}.{read}.fq.gz",
+    "{sra2fq}/{sample}{read}.fq.gz",
     sra2fq=config["results"]["sra2fq"],
-    read=["1", "2"],
+    read=[".1", ".2"] if IS_PE else "",
     sample=_samples.index.unique())
 
 simulation_output = expand([
     "{simulation}/species_metadata.tsv", "{simulation}/{sample}_genome.fa",
-    "{raw}/{sample}_{read}.fq.gz", "{raw}/{sample}_abundance.txt"
+    "{raw}/{sample}{read}.fq.gz", "{raw}/{sample}_abundance.txt"
 ],
                            simulation=config["results"]["simulation"],
                            raw=config["results"]["raw"]["reads"],
-                           read=["1", "2"],
+                           read=[".1", ".2"] if IS_PE else "",
                            sample=_samples.index.unique())
 
 fastqc_output = expand([
-    "{fastqc}/{sample}_{read}_fastqc.{out}",
+    "{fastqc}/{sample}{read}_fastqc.{out}",
     "{multiqc}/fastqc_multiqc_report.html",
     "{multiqc}/fastqc_multiqc_report_data"
 ],
                        fastqc=config["results"]["raw"]["fastqc"],
                        multiqc=config["results"]["raw"]["multiqc"],
                        sample=_samples.index.unique(),
-                       read=["1", "2"],
+                       read=[".1", ".2"] if IS_PE else "",
                        out=["html", "zip"])
 
 oas1_output = expand([
-    "{trimming}/{sample}.trimmed.{read}.fq.gz",
+    "{trimming}/{sample}.trimmed{read}.fq.gz",
     "{trimming}/{sample}.trimmed.stat_out"
 ],
                      trimming=config["results"]["trimming"],
-                     read=["1", "2", "single"],
+                     read=[".1", ".2", ".single"] if IS_PE else "",
                      sample=_samples.index.unique())
 
 sickle_output = expand(
-    "{trimming}/{sample}.trimmed.{read}.fq.gz",
+    "{trimming}/{sample}.trimmed{read}.fq.gz",
     trimming=config["results"]["trimming"],
     sample=_samples.index.unique(),
-    read=["1", "2", "single"])
+    read=[".1", ".2", ".single"] if IS_PE else "")
 
 fastp_output = expand([
-    "{trimming}/{sample}.trimmed.{read}.fq.gz",
+    "{trimming}/{sample}.trimmed{read}.fq.gz",
     "{trimming}/{sample}.fastp.html", "{trimming}/{sample}.fastp.json",
     "{trimming}/fastp_multiqc_report.html",
     "{trimming}/fastp_multiqc_report_data"
 ],
                       sample=_samples.index.unique(),
                       trimming=config["results"]["trimming"],
-                      read=["1", "2"])
+                      read=[".1", ".2"] if IS_PE else "")
 
 rmhost_output = expand([
     "{rmhost}/{sample}.rmhost.flagstat.txt",
-    "{rmhost}/{sample}.rmhost.{read}.fq.gz"
+    "{rmhost}/{sample}.rmhost{read}.fq.gz"
 ],
                        rmhost=config["results"]["rmhost"],
                        sample=_samples.index.unique(),
-                       read=["1", "2"])
+                       read=[".1", ".2"] if IS_PE else "")
 
 megahit_output = expand(
     "{assembly}/{sample}.megahit_out/{sample}.megahit.scaftigs.fa.gz",
@@ -68,6 +68,11 @@ idba_ud_output = expand(
 
 metaspades_output = expand(
     "{assembly}/{sample}.metaspades_out/{sample}.metaspades.scaftigs.fa.gz",
+    assembly=config["results"]["assembly"],
+    sample=_samples.index.unique())
+
+spades_output = expand(
+    "{assembly}/{sample}.spades_out/{sample}.spades.scaftigs.fa.gz",
     assembly=config["results"]["assembly"],
     sample=_samples.index.unique())
 
@@ -233,15 +238,17 @@ if config["params"]["assembly"]["idba_ud"]["do"]:
     assembly_output = (assembly_output + idba_ud_output)
 if config["params"]["assembly"]["metaspades"]["do"]:
     assembly_output = (assembly_output + metaspades_output)
+if config["params"]["assembly"]["spades"]["do"]:
+    assembly_output = (assembly_output + spades_output)
 
 if config["params"]["coassembly"]["megahit"]["do"]:
     assembly_output = (assembly_output + coassembly_megahit_output)
 
 assembly_target = ([])
 if config["params"]["begin"] == "assembly":
-    if config["params"]["type"] == "fastq":
+    if config["params"]["reads_format"] == "fastq":
         assembly_target = (assembly_output)
-    elif config["params"]["type"] == "sra":
+    elif config["params"]["reads_format"] == "sra":
         assembly_target = (sra2fq_output + assembly_output)
 elif config["params"]["rmhost"]["do"]:
     assembly_target = (rmhost_target + assembly_output)

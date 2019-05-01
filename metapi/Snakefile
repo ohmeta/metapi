@@ -7,12 +7,15 @@ shell.executable("bash")
 
 configfile: "config.yaml"
 
+IS_PE = True if config["params"]["reads_layout"] == "pe" else False
+
 _samples = sample.parse_samples(config["params"]["samples"],
-                                config["params"]["type"])
+                                config["params"]["reads_format"],
+                                IS_PE, True)
 
 if config["params"]["begin"] == "assembly":
     cancel_task = False
-    if config["params"]["type"] == "fastq":
+    if config["params"]["reads_format"] == "fastq":
         for i in _samples.index.unique():
             count = len(_samples.loc[[i], "fq1"].dropna().tolist())
             if count > 1:
@@ -36,7 +39,7 @@ if config["params"]["cobinning"]["do"]:
 
 include: "rules/step.smk"
 
-if config["params"]["type"] == "sra":
+if config["params"]["reads_format"] == "sra":
     include: "rules/sra2fq.smk"
 
 if config["params"]["simulation"]["do"]:

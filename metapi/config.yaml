@@ -1,5 +1,6 @@
 params:
-  type: "fastq"
+  reads_format: "fastq"
+  reads_layout: "pe"
   samples: "samples.tsv"
   begin: "raw"
   simulation:
@@ -52,7 +53,7 @@ params:
       threads: 8
       save_bam: False
       additional_params: "--no-unal"
-  assembler: ["megahit", "idba_ud", "metaspades"]
+  assembler: ["megahit", "idba_ud", "metaspades", "spades"]
   assembly:
     megahit:
       do: False
@@ -67,6 +68,13 @@ params:
       threads: 8
     metaspades:
       do: True
+      only_assembler: False
+      only_save_scaftigs: False
+      memory: 20
+      threads: 8
+      kmers: ['21', '29', '39', '59', '79', '99']
+    spades:
+      do: False
       only_assembler: False
       only_save_scaftigs: False
       memory: 20
@@ -180,6 +188,7 @@ logs:
     megahit: "assay/03.assembly/megahit_logs"
     idba_ud: "assay/03.assembly/idba_ud_logs"
     metaspades: "assay/03.assembly/metaspades_logs"
+    spades: "assay/03.assembly/spades_logs"
   coassembly: "assay/03.coassembly/logs"
   metaquast: "assay/03.metaquast/metaquast_logs"
   prediction: "assay/04.prediction/logs"
