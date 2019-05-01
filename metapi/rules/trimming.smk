@@ -37,7 +37,7 @@ if config["params"]["trimming"]["oas1"]["do"]:
                 else:
                     shell("OAs1 {input[0][0]} {params.prefix} {params.qual_system} {params.min_length} {params.seed_oa} {params.fragment_oa}")
             else:
-                if IS_PE
+                if IS_PE:
                     r1_str = " ".join(input[0])
                     r2_str = " ".join(input[1])
                     r1 = os.path.join(config["results"]["trimming"], "%s.raw.1.fq.gz" % params.prefix)
