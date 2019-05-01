@@ -22,7 +22,8 @@ if config["params"]["trimming"]["oas1"]["do"]:
         input:
             trimming_inputs
         output:
-            reads = lambda wildcards: trimming_outputs(wildcards, True),
+            reads = expand(temp(os.path.join(config["results"]["trimming"], "{{sample}}.trimmed{read}.fq.gz")),
+                           read=[".1", ".2", ".single"] if IS_PE else ""),
             stat_out = protected(os.path.join(config["results"]["trimming"], "{sample}.trimmed.stat_out"))
         params:
             prefix = "{sample}",
@@ -60,7 +61,8 @@ if config["params"]["trimming"]["sickle"]["do"]:
         input:
             trimming_inputs
         output:
-            lambda wildcards: trimming_outputs(wildcards, True)
+            reads = expand(temp(os.path.join(config["results"]["trimming"], "{{sample}}.trimmed{read}.fq.gz")),
+                           read=[".1", ".2", ".single"] if IS_PE else "")
         params:
             qual_type = config["params"]["trimming"]["sickle"]["qual_type"],
             qual_cutoff = config["params"]["trimming"]["sickle"]["qual_cutoff"],
@@ -71,12 +73,12 @@ if config["params"]["trimming"]["sickle"]["do"]:
             if len(input[0] == 1):
                 if IS_PE:
                     shell("sickle pe --pe-file1 {input[0][0]} --pe-file2 {input[1][0]} \
-                           --output-pe1 {output[0]} --output-pe2 {output[1]} --output-single {output[2]} \
+                           --output-pe1 {output.reads[0]} --output-pe2 {output.reads[1]} --output-single {output.reads[2]} \
                            --gzip-output --qual-type {params.qual_type} \
                            --qual-threshold {params.qual_cutoff} --length-threshold {params.length_cutoff} 2> {log}")
                 else:
                     shell("sickle se --fastq-file {input[0][0]} \
-                           --output-file {output[0]}\
+                           --output-file {output.reads[0]}\
                            --gzip-output --qual-type {params.qual_type} \
                            --qual-threshold {params.qual_cutoff} --length-threshold {params.length_cutoff} 2> {log}")
             else:
@@ -111,7 +113,8 @@ if config["params"]["trimming"]["fastp"]["do"]:
         input:
             trimming_inputs
         output:
-            reads = lambda wildcards: trimming_outputs(wildcards, False),
+            reads = expand(temp(os.path.join(config["results"]["trimming"], "{{sample}}.trimmed{read}.fq.gz")),
+                           read=[".1", ".2"] if IS_PE else ""),
             html = protected(os.path.join(config["results"]["trimming"], "{sample}.fastp.html")),
             json = protected(os.path.join(config["results"]["trimming"], "{sample}.fastp.json"))
         params:

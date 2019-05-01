@@ -1,9 +1,3 @@
-def rmhost_outputs(wildcards):
-        return expand(protected(os.path.join(config["results"]["rmhost"], "{sample}.rmhost{read}.fq.gz")),
-                      sample=wildcards.sample,
-                      read=[".1", ".2"] if IS_PE else "")
-
-
 if config["params"]["rmhost"]["bwa"]["do"]:
     rule build_host_index_for_bwa:
         input:
@@ -29,7 +23,8 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                            suffix=["amb", "ann", "bwt", "pac", "sa"])
         output:
             flagstat = protected(os.path.join(config["results"]["rmhost"], "{sample}.rmhost.flagstat.txt")),
-            reads = rmhost_output
+            reads = expand(protected(os.path.join(config["results"]["rmhost"], "{{sample}}.rmhost{read}.fq.gz")),
+                           read=[".1", ".2"] if IS_PE else "")
         log:
             os.path.join(config["logs"]["rmhost"], "{sample}.bwa.rmhost.log")
         params:
@@ -85,7 +80,8 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                            suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
         output:
             flagstat = protected(os.path.join(config["results"]["rmhost"], "{sample}.rmhost.flagstat.txt")),
-            reads = rmhost_outputs,
+            reads = expand(protected(os.path.join(config["results"]["rmhost"], "{{sample}}.rmhost{read}.fq.gz")),
+                           read=[".1", ".2"] if IS_PE else "")
         log:
             os.path.join(config["logs"]["rmhost"], "{sample}.bowtie2.rmhost.log")
         params:
