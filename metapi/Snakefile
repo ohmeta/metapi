@@ -39,7 +39,7 @@ if config["params"]["cobinning"]["do"]:
 
 include: "rules/step.smk"
 
-if config["params"]["type"] == "sra":
+if config["params"]["reads_format"] == "sra":
     include: "rules/sra2fq.smk"
 
 if config["params"]["simulation"]["do"]:
