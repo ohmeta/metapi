@@ -6,17 +6,6 @@ def trimming_inputs(wildcards):
         return [sample.get_reads(_samples, wildcards, "fq1")]
 
 
-def trimming_outputs(wildcards, have_single):
-    if have_single:
-        return expand(temp(os.path.join(config["results"]["trimming"], "{sample}.trimmed{read}.fq.gz")),
-                      sample=wildcards.sample,
-                      read=[".1", ".2", ".single"] if IS_PE else "")
-    else:
-        return expand(temp(os.path.join(config["results"]["trimming"], "{sample}.trimmed{read}.fq.gz")),
-                      sample=wildcards.sample,
-                      read=[".1", ".2"] if IS_PE else "")
-
-
 if config["params"]["trimming"]["oas1"]["do"]:
     rule trimming_oas1:
         input:
