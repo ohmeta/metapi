@@ -125,12 +125,6 @@ if config["params"]["trimming"]["fastp"]["do"]:
         threads:
             config["params"]["trimming"]["fastp"]["threads"]
         run:
-            from pprint import pprint
-            print(type(input))
-            pprint(input)
-            print(type(input[0]))
-            pprint(input[0])
-
             reads_num = len(input)
             if IS_PE:
                 if reads_num == 2:
