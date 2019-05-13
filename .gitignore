@@ -33,3 +33,9 @@ conda/*.gz
 notebooks/
 
 test/
+examples/simulation_test
+metapi/*.pyc 
+index.list
+data.tar.gz 
+data/
+docs/hello.py
