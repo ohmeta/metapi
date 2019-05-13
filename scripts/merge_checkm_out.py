@@ -20,6 +20,7 @@ def merge(checkm_list, sort_by):
                                           "0", "1", "2", "3", "4", "5+",
                                           "completeness", "contamination", "strain_heterogeneity"])
         with open(checkm_file, 'r') as ih:
+            print("analysis %s" % checkm_file)
             next(ih), next(ih), next(ih)
             for line in ih:
                 if not line.startswith("--"):
