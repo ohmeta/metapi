@@ -58,7 +58,7 @@ def summary_init(sample_id):
     return info
 
 
-def get_checkm_out(checkmout_list, out_tsv):
+def get_checkm_out(checkmout_list, out_tsv, think_strain_heterogeneity=False):
     headers = [
         "sample_id", "bin_number",
         "completeness_ge90_num", "completeness_ge80_num", "completeness_ge70_num",
@@ -120,13 +120,22 @@ def get_checkm_out(checkmout_list, out_tsv):
                             bin_info["completeness_ge90_num"] += 1
                             summary_info["completeness_ge90_num"] += 1
 
-                        if (float(info_list[-1]) < 0.5) and (float(info_list[-2]) < 5) and (float(info_list[-3]) > 90):
-                            bin_info["high_quality_num"] += 1
-                            summary_info["high_quality_num"] += 1
+                        if think_strain_heterogeneity:
+                            if (float(info_list[-1]) < 0.5) and (float(info_list[-2]) < 5) and (float(info_list[-3]) > 90):
+                                bin_info["high_quality_num"] += 1
+                                summary_info["high_quality_num"] += 1
 
-                        if (float(info_list[-1]) < 5) and (float(info_list[-3]) < 90) and (float(info_list[-3]) > 50):
-                            bin_info["medium_quality_num"] += 1
-                            summary_info["medium_quality_num"] += 1
+                            if (float(info_list[-1]) < 5) and (float(info_list[-3]) < 90) and (float(info_list[-3]) > 50):
+                                bin_info["medium_quality_num"] += 1
+                                summary_info["medium_quality_num"] += 1
+                        else:
+                            if (float(info_list[-2]) < 5) and (float(info_list[-3]) > 90):
+                                bin_info["high_quality_num"] += 1
+                                summary_info["high_quality_num"] += 1
+                            
+                            if (float(info_list[-3]) < 90) and (float(info_list[-3]) > 50):
+                                bin_info["medium_quality_num"] += 1
+                                summary_info["medium_quality_num"] += 1
 
                 if has_bin:
                     bin_info["completeness_ge70_rate"] = bin_info[
@@ -195,10 +204,11 @@ def main():
         summary checkm results:
         completeness, contamination, strain heterogeneity for many samples'
         ''')
+    parser.add_argument('--think_strain_heterogeneity', action='store_true', help='specific it will think strain heterogeneity, default: False')
     parser.add_argument('-l', type=str, help='checkm out list')
     parser.add_argument('-o', type=str, help='output')
     args = parser.parse_args()
-    get_checkm_out(args.l, args.o)
+    get_checkm_out(args.l, args.o, args.think_strain_heterogeneity)
 
 
 if __name__ == '__main__':
