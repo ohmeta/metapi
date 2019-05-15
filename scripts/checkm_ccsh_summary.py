@@ -80,7 +80,7 @@ def get_checkm_out(checkmout_list, out_tsv, think_strain_heterogeneity=False):
             bin_info = summary_init(os.path.basename(checkmout).split(".")[0])
             with open(checkmout.strip(), 'r') as checkmout_handle:
                 has_bin = False
-                print("processing bin %d : %s" % (num, checkmout.strip()))
+                print("processing sample %d : %s" % (num, checkmout.strip()))
                 next(checkmout_handle)
                 next(checkmout_handle)
                 next(checkmout_handle)
@@ -204,7 +204,9 @@ def main():
         summary checkm results:
         completeness, contamination, strain heterogeneity for many samples'
         ''')
-    parser.add_argument('--think_strain_heterogeneity', action='store_true', help='specific it will think strain heterogeneity, default: False')
+    parser.add_argument('--think_strain_heterogeneity',
+                        action='store_true', default=False,
+                        help='specific it will think strain heterogeneity, default: False')
     parser.add_argument('-l', type=str, help='checkm out list')
     parser.add_argument('-o', type=str, help='output')
     args = parser.parse_args()
