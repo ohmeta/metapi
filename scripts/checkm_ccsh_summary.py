@@ -125,7 +125,7 @@ def get_checkm_out(checkmout_list, out_tsv, think_strain_heterogeneity=False):
                                 bin_info["high_quality_num"] += 1
                                 summary_info["high_quality_num"] += 1
 
-                            if (float(info_list[-1]) < 5) and (float(info_list[-3]) < 90) and (float(info_list[-3]) > 50):
+                            if (float(info_list[-2]) < 5) and (float(info_list[-3]) < 90) and (float(info_list[-3]) > 50):
                                 bin_info["medium_quality_num"] += 1
                                 summary_info["medium_quality_num"] += 1
                         else:
