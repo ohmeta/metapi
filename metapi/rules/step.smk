@@ -80,6 +80,14 @@ coassembly_megahit_output = expand(
     "{coassembly_megahit}/final.contigs.fa.gz",
     coassembly_megahit=config["results"]["coassembly"]["megahit"])
 
+demultiplex_kraken2_output = expand(
+    [
+        "{demultiplex_kraken2}/{sample}.demultiplex_out/{sample}.demultiplex.done",
+        "{demultiplex_kraken2}/merged"
+    ],
+    demultiplex_kraken2=config["results"]["coassembly"]["demultiplex_kraken2"],
+    sample = _samples.index.unique())
+
 metaquast_output = expand([
     "{metaquast}/{sample}.{assembler}.metaquast_out/report.html",
     "{metaquast}/{sample}.{assembler}.metaquast_out/icarus.html",
@@ -187,10 +195,6 @@ checkm_profile_output = expand(
 dereplication_output = expand(
 
 )
-
-classification_output = expand(
-
-)
 '''
 annotation_output = expand(
     [
@@ -203,9 +207,17 @@ annotation_output = expand(
     assembler=config["params"]["assembler"],
     sample=_samples.index.unique())
 
+kraken2_output = expand(
+    [
+        "{kraken2}/{sample}.kraken2.output",
+        "{kraken2}/{sample}.kraken2.report"
+    ],
+    kraken2=config["results"]["classification"]["kraken2"],
+    sample=_samples.index.unique())
+
 profilling_output = expand(
     [
-        "{bowtie2out}/{sample}.bowtie2.gz",
+        "{bowtie2out}/{sample}.bowtie2.bz2",
         "{profile}/{sample}.metaphlan2.profile",
         "{metaphlan2}/metaphlan2.merged.profile"
     ],
@@ -218,6 +230,8 @@ burst_output = expand(
     "{burst}/{sample}.reads.burst.b6",
     burst=config["results"]["burst"],
     sample=_samples.index.unique())
+
+#############################################################################
 
 trimming_output = ([])
 if config["params"]["trimming"]["oas1"]["do"]:
@@ -243,6 +257,9 @@ if config["params"]["assembly"]["spades"]["do"]:
 
 if config["params"]["coassembly"]["megahit"]["do"]:
     assembly_output = (assembly_output + coassembly_megahit_output)
+
+if config["params"]["coassembly"]["demultiplex_kraken2"]["do"]:
+    assembly_output = (assembly_output + demultiplex_kraken2_output)
 
 assembly_target = ([])
 if config["params"]["begin"] == "assembly":
@@ -283,7 +300,13 @@ checkm_target = (binning_target + checkm_output)
 
 annotation_target = (checkm_target + annotation_output)
 
-profilling_target = (annotation_target + profilling_output)
+classification_output = ([])
+if config["params"]["classification"]["kraken2"]["do"]:
+    classification_output = (kraken2_output)
+
+classification_target = annotation_target + classification_output
+
+profilling_target = (classification_target + profilling_output)
 
 burst_target = (profilling_target + burst_output)
 '''
@@ -300,6 +323,7 @@ all_target = (
     rmhost_output +
     assembly_output +
     coassembly_megahit_output +
+    demultiplex_kraken2_output +
     metaquast_output +
     prediction_output +
     alignment_output +
@@ -307,5 +331,6 @@ all_target = (
     cobinning_output +
     checkm_output +
     annotation_output +
+    classification_output +
     profilling_output +
     burst_output)

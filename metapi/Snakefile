@@ -59,13 +59,12 @@ include: "rules/binning.smk"
 include: "rules/cobinning.smk"
 include: "rules/checkm.smk"
 include: "rules/annotation.smk"
+include: "rules/classification.smk"
 include: "rules/profilling.smk"
 include: "rules/burst.smk"
 
-
 '''
 include: "rules/dereplication.smk"
-include: "rules/classification.smk"
 '''
 
 rule all:
