@@ -59,7 +59,9 @@ def main():
     for level in sub_lineages_:
         os.makedirs(os.path.join(args.outdir, level), exist_ok=True)
 
-    log_h = open(os.path.join(args.outdir, "demultiplexer_kraken2.log"), 'w')
+    prefix = os.path.basename(args.outdir)
+
+    log_h = open(os.path.join(args.outdir, prefix + ".demultiplexer_kraken2.log"), 'w')
 
     log_h.write("now: %s\n" % now_time)
     taxonomy_lineages = pd.read_csv(args.lineage, sep='\t', low_memory=False)\
@@ -72,6 +74,7 @@ def main():
     reads_partition = {}
     handle_r1 = {}
     handle_r2 = {}
+    no_taxonomy = set()
 
     for level in sub_lineages_:
         taxonomys[level] = {}
@@ -79,7 +82,9 @@ def main():
         handle_r1[level] = {}
         handle_r2[level] = {}
 
-    taxonomys["unclassified"]["unclassified"] = 0
+    taxonomys["unclassified"]["unclassified"] = {}
+    taxonomys["unclassified"]["unclassified"]["reads_num"] = 0
+    taxonomys["unclassified"]["unclassified"]["lca"] = set("unclassified")
 
     with open(args.kraken2_output, 'r') as kh:
         for line in kh:
@@ -87,7 +92,7 @@ def main():
             tax_id = int(line.split("(")[-1].split(')')[0].split()[-1])
 
             if tax_id == 0:
-                taxonomys["unclassified"]["unclassified"] += 1
+                taxonomys["unclassified"]["unclassified"]["reads_num"] += 1
                 demultiplexer[read_id] = ("unclassified", "unclassified")
             else:
                 try:
@@ -95,32 +100,65 @@ def main():
                     have_taxonomy = False
                     for level in sub_lineages[::-1]:
                         taxonomy = lineage_dict[level]
+                        if level != "superkingdom":
+                            level_ = sub_lineages[sub_lineages.index(level)-1]
+                            taxonomy_ = lineage_dict[level_]
+                        else:
+                            level_ = level
+                            taxonomy_ = taxonomy
+                        
                         if not pd.isnull(taxonomy):
-                            taxonomy = "_".join(taxonomy.split())
-                            if taxonomy not in taxonomys[level]:
-                                taxonomys[level][taxonomy] = 1
-                            else:
-                                taxonomys[level][taxonomy] += 1
-                            demultiplexer[read_id] = (level, taxonomy)
                             have_taxonomy = True
+                            taxonomy = "_".join(taxonomy.split())
+                            if pd.isnull(taxonomy_):
+                                print(taxonomy)
+                                print(tax_id)
+                                sys.exit(1)
+                            taxonomy_ = "_".join(taxonomy_.split())
+                            
+                            if taxonomy not in taxonomys[level]:
+                                taxonomys[level][taxonomy] = {}
+                                taxonomys[level][taxonomy]["reads_num"] = 1
+                                taxonomys[level][taxonomy]["lca"] = set(taxonomy_)
+                            else:
+                                taxonomys[level][taxonomy]["reads_num"] += 1
+                                taxonomys[level][taxonomy]["lca"].add(taxonomy_)
+                            demultiplexer[read_id] = (level, taxonomy)
                             break
                     if not have_taxonomy:
-                        taxonomys["unclassified"]["unclassified"] += 1
+                        taxonomys["unclassified"]["unclassified"]["reads_num"] += 1
                         demultiplexer[read_id] = ("unclassified", "unclassified")
-                        log_h.write("warning: taxid %d have no %s taxonomy level\n" % (tax_id, level))
+                        if tax_id not in no_taxonomy:
+                            no_taxonomy.add(tax_id)
+                            log_h.write("warning: taxid %d have no %s taxonomy level\n" % (tax_id, level))
                 except KeyError:
-                    taxonomys["unclassified"]["unclassified"] += 1
+                    taxonomys["unclassified"]["unclassified"]["reads_num"] += 1
                     demultiplexer[read_id] = ("unclassified", "unclassified")
 
     log_h.write("step_2: parse kraken2_output has spent %d s, total %d taxnonmy level\n" % (time.time() - start_time, len(taxonomys)))
 
     total_reads_pair_1 = 0
+    taxonomy_is_uniq = True
+    taxonomy_uniq = {}
+    
     for level in sub_lineages_:
         out_dir = os.path.join(args.outdir, level)
         log_h.write("\t%s taxonomy level:\n" % level)
         for taxonomy in taxonomys[level]:
-            log_h.write("\t\t%s reads num: %d\n" % (taxonomy, taxonomys[level][taxonomy]))
-            total_reads_pair_1 += taxonomys[level][taxonomy]
+            if taxonomy not in taxonomy_uniq:
+                taxonomy_uniq[taxonomy] = set(level)
+            else:
+                taxonomy_uniq[taxonomy].add(level)
+
+            log_h.write("\t\t%s reads num: %d\n" % (taxonomy, taxonomys[level][taxonomy]["reads_num"]))
+            total_reads_pair_1 += taxonomys[level][taxonomy]["reads_num"]
+
+            if len(taxonomys[level][taxonomy]["lca"]) > 1:
+                log_h.write("%s: %s have diffent lca: %s\n" % (level, taxonomy, " ".join(taxonomys[level][taxonomy]["lca"])))
+                log_h.write("failed\n")
+                now_time = datetime.today()
+                log_h.write("now: %s\n" % now_time)
+                sys.exit(1)
 
             handle_r1[level][taxonomy] = bgzf.BgzfWriter(os.path.join(out_dir, taxonomy + ".1.fq.gz"), 'wb')
             handle_r2[level][taxonomy] = bgzf.BgzfWriter(os.path.join(out_dir, taxonomy + ".2.fq.gz"), 'wb')
@@ -128,6 +166,15 @@ def main():
             reads_partition[level][taxonomy] = {}
             reads_partition[level][taxonomy]["r1"] = []
             reads_partition[level][taxonomy]["r2"] = []
+
+    for taxonomy in taxonomy_uniq:
+        if len(taxonomy_uniq[taxonomy]) != 1:
+            taxonomy_is_uniq = False
+            log_h.write("warning: taxonomy %s have same name on different taxonomy level: %s\n" % (taxonomy, " ".join(taxonomy_uniq[taxonomy])))
+    if not taxonomy_is_uniq:
+        log_h.write("please checkm kraken2 output\n")
+    else:
+        log_h.write("all taxonomy name are different\n")
 
     if args.r1.endswith(".gz"):
         r1_handle = gzip.open(args.r1, 'rt')
@@ -164,18 +211,6 @@ def main():
     for level in reads_partition:
         for taxonomy in reads_partition[level]:
             if len(reads_partition[level][taxonomy]["r1"]) > 0:
-                if taxonomy not in reads_partition[level]:
-                    print("%s not in reads_partition 1" % taxonomy)
-                    break
-                if taxonomy not in reads_partition[level]:
-                    print("%s not in reads_partition 2" % taxonomy)
-                    break
-                if taxonomy not in handle_r1[level]:
-                    print("%s not in handle r1" % taxonomy)
-                    break
-                if taxonomy not in handle_r2[level]:
-                    print("%s not in handle r2" % taxonomy)
-                    break
                 SeqIO.write(reads_partition[level][taxonomy]["r1"], handle_r1[level][taxonomy], 'fastq')
                 SeqIO.write(reads_partition[level][taxonomy]["r2"], handle_r2[level][taxonomy], 'fastq')
                 reads_partition[level][taxonomy]["r1"] = []
@@ -187,8 +222,8 @@ def main():
     r2_handle.close()
 
     log_h.write("demultiplex %d paired reads has spent %s s\n" % (total_reads_pair_2, time.time() - start_time))
-    log_h.write("total reads pair(kraken2): %d" % total_reads_pair_1)
-    log_h.write("total reads pair(real): %d" % total_reads_pair_2)
+    log_h.write("total reads pair(kraken2): %d\n" % total_reads_pair_1)
+    log_h.write("total reads pair(real): %d\n" % total_reads_pair_2)
     log_h.write("done\n")
     now_time = datetime.today()
     log_h.write("now: %s\n" % now_time)
