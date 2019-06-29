@@ -12,6 +12,7 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Alphabet import generic_dna
 from taxadb.taxid import TaxID
+from taxadb.names import SciName
 
 
 def main(args_):
@@ -31,7 +32,7 @@ def main(args_):
     parser.add_argument(
         '--rank',
         default="genus",
-        choices=["superkingdom", "phylum", "class", "order", "family", "genus", "species"],
+        choices=["superkingdom", "phylum", "class", "order", "family", "genus", "species", "subspecies"],
         help='highest taxonomy level, default: genus'
     )
     parser.add_argument(
@@ -61,38 +62,63 @@ def main(args_):
     )
     args = parser.parse_args(args_)
 
-    TAXID_DB = TaxID(dbtype='sqlite', dbname=args.taxadb)
+    LINEAGES = ["no_rank", "subspecies", "species", "genus", "family",
+                "order", "class", "phylum", "superkingdom"]
 
-    def get_parent_taxid(tax_id, level):
+    RANK = args.rank
+    if not args.rank in LINEAGES[1:]:
+        print("wrong rank %s" % args.rank)
+        sys.exit(1)
+
+    TAXID_DB = TaxID(dbtype='sqlite', dbname=args.taxadb)
+    NAMES_DB = SciName(dbtype='sqlite', dbname=args.taxadb)
+
+    SUB_LINRAGES = LINEAGES[LINEAGES.index(RANK):]
+
+    def get_parent_taxid(tax_id, tax_name, level):
         if tax_id == 0:
             return "no_rank", 0, "unclassified"
     
-        lineages = ["subspecies", "species", "genus", "family", "order", "class", "phylum", "superkingdom"]
-        ranks = lineages[lineages.index(level):]
-    
         lineage_dict = TAXID_DB.lineage_id(tax_id, ranks=True)
+
+        # In kraken2 output, we can meet 2071623
+        
+        # > TAXID_DB.lineage_id(2071623, ranks=True) is None
+        # > True
+
+        # > NAMES_DB.taxid("Laceyella sp. FBKL4.010") is None
+        # > True
+
+        # > NAMES_DB.taxid("Laceyella sp. FBKL4.010".split()[0])
+        # 292635
+
+        # TAXID_DB.lineage_id(292635, ranks=True)
+        # > {'genus': 292635,
+        #    'family': 186824,
+        #    'order': 1385,
+        #    'class': 91061,
+        #    'phylum': 1239,
+        #    'no rank': 131567,
+        #    'superkingdom': 2}
+
+        if lineage_dict is None:
+            taxid = NAMES_DB.taxid(tax_name)
+            if taxid is None:
+                taxid = NAMES_DB.taxid(tax_name.split()[0])
+            if not taxid is None:
+                lineage_dict = TAXID_DB.lineage_id(taxid, ranks=True)
+            else:
+                return "no_rank", tax_id, tax_name
     
-        for rank in ranks:
+        for rank in SUB_LINRAGES:
             if rank in lineage_dict:
                 return rank, lineage_dict[rank], TAXID_DB.lineage_name(lineage_dict[rank], ranks=True)[rank]
         return "no_rank", tax_id, "unclassified"
 
-    def parse_taxonomy_lineage(lineage_csv, taxid="tax_id"):
-        taxonomy_lineages = pd.read_csv(lineage_csv, sep='\t', low_memory=False)\
-                              .set_index(taxid, drop=False)
 
     start_time = time.time()
-
     ranks_counter = {}
     demultiplexer = {}
-
-    lineages = ["no_rank", "superkingdom", "phylum", "class", "order", "family", "genus", "species", "subspecies"]
-    RANK = "genus"
-    if not args.rank in lineages[1:]:
-        print("wrong rank %s" % args.rank)
-        sys.exit(1)
-    elif args.rank is None:
-        RANK = "genus"
 
     os.makedirs(os.path.dirname(os.path.abspath(args.prefix)), exist_ok=True)
 
@@ -102,41 +128,47 @@ def main(args_):
     count = 0
     with open(args.kraken2_output, 'r') as kh:
         for line in kh:
-            read_id = line.split()[1]
-            tax_id = int(line.split("(")[-1].split(')')[0].split()[-1])
-            
+            cols = line.split('\t')
+            read_id = cols[1]
+            tax_name = cols[2].split("(")[0].strip()
+            tax_id = int(cols[2].split("(")[-1].split(")")[0].split()[-1])
+
             if args.debug:
-                print("%s %s" % (read_id, tax_id))
+                count += 1
+                print("%d %s %s %d" % (count, read_id, tax_name, tax_id))
             
-            rank, tax_id_, taxa = get_parent_taxid(tax_id, RANK)
+            rank, tax_id_, taxa_name_ = get_parent_taxid(tax_id, tax_name, RANK)
             
             if rank in ranks_counter:
                 if tax_id_ in ranks_counter[rank]:
                     ranks_counter[rank][tax_id_][1] += 1
                 else:
-                    ranks_counter[rank][tax_id_] = [taxa, 1]
+                    ranks_counter[rank][tax_id_] = [taxa_name_, 1]
             else:
                 ranks_counter[rank] = {}
-                ranks_counter[rank][tax_id_] = [taxa, 1]
+                ranks_counter[rank][tax_id_] = [taxa_name_, 1]
 
             if tax_id_ in demultiplexer:
                 demultiplexer[tax_id_].append(read_id)
             else:
                 demultiplexer[tax_id_] = [read_id]
-            if args.debug:
-                count += 1
-                if count >= 1000:
-                    break
+            #if args.debug:
+            #    count += 1
+            #    if count >= 1000:
+            #        #break
+            #        sys.exit(1)
 
     log_h.write("step_1: parse kraken2 output has spent %d s\n" % (time.time() - start_time))
     
     total_reads_pair = 0
     log_h.write("\trank\ttaxid\ttaxaonomy\tcount\n")
-    for rank in lineages:
+    for rank in LINEAGES:
         if rank in ranks_counter:
             log_h.write("\t%s\n" % rank)
             for tax_id_ in ranks_counter[rank]:
-                log_h.write("\t\t%d\t%s\t%d\n" % (tax_id_, ranks_counter[rank][tax_id_][0], ranks_counter[rank][tax_id_][1]))
+                log_h.write("\t\t%d\t%s\t%d\n" % (tax_id_, 
+                                                  ranks_counter[rank][tax_id_][0],
+                                                  ranks_counter[rank][tax_id_][1]))
                 total_reads_pair += ranks_counter[rank][tax_id_][1]
 
     log_h.write("total %d taxnonmy level\n" % len(ranks_counter))
@@ -183,10 +215,15 @@ def main(args_):
                                           description=sample_tag + "|" + r2_db[read_id].description,
                                           letter_annotations=r2_db[read_id].letter_annotations)
                     '''
-                    r1_oh.write("@%s|%s\n%s\n+\n%s\n" % (sample_tag, r1_db[read_id].description,
-                        str(r1_db[read_id].seq), SeqIO.QualityIO._get_sanger_quality_str(r1_db[read_id])))
-                    r2_oh.write("@%s|%s\n%s\n+\n%s\n" % (sample_tag, r2_db[read_id].description,
-                        str(r2_db[read_id].seq), SeqIO.QualityIO._get_sanger_quality_str(r2_db[read_id])))
+                    r1_oh.write("@%s|%s\n%s\n+\n%s\n" % \
+                        (sample_tag, r1_db[read_id].description,
+                         str(r1_db[read_id].seq),
+                         SeqIO.QualityIO._get_sanger_quality_str(r1_db[read_id])))
+                    r2_oh.write("@%s|%s\n%s\n+\n%s\n" % \
+                        (sample_tag,
+                         r2_db[read_id].description,
+                         str(r2_db[read_id].seq),
+                         SeqIO.QualityIO._get_sanger_quality_str(r2_db[read_id])))
                 else:
                     SeqIO.write(r1_db[read_id], r1_oh, 'fastq')
                     SeqIO.write(r2_db[read_id], r2_oh, 'fastq')
