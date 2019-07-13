@@ -215,7 +215,7 @@ kraken2_output = expand(
     kraken2=config["results"]["classification"]["kraken2"],
     sample=_samples.index.unique())
 
-profilling_output = expand(
+metaphlan2_profilling_output = expand(
     [
         "{bowtie2out}/{sample}.bowtie2.bz2",
         "{profile}/{sample}.metaphlan2.profile",
@@ -224,6 +224,15 @@ profilling_output = expand(
     bowtie2out=config["results"]["profilling"]["metaphlan2"]["bowtie2_out"],
     profile=config["results"]["profilling"]["metaphlan2"]["profile"],
     metaphlan2=config["results"]["profilling"]["metaphlan2"]["base_dir"],
+    sample=_samples.index.unique())
+
+mwas_profilling_output = expand(
+    [
+        "{abundance}/{sample}.comg.abundance.gz",
+        "{depth}/{sample}.metabat2.depth.gz"
+    ],
+    abundance=config["results"]["profilling"]["comg"]["abundance"],
+    depth=config["results"]["profilling"]["metabat2"]["depth"],
     sample=_samples.index.unique())
 
 burst_output = expand(
@@ -305,6 +314,12 @@ if config["params"]["classification"]["kraken2"]["do"]:
     classification_output = (kraken2_output)
 
 classification_target = annotation_target + classification_output
+
+profilling_output = ([])
+if config["params"]["profilling"]["metaphlan2"]["do"]:
+    profilling_output = (metaphlan2_profilling_output)
+if config["params"]["profilling"]["comg"]["do"]:
+    profilling_output = (profilling_output + mwas_profilling_output)
 
 profilling_target = (classification_target + profilling_output)
 

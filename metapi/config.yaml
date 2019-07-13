@@ -136,7 +136,10 @@ params:
       metagenome: False
       threads: 8
   profilling:
+    threads: 8
+    sam_format: "SAM"
     metaphlan2:
+      do: False
       script: "/path/to/metaphlan2.py"
       bowtie2_exe: "/path/to/bowtie2_exe"
       env: "bioenv2"
@@ -145,6 +148,15 @@ params:
       bowtie2db: "/path/to/bowtie2db_prefix"
       min_cu_len: 2000
       threads: 8
+    comg:
+      do: False
+      identity: 0.95
+      fragment: 1200
+      output_type: "standard"
+      insert_size: 350
+      abundance_script: /path/to/abundance_script
+      marker_matrix: /path/to/marker_matrix
+      index_prefix: /path/to/bowtie2_index_prefix
   burst:
     references: "/path/to/references.edx"
     accelerator: "/path/to/accelerator.acx"
@@ -191,6 +203,10 @@ results:
       base_dir: "results/10.profilling/metaphlan2"
       bowtie2_out: "results/10.profilling/metaphlan2/bowtie2out"
       profile: "results/10.profilling/metaphlan2/profile"
+    comg:
+      abundance: "results/10.profilling/comg/abundance"
+    metabat2:
+      depth: "results/10.profilling/metabat2/depth"
   burst: "results/12.burst"
 
 logs:
@@ -223,4 +239,5 @@ logs:
     prokka: "assay/09.annotation/prokka_logs"
   profilling:
     metaphlan2: "assay/10.profilling/metaphlan2_logs"
+    comg: "assay/10.profilling/comg_logs"
   burst: "assay/12.burst/burst12_logs"
