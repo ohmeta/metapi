@@ -80,28 +80,43 @@ rule mwas_profilling:
         abundance_outdir = config["results"]["profilling"]["comg"]["abundance"],
         samtools_sort_prefix = os.path.join(config["results"]["profilling"]["comg"]["abundance"], "{sample}.temp"),
         metabat2_depth = os.path.join(config["results"]["profilling"]["metabat2"]["depth"], "{sample}.metabat2.depth"),
-    shell:
-        '''
-        bowtie2 -x {params.index_prefix} -1 {input.reads[0]} -2 {input.reads[1]} \
-        --end-to-end --very-sensitive --phred33 --threads {threads} \
-        --seed 0 --time -k 2 --no-unal --no-discordant \
-        -X {params.fragment} 2> {log} | \
-        samtools sort -@{threads} -T {params.samtools_sort_prefix} -O {params.sam_format} - | \
-        tee >(python {params.abundance_script} \
-        --sample-name {params.sample} \
-        --sam-file - \
-        --sam-format {params.sam_format} \
-        --insert-size {params.insert_size} \
-        --marker-matrix {input.marker_matrix} \
-        --outdir {params.abundance_outdir} \
-        --identity {params.identity} \
-        --output-type {params.output_type}) | \
-        jgi_summarize_bam_contig_depths --outputDepth {params.metabat2_depth} -
+    run:
+        if IS_PE:
+            shell('''bowtie2 -x {params.index_prefix} -1 {input.reads[0]} -2 {input.reads[1]} \
+                  --end-to-end --very-sensitive --phred33 --threads {threads} \
+                  --seed 0 --time -k 2 --no-unal --no-discordant \
+                  -X {params.fragment} 2> {log} | \
+                  samtools sort -@{threads} -T {params.samtools_sort_prefix} -O {params.sam_format} - | \
+                  tee >(python {params.abundance_script} \
+                  --sample-name {params.sample} \
+                  --sam-file - \
+                  --sam-format {params.sam_format} \
+                  --insert-size {params.insert_size} \
+                  --marker-matrix {input.marker_matrix} \
+                  --outdir {params.abundance_outdir} \
+                  --identity {params.identity} \
+                  --output-type {params.output_type}) | \
+                  jgi_summarize_bam_contig_depths --outputDepth {params.metabat2_depth} -''')
+        else:
+            shell('''bowtie2 -x {params.index_prefix} -U {input.reads[0]} \
+                  --end-to-end --very-sensitive --phred33 --threads {threads} \
+                  --seed 0 --time -k 2 --no-unal --no-discordant \
+                  -X {params.fragment} 2> {log} | \
+                  samtools sort -@{threads} -T {params.samtools_sort_prefix} -O {params.sam_format} - | \
+                  tee >(python {params.abundance_script} \
+                  --sample-name {params.sample} \
+                  --sam-file - \
+                  --sam-format {params.sam_format} \
+                  --insert-size {params.insert_size} \
+                  --marker-matrix {input.marker_matrix} \
+                  --outdir {params.abundance_outdir} \
+                  --identity {params.identity} \
+                  --output-type {params.output_type}) | \
+                  jgi_summarize_bam_contig_depths --outputDepth {params.metabat2_depth} -''')
 
-        pigz {params.metabat2_depth}
-        pigz -c {params.abundance_outdir}/{params.sample}.abundance > {output.abundance}
-        rm -rf {params.abundance_outdir}/{params.sample}.abundance
-        rm -rf {params.samtools_sort_prefix}.*.bam
-
-        echo "profilling done" >> {log}
+        shell('''pigz {params.metabat2_depth}''')
+        shell('''pigz -c {params.abundance_outdir}/{params.sample}.abundance > {output.abundance}''')
+        shell('''rm -rf {params.abundance_outdir}/{params.sample}.abundance''')
+        shell('''rm -rf {params.samtools_sort_prefix}.*.bam''')
+        shell('''echo "profilling done" >> {log}''')
         '''
