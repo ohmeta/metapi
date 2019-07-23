@@ -1,30 +1,47 @@
-def coassembly_inputs(read):
+def coassembly_inputs():
     if config["params"]["begin"] == "assembly":
         if config["params"]["reads_format"] == "fastq":
-            if read == "1":
-                return _samples.fq1
-            elif read == "2":
-                return _samples.fq2
+            if IS_PE:
+                return [_samples.fq1, _samples.fq2]
+            else:
+                return [_samples.fq1]
         elif config["params"]["reads_format"] == "sra":
-            return expand("{sra2fq}/{sample}.{read}.fq.gz",
+            fq1s = expand("{sra2fq}/{sample}.1.fq.gz",
                           sra2fq=config["results"]["sra2fq"],
-                          read=read,
                           sample=_samples.index.unique())
+            if IS_PE:
+                fq2s = expand("{sra2fq}/{sample}.2.fq.gz",
+                              sra2fq=config["results"]["sra2fq"],
+                              sample=_samples.index.unique())
+                return [fq1s, fq2s]
+            else:
+                return [fq1s]
     elif config["params"]["rmhost"]["do"]:
-        return expand("{rmhost}/{sample}.rmhost.{read}.fq.gz",
+        fq1s = expand("{rmhost}/{sample}.rmhost.1.fq.gz",
                       rmhost=config["results"]["rmhost"],
-                      read=read,
                       sample=_samples.index.unique())
+        if IS_PE:
+            fq2s = expand("{rmhost}/{sample}.rmhost.2.fq.gz",
+                          rmhost=config["results"]["rmhost"],
+                          sample=_samples.index.unique())
+            return [fq1s, fq2s]
+        else:
+            return [fq1s]
     else:
-        return expand("{trimming}/{sample}.trimmed.{read}.fq.gz",
+        fq1s = expand("{trimming}/{sample}.trimmed.1.fq.gz",
                       trimming=config["results"]["trimming"],
-                      read=read,
                       sample=_samples.index.unique())
+        if IS_PE:
+            fq2s = expand("{trimming}/{sample}.trimmed.2.fq.gz",
+                          trimming=config["results"]["trimming"],
+                          sample=_samples.index.unique())
+            return [fq1s, fq2s]
+        else:
+            return [fq1s]
 
 rule coassembly_megahit:
     input:
-        r1 = coassembly_inputs("1"),
-        r2 = coassembly_inputs("2")
+        unpack(coassembly_inputs)
     output:
         contigs = os.path.join(config["results"]["coassembly"]["megahit"], "final.contigs.fa.gz"),
         temp_file = temp(directory(os.path.join(config["results"]["coassembly"]["megahit"],
@@ -37,12 +54,32 @@ rule coassembly_megahit:
     threads:
         config["params"]["coassembly"]["megahit"]["threads"]
     run:
-        r1_str = ",".join(input.r1)
-        r2_str = ",".join(input.r2)
-        shell('''rm -rf {params.out_dir}
-        megahit -1 {r1_str} -2 {r2_str} -t {threads} --min-contig-len {params.min_contig} --out-dir {params.out_dir} 2> {log}
-        pigz {params.out_dir}/final.contigs.fa
-        ''')
+        reads_num = len(input)
+        if IS_PE:
+            if reads_num == 2:
+                shell('''rm -rf {params.out_dir}
+                      megahit -1 input[0] -2 input[1] -t {threads} \
+                      --min-contig-len {params.min_contig} --out-dir {params.out_dir} 2> {log}
+                      pigz {params.out_dir}/final.contigs.fa''')
+            else:
+                r1_str = ",".join(input[0:reads_num//2-1])
+                r2_str = ",".join(input[reads_num//2:])
+                shell('''rm -rf {params.out_dir}
+                      megahit -1 {r1_str} -2 {r2_str} -t {threads} \
+                      --min-contig-len {params.min_contig} --out-dir {params.out_dir} 2> {log}
+                      pigz {params.out_dir}/final.contigs.fa''')
+        else:
+            if reads_num == 1:
+                shell('''rm -rf {params.out_dir}
+                      megahit -r {input[0]} -t {threads} \
+                      --min-contig-len {params.min_contig} --out-dir {params.out_dir} 2> {log}
+                      pigz {params.out_dir}/final.contigs.fa''')
+            else:
+                r_str = ",".join(input)
+                shell('''rm -rf {params.out_dir}
+                      megahit -r {r_str} -t {threads} \
+                      --min-contig-len {params.min_contig} --out-dir {params.out_dir} 2> {log}
+                      pigz {params.out_dir}/final.contigs.fa''')
 
 
 rule demultiplex_kraken2_reads:
@@ -51,8 +88,8 @@ rule demultiplex_kraken2_reads:
         kraken2_output = os.path.join(config["results"]["classification"]["kraken2"], "{sample}.kraken2.output")
     output:
         done = os.path.join(config["results"]["coassembly"]["demultiplex_kraken2"], "{sample}.demultiplex_out/{sample}.demultiplex.done"),
-        r1 = temp(os.path.join(config["results"]["coassembly"]["demultiplex_kraken2"], "{sample}.demultiplex_out/{sample}.1.fq")),
-        r2 = temp(os.path.join(config["results"]["coassembly"]["demultiplex_kraken2"], "{sample}.demultiplex_out/{sample}.2.fq"))
+        r1 = os.path.join(config["results"]["coassembly"]["demultiplex_kraken2"], "{sample}.demultiplex_out/{sample}.1.fq"),
+        r2 = os.path.join(config["results"]["coassembly"]["demultiplex_kraken2"], "{sample}.demultiplex_out/{sample}.2.fq")
     params:
         rank = config["params"]["coassembly"]["demultiplex_kraken2"]["rank"],
         taxadb = config["params"]["coassembly"]["demultiplex_kraken2"]["taxadb"],
@@ -60,9 +97,11 @@ rule demultiplex_kraken2_reads:
         change_seq_id = "--change_seq_id" if config["params"]["coassembly"]["demultiplex_kraken2"]["change_seq_id"] else ""
     log:
         os.path.join(config["logs"]["coassembly"]["demultiplex_kraken2"], "{sample}.demultiplex_kraken2.log")
+    threads:
+        8
     run:
-        shell('''pigz -kdc {input.reads[0]} > {output.r1}''')
-        shell('''pigz -kdc {input.reads[1]} > {output.r2}''')
+        shell('''pigz -p {threads} -kdc {input.reads[0]} > {output.r1}''')
+        shell('''pigz -p {threads} -kdc {input.reads[1]} > {output.r2}''')
         from metapi import demultiplexer
         demultiplexer.main(["--r1", output.r1,
                             "--r2", output.r2,
