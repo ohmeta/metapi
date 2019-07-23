@@ -119,4 +119,3 @@ rule mwas_profilling:
         shell('''rm -rf {params.abundance_outdir}/{params.sample}.abundance''')
         shell('''rm -rf {params.samtools_sort_prefix}.*.bam''')
         shell('''echo "profilling done" >> {log}''')
-        '''
