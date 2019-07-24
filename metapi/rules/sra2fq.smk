@@ -41,3 +41,5 @@ rule sra2fq:
             r2_str = " ".join(r2_list)
             shell('''cat %s > %s''' % (r1_str, output.r1))
             shell('''cat %s > %s''' % (r2_str, output.r2))
+            shell('''rm -rf %s''' % r1_str)
+            shell('''rm -rf %s''' % r2_str)
