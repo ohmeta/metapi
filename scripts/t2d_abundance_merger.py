@@ -14,7 +14,11 @@ def get_abun_df_hsx(abun_file):
     sample_id = os.path.basename(abun_file).split(".")[0]
 
     try:
-        abun = pd.read_csv(abun_file, sep='\t')
+        if os.path.exists(abun_file):
+            abun = pd.read_csv(abun_file, sep='\t')
+        else:
+            print("%s is not exists" % abun_file)
+            return None, None
     except pd.io.common.EmptyDataError:
         print("%s is empty" % abun_file)
         return None, None
@@ -36,7 +40,11 @@ def get_abun_df_jgi(depth_file):
     sample_id = os.path.basename(depth_file).split(".")[0]
 
     try:
-        depth = pd.read_csv(depth_file, sep='\t')
+        if os.path.exists(depth_file):
+            depth = pd.read_csv(depth_file, sep='\t')
+        else:
+            print("%s is not exists" % depth_file)
+            return None, None
     except pd.io.common.EmptyDataError:
         print("%s is empty" % depth_file)
         return None, None
@@ -102,7 +110,7 @@ def main():
         print("pleas supply database when parse jgi depth file")
         sys.exit(1)
 
-    if ags.method == "hsx":
+    if args.method == "hsx":
         count_df, abun_df = get_all_abun_df(abun_files, get_abun_df_hsx)
     elif args.method == "jgi":
         global MP2_DB_INFO
