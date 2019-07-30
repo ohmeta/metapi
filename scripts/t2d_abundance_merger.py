@@ -11,25 +11,33 @@ def get_mgs_id(row):
 
 def get_abun_df(abun_file):
     sample_id = os.path.basename(abun_file).split(".")[0]
-    abun = pd.read_csv(abun_file, sep='\t')
-    abun["mgs_id"] = abun.apply(get_mgs_id, axis=1)
 
-    count_df = abun.loc[:, ["mgs_id", "reads_pairs"]]\
-                   .groupby("mgs_id")\
-                   .agg({"reads_pairs": 'sum'})\
-                   .rename(columns={"reads_pairs": sample_id})
-    abun_df = abun.loc[:, ["mgs_id", "gene_abundance"]]\
-                  .groupby("mgs_id")\
-                  .agg({"gene_abundance": 'sum'})\
-                  .rename(columns={"gene_abundance": sample_id})
-    return count_df, abun_df
+    try:
+        abun = pd.read_csv(abun_file, sep='\t')
+        abun["mgs_id"] = abun.apply(get_mgs_id, axis=1)
+
+        count_df = abun.loc[:, ["mgs_id", "reads_pairs"]]\
+                       .groupby("mgs_id")\
+                       .agg({"reads_pairs": 'sum'})\
+                       .rename(columns={"reads_pairs": sample_id})
+        abun_df = abun.loc[:, ["mgs_id", "gene_abundance"]]\
+                      .groupby("mgs_id")\
+                      .agg({"gene_abundance": 'sum'})\
+                      .rename(columns={"gene_abundance": sample_id})
+        return count_df, abun_df
+    except pd.io.common.EmptyDataError:
+        print("%s is empty" % abun_file)
+        return None, None
 
 
 def get_all_abun_df(abun_files):
     count_list = []
     abun_list = []
-    with futures.ProcessPoolExecutor() as pool:
-        for count_df, abun_df in pool.map(get_abun_df, abun_files):
+    #with futures.ProcessPoolExecutor() as pool:
+    #    for count_df, abun_df in pool.map(get_abun_df, abun_files):
+    for abun_file in abun_files:
+        count_df, abun_df = get_abun_df(abun_file)
+        if (not count_df is None) and (not abun_df is None):
             count_list.append(count_df)
             abun_list.append(abun_df)
 
@@ -62,4 +70,8 @@ def main():
     count_df, abun_df = get_all_abun_df(abun_files)
 
     count_df.reset_index().to_csv(args.out_count_profile, sep='\t', index=False)
-    abun_df.reset_index().to_csv(args.out_abun_profile, sep='\t', index=False)
+    abun_df.reset_index().to_csv(args.out_abundance_profile, sep='\t', index=False)
+
+
+if __name__ == '__main__':
+    main()
