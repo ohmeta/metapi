@@ -39,7 +39,7 @@ rule binning_metabat2:
     shell:
         '''
         mkdir -p {output.bins_dir}
-        metabat2 -i {input.scaftigs} -a {input.depth} -o {params.bin_prefix} -m {params.min_contig} --seed {params.seed} -v 2> {log}
+        metabat2 -i {input.scaftigs} -a {input.depth} -o {params.bin_prefix} -m {params.min_contig} --seed {params.seed} -v > {log}
         '''
 
 rule binning_maxbin2:
