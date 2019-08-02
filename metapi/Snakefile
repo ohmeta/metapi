@@ -2,6 +2,7 @@
 import sys
 from metapi import sample
 from metapi import summary
+from metapi import merger
 
 shell.executable("bash")
 

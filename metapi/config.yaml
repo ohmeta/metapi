@@ -137,7 +137,9 @@ params:
       threads: 8
   profilling:
     threads: 8
-    sam_format: "SAM"
+    sam_format: "BAM"
+    index_metadata: /path/to/index_metadata
+    taxonomy: /path/to/taxonomy
     metaphlan2:
       do: False
       script: "/path/to/metaphlan2.py"
@@ -155,7 +157,6 @@ params:
       output_type: "standard"
       insert_size: 350
       abundance_script: /path/to/abundance_script
-      marker_matrix: /path/to/marker_matrix
       index_prefix: /path/to/bowtie2_index_prefix
   burst:
     references: "/path/to/references.edx"
@@ -205,8 +206,10 @@ results:
       profile: "results/10.profilling/metaphlan2/profile"
     comg:
       abundance: "results/10.profilling/comg/abundance"
+      profile: "results/10.profilling/comg/profile"
     metabat2:
       depth: "results/10.profilling/metabat2/depth"
+      profile: "results/10.profilling/metabat2/profile"
   burst: "results/12.burst"
 
 logs:

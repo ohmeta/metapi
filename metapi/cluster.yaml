@@ -264,6 +264,18 @@ mwas_profilling:
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
 
+mwas_profile_merge_hsx:
+  mem: "1G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.o"
+  error: "assay/cluster_logs/{rule}.e"
+
+mwas_profile_merge_jgi:
+  mem: "1G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.o"
+  error: "assay/cluster_logs/{rule}.e"
+
 burst_reads:
   mem: "10G"
   cores: 8

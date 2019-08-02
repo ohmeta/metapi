@@ -235,6 +235,26 @@ mwas_profilling_output = expand(
     depth=config["results"]["profilling"]["metabat2"]["depth"],
     sample=_samples.index.unique())
 
+mwas_profilling_merge_output_hsx = expand(
+    [
+        "{profile}/abundance_profile.tsv",
+        "{profile}/count_profile.tsv",
+        "{profile}/abundance_profile_{level}.tsv",
+    ],
+    profile=config["results"]["profilling"]["comg"]["profile"],
+    level=["superkingdom", "phylum", "order", "class", "family", "genus", "species", "strain"]
+)
+
+mwas_profilling_merge_output_jgi = expand(
+    [
+        "{profile}/abundance_profile.tsv",
+        "{profile}/depth_profile.tsv",
+        "{profile}/abundance_profile_{level}.tsv",
+    ],
+    profile=config["results"]["profilling"]["metabat2"]["profile"],
+    level=["superkingdom", "phylum", "order", "class", "family", "genus", "species", "strain"]
+)
+
 burst_output = expand(
     "{burst}/{sample}.reads.burst.b6",
     burst=config["results"]["burst"],
@@ -319,7 +339,10 @@ profilling_output = ([])
 if config["params"]["profilling"]["metaphlan2"]["do"]:
     profilling_output = (metaphlan2_profilling_output)
 if config["params"]["profilling"]["comg"]["do"]:
-    profilling_output = (profilling_output + mwas_profilling_output)
+    profilling_output = (profilling_output +
+                         mwas_profilling_output +
+                         mwas_profilling_merge_output_hsx +
+                         mwas_profilling_merge_output_jgi)
 
 profilling_target = (classification_target + profilling_output)
 
