@@ -7,6 +7,11 @@ import sys
 import argparse
 
 
+def global_init(index_metadata):
+    global INDEX_METADATA__
+    INDEX_METADATA__ = pd.read_csv(index_metadata, sep='\t')
+
+
 def set_lineages_to(row, key, level):
     LINEAGES = ["superkingdom", "phylum", "class", "order", "family", "genus", "species", "strain"]
     LINEAGES_DICT = {
@@ -101,7 +106,7 @@ def get_abun_df_jgi(depth_file):
         return None, None
 
     depth = depth.rename(columns={"contigName": "contig_name"})\
-                 .merge(INDEX_METADATA)\
+                 .merge(INDEX_METADATA__)\
                  .groupby("mgs_id")\
                  .agg({"totalAvgDepth": "mean"})
     depth[sample_id] = depth["totalAvgDepth"] / sum(depth["totalAvgDepth"])
@@ -192,8 +197,7 @@ def main():
     if args.method == "hsx":
         count_df, abun_df = get_all_abun_df(abun_files, args.threads, "hsx")
     elif args.method == "jgi":
-        global INDEX_METADATA
-        INDEX_METADATA = pd.read_csv(args.database, sep='\t')
+        global_init(args.database)
         count_df, abun_df = get_all_abun_df(abun_files, args.threads, "jgi")
     else:
         print("unsupport method: %s" % args.method)

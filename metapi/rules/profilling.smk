@@ -201,8 +201,7 @@ rule mwas_profile_merge_jgi:
 
         taxonomy_df = pd.read_csv(input.taxonomy, sep='\t')
 
-        global INDEX_METADATA
-        INDEX_METADATA = pd.read_csv(input.index_metadata, sep='\t')
+        merger.global_init(input.index_metadata)
 
         depth_df, abun_df = merger.get_all_abun_df(input.abun_files, threads, "jgi")
 

@@ -6,6 +6,11 @@ import os
 import sys
 import argparse
 
+def global_init(index_metadata):
+    global INDEX_METADATA__
+    INDEX_METADATA__ = pd.read_csv(index_metadata, sep='\t')
+
+
 def get_mgs_id(row):
     return "_".join(row["ID"].split("_")[0:-1])
 
@@ -50,7 +55,7 @@ def get_abun_df_jgi(depth_file):
         return None, None
 
     depth = depth.rename(columns={"contigName": "contig_name"})\
-                 .merge(MP2_DB_INFO)\
+                 .merge(INDEX_METADATA__)\
                  .groupby("mgs_id")\
                  .agg({"totalAvgDepth": "mean"})
     depth[sample_id] = depth["totalAvgDepth"] / sum(depth["totalAvgDepth"])
@@ -118,8 +123,7 @@ def main():
     if args.method == "hsx":
         count_df, abun_df = get_all_abun_df(abun_files, args.threads, get_abun_df_hsx)
     elif args.method == "jgi":
-        global MP2_DB_INFO
-        MP2_DB_INFO = pd.read_csv(args.database, sep='\t')
+        global_init(args.database)
         count_df, abun_df = get_all_abun_df(abun_files, args.threads, get_abun_df_jgi)
     else:
         print("unsupport method: %s" % args.method)
