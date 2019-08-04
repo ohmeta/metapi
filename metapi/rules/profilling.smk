@@ -219,3 +219,34 @@ rule mwas_profile_merge_jgi:
         merger.get_profile(abun_tax_df, samples_list, "lineages_genus_new", output.abundance_profile_g)
         merger.get_profile(abun_tax_df, samples_list, "lineages_species_new", output.abundance_profile_s)
         merger.get_profile(abun_tax_df, samples_list, "lineages_strain_new", output.abundance_profile_t)
+
+
+rule humann2_profilling:
+    input:
+        reads = clean_reads
+    output:
+        reads_merged = temp(os.path.join(config["results"]["profilling"]["humann2"],
+                                         "{sample}.humann2_out/{sample}.merged.fq.gz")),
+        genefamilies = os.path.join(config["results"]["profilling"]["humann2"],
+                                    "{sample}.humann2_out/{sample}_genefamilies.tsv"),
+        pathabundance = os.path.join(config["results"]["profilling"]["humann2"],
+                                     "{sample}.humann2_out/{sample}_pathabundance.tsv"),
+        pathcoverage = os.path.join(config["results"]["profilling"]["humann2"],
+                                    "{sample}.humann2_out/{sample}_pathcoverage.tsv")
+    params:
+        base_name = "{sample}",
+        remove = "--remove-temp-output" if config["params"]["profilling"]["humann2"]["remove-temp-output"] else "",
+        out_dir = os.path.join(config["results"]["profilling"]["humann2"], "{sample}.humann2_out")
+    threads:
+        8
+    log:
+        os.path.join(config["logs"]["profilling"]["humann2"], "{sample}_humann2.log")
+    run:
+        reads = input.reads
+        if IS_PE:
+            reads_str = " ".join(input.reads)
+            shell('''cat %s > %s''' % (reads_str, output.reads_merged))
+            reads = output.reads_merged
+
+        shell('''humann2 --input %s --output %s --output-basename %s --threads %d --o-log %s %s''' % \
+              (reads, params.out_dir, params.base_name, threads, log, params.remove))

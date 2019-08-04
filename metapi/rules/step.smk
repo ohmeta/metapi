@@ -255,6 +255,12 @@ mwas_profilling_merge_output_jgi = expand(
     level=["superkingdom", "phylum", "order", "class", "family", "genus", "species", "strain"]
 )
 
+humann2_profilling_output = expand(
+    "{humann2}/{sample}.humann2_out/{sample}_{target}.tsv",
+    humann2=config["results"]["profilling"]["humann2"],
+    sample=_samples.index.unique(),
+    target=["genefamilies", "pathabundance", "pathcoverage"])
+
 burst_output = expand(
     "{burst}/{sample}.reads.burst.b6",
     burst=config["results"]["burst"],
@@ -343,6 +349,8 @@ if config["params"]["profilling"]["comg"]["do"]:
                          mwas_profilling_output +
                          mwas_profilling_merge_output_hsx +
                          mwas_profilling_merge_output_jgi)
+if config["params"]["profilling"]["humann2"]["do"]:
+    profilling_output = (profilling_output + humann2_profilling_output)
 
 profilling_target = (classification_target + profilling_output)
 

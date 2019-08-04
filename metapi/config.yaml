@@ -158,6 +158,10 @@ params:
       insert_size: 350
       abundance_script: /path/to/abundance_script
       index_prefix: /path/to/bowtie2_index_prefix
+    humann2:
+      do: False
+      threads: 8
+      remove-temp-output: True
   burst:
     references: "/path/to/references.edx"
     accelerator: "/path/to/accelerator.acx"
@@ -210,6 +214,7 @@ results:
     metabat2:
       depth: "results/10.profilling/metabat2/depth"
       profile: "results/10.profilling/metabat2/profile"
+    humann2: "results/10.profilling/humann2"
   burst: "results/12.burst"
 
 logs:
@@ -243,4 +248,5 @@ logs:
   profilling:
     metaphlan2: "assay/10.profilling/metaphlan2_logs"
     comg: "assay/10.profilling/comg_logs"
+    humann2: "assay/10.profilling/humann2_logs"
   burst: "assay/12.burst/burst12_logs"
