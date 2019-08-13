@@ -384,16 +384,19 @@ class MarkerMatrix(object):
         assert os.path.exists(
             markerMatrixFile), "file {0} doesn't exists.\n".format(markerMatrixFile)
         try:
+            # format:
+            # mgs_id mgs_id_old contig_id contig_id_old contig_name contig_length species genus phylum
             with open(markerMatrixFile, 'r', encoding='utf-8') as _mmf:
+                next(_mmf)
                 while True:
                     lines = _mmf.readlines(65535)
                     if not lines:
                         break
                     for line in lines:
                         tmp = line.rstrip().split()
-                        self.__markerMatrix[tmp[1]] = {
-                            "markerID": tmp[0],
-                            "gene_length": tmp[2]
+                        self.__markerMatrix[tmp[4]] = {
+                            "markerID": tmp[2],
+                            "gene_length": tmp[5]
                         }
         except IOError as _ioe:
             raise _ioe
