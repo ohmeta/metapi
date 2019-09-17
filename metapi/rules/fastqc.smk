@@ -3,9 +3,9 @@ rule fastqc:
         r1 = lambda wildcards: sample.get_sample_id(_samples, wildcards, "fq1"),
         r2 = lambda wildcards: sample.get_sample_id(_samples, wildcards, "fq2")
     output:
-        outfile = expand("{fastqc}/{{sample}}_{read}_fastqc.{out}",
+        outfile = expand("{fastqc}/{{sample}}{read}_fastqc.{out}",
                          fastqc=config["results"]["raw"]["fastqc"],
-                         read=["1", "2"],
+                         read=[".1", ".2"],
                          out=["html", "zip"])
     params:
         outdir = config["results"]["raw"]["fastqc"]
@@ -16,10 +16,10 @@ rule fastqc:
 
 rule multiqc_fastqc:
     input:
-        expand("{fastqc}/{sample}_{read}_fastqc.zip",
+        expand("{fastqc}/{sample}{read}_fastqc.zip",
                fastqc=config["results"]["raw"]["fastqc"],
                sample=_samples.index,
-               read=["1", "2"])
+               read=[".1", ".2"])
     output:
         html = os.path.join(config["results"]["raw"]["multiqc"], "fastqc_multiqc_report.html"),
         data_dir = directory(os.path.join(config["results"]["raw"]["multiqc"], "fastqc_multiqc_report_data"))
