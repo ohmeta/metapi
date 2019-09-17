@@ -31,7 +31,7 @@ rule assembly_megahit:
     params:
         min_contig = config["params"]["assembly"]["megahit"]["min_contig"],
         out_dir = os.path.join(config["results"]["assembly"], "{sample}.megahit_out"),
-        contigs = os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.{megahit}.contigs.fa"),
+        contigs = os.path.join(config["results"]["assembly"], "{sample}.megahit_out/{sample}.megahit.contigs.fa"),
         out_prefix = "{sample}.megahit"
     threads:
         config["params"]["assembly"]["megahit"]["threads"]
@@ -42,7 +42,7 @@ rule assembly_megahit:
         if IS_PE:
             shell("megahit -1 {input.reads[0]} -2 {input.reads[1]} -t {threads} --min-contig-len {params.min_contig} --out-dir {params.out_dir} --out-prefix {params.out_prefix} 2> {log}")
         else:
-            shell("megahit -r {input.reads[0] -t {threads} --min-contig-len {params.min_contig} --out-dir {params.out_dir} --out-prefix {params.out_prefix} 2> {log}")
+            shell("megahit -r {input.reads[0]} -t {threads} --min-contig-len {params.min_contig} --out-dir {params.out_dir} --out-prefix {params.out_prefix} 2> {log}")
         shell('''sed -i 's#^>#>'"{params.out_prefix}"'_#g' {params.contigs}''')
         shell("pigz {params.contigs}")
         shell("mv {params.contigs}.gz {output.contigs}")
