@@ -1,25 +1,33 @@
+def raw_reads(wildcards):
+    if IS_PE:
+        return [sample.get_reads(_samples, wildcards, "fq1"),
+                sample.get_reads(_samples, wildcards, "fq2")]
+    else:
+        return [sample.get_reads(_samples, wildcards, "fq1")]
+
+
 rule fastqc:
     input:
-        r1 = lambda wildcards: sample.get_sample_id(_samples, wildcards, "fq1"),
-        r2 = lambda wildcards: sample.get_sample_id(_samples, wildcards, "fq2")
+        unpack(raw_reads)
     output:
-        outfile = expand("{fastqc}/{{sample}}{read}_fastqc.{out}",
-                         fastqc=config["results"]["raw"]["fastqc"],
-                         read=[".1", ".2"],
-                         out=["html", "zip"])
+        done = os.path.join(config["results"]["raw"]["fastqc"], "{sample}/done")
     params:
-        outdir = config["results"]["raw"]["fastqc"]
+        outdir = os.path.join(config["results"]["raw"]["fastqc"], "{sample}")
+    threads:
+        config["params"]["fastqc"]["threads"]
     log:
         os.path.join(config["logs"]["raw"]["fastqc"], "{sample}_fastqc.log")
     shell:
-        "fastqc -o {params.outdir} -f fastq {input.r1} {input.r2} 2> {log}"
+        '''
+        fastqc -o {params.outdir} -t {threads} -f fastq {input} 2> {log}
+        echo done > {output.done}
+        '''
 
 rule multiqc_fastqc:
     input:
-        expand("{fastqc}/{sample}{read}_fastqc.zip",
+        expand("{fastqc}/{sample}/done",
                fastqc=config["results"]["raw"]["fastqc"],
-               sample=_samples.index,
-               read=[".1", ".2"])
+               sample=_samples.index.unique())
     output:
         html = os.path.join(config["results"]["raw"]["multiqc"], "fastqc_multiqc_report.html"),
         data_dir = directory(os.path.join(config["results"]["raw"]["multiqc"], "fastqc_multiqc_report_data"))
@@ -27,7 +35,9 @@ rule multiqc_fastqc:
         outdir = config["results"]["raw"]["multiqc"]
     log:
         os.path.join(config["logs"]["raw"]["multiqc"], "multiqc_fastqc.log")
-    shell:
-        '''
-        multiqc --outdir {params.outdir}  --title fastqc --module fastqc {input} 2> {log}
-        '''
+    run:
+        input_list = []
+        for i in input:
+            input_list.append(os.path.basename(i))
+        input_str = " ".join(input_list)
+        shell("multiqc --outdir {params.outdir} --title fastqc --module fastqc %s 2> {log}" % input_str)

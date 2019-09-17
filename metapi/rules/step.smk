@@ -14,15 +14,13 @@ simulation_output = expand([
                            sample=_samples.index.unique())
 
 fastqc_output = expand([
-    "{fastqc}/{sample}{read}_fastqc.{out}",
+    "{fastqc}/{sample}/done",
     "{multiqc}/fastqc_multiqc_report.html",
     "{multiqc}/fastqc_multiqc_report_data"
 ],
                        fastqc=config["results"]["raw"]["fastqc"],
                        multiqc=config["results"]["raw"]["multiqc"],
-                       sample=_samples.index.unique(),
-                       read=[".1", ".2"] if IS_PE else "",
-                       out=["html", "zip"])
+                       sample=_samples.index.unique())
 
 oas1_output = expand([
     "{trimming}/{sample}.trimmed{read}.fq.gz",
@@ -267,6 +265,9 @@ burst_output = expand(
     sample=_samples.index.unique())
 
 #############################################################################
+quality_control_output = ([])
+if config["params"]["fastqc"]["do"]:
+    quality_control_output = (fastqc_output)
 
 trimming_output = ([])
 if config["params"]["trimming"]["oas1"]["do"]:
@@ -275,7 +276,7 @@ if config["params"]["trimming"]["sickle"]["do"]:
     trimming_output = (sickle_output)
 if config["params"]["trimming"]["fastp"]["do"]:
     trimming_output = (fastp_output)
-trimming_target = (fastqc_output + trimming_output)
+trimming_target = (quality_control_output + trimming_output)
 
 # rmhost_target = (trimming_target + rmhost_output)
 rmhost_target = (rmhost_output)

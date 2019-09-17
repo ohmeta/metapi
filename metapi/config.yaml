@@ -11,6 +11,9 @@ params:
     n_reads: "5M"
     model:  "hiseq"
     threads: 8
+  fastqc:
+    do: False
+    threads: 8
   trimming:
     oas1:
       do: False
