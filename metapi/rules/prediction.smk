@@ -15,8 +15,8 @@ if config["params"]["prediction"]["prodigal"]["do"]:
             mode = config["params"]["prediction"]["prodigal"]["mode"]
         shell:
             '''
+            zcat {input} | \
             prodigal \
-            -i {input} \
             -a {output.pep} \
             -d {output.cds} \
             -o {output.gff} \
