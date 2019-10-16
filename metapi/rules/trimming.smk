@@ -11,9 +11,9 @@ if config["params"]["trimming"]["oas1"]["do"]:
         input:
             unpack(raw_reads)
         output:
-            reads = expand(temp(os.path.join(config["results"]["trimming"], "{{sample}}.trimmed{read}.fq.gz")),
-                           read=[".1", ".2", ".single"] if IS_PE else ""),
-            stat_out = protected(os.path.join(config["results"]["trimming"], "{sample}.trimmed.stat_out"))
+            reads = temp(expand(os.path.join(config["results"]["trimming"], "{{sample}}.trimmed{read}.fq.gz"),
+                                read=[".1", ".2", ".single"] if IS_PE else "")),
+            stat_out = os.path.join(config["results"]["trimming"], "{sample}.trimmed.stat_out")
         params:
             prefix = "{sample}",
             qual_system = config["params"]["trimming"]["oas1"]["qual_system"],
@@ -51,8 +51,8 @@ if config["params"]["trimming"]["sickle"]["do"]:
         input:
             unpack(raw_reads)
         output:
-            reads = expand(temp(os.path.join(config["results"]["trimming"], "{{sample}}.trimmed{read}.fq.gz")),
-                           read=[".1", ".2", ".single"] if IS_PE else "")
+            reads = temp(expand(os.path.join(config["results"]["trimming"], "{{sample}}.trimmed{read}.fq.gz"),
+                                read=[".1", ".2", ".single"] if IS_PE else ""))
         params:
             qual_type = config["params"]["trimming"]["sickle"]["qual_type"],
             qual_cutoff = config["params"]["trimming"]["sickle"]["qual_cutoff"],
@@ -104,10 +104,10 @@ if config["params"]["trimming"]["fastp"]["do"]:
         input:
             unpack(raw_reads)
         output:
-            reads = expand(temp(os.path.join(config["results"]["trimming"], "{{sample}}.trimmed{read}.fq.gz")),
-                           read=[".1", ".2"] if IS_PE else ""),
-            html = protected(os.path.join(config["results"]["trimming"], "{sample}.fastp.html")),
-            json = protected(os.path.join(config["results"]["trimming"], "{sample}.fastp.json"))
+            reads = temp(expand(os.path.join(config["results"]["trimming"], "{{sample}}.trimmed{read}.fq.gz"),
+                                read=[".1", ".2"] if IS_PE else "")),
+            html = os.path.join(config["results"]["trimming"], "{sample}.fastp.html"),
+            json = os.path.join(config["results"]["trimming"], "{sample}.fastp.json")
         params:
             prefix = "{sample}",
             compression = config["params"]["trimming"]["fastp"]["compression"],
@@ -229,9 +229,9 @@ if config["params"]["trimming"]["fastp"]["do"]:
         input:
             expand("{trimming}/{sample}.fastp.json",
                    trimming=config["results"]["trimming"],
-                   sample=_samples.index)
+                   sample=_samples.index.unique())
         output:
-            html = protected(os.path.join(config["results"]["trimming"], "fastp_multiqc_report.html")),
+            html = os.path.join(config["results"]["trimming"], "fastp_multiqc_report.html"),
             data_dir = directory(os.path.join(config["results"]["trimming"], "fastp_multiqc_report_data"))
         log:
             os.path.join(config["logs"]["trimming"], "multiqc_fastp.log")

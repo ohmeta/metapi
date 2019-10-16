@@ -1,12 +1,12 @@
 def trimmed_reads(wildcards, have_single):
     if have_single:
-        return expand(temp(os.path.join(config["results"]["trimming"], "{sample}.trimmed{read}.fq.gz")),
-                      sample=wildcards.sample,
-                      read=[".1", ".2", ".single"] if IS_PE else "")
+        return temp(expand(os.path.join(config["results"]["trimming"], "{sample}.trimmed{read}.fq.gz"),
+                           sample=wildcards.sample,
+                           read=[".1", ".2", ".single"] if IS_PE else ""))
     else:
-        return expand(temp(os.path.join(config["results"]["trimming"], "{sample}.trimmed{read}.fq.gz")),
-                      sample=wildcards.sample,
-                      read=[".1", ".2"] if IS_PE else "")
+        return temp(expand(os.path.join(config["results"]["trimming"], "{sample}.trimmed{read}.fq.gz"),
+                           sample=wildcards.sample,
+                           read=[".1", ".2"] if IS_PE else ""))
 
 
 if config["params"]["rmhost"]["bwa"]["do"]:
@@ -33,8 +33,8 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                            prefix=config["params"]["rmhost"]["bwa"]["index_prefix"],
                            suffix=["amb", "ann", "bwt", "pac", "sa"])
         output:
-            flagstat = protected(os.path.join(config["results"]["rmhost"], "{sample}.rmhost.flagstat.txt")),
-            reads = expand(protected(os.path.join(config["results"]["rmhost"], "{{sample}}.rmhost{read}.fq.gz")),
+            flagstat = os.path.join(config["results"]["rmhost"], "{sample}.rmhost.flagstat.txt"),
+            reads = expand(os.path.join(config["results"]["rmhost"], "{{sample}}.rmhost{read}.fq.gz"),
                            read=[".1", ".2"] if IS_PE else "")
         log:
             os.path.join(config["logs"]["rmhost"], "{sample}.bwa.rmhost.log")
@@ -90,8 +90,8 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                            prefix=config["params"]["rmhost"]["bowtie2"]["index_prefix"],
                            suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
         output:
-            flagstat = protected(os.path.join(config["results"]["rmhost"], "{sample}.rmhost.flagstat.txt")),
-            reads = expand(protected(os.path.join(config["results"]["rmhost"], "{{sample}}.rmhost{read}.fq.gz")),
+            flagstat = os.path.join(config["results"]["rmhost"], "{sample}.rmhost.flagstat.txt"),
+            reads = expand(os.path.join(config["results"]["rmhost"], "{{sample}}.rmhost{read}.fq.gz"),
                            read=[".1", ".2"] if IS_PE else "")
         log:
             os.path.join(config["logs"]["rmhost"], "{sample}.bowtie2.rmhost.log")
