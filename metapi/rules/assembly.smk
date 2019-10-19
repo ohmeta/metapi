@@ -7,20 +7,20 @@ def clean_reads(wildcards):
             else:
                 return [sample.get_sample_id(_samples, wildcards, "fq1")]
         elif config["params"]["reads_format"] == "sra":
-            return expand("{sra2fq}/{sample}{read}.fq.gz",
+            return expand(ancient("{sra2fq}/{sample}{read}.fq.gz"),
                           sra2fq=config["results"]["sra2fq"],
                           sample=wildcards.sample,
                           read=[".1", ".2"] if IS_PE else "")
     elif config["params"]["rmhost"]["do"]:
-        return expand("{rmhost}/{sample}.rmhost{read}.fq.gz",
+        return expand(ancient("{rmhost}/{sample}.rmhost{read}.fq.gz"),
                       rmhost=config["results"]["rmhost"],
                       sample=wildcards.sample,
                       read=[".1", ".2"] if IS_PE else "")
     else:
-        return expand("{trimming}/{sample}.trimmed{read}.fq.gz",
-                      trimming=config["results"]["trimming"],
-                      sample=wildcards.sample,
-                      read=[".1", ".2"] if IS_PE else "")
+        return expand(ancient("{trimming}/{sample}.trimmed{read}.fq.gz"),
+                              trimming=config["results"]["trimming"],
+                              sample=wildcards.sample,
+                              read=[".1", ".2"] if IS_PE else "")
 
 rule assembly_megahit:
     input:
