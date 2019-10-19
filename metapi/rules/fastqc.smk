@@ -38,6 +38,6 @@ rule multiqc_fastqc:
     run:
         input_list = []
         for i in input:
-            input_list.append(os.path.basename(i))
+            input_list.append(os.path.dirname(i))
         input_str = " ".join(input_list)
         shell("multiqc --outdir {params.outdir} --title fastqc --module fastqc %s 2> {log}" % input_str)
