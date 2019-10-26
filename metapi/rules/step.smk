@@ -214,49 +214,35 @@ kraken2_output = expand(
     kraken2=config["results"]["classification"]["kraken2"],
     sample=_samples.index.unique())
 
-metaphlan2_profilling_output = expand(
+metaphlan2_profiling_output = expand(
     [
         "{bowtie2out}/{sample}.bowtie2.bz2",
         "{profile}/{sample}.metaphlan2.profile",
         "{metaphlan2}/metaphlan2.merged.profile"
     ],
-    bowtie2out=config["results"]["profilling"]["metaphlan2"]["bowtie2_out"],
-    profile=config["results"]["profilling"]["metaphlan2"]["profile"],
-    metaphlan2=config["results"]["profilling"]["metaphlan2"]["base_dir"],
+    bowtie2out=config["results"]["profiling"]["metaphlan2"]["bowtie2_out"],
+    profile=config["results"]["profiling"]["metaphlan2"]["profile"],
+    metaphlan2=config["results"]["profiling"]["metaphlan2"]["base_dir"],
     sample=_samples.index.unique())
 
-mwas_profilling_output = expand(
-    [
-        "{abundance}/{sample}.comg.abundance.gz",
-        "{depth}/{sample}.metabat2.depth.gz"
-    ],
-    abundance=config["results"]["profilling"]["comg"]["abundance"],
-    depth=config["results"]["profilling"]["metabat2"]["depth"],
+jgi_profiling_output = expand(
+    "{depth}/{sample}.jgi.depth.gz",
+    depth=config["results"]["profiling"]["jgi"]["depth"],
     sample=_samples.index.unique())
 
-mwas_profilling_merge_output_hsx = expand(
-    [
-        "{profile}/abundance_profile.tsv",
-        "{profile}/count_profile.tsv",
-        "{profile}/abundance_profile_{level}.tsv",
-    ],
-    profile=config["results"]["profilling"]["comg"]["profile"],
-    level=["superkingdom", "phylum", "order", "class", "family", "genus", "species", "strain"]
-)
-
-mwas_profilling_merge_output_jgi = expand(
+jgi_profile_merge_output = expand(
     [
         "{profile}/abundance_profile.tsv",
         "{profile}/depth_profile.tsv",
         "{profile}/abundance_profile_{level}.tsv",
     ],
-    profile=config["results"]["profilling"]["metabat2"]["profile"],
+    profile=config["results"]["profiling"]["jgi"]["profile"],
     level=["superkingdom", "phylum", "order", "class", "family", "genus", "species", "strain"]
 )
 
-humann2_profilling_output = expand(
+humann2_profiling_output = expand(
     "{humann2}/{sample}.humann2_out/{sample}_{target}.tsv",
-    humann2=config["results"]["profilling"]["humann2"],
+    humann2=config["results"]["profiling"]["humann2"],
     sample=_samples.index.unique(),
     target=["genefamilies", "pathabundance", "pathcoverage"])
 
@@ -343,20 +329,19 @@ if config["params"]["classification"]["kraken2"]["do"]:
 
 classification_target = annotation_target + classification_output
 
-profilling_output = ([])
-if config["params"]["profilling"]["metaphlan2"]["do"]:
-    profilling_output = (metaphlan2_profilling_output)
-if config["params"]["profilling"]["comg"]["do"]:
-    profilling_output = (profilling_output +
-                         mwas_profilling_output +
-                         mwas_profilling_merge_output_hsx +
-                         mwas_profilling_merge_output_jgi)
-if config["params"]["profilling"]["humann2"]["do"]:
-    profilling_output = (profilling_output + humann2_profilling_output)
+profiling_output = ([])
+if config["params"]["profiling"]["metaphlan2"]["do"]:
+    profiling_output = (metaphlan2_profiling_output)
+if config["params"]["profiling"]["jgi"]["do"]:
+    profiling_output = (profiling_output +
+                        jgi_profiling_output +
+                        jgi_profile_merge_output)
+if config["params"]["profiling"]["humann2"]["do"]:
+    profiling_output = (profiling_output + humann2_profiling_output)
 
-profilling_target = (classification_target + profilling_output)
+profiling_target = (classification_target + profiling_output)
 
-burst_target = (profilling_target + burst_output)
+burst_target = (profiling_target + burst_output)
 '''
 dereplication_target = (cehckm_target + dereplication_output)
 classification_target = (drep_target + classification_output)
@@ -380,5 +365,5 @@ all_target = (
     checkm_output +
     annotation_output +
     classification_output +
-    profilling_output +
+    profiling_output +
     burst_output)

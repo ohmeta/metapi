@@ -42,8 +42,11 @@ simulation_steps = [
     "checkm_lineage_wf",
     "prokka_bins",
     "multiqc_prokka_bins",
-    "metaphlan2_profilling",
+    "metaphlan2_profiling",
     "metaphlan2_merge",
+    "jgi_profiling",
+    "jgi_profile_merge",
+    "humann2_profiling",
     "burst_reads",
     "all"
 ]
@@ -82,7 +85,7 @@ workflow_steps = [
     "checkm_lineage_wf",
     "prokka_bins",
     "multiqc_prokka_bins",
-    "metaphlan2_profilling",
+    "metaphlan2_profiling",
     "metaphlan2_merge",
     "burst_reads",
     "all"

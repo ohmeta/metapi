@@ -138,28 +138,21 @@ params:
       kingdom: Bacteria
       metagenome: False
       threads: 8
-  profilling:
+  profiling:
     threads: 8
-    sam_format: "BAM"
     index_metadata: /path/to/index_metadata
     taxonomy: /path/to/taxonomy
     metaphlan2:
       do: False
-      script: "/path/to/metaphlan2.py"
-      bowtie2_exe: "/path/to/bowtie2_exe"
-      env: "bioenv2"
       input_type: "fastq"
       mpa_pkl: "/path/to/mpa_pkl"
       bowtie2db: "/path/to/bowtie2db_prefix"
       min_cu_len: 2000
       threads: 8
-    comg:
+    jgi:
       do: False
-      identity: 0.95
       fragment: 1200
-      output_type: "standard"
-      insert_size: 350
-      abundance_script: /path/to/abundance_script
+      memory_limit: 2G
       index_prefix: /path/to/bowtie2_index_prefix
     humann2:
       do: False
@@ -206,18 +199,15 @@ results:
   annotation:
     prokka: "results/09.annotation/prokka"
     multiqc_prokka: "results/09.annotation/multiqc_prokka"
-  profilling:
+  profiling:
     metaphlan2:
-      base_dir: "results/10.profilling/metaphlan2"
-      bowtie2_out: "results/10.profilling/metaphlan2/bowtie2out"
-      profile: "results/10.profilling/metaphlan2/profile"
-    comg:
-      abundance: "results/10.profilling/comg/abundance"
-      profile: "results/10.profilling/comg/profile"
-    metabat2:
-      depth: "results/10.profilling/metabat2/depth"
-      profile: "results/10.profilling/metabat2/profile"
-    humann2: "results/10.profilling/humann2"
+      base_dir: "results/10.profiling/metaphlan2"
+      bowtie2_out: "results/10.profiling/metaphlan2/bowtie2out"
+      profile: "results/10.profiling/metaphlan2/profile"
+    jgi:
+      depth: "results/10.profiling/jgi/depth"
+      profile: "results/10.profiling/jgi/profile"
+    humann2: "results/10.profiling/humann2"
   burst: "results/12.burst"
 
 logs:
@@ -248,8 +238,8 @@ logs:
     kraken2: "assay/08.classification/kraken2_logs"
   annotation:
     prokka: "assay/09.annotation/prokka_logs"
-  profilling:
-    metaphlan2: "assay/10.profilling/metaphlan2_logs"
-    comg: "assay/10.profilling/comg_logs"
-    humann2: "assay/10.profilling/humann2_logs"
+  profiling:
+    metaphlan2: "assay/10.profiling/metaphlan2_logs"
+    jgi: "assay/10.profiling/jgi_logs"
+    humann2: "assay/10.profiling/humann2_logs"
   burst: "assay/12.burst/burst12_logs"

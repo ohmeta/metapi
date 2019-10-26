@@ -57,7 +57,7 @@ hello, metagenomics!
         include: "rules/dereplication.smk"
         include: "rules/classification.smk"
         include: "rules/annotation.smk"
-        include: "rules/profilling.smk"
+        include: "rules/profiling.smk"
     ```
 
 * analysis module

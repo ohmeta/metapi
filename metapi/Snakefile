@@ -61,7 +61,7 @@ include: "rules/cobinning.smk"
 include: "rules/checkm.smk"
 include: "rules/annotation.smk"
 include: "rules/classification.smk"
-include: "rules/profilling.smk"
+include: "rules/profiling.smk"
 include: "rules/burst.smk"
 
 '''
