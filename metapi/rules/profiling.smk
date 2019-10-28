@@ -84,7 +84,7 @@ rule jgi_profiling:
         shell('''echo "profiling done" >> {log}''')
 
 
-rule jgj_profile_merge:
+rule jgi_profile_merge:
     input:
         abun_files = expand(os.path.join(config["results"]["profiling"]["jgi"]["depth"],
                                          "{sample}.jgi.depth.gz"),
