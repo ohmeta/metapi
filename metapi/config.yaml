@@ -144,11 +144,15 @@ params:
     taxonomy: /path/to/taxonomy
     metaphlan2:
       do: False
-      input_type: "fastq"
-      mpa_pkl: "/path/to/mpa_pkl"
-      bowtie2db: "/path/to/bowtie2db_prefix"
-      min_cu_len: 2000
       threads: 8
+      bowtie2db: "/path/to/metaphlan_databases"
+      index: "latest"
+      taxonomic_level: "a"
+      analysis_type: "real_ab_w_stats"
+      no_unknown_estimation: False
+      input_type: "fastq"
+      min_cu_len: 2000
+      read_min_len: 70
     jgi:
       do: False
       fragment: 1200

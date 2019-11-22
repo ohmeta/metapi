@@ -5,10 +5,14 @@ rule metaphlan2_profiling:
         bt2_out = os.path.join(config["results"]["profiling"]["metaphlan2"]["bowtie2_out"], "{sample}.bowtie2.bz2"),
         profile = os.path.join(config["results"]["profiling"]["metaphlan2"]["profile"], "{sample}.metaphlan2.profile")
     params:
-        input_type = config["params"]["profiling"]["metaphlan2"]["input_type"],
-        mpa_pkl = config["params"]["profiling"]["metaphlan2"]["mpa_pkl"],
         bowtie2db = config["params"]["profiling"]["metaphlan2"]["bowtie2db"],
+        index = config["params"]["profiling"]["metaphlan2"]["index"],
+        input_type = config["params"]["profiling"]["metaphlan2"]["input_type"],
+        taxonomic_level = config["params"]["profiling"]["metaphlan2"]["profiling"],
+        analysis_type = config["params"]["profiling"]["metaphlan2"]["analysis_type"],
         min_cu_len = config["params"]["profiling"]["metaphlan2"]["min_cu_len"],
+        read_min_len = config["params"]["profiling"]["metaphlan2"]["read_min_len"],
+        no_unknown_estimation = "--no_unknown_estimation" if config["params"]["profiling"]["metaphlan2"]["no_unknown_estimation"] else "",
         sample_id = "{sample}"
     log:
         os.path.join(config["logs"]["profiling"]["metaphlan2"], "{sample}_metaphlan2.log")
@@ -18,13 +22,16 @@ rule metaphlan2_profiling:
         '''
         metaphlan2.py \
         {input.reads[0]},{input.reads[1]} \
-        --mpa_pkl {params.mpa_pkl} \
-        --bowtie2db {params.bowtie2db} \
-        --min_cu_len {params.min_cu_len} \
-        --bowtie2out {output.bt2_out} \
         --nproc {threads} \
+        --min_cu_len {params.min_cu_len} \
+        --bowtie2db {params.bowtie2db} \
+        --index {params.index} \
         --input_type {params.input_type} \
+        --tax_lev {params.taxonomic_level} \
+        -t {params.analysis_type} \
+        {params.no_unknown_estimation} \
         --sample_id {params.sample_id} \
+        --bowtie2out {output.bt2_out} \
         > {output.profile} \
         2> {log}
         '''
