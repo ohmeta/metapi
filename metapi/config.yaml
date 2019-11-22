@@ -148,7 +148,7 @@ params:
       bowtie2db: "/path/to/metaphlan_databases"
       index: "latest"
       taxonomic_level: "a"
-      analysis_type: "real_ab_w_stats"
+      analysis_type: "rel_ab_w_read_stats"
       no_unknown_estimation: False
       input_type: "fastq"
       min_cu_len: 2000
