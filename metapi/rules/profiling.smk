@@ -8,7 +8,7 @@ rule metaphlan2_profiling:
         bowtie2db = config["params"]["profiling"]["metaphlan2"]["bowtie2db"],
         index = config["params"]["profiling"]["metaphlan2"]["index"],
         input_type = config["params"]["profiling"]["metaphlan2"]["input_type"],
-        taxonomic_level = config["params"]["profiling"]["metaphlan2"]["profiling"],
+        taxonomic_level = config["params"]["profiling"]["metaphlan2"]["taxonomic_level"],
         analysis_type = config["params"]["profiling"]["metaphlan2"]["analysis_type"],
         min_cu_len = config["params"]["profiling"]["metaphlan2"]["min_cu_len"],
         read_min_len = config["params"]["profiling"]["metaphlan2"]["read_min_len"],
