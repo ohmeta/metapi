@@ -56,6 +56,11 @@ params:
       threads: 8
       save_bam: False
       additional_params: "--no-unal"
+  report:
+    seqkit:
+      do: True
+      threads: 4
+      fq_encoding: "sanger"
   assembler: ["megahit", "idba_ud", "metaspades", "spades"]
   assembly:
     megahit:
@@ -178,6 +183,11 @@ results:
     multiqc: "results/00.raw/multiqc"
   trimming: "results/01.trimming"
   rmhost: "results/02.rmhost"
+  report:
+    base_dir: "results/03.report"
+    raw: "results/03.report/00.raw"
+    trimming: "results/03.report/01.trimming"
+    rmhost: "results/03/report/02.rmhost"
   assembly: "results/03.assembly"
   coassembly:
     megahit: "results/03.coassembly/megahit"

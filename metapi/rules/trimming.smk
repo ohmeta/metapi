@@ -241,3 +241,40 @@ if config["params"]["trimming"]["fastp"]["do"]:
             '''
             multiqc --outdir {params.outdir} --title fastp --module fastp {input} 2> {log}
             '''
+
+rule trimming_report:
+    input:
+        reads = expand(os.path.join(config["results"]["trimming"], "{{sample}}.trimmed{read}.fq.gz"),
+                       read=[".1", ".2"] if IS_PE else "")
+    output:
+        os.path.join(config["results"]["report"]["trimming"], "{sample}.trimming.stats.tsv")
+    params:
+        fq_encoding = config["params"]["report"]["seqkit"]["fq_encoding"],
+        sample_id = "{sample}"
+    threads:
+        config["params"]["report"]["seqkit"]["threads"]
+    run:
+        from metapi import reporter
+        if IS_PE:
+            shell("seqkit stats --all --basename --tabular \
+            --fq-encoding %s \
+            --out-file %s \
+            --threads %d %s" % (params.fq_encoding, output, threads, input))
+            reporter.change(output, params.sample_id, "trimming", "pe", ["fq1", "fq2"])
+        else:
+            shell("seqkit stats --all --basename --tabular \
+            --fq-encoding %s \
+            --out-file %s \
+            --threads %d %s" % (params.fq_encoding, output, threads, input))
+            reporter.change(output, params.sample_id, "trimming", "se", ["fq1"])
+
+rule merge_trimming_report:
+    input:
+        expand("{reportout}/{sample}.trimming.stats.tsv",
+               reportout=config["results"]["report"]["trimming"],
+               sample=_samples.index.unique())
+    output:
+        os.path.join(config["results"]["report"]["base_dir"], "trimming.stats.tsv")
+    run:
+        from metapi import reporter
+        reporter.merge(input, output, 8)

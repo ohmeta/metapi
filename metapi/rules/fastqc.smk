@@ -41,3 +41,69 @@ rule multiqc_fastqc:
             input_list.append(os.path.dirname(i))
         input_str = " ".join(input_list)
         shell("multiqc --outdir {params.outdir} --title fastqc --module fastqc %s 2> {log}" % input_str)
+
+
+rule raw_report:
+    input:
+        unpack(raw_reads)
+    output:
+        os.path.join(config["results"]["report"]["raw"], "{sample}.raw.stats.tsv")
+    params:
+        fq_encoding = config["params"]["report"]["seqkit"]["fq_encoding"],
+        sample_id = "{sample}"
+    threads:
+        config["params"]["report"]["seqkit"]["threads"]
+    run:
+        from metapi import reporter
+        reads_num = len(input)
+        if IS_PE:
+            if reads_num == 2:
+                shell("seqkit stats --all --basename --tabular \
+                       --fq-encoding %s \
+                       --out-file %s \
+                       --threads %d %s" % (params.fq_encoding, output, threads, input))
+                reporter.change(output, params.sample_id, "raw", "pe", ["fq1", "fq2"])
+            else:
+                r1_str = " ".join(input[0:reads_num//2-1])
+                r2_str = " ".join(input[reads_num//2:])
+                shell("cat %s | \
+                       seqkit stats --all --basename --tabular \
+                       --fq-encoding %s \
+                       --out-file %s \
+                       --threads %d" % (r1_str, params.fq_encoding, output + ".1", threads))
+                shell("cat %s | \
+                       seqkit stats --all --basename --tabular \
+                       --fq-encoding %s \
+                       --out-file %s \
+                       --threads %d" % (r2_str, params.fq_encoding, output + ".2", threads))
+                reporter.change(output + ".1", params.sample_id, "raw", "pe", ["fq1"])
+                reporter.change(output + ".2", params.sample_id, "raw", "pe", ["fq2"])
+                reporter.merge([output + ".1", output + ".2"], output, 8)
+                shell("rm -rf %s %s" % (output + ".1", output + ".2"))
+        else:
+            if reads_num == 1:
+                shell("seqkit stats --all --basename --tabular \
+                       --fq-encoding %s \
+                       --out-file %s \
+                       --threads %d %s" % (params.fq_encoding, output, threads))
+                reporter.change(output, params.sample_id, "raw", "se", ["fq1"])
+            else:
+                r_str = " ".join(input)
+                shell("cat %s | \
+                       seqkit stats --all --basename --tabular \
+                       --fq-encoding %s \
+                       --out-file %s \
+                       --threads %d" % (r_str, params.fq_encoding, output, threads))
+                reporter.change(output, params.sample_id, "raw", "se", ["fq1"])
+
+
+rule merge_raw_report:
+    input:
+        expand("{reportout}/{sample}.raw.stats.tsv",
+               reportout=config["results"]["report"]["raw"],
+               sample=_samples.index.unique())
+    output:
+        os.path.join(config["results"]["report"]["base_dir"], "raw.stats.tsv")
+    run:
+        from metapi import reporter
+        reporter.merge(input, output, 8)

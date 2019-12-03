@@ -23,7 +23,7 @@ fastqc_output = expand([
                        sample=_samples.index.unique())
 
 oas1_output = expand([
-    temp("{trimming}/{sample}.trimmed{read}.fq.gz"),
+    "{trimming}/{sample}.trimmed{read}.fq.gz",
     "{trimming}/{sample}.trimmed.stat_out"
 ],
                      trimming=config["results"]["trimming"],
@@ -31,7 +31,7 @@ oas1_output = expand([
                      sample=_samples.index.unique())
 
 sickle_output = expand(
-    temp("{trimming}/{sample}.trimmed{read}.fq.gz"),
+    "{trimming}/{sample}.trimmed{read}.fq.gz",
     trimming=config["results"]["trimming"],
     sample=_samples.index.unique(),
     read=[".1", ".2", ".single"] if IS_PE else "")
@@ -54,6 +54,18 @@ rmhost_output = expand([
                        rmhost=config["results"]["rmhost"],
                        sample=_samples.index.unique(),
                        read=[".1", ".2"] if IS_PE else "")
+
+raw_report_output = expand(
+    "{reportout}/raw.stats.tsv",
+    reportout=config["results"]["report"]["base_dir"])
+
+trimming_report_output = expand(
+    "{reportout}/trimming.stats.tsv",
+    reportout=config["results"]["report"]["base_dir"])
+
+rmhost_report_output = expand(
+    "{reportout}/rmhost.stats.tsv",
+    reportout=config["results"]["report"]["base_dir"])
 
 megahit_output = expand(
     "{assembly}/{sample}.megahit_out/{sample}.megahit.scaftigs.fa.gz",
@@ -292,8 +304,17 @@ if config["params"]["begin"] == "assembly":
         assembly_target = (sra2fq_output + assembly_output)
 elif config["params"]["rmhost"]["do"]:
     assembly_target = (rmhost_target + assembly_output)
+    if config["params"]["report"]["seqkit"]["do"]:
+        assembly_target = (assembly_target +
+                           raw_report_output +
+                           trimming_report_output +
+                           rmhost_report_output)
 else:
     assembly_target = (trimming_target + assembly_output)
+    if config["params"]["report"]["seqkit"]["do"]:
+        assembly_target = (assembly_target +
+                           raw_report_output +
+                           trimming_report_output)
 
 if config["params"]["metaquast"]["do"]:
     assembly_target = (assembly_target + metaquast_output)

@@ -132,3 +132,42 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                           tee >(samtools flagstat -@{threads} - > {output.flagstat}) | \
                           samtools view -@{threads} -SF4 - | awk -F'[/\t]' '{{print $1}}' | sort | uniq | \
                           seqtk subseq -r {input.reads[0]} - | pigz -p {threads} -c > {output.reads[0]}''')
+
+
+rule rmhost_report:
+    input:
+        reads = expand(os.path.join(config["results"]["rmhost"], "{{sample}}.rmhost{read}.fq.gz"),
+                       read=[".1", ".2"] if IS_PE else "")
+    output:
+        os.path.join(config["results"]["report"]["rmhost"], "{sample}.rmhost.stats.tsv")
+    params:
+        fq_encoding = config["params"]["report"]["seqkit"]["fq_encoding"],
+        sample_id = "{sample}"
+    threads:
+        config["params"]["report"]["seqkit"]["threads"]
+    run:
+        from metapi import reporter
+        if IS_PE:
+            shell("seqkit stats --all --basename --tabular \
+                   --fq-encoding %s \
+                   --out-file %s \
+                   --threads %d %s" % (params.fq_encoding, output, threads, input))
+            reporter.change(output, params.sample_id, "rmhost", "pe", ["fq1", "fq2"])
+        else:
+            shell("seqkit stats --all --basename --tabular \
+                   --fq-encoding %s \
+                   --out-file %s \
+                   --threads %d %s" % (params.fq_encoding, output, threads, input))
+            reporter.change(output, params.sample_id, "rmhost", "se", ["fq1"])
+
+
+rule merge_rmhost_report:
+    input:
+        expand("{reportout}/{sample}.rmhost.stats.tsv",
+               reportout=config["results"]["report"]["rmhost"],
+               sample=_samples.index.unique())
+    output:
+        os.path.join(config["results"]["report"]["base_dir"], "rmhost.stats.tsv")
+    run:
+        from metapi import reporter
+        reporter.merge(input, output, 8)
