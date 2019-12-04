@@ -67,6 +67,10 @@ rmhost_report_output = expand(
     "{reportout}/rmhost.stats.tsv",
     reportout=config["results"]["report"]["base_dir"])
 
+qc_report_output = expand(
+    "{reportout}/qc.stats.tsv",
+    reportout=config["results"]["report"]["base_dir"])
+
 megahit_output = expand(
     "{assembly}/{sample}.megahit_out/{sample}.megahit.scaftigs.fa.gz",
     assembly=config["results"]["assembly"],
@@ -308,7 +312,8 @@ elif config["params"]["rmhost"]["do"]:
         assembly_target = (assembly_target +
                            raw_report_output +
                            trimming_report_output +
-                           rmhost_report_output)
+                           rmhost_report_output +
+                           qc_report_output)
 else:
     assembly_target = (trimming_target + assembly_output)
     if config["params"]["report"]["seqkit"]["do"]:

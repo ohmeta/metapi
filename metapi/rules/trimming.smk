@@ -244,8 +244,8 @@ if config["params"]["trimming"]["fastp"]["do"]:
 
 rule trimming_report:
     input:
-        reads = expand(os.path.join(config["results"]["trimming"], "{{sample}}.trimmed{read}.fq.gz"),
-                       read=[".1", ".2"] if IS_PE else "")
+        reads = temp(expand(os.path.join(config["results"]["trimming"], "{{sample}}.trimmed{read}.fq.gz"),
+                            read=[".1", ".2"] if IS_PE else ""))
     output:
         os.path.join(config["results"]["report"]["trimming"], "{sample}.trimming.stats.tsv")
     params:
