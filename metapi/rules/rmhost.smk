@@ -152,13 +152,13 @@ rule rmhost_report:
                    --fq-encoding %s \
                    --out-file %s \
                    --threads %d %s" % (params.fq_encoding, output, threads, input))
-            reporter.change(output, params.sample_id, "rmhost", "pe", ["fq1", "fq2"])
+            reporter.change(output[0], params.sample_id, "rmhost", "pe", ["fq1", "fq2"])
         else:
             shell("seqkit stats --all --basename --tabular \
                    --fq-encoding %s \
                    --out-file %s \
                    --threads %d %s" % (params.fq_encoding, output, threads, input))
-            reporter.change(output, params.sample_id, "rmhost", "se", ["fq1"])
+            reporter.change(output[0], params.sample_id, "rmhost", "se", ["fq1"])
 
 
 rule merge_rmhost_report:
@@ -170,4 +170,4 @@ rule merge_rmhost_report:
         os.path.join(config["results"]["report"]["base_dir"], "rmhost.stats.tsv")
     run:
         from metapi import reporter
-        reporter.merge(input, output, 8)
+        reporter.merge(input, output[0], 8)

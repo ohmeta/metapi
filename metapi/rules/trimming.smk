@@ -260,13 +260,13 @@ rule trimming_report:
             --fq-encoding %s \
             --out-file %s \
             --threads %d %s" % (params.fq_encoding, output, threads, input))
-            reporter.change(output, params.sample_id, "trimming", "pe", ["fq1", "fq2"])
+            reporter.change(output[0], params.sample_id, "trimming", "pe", ["fq1", "fq2"])
         else:
             shell("seqkit stats --all --basename --tabular \
             --fq-encoding %s \
             --out-file %s \
             --threads %d %s" % (params.fq_encoding, output, threads, input))
-            reporter.change(output, params.sample_id, "trimming", "se", ["fq1"])
+            reporter.change(output[0], params.sample_id, "trimming", "se", ["fq1"])
 
 rule merge_trimming_report:
     input:
@@ -277,4 +277,4 @@ rule merge_trimming_report:
         os.path.join(config["results"]["report"]["base_dir"], "trimming.stats.tsv")
     run:
         from metapi import reporter
-        reporter.merge(input, output, 8)
+        reporter.merge(input, output[0], 8)

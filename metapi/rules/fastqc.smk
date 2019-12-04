@@ -62,7 +62,7 @@ rule raw_report:
                        --fq-encoding %s \
                        --out-file %s \
                        --threads %d %s" % (params.fq_encoding, output, threads, input))
-                reporter.change(output, params.sample_id, "raw", "pe", ["fq1", "fq2"])
+                reporter.change(output[0], params.sample_id, "raw", "pe", ["fq1", "fq2"])
             else:
                 r1_str = " ".join(input[0:reads_num//2-1])
                 r2_str = " ".join(input[reads_num//2:])
@@ -76,9 +76,9 @@ rule raw_report:
                        --fq-encoding %s \
                        --out-file %s \
                        --threads %d" % (r2_str, params.fq_encoding, output + ".2", threads))
-                reporter.change(output + ".1", params.sample_id, "raw", "pe", ["fq1"])
-                reporter.change(output + ".2", params.sample_id, "raw", "pe", ["fq2"])
-                reporter.merge([output + ".1", output + ".2"], output, 8)
+                reporter.change(output[0] + ".1", params.sample_id, "raw", "pe", ["fq1"])
+                reporter.change(output[0] + ".2", params.sample_id, "raw", "pe", ["fq2"])
+                reporter.merge([output[0] + ".1", output[0] + ".2"], output[0], 8)
                 shell("rm -rf %s %s" % (output + ".1", output + ".2"))
         else:
             if reads_num == 1:
@@ -86,7 +86,7 @@ rule raw_report:
                        --fq-encoding %s \
                        --out-file %s \
                        --threads %d %s" % (params.fq_encoding, output, threads))
-                reporter.change(output, params.sample_id, "raw", "se", ["fq1"])
+                reporter.change(output[0], params.sample_id, "raw", "se", ["fq1"])
             else:
                 r_str = " ".join(input)
                 shell("cat %s | \
@@ -94,7 +94,7 @@ rule raw_report:
                        --fq-encoding %s \
                        --out-file %s \
                        --threads %d" % (r_str, params.fq_encoding, output, threads))
-                reporter.change(output, params.sample_id, "raw", "se", ["fq1"])
+                reporter.change(output[0], params.sample_id, "raw", "se", ["fq1"])
 
 
 rule merge_raw_report:
@@ -106,4 +106,4 @@ rule merge_raw_report:
         os.path.join(config["results"]["report"]["base_dir"], "raw.stats.tsv")
     run:
         from metapi import reporter
-        reporter.merge(input, output, 8)
+        reporter.merge(input, output[0], 8)

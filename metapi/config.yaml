@@ -187,7 +187,7 @@ results:
     base_dir: "results/03.report"
     raw: "results/03.report/00.raw"
     trimming: "results/03.report/01.trimming"
-    rmhost: "results/03/report/02.rmhost"
+    rmhost: "results/03.report/02.rmhost"
   assembly: "results/03.assembly"
   coassembly:
     megahit: "results/03.coassembly/megahit"
