@@ -1,4 +1,4 @@
-localrules: all, genome_download, genome_merge
+localrules: all, genome_download, genome_merge, merge_raw_report, merge_trimming_report, merge_rmhost_report, qc_report
 
 __default__:
   queue: "st.q"
@@ -29,6 +29,18 @@ multiqc_fastqc:
   output: "assay/cluster_logs/{rule}.o"
   error: "assay/cluster_logs/{rule}.e"
 
+raw_report:
+  mem: "512M"
+  cores: 4
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+
+merge_raw_report:
+  mem: "512M"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.o"
+  error: "assay/cluster_logs/{rule}.e"
+
 trimming_oas1:
   mem: "1G"
   cores: 1
@@ -49,6 +61,18 @@ trimming_fastp:
 
 multiqc_fastp:
   mem: "128M"
+  output: "assay/cluster_logs/{rule}.o"
+  error: "assay/cluster_logs/{rule}.e"
+
+trimming_report:
+  mem: "512M"
+  cores: 4
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+
+merge_trimming_report:
+  mem: "512M"
+  cores: 8
   output: "assay/cluster_logs/{rule}.o"
   error: "assay/cluster_logs/{rule}.e"
 
@@ -75,6 +99,23 @@ rmhost_bowtie2:
   cores: 8
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+
+rmhost_report:
+  mem: "512M"
+  cores: 4
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+
+merge_rmhost_report:
+  mem: "512M"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.o"
+  error: "assay/cluster_logs/{rule}.e"
+
+qc_report:
+  mem: "512M"
+  output: "assay/cluster_logs/{rule}.o"
+  error: "assay/cluster_logs/{rule}.e"
 
 kraken2:
   mem: "8G"
