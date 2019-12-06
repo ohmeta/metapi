@@ -151,7 +151,7 @@ rule rmhost_report:
             shell("seqkit stats --all --basename --tabular \
                    --fq-encoding %s \
                    --out-file %s \
-                   --threads %d %s" % (params.fq_encoding, output, threads, input))
+                   --threads %d %s" % (params.fq_encoding, output, threads, " ".join(input)))
             reporter.change(output[0], params.sample_id, "rmhost", "pe", ["fq1", "fq2"])
         else:
             shell("seqkit stats --all --basename --tabular \

@@ -61,7 +61,7 @@ rule raw_report:
                 shell("seqkit stats --all --basename --tabular \
                        --fq-encoding %s \
                        --out-file %s \
-                       --threads %d %s" % (params.fq_encoding, output, threads, input))
+                       --threads %d %s" % (params.fq_encoding, output, threads, " ".join(input)))
                 reporter.change(output[0], params.sample_id, "raw", "pe", ["fq1", "fq2"])
             else:
                 r1_str = " ".join(input[0:reads_num//2-1])
@@ -70,16 +70,16 @@ rule raw_report:
                        seqkit stats --all --basename --tabular \
                        --fq-encoding %s \
                        --out-file %s \
-                       --threads %d" % (r1_str, params.fq_encoding, output + ".1", threads))
+                       --threads %d" % (r1_str, params.fq_encoding, output[0] + ".1", threads))
                 shell("cat %s | \
                        seqkit stats --all --basename --tabular \
                        --fq-encoding %s \
                        --out-file %s \
-                       --threads %d" % (r2_str, params.fq_encoding, output + ".2", threads))
+                       --threads %d" % (r2_str, params.fq_encoding, output[0] + ".2", threads))
                 reporter.change(output[0] + ".1", params.sample_id, "raw", "pe", ["fq1"])
                 reporter.change(output[0] + ".2", params.sample_id, "raw", "pe", ["fq2"])
                 reporter.merge([output[0] + ".1", output[0] + ".2"], output[0], 8)
-                shell("rm -rf %s %s" % (output + ".1", output + ".2"))
+                shell("rm -rf %s %s" % (output[0] + ".1", output[0] + ".2"))
         else:
             if reads_num == 1:
                 shell("seqkit stats --all --basename --tabular \

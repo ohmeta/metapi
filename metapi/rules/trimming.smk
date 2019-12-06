@@ -257,15 +257,15 @@ rule trimming_report:
         from metapi import reporter
         if IS_PE:
             shell("seqkit stats --all --basename --tabular \
-            --fq-encoding %s \
-            --out-file %s \
-            --threads %d %s" % (params.fq_encoding, output, threads, input))
+                  --fq-encoding %s \
+                  --out-file %s \
+                  --threads %d %s" % (params.fq_encoding, output, threads, " ".join(input)))
             reporter.change(output[0], params.sample_id, "trimming", "pe", ["fq1", "fq2"])
         else:
             shell("seqkit stats --all --basename --tabular \
-            --fq-encoding %s \
-            --out-file %s \
-            --threads %d %s" % (params.fq_encoding, output, threads, input))
+                  --fq-encoding %s \
+                  --out-file %s \
+                  --threads %d %s" % (params.fq_encoding, output, threads, input))
             reporter.change(output[0], params.sample_id, "trimming", "se", ["fq1"])
 
 rule merge_trimming_report:
