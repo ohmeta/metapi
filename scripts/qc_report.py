@@ -19,7 +19,7 @@ def run_(tuple_):
         print(e.output)
         return None
 
-    out_list = output.split("\n")
+    out_list = output.strip().split("\n")
     header = out_list[0].split("\t")
     data = []
 
