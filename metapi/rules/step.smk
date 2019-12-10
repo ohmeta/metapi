@@ -262,6 +262,17 @@ humann2_profiling_output = expand(
     sample=_samples.index.unique(),
     target=["genefamilies", "pathabundance", "pathcoverage"])
 
+humann2_postprocess_output = expand(
+    [
+        "{humann2}/{sample}.humann2_out/{sample}_{target}.{norm}.tsv",
+        "{humann2}/{sample}.humann2_out/{sample}_group-{group}-profile.tsv"
+    ],
+    humann2=config["results"]["profiling"]["humann2"],
+    sample=_samples.index.unique(),
+    target=["genefamilies", "pathabundance", "pathcoverage"],
+    norm=config["params"]["profiling"]["humann2"]["normalize_method"],
+    group=config["params"]["profiling"]["humann2"]["map_database"])
+
 burst_output = expand(
     "{burst}/{sample}.reads.burst.b6",
     burst=config["results"]["burst"],
@@ -363,7 +374,9 @@ if config["params"]["profiling"]["jgi"]["do"]:
                         jgi_profiling_output +
                         jgi_profile_merge_output)
 if config["params"]["profiling"]["humann2"]["do"]:
-    profiling_output = (profiling_output + humann2_profiling_output)
+    profiling_output = (profiling_output +
+                        humann2_profiling_output +
+                        humann2_postprocess_output)
 
 profiling_target = (classification_target + profiling_output)
 

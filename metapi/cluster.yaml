@@ -305,6 +305,11 @@ humann2_profiling:
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
 
+humann2_postprocess:
+  mem: "512M"
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+
 jgi_profiling:
   mem: "8G"
   cores: 8

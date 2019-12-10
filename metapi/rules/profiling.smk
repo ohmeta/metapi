@@ -170,3 +170,43 @@ rule humann2_profiling:
 
         shell('''humann2 --input %s --output %s --output-basename %s --threads %d --o-log %s %s''' % \
               (reads, params.out_dir, params.base_name, threads, log, params.remove))
+
+
+rule humann2_postprocess:
+    input:
+        genefamilies = os.path.join(config["results"]["profiling"]["humann2"],
+                                    "{sample}.humann2_out/{sample}_genefamilies.tsv"),
+        pathabundance = os.path.join(config["results"]["profiling"]["humann2"],
+                                     "{sample}.humann2_out/{sample}_pathabundance.tsv"),
+        pathcoverage = os.path.join(config["results"]["profiling"]["humann2"],
+                                    "{sample}.humann2_out/{sample}_pathcoverage.tsv")
+    output:
+        genefamilies = expand("{humann2}/{{sample}}.humann2_out/{{sample}}_genefamilies.{norm}.tsv",
+                              humann2=config["results"]["profiling"]["humann2"],
+                              norm=config["params"]["profiling"]["humann2"]["normalize_method"]),
+        pathabundance = expand("{humann2}/{{sample}}.humann2_out/{{sample}}_pathabundance.{norm}.tsv",
+                               humann2=config["results"]["profiling"]["humann2"],
+                               norm=config["params"]["profiling"]["humann2"]["normalize_method"]),
+        pathcoverage = expand("{humann2}/{{sample}}.humann2_out/{{sample}}_pathcoverage.{norm}.tsv",
+                              humann2=config["results"]["profiling"]["humann2"],
+                              norm=config["params"]["profiling"]["humann2"]["normalize_method"])
+        groupprofile = expand("{humann2}/{{sample}}.humann2_out/{{sample}}_group-{group}-profile.tsv",
+                              humann2=config["results"]["profiling"]["humann2"],
+                              group=config["params"]["profiling"]["humann2"]["map_database"])
+
+    params:
+        normalize_method = config["params"]["profiling"]["humann2"]["normalize_method"],
+        regroup_method = config["params"]["profiling"]["humann2"]["regroup_method"],
+        map_database =  config["params"]["profiling"]["humann2"]["map_database"]
+    run:
+        shell("humann2_renorm_table --input {input.genefamilies} --update-snames \
+              --output {output.genefamilies} --units {params.normalize_method}")
+        shell("humann2_renorm_table --input {input.pathabundance} --update-snames \
+              --output {output.pathabundance} --units {params.normalize_method}")
+        shell("humann2_renorm_table --input {input.pathcoverage} --update-snames \
+              --output {output.pathcoverage} --units {params.normalize_method}")
+        i = -1
+        for db in params.map_database:
+            i += 1
+            shell("humann2_regroup_table --input {input.genefamilies} --groups %s \
+                  --function {params.regroup_method} --output {output.groupprofile[i]}" % db)

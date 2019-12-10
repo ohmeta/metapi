@@ -167,6 +167,9 @@ params:
       do: False
       threads: 8
       remove-temp-output: True
+      normalize_method: "relab"
+      regroup_method: "sum"
+      map_database: ["uniref90_go", "uniref90_ko", "uniref90_eggnog", "uniref90_pfam", "uniref90_level4ec", "uniref90_infogo1000", "uniref90_rxn"]
   burst:
     references: "/path/to/references.edx"
     accelerator: "/path/to/accelerator.acx"
