@@ -190,7 +190,7 @@ rule humann2_postprocess:
         pathcoverage = expand("{humann2}/{{sample}}.humann2_out/{{sample}}_pathcoverage.{norm}.tsv",
                               humann2=config["results"]["profiling"]["humann2"],
                               norm=config["params"]["profiling"]["humann2"]["normalize_method"])
-        groupprofile = expand("{humann2}/{{sample}}.humann2_out/{{sample}}_group-{group}-profile.tsv",
+        groupprofile = expand("{humann2}/{{sample}}.humann2_out/{{sample}}_{group}_groupped.tsv",
                               humann2=config["results"]["profiling"]["humann2"],
                               group=config["params"]["profiling"]["humann2"]["map_database"])
 
@@ -210,3 +210,63 @@ rule humann2_postprocess:
             i += 1
             shell("humann2_regroup_table --input {input.genefamilies} --groups %s \
                   --function {params.regroup_method} --output {output.groupprofile[i]}" % db)
+
+
+rule humann2_join:
+    input:
+        expand(["{humann2}/{sample}.humann2_out/{sample}_{target}.tsv",
+                "{humann2}/{sample}.humann2_out/{sample}_{group}_groupped.tsv"],
+               humann2=config["results"]["profiling"]["humann2"],
+               sample=_samples.index.unique(),
+               target=["genefamilies", "pathabundance", "pathcoverage"],
+               group=config["params"]["profiling"]["humann2"]["map_database"])
+    output:
+        genefamilies = os.path.join(config["results"]["profiling"]["humann2"], "gene_families_joined.tsv"),
+        pathabundance = os.path.join(config["results"]["profiling"]["humann2"], "path_abundance_joined.tsv"),
+        pathcoverage = os.path.join(config["results"]["profiling"]["humann2"], "path_coverage_joined.tsv"),
+        groupprofile = expand("{humann2}/{group}_joined.tsv",
+                              humann2=config["results"]["profiling"]["humann2"],
+                              group=config["params"]["profiling"]["humann2"]["map_database"])
+    params:
+        outdir = config["results"]["profiling"]["humann2"],
+        map_database = config["params"]["profiling"]["humann2"]["map_database"]
+    run:
+        shell("humann2_join_tables --input {params.outdir} --output {output.genefamilies} \
+              --file_name genefamilies --search-subdirectories")
+        shell("humann2_join_tables --input {params.outdir} --output {output.pathabundance} \
+              --file_name pathabundance --search-subdirectories")
+        shell("humann2_join_tables --input {params.outdir} --output {output.pathcoverage} \
+              --file_name pathcoverage --search-subdirectories")
+        i = -1
+        for db in params.map_database:
+            i += 1
+            shell("humann2_join_tables --input {params.humann2_outdir} --output {output.groupprofile[i]} \
+                  --file_name %s_groupped --search-subdirectories" % db)
+
+
+rule humann2_split_straified:
+    input:
+        genefamilies = os.path.join(config["results"]["profiling"]["humann2"], "gene_families_joined.tsv"),
+        pathabundance = os.path.join(config["results"]["profiling"]["humann2"], "path_abundance_joined.tsv"),
+        pathcoverage = os.path.join(config["results"]["profiling"]["humann2"], "path_coverage_joined.tsv"),
+        groupprofile = expand("{humann2}/{group}_joined.tsv",
+                              humann2=config["results"]["profiling"]["humann2"],
+                              group=config["params"]["profiling"]["humann2"]["map_database"])
+    output:
+        expand(["{humann2}/{target}_joined_{suffix}.tsv",
+                "{humann2}/{group}_joined_{suffix}.tsv"],
+               humann2=config["results"]["profiling"]["humann2"],
+               target=["gene_families", "path_abundance", "path_coverage"],
+               group=config["params"]["profiling"]["humann2"]["map_database"],
+               suffix=["straified", "unstraified"])
+    params:
+        outdir = config["results"]["profiling"]["humann2"],
+        map_database = config["params"]["profiling"]["humann2"]["map_database"]
+    run:
+        shell("humann2_split_straified_table -i {input.genefamilies} -o {params.outdir}")
+        shell("humann2_split_straified_table -i {input.genefamilies} -o {params.outdir}")
+        shell("humann2_split_straified_table -i {input.genefamilies} -o {params.outdir}")
+        i = -1
+        for db in params.map_database:
+            i += 1
+            shell("humann2_split_straified_table -i {input.groupprofile[i]} -o {params.outdir}")

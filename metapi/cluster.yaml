@@ -310,6 +310,21 @@ humann2_postprocess:
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
 
+humann2_postprocess:
+  mem: "512M"
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+
+humann2_join:
+  mem: "20G"
+  output: "assay/cluster_logs/{rule}.o"
+  error: "assay/cluster_logs/{rule}.e"
+
+humann2_split_straified:
+  mem: "512M"
+  output: "assay/cluster_logs/{rule}.o"
+  error: "assay/cluster_logs/{rule}.e"
+
 jgi_profiling:
   mem: "8G"
   cores: 8
