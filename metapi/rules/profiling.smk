@@ -189,7 +189,7 @@ rule humann2_postprocess:
                                norm=config["params"]["profiling"]["humann2"]["normalize_method"]),
         pathcoverage = expand("{humann2}/{{sample}}.humann2_out/{{sample}}_pathcoverage.{norm}.tsv",
                               humann2=config["results"]["profiling"]["humann2"],
-                              norm=config["params"]["profiling"]["humann2"]["normalize_method"])
+                              norm=config["params"]["profiling"]["humann2"]["normalize_method"]),
         groupprofile = expand("{humann2}/{{sample}}.humann2_out/{{sample}}_{group}_groupped.tsv",
                               humann2=config["results"]["profiling"]["humann2"],
                               group=config["params"]["profiling"]["humann2"]["map_database"])
