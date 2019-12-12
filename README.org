@@ -4,6 +4,7 @@
 #+BEGIN_SRC bash
 # install dependencies
 conda install \
+    pandas ruamel_yaml \
     snakemake pigz sra-tools \
     insilicoseq ncbi-genome-download \
     sickle-trim fastp \
@@ -34,7 +35,7 @@ Please supply samples.tsv format like below:
 | s2 | s2.1.fq.gz    | s2.2.fq.gz    |
 | s2 | s21.1.fq.gz   | s21.2.fq.g    |
 | s3 | hello.1.fq.gz | hello.2.fq.gz |
-The header must be: id fq1 fq2
+The header must be: id fq1 fq2.
 If id is same, the fq1 and fq2 belong to one sample, and will be merged to
 process.
 
@@ -73,7 +74,7 @@ snakemake --snakefile /path/to/metapi/metapi/Snakefile \
 ** Run on local computer
 #+BEGIN_SRC bash
 snakemake --snakefile /path/to/metapi/metapi/Snakefile \
-          --configfile config.yaml \
+          --configfile ./config.yaml \
           --until checkm_lineage_wf
 #+END_SRC
 ** Submit to cluster using qsub
