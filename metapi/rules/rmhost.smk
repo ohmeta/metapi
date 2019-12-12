@@ -170,7 +170,7 @@ rule merge_rmhost_report:
         os.path.join(config["results"]["report"]["base_dir"], "rmhost.stats.tsv")
     run:
         from metapi import reporter
-        reporter.merge(input, output[0], 8)
+        reporter.merge(input, 8, save=True, output=output[0])
 
 
 rule qc_report:
@@ -184,21 +184,5 @@ rule qc_report:
         from metapi import reporter
         import pandas as pd
 
-        reporter.merge([input.raw_stats, input.trim_stats, input.rmhost_stats], output.stats, 8)
-
-        df = pd.read_csv(output.stats, sep='\t').set_index("id")
-        host_rate = {}
-
-        for i in df.index.unique():
-            reads_number_rmhost = df.loc[i, ].query('reads=="fq1" and step=="rmhost"')["num_seqs"][0]
-            reads_number_trimming = df.loc[i, ].query('reads=="fq1" and step=="trimming"')["num_seqs"][0]
-
-            hostrate = (reads_number_trimming - reads_number_rmhost) / reads_number_trimming
-            host_rate[i] = hostrate
-
-        def set_host_rate(row):
-            return host_rate[row["id"]]
-
-        df = df.reset_index()
-        df["host_rate"] = df.apply(lambda x: set_host_rate(x), axis=1)
-        df.to_csv(output.stats, sep='\t', index=False)
+        df = reporter.merge([input.raw_stats, input.trim_stats, input.rmhost_stats], 8)
+        reporter.compute_host_rate(df, save=True, output=output.stats)

@@ -242,6 +242,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
             multiqc --outdir {params.outdir} --title fastp --module fastp {input} 2> {log}
             '''
 
+
 rule trimming_report:
     input:
         reads = expand(os.path.join(config["results"]["trimming"], "{{sample}}.trimmed{read}.fq.gz"),
@@ -268,6 +269,7 @@ rule trimming_report:
                   --threads %d %s" % (params.fq_encoding, output, threads, input))
             reporter.change(output[0], params.sample_id, "trimming", "se", ["fq1"])
 
+
 rule merge_trimming_report:
     input:
         expand("{reportout}/{sample}.trimming.stats.tsv",
@@ -277,4 +279,4 @@ rule merge_trimming_report:
         os.path.join(config["results"]["report"]["base_dir"], "trimming.stats.tsv")
     run:
         from metapi import reporter
-        reporter.merge(input, output[0], 8)
+        reporter.merge(input, 8, save=True, output=output[0])

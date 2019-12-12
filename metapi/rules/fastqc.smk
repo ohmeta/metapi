@@ -78,7 +78,7 @@ rule raw_report:
                        --threads %d" % (r2_str, params.fq_encoding, output[0] + ".2", threads))
                 reporter.change(output[0] + ".1", params.sample_id, "raw", "pe", ["fq1"])
                 reporter.change(output[0] + ".2", params.sample_id, "raw", "pe", ["fq2"])
-                reporter.merge([output[0] + ".1", output[0] + ".2"], output[0], 8)
+                reporter.merge([output[0] + ".1", output[0] + ".2"], 8, save=True, output=output[0])
                 shell("rm -rf %s %s" % (output[0] + ".1", output[0] + ".2"))
         else:
             if reads_num == 1:
@@ -106,4 +106,4 @@ rule merge_raw_report:
         os.path.join(config["results"]["report"]["base_dir"], "raw.stats.tsv")
     run:
         from metapi import reporter
-        reporter.merge(input, output[0], 8)
+        reporter.merge(input, 8, save=True, output[0])
