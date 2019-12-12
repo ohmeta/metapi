@@ -83,8 +83,8 @@ def main():
     args = parser.parse_args()
 
     raw_list = pd.read_csv(args.raw_stats_list, header=None, names=["raw"])
-    trimming_list = pd.read_csv(args.trimming_list, header=None, names=["trimming"])
-    rmhost_list = pd.read_csv(args.rmhost_list, header=None, names=["rmhost"])
+    trimming_list = pd.read_csv(args.trimming_stats_list, header=None, names=["trimming"])
+    rmhost_list = pd.read_csv(args.rmhost_stats_list, header=None, names=["rmhost"])
 
     df = pd.merge(raw_list["raw"].dropna().tolist() +
                   raw_list["trimming"].dropna().tolist() +
