@@ -91,3 +91,7 @@ def main():
                   raw_list["rmhost"].dropna().tolist(), 8)
 
     compute_host_rate(df, save=True, output=args.output)
+
+
+if __name__ == '__main__':
+    main()
