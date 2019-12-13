@@ -5,14 +5,8 @@ from ruamel.yaml import YAML
 
 def parse_yaml(yaml_file):
     yaml = YAML()
-    try:
-        with open(yaml_file) as f:
-            try:
-                return yaml.load(f)
-            except yaml.YAMLError as exc:
-                print(exc)
-    except FileNotFoundError as e:
-        print(e)
+    with open(yaml_file, 'r') as f:
+        return yaml.load(f)
 
 
 def update_config(yaml_file_old, yaml_file_new, yaml_content, remove=True):
@@ -29,8 +23,12 @@ class metaconfig:
     config project directory
     '''
     sub_dirs = [
-        "assay", "assay/cluster_logs", "results", "results", "scripts",
-        "sources", "study"
+        "assay",
+        "assay/cluster_logs",
+        "results",
+        "scripts",
+        "sources",
+        "study"
     ]
 
     def __init__(self, work_dir):
