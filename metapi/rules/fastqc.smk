@@ -106,4 +106,4 @@ rule merge_raw_report:
         os.path.join(config["results"]["report"]["base_dir"], "raw.stats.tsv")
     run:
         from metapi import reporter
-        reporter.merge(input, 8, save=True, output[0])
+        reporter.merge(input, 8, save=True, output=output[0])
