@@ -3,7 +3,7 @@ rule rmhost_md5:
         expand(os.path.join(config["results"]["rmhost"], "{{sample}}.rmhost{read}.fq.gz"),
                read=[".1", ".2"] if IS_PE else "")
     output:
-        os.path.join(config["results"]["rmhost"], "{{sample}}.rmhost.fq.gz.md5")
+        os.path.join(config["results"]["rmhost"], "{sample}.rmhost.fq.gz.md5")
     params:
         rmhost_dir = os.path.join(config["results"]["rmhost"], "")
     shell:
@@ -23,7 +23,7 @@ rule assembly_md5:
         assembly_dir = os.path.join(config["results"]["assembly"], "{sample}.{assembler}_out/")
     shell:
         '''
-        md5sum {intput} | sed 's#{params.assembly_dir}##g' > {output}
+        md5sum {input} | sed 's#{params.assembly_dir}##g' > {output}
         '''
 
        
@@ -33,7 +33,7 @@ rule generate_samples_info:
     output:
         os.path.join(config["results"]["upload"], "MIxS_Samples.xlsx")
     run:
-        uploader.gen_samples_info(_samples, output, config)
+        uploader.gen_samples_info(_samples, output[0], config)
        
 
 rule generate_run_info:
@@ -46,7 +46,7 @@ rule generate_run_info:
     threads:
         config["upload"]["threads"]
     run:
-        uploader.gen_info(input, output, config, threads, "sequencing_run")
+        uploader.gen_info(input, output[0], config, threads, "sequencing_run")
 
 
 rule generate_assembly_info:
@@ -60,4 +60,4 @@ rule generate_assembly_info:
     threads:
         config["upload"]["threads"]
     run:
-        uploader.gen_info(input, output, config, threads, "assembly")
+        uploader.gen_info(input, output[0], config, threads, "assembly")

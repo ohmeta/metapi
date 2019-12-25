@@ -8,13 +8,13 @@ import concurrent.futures
 def gen_samples_info(samples, output, config):
     samples_df = pd.DataFrame(
         columns=["project_accession", "sample_name"]
-        + config["upload"]["samples"].keys()
+        + list(config["upload"]["samples"].keys())
     )
     samples_df["sample_name"] = samples.index.unique()
     samples_df["project_accession"] = config["upload"]["project_accession"]
     for key in config["upload"]["samples"]:
         samples_df[key] = config["upload"]["samples"][key]
-    samples_df.to_excel(output)
+    samples_df.to_excel(output, index=False)
 
 
 def parse_md5(md5_file):
@@ -68,10 +68,10 @@ def gen_info(input_list, output, config, workers, group):
         run_df = df.loc[
             :,
             ["project_accession", "sample_name"]
-            + config["upload"][group].keys()
+            + list(config["upload"][group].keys())
             + ["file_name", "file_md5", "file2_name", "file2_md5"]
         ]
-        run_df.to_excel(output, sheet_name="Metadata")
+        run_df.to_excel(output, sheet_name="Metadata", index=False)
 
     if group == "assembly":
         asm_df = df.rename(
@@ -82,7 +82,7 @@ def gen_info(input_list, output, config, workers, group):
         asm_df = asm_df.loc[
             :,
             ["project_accession", "sample_accession", "sample_name", "assembly_name"]
-            + config["upload"]["group"].keys()
+            + list(config["upload"][group].keys())
             + ["fasta_file_name", "fasta_file_md5"]
         ]
-        asm_df.to_excel(output, sheet_name="Genome_Assembly")
+        asm_df.to_excel(output, sheet_name="Genome_Assembly", index=False)
