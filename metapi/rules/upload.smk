@@ -38,10 +38,9 @@ rule generate_samples_info:
 
 rule generate_run_info:
     input:
-        expand("{rmhost}/{sample}.rmhost{read}.fq.gz.md5",
+        expand("{rmhost}/{sample}.rmhost.fq.gz.md5",
                rmhost=config["results"]["rmhost"],
-               sample=_samples.index.unique(),
-               read = [".1", ".2"] if IS_PE else "")
+               sample=_samples.index.unique())
     output:
         os.path.join(config["results"]["upload"], "Experiment_Run.xlsx")
     threads:
