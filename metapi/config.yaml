@@ -195,6 +195,7 @@ results:
   coassembly:
     megahit: "results/03.coassembly/megahit"
     demultiplex_kraken2: "results/03.coassembly/demultiplex_kraken2"
+  upload: "results/03.upload"
   metaquast: "results/03.metaquast"
   prediction: "results/04.prediction"
   alignment: "results/04.alignment"
@@ -260,3 +261,52 @@ logs:
     jgi: "assay/10.profiling/jgi_logs"
     humann2: "assay/10.profiling/humann2_logs"
   burst: "assay/12.burst/burst12_logs"
+
+upload:
+  do: True
+  threads: 8
+  project_accession: "CNP0000000"
+  samples:
+    sample_title: ""
+    tax_id: "447426"
+    organism: "human oral metagenome"
+    common_name: ""
+    investigation_type: "metagenome"
+    collection_date: "2018-11-19"
+    env_biom: "saliva"
+    env_feature: "saliva"
+    env_material: "saliva material"
+    geo_loc_name: "China: Shenzhen"
+    host: "Homo sapiens"
+    lat_lon: "22.35 N 114.27 E"
+    strain: "missing"
+    estimated_size: "missing"
+    isol_growth_condt: "not collected"
+    num_replicons: "not collected"
+    ref_biomaterial: "not collected"
+    ploidy: "missing"
+    propagation: "not collected"
+
+  sequencing_run:
+    experiment_title: "WGS of human oral metagenome"
+    library_name: "LIBRARY_NAME-BARCODE_ID"
+    library_strategy: "WGS"
+    library_source: "METAGENOMIC"
+    library_selection: "RANDOM"
+    library_layout: "paired"
+    platform: "BGISEQ"
+    instrument_model: "BGISEQ-500"
+    design_description: "human oral metagenome"
+    library_construction_protocol: "RANDOM"
+    nominal_size: "350"
+    file_type: "fastq"
+
+  assembly:
+    assembly_method: "SPAdes"
+    assembly_method_version: "v3.13.0"
+    assembly_partial: True
+    assembly_coverage: "30"
+    sequencing_technology: "BGISEQ"
+    assembly_min_gap_length: ""
+    assembly_mol_type: "genomic DNA"
+    reference_genome: ""

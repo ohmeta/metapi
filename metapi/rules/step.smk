@@ -91,6 +91,12 @@ spades_output = expand(
     assembly=config["results"]["assembly"],
     sample=_samples.index.unique())
 
+upload_output = expand(
+    "{upload}/{target}.xlsx",
+    upload=config["results"]["upload"],
+    target=["MIxS_Samples", "Experiment_Run", "Genome_Assembly"]
+)
+
 coassembly_megahit_output = expand(
     "{coassembly_megahit}/final.contigs.fa.gz",
     coassembly_megahit=config["results"]["coassembly"]["megahit"])
@@ -347,6 +353,9 @@ if config["params"]["metaquast"]["do"]:
 
 if config["params"]["prediction"]["prodigal"]["do"]:
     assembly_target = (assembly_target + prediction_output)
+
+if config["upload"]["do"]:
+    assembly_target = (assembly_target + upload_output)
 
 alignment_target = (assembly_target + alignment_output)
 

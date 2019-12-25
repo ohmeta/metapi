@@ -3,6 +3,7 @@ import sys
 from metapi import sample
 from metapi import summary
 from metapi import merger
+from metapi import uploader
 
 shell.executable("bash")
 
@@ -63,6 +64,7 @@ include: "rules/annotation.smk"
 include: "rules/classification.smk"
 include: "rules/profiling.smk"
 include: "rules/burst.smk"
+include: "rules/upload.smk"
 
 '''
 include: "rules/dereplication.smk"
