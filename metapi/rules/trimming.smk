@@ -26,7 +26,7 @@ if config["params"]["trimming"]["oas1"]["do"]:
                 if reads_num == 2:
                     shell("OAs1 {input[0]},{input[1]} {params.prefix} {params.qual_system} {params.min_length} {params.seed_oa} {params.fragment_oa}")
                 else:
-                    r1_str = " ".join(input[0:reads_num//2-1])
+                    r1_str = " ".join(input[0:reads_num//2])
                     r2_str = " ".join(input[reads_num//2:])
                     r1 = os.path.join(config["results"]["trimming"], "%s.raw.1.fq.gz" % params.prefix)
                     r2 = os.path.join(config["results"]["trimming"], "%s.raw.2.fq.gz" % params.prefix)
@@ -68,7 +68,7 @@ if config["params"]["trimming"]["sickle"]["do"]:
                            --gzip-output --qual-type {params.qual_type} \
                            --qual-threshold {params.qual_cutoff} --length-threshold {params.length_cutoff} 2> {log}")
                 else:
-                    r1_str = " ".join(input[0:reads_num//2-1])
+                    r1_str = " ".join(input[0:reads_num//2])
                     r2_str = " ".join(input[reads_num//2:])
                     r1 = os.path.join(config["results"]["trimming"], "%s.raw.1.fq.gz" % params.prefix)
                     r2 = os.path.join(config["results"]["trimming"], "%s.raw.2.fq.gz" % params.prefix)
@@ -149,7 +149,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
                                --n_base_limit {params.n_base_limit} --length_required {params.length_required} \
                                --thread {threads} --html {output.html} --json {output.json} 2> {log}")
                 else:
-                    r1_str = " ".join(input[0:reads_num//2-1])
+                    r1_str = " ".join(input[0:reads_num//2])
                     r2_str = " ".join(input[reads_num//2:])
                     r1 = os.path.join(config["results"]["trimming"], "%s.raw.1.fq.gz" % params.prefix)
                     r2 = os.path.join(config["results"]["trimming"], "%s.raw.2.fq.gz" % params.prefix)

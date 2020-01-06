@@ -62,7 +62,7 @@ rule coassembly_megahit:
                       --min-contig-len {params.min_contig} --out-dir {params.out_dir} 2> {log}
                       pigz {params.out_dir}/final.contigs.fa''')
             else:
-                r1_str = ",".join(input[0:reads_num//2-1])
+                r1_str = ",".join(input[0:reads_num//2])
                 r2_str = ",".join(input[reads_num//2:])
                 shell('''rm -rf {params.out_dir}
                       megahit -1 {r1_str} -2 {r2_str} -t {threads} \
