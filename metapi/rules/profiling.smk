@@ -264,8 +264,8 @@ rule humann2_split_straified:
         map_database = config["params"]["profiling"]["humann2"]["map_database"]
     run:
         shell("humann2_split_straified_table -i {input.genefamilies} -o {params.outdir}")
-        shell("humann2_split_straified_table -i {input.genefamilies} -o {params.outdir}")
-        shell("humann2_split_straified_table -i {input.genefamilies} -o {params.outdir}")
+        shell("humann2_split_straified_table -i {input.pathabundance} -o {params.outdir}")
+        shell("humann2_split_straified_table -i {input.pathcoverage} -o {params.outdir}")
         i = -1
         for db in params.map_database:
             i += 1
