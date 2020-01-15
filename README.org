@@ -83,9 +83,9 @@ snakemake --snakefile /path/to/metapi/metapi/Snakefile \
     --configfile ./config.yaml \
     --cluster-config ./cluster.yaml \
     --jobs 80 \
-    --cluster "qsub -s /bin/bash -cwd \
+    --cluster "qsub -S /bin/bash -cwd \
                -q {cluster.queue} \
-               -p {cluster.project} \
+               -P {cluster.project} \
                -l vf={cluster.mem},p={cluster.cores} \
                -binding linear:{cluster.cores} \
                -o {cluster.output} \
