@@ -222,7 +222,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
                                --cut_tail_window_size {params.cut_tail_window_size} \
                                --cut_tail_mean_quality {params.cut_tail_mean_quality} \
                                --n_base_limit {params.n_base_limit} --length_required {params.length_required} \
-                               --thread {threads} --html {output.html} --json {output.json} 2> {log}" % r1)
+                               --thread {threads} --html {output.html} --json {output.json} 2> {log}" % r)
                     shell("rm -rf %s" % r)
 
     rule multiqc_fastp:
