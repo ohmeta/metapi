@@ -55,7 +55,6 @@ params:
       index_prefix: /path/to/host
       threads: 8
       save_bam: False
-      additional_params: "--no-unal"
   report:
     seqkit:
       do: True
