@@ -59,12 +59,12 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                 if config["params"]["rmhost"]["bwa"]["save_bam"]:
                     shell('''bwa mem -k {params.minimum_seed_length} -t {threads} {params.index_prefix} {input.reads[0] | \
                           tee >(samtools flagstat -@{threads} - > {output.flagstat} | \
-                          tee >(samtools fastq -@{threads} -N -f 8 -F 256 - > {output.reads[0]}) | \
+                          tee >(samtools fastq -@{threads} -N -f 4 -F 256 - > {output.reads[0]}) | \
                           samtools sort -@{threads} -O BAM -o {params.bam} - 2>{log}''')
                 else:
                     shell('''bwa mem -k {params.minimum_seed_length} -t {threads} {params.prefix} {input.reads[0]} | \
                           tee >(samtools flagstat -@{threads} - > {output.flagstat}) | \
-                          samtools fastq -@{threads} -N -f 8 -F 256 - > {output.reads[0]} 2>{log}''')
+                          samtools fastq -@{threads} -N -f 4 -F 256 - > {output.reads[0]} 2>{log}''')
 
 if config["params"]["rmhost"]["bowtie2"]["do"]:
     rule build_host_index_for_bowtie2:
@@ -118,13 +118,13 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                     shell('''bowtie2 --threads {threads} -x {params.index_prefix} \
                           -U {input.reads[0]} 2> {log} | \
                           tee >(samtools flagstat -@{threads} - > {output.flagstat}) | \
-                          tee >(samtools fastq -@{threads} -N -f 8 -F 256 - > {output.reads[0]}) | \
+                          tee >(samtools fastq -@{threads} -N -f 4 -F 256 - > {output.reads[0]}) | \
                           samtools sort -@{threads} -O BAM -o {params.bam}''')
                 else:
                     shell('''bowtie2 --threads {threads} -x {params.index_prefix} \
                           -U {input.reads[0]} 2> {log} | \
                           tee >(samtools flagstat -@{threads} - > {output.flagstat}) | \
-                          samtools fastq -@{threads} -N -f 8 -F 256 - > {output.reads[0]}''')
+                          samtools fastq -@{threads} -N -f 4 -F 256 - > {output.reads[0]}''')
 
 rule rmhost_report:
     input:
