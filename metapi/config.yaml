@@ -12,7 +12,7 @@ params:
     model:  "hiseq"
     threads: 8
   fastqc:
-    do: False
+    do: True
     threads: 8
   trimming:
     oas1:
@@ -108,6 +108,7 @@ params:
       format: "gff"
       mode: "meta"
   alignment:
+    do: True
     threads: 8
   binning:
     metabat2:
@@ -127,6 +128,7 @@ params:
     vsearch:
       identity: 0.75
   checkm:
+    do: True
     env: "bioenv2"
     threads: 8
     completeness: 90
@@ -139,6 +141,7 @@ params:
       threads: 8
   annotation:
     prokka:
+      do: False
       kingdom: Bacteria
       metagenome: False
       threads: 8
@@ -158,7 +161,7 @@ params:
       min_cu_len: 2000
       read_min_len: 70
     jgi:
-      do: False
+      do: True
       fragment: 1200
       memory_limit: 2G
       index_prefix: /path/to/bowtie2_index_prefix
@@ -170,6 +173,7 @@ params:
       regroup_method: "sum"
       map_database: ["uniref90_go", "uniref90_ko", "uniref90_eggnog", "uniref90_pfam", "uniref90_level4ec", "uniref90_infogo1000", "uniref90_rxn"]
   burst:
+    do: False
     references: "/path/to/references.edx"
     accelerator: "/path/to/accelerator.acx"
     identity: 0.97
@@ -262,9 +266,10 @@ logs:
   burst: "assay/12.burst/burst12_logs"
 
 upload:
-  do: True
+  do: False
   threads: 8
   project_accession: "CNP0000000"
+
   samples:
     sample_title: ""
     tax_id: "447426"
