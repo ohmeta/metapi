@@ -72,8 +72,8 @@ include: "rules/dereplication.smk"
 
 rule all:
     input:
-        burst_target
+        all_target
 
 rule debug:
     input:
-        all_target
+        debug_target

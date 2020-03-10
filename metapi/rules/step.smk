@@ -91,7 +91,7 @@ spades_output = expand(
     assembly=config["results"]["assembly"],
     sample=_samples.index.unique())
 
-upload_output = expand(
+upload_cnsa_output = expand(
     "{upload}/{target}.xlsx",
     upload=config["results"]["upload"],
     target=["MIxS_Samples", "Experiment_Run", "Genome_Assembly"]
@@ -125,7 +125,7 @@ metaquast_output = expand([
                           assembler=config["params"]["assembler"],
                           sample=_samples.index.unique())
 
-prediction_output = expand([
+prodigal_output = expand([
     "{prediction}/{sample}.prodigal_out/{sample}.{assembler}.pep.faa",
     "{prediction}/{sample}.prodigal_out/{sample}.{assembler}.cds.ffn",
     "{prediction}/{sample}.prodigal_out/{sample}.{assembler}.cds.gff",
@@ -135,7 +135,7 @@ prediction_output = expand([
                           assembler=config["params"]["assembler"],
                           sample=_samples.index.unique())
 
-alignment_output = expand([
+alignment_bwa_output = expand([
     "{alignment}/{sample}.bwa_out/{sample}.{assembler}.flagstat",
     "{alignment}/{sample}.bwa_out/{sample}.{assembler}.sorted.bam",
     "{alignment}/{sample}.bwa_out/{sample}.{assembler}.sorted.bam.bai",
@@ -210,14 +210,11 @@ checkm_profile_output = expand(
     profile=config["results"]["checkm"]["profile"],
     assembler=config["params"]["assembler"],
     sample=_samples.index)
+
+dereplication_output = expand()
 '''
 
-'''
-dereplication_output = expand(
-
-)
-'''
-annotation_output = expand(
+prokka_output = expand(
     [
         "{prokka}/{sample}.{assembler}.prokka_out/done",
         "{multiqc_prokka}/prokka_multiqc_report.html",
@@ -294,10 +291,12 @@ burst_output = expand(
     burst=config["results"]["burst"],
     sample=_samples.index.unique())
 
-#############################################################################
-quality_control_output = ([])
+#----------------------------------------------------------------#
+
+qc_output = ([])
 if config["params"]["fastqc"]["do"]:
-    quality_control_output = (fastqc_output)
+    qc_output = (fastqc_output)
+qc_target = (qc_output)
 
 trimming_output = ([])
 if config["params"]["trimming"]["oas1"]["do"]:
@@ -306,10 +305,12 @@ if config["params"]["trimming"]["sickle"]["do"]:
     trimming_output = (sickle_output)
 if config["params"]["trimming"]["fastp"]["do"]:
     trimming_output = (fastp_output)
-trimming_target = (quality_control_output + trimming_output)
+trimming_target = (qc_target + trimming_output)
 
-rmhost_target = (trimming_target + rmhost_output)
-#rmhost_target = (rmhost_output)
+rmhost_output_ = ([])
+if config["params"]["rmhost"]["do"]:
+    rmhost_output_ = (rmhost_output)
+rmhost_target = (trimming_target + rmhost_output_)
 
 assembly_output = ([])
 if config["params"]["assembly"]["megahit"]["do"]:
@@ -351,39 +352,52 @@ else:
 if config["params"]["metaquast"]["do"]:
     assembly_target = (assembly_target + metaquast_output)
 
+prediction_output = ([])
 if config["params"]["prediction"]["prodigal"]["do"]:
-    assembly_target = (assembly_target + prediction_output)
+    prediction_output = (prodigal_output)
+prediction_target = (assembly_target + prediction_output)
 
+upload_output = ([])
 if config["upload"]["do"]:
-    assembly_target = (assembly_target + upload_output)
+    upload_output = (upload_cnsa_output)
+upload_target = (prediction_target + upload_output)
 
-alignment_target = (assembly_target + alignment_output)
+alignment_output = ([])
+if config["params"]["alignment"]["do"]:
+    alignment_output = (alignment_bwa_output)
+alignment_target = (upload_target + alignment_output)
 
 binning_output = ([])
 if config["params"]["binning"]["metabat2"]["do"]:
     binning_output = (metabat2_output)
-if config['params']["binning"]["maxbin2"]["do"]:
+if config["params"]["binning"]["maxbin2"]["do"]:
     binning_output = (binning_output + maxbin2_output)
+binning_target = (alignment_target + binning_output)
 
-binning_target = (assembly_target + binning_output)
-
-cobinning_output = (cobin_prediction_output + cobin_vsearch_clust_output + cobin_alignment_cds_output)
-
+cobinning_output = ([])
 if config["params"]["cobinning"]["do"]:
-    binning_target = (binning_target + cobinning_output)
-    # pprint(binning_target)
+    cobinning_output = (cobin_prediction_output +
+                        cobin_vsearch_clust_output +
+                        cobin_alignment_cds_output)
+binning_target = (binning_target + cobinning_output)
 
-# checkm_output = checkm_lineage_wf_output + checkm_coverage_output + checkm_profile_output
-checkm_output = checkm_lineage_wf_output
+checkm_output = ([])
+if config["params"]["checkm"]["do"]:
+    checkm_output = checkm_lineage_wf_output
+    # checkm_output = (checkm_lineage_wf_output +
+    #                  checkm_coverage_output +
+    #                  checkm_profile_output)
 checkm_target = (binning_target + checkm_output)
 
+annotation_output = ([])
+if config["params"]["annotation"]["prokka"]["do"]:
+    annotation_output = (prokka_output)
 annotation_target = (checkm_target + annotation_output)
 
 classification_output = ([])
 if config["params"]["classification"]["kraken2"]["do"]:
     classification_output = (kraken2_output)
-
-classification_target = annotation_target + classification_output
+classification_target = (annotation_target + classification_output)
 
 profiling_output = ([])
 if config["params"]["profiling"]["metaphlan2"]["do"]:
@@ -397,32 +411,28 @@ if config["params"]["profiling"]["humann2"]["do"]:
                         humann2_profiling_output +
                         humann2_postprocess_output +
                         humann2_join_split_output)
-
 profiling_target = (classification_target + profiling_output)
 
-burst_target = (profiling_target + burst_output)
-'''
-dereplication_target = (cehckm_target + dereplication_output)
-classification_target = (drep_target + classification_output)
-annotation_target = (classification_target + annotation_output)
-'''
+burst_output_ = ([])
+if config["params"]["burst"]["do"]:
+    burst_output_ = (burst_output)
+burst_target = (profiling_target + burst_output_)
 
-all_target = (
-    sra2fq_output +
-    simulation_output +
-    fastqc_output +
+all_target = burst_target
+
+debug_target = (
+    qc_output +
     trimming_output +
     rmhost_output +
     assembly_output +
-    coassembly_megahit_output +
-    demultiplex_kraken2_output +
-    metaquast_output +
     prediction_output +
+    upload_output +
     alignment_output +
     binning_output +
-    cobinning_output +
     checkm_output +
     annotation_output +
     classification_output +
     profiling_output +
     burst_output)
+
+# all_target == debug_target
