@@ -416,7 +416,7 @@ profiling_target = (classification_target + profiling_output)
 burst_output_ = ([])
 if config["params"]["burst"]["do"]:
     burst_output_ = (burst_output)
-burst_target = (profiling_target + burst_output)
+burst_target = (profiling_target + burst_output_)
 
 all_target = burst_target
 
