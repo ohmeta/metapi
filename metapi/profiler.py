@@ -171,7 +171,7 @@ def get_profile(abun_tax_df, samples_list, key, profile_tsv):
 
 
 def main():
-    parser = argparse.ArgumentParser("merge many samples abundance file to one profile")
+    parser = argparse.ArgumentParser("metagenomics species abundance profiler")
     parser.add_argument("-l", "--abundance_list", type=str, help="abundance list")
     parser.add_argument(
         "--method", default="hsx", choices=["hsx", "jgi"], help="compute method"
