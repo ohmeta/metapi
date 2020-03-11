@@ -69,7 +69,7 @@ def gen_info(input_list, output, config, workers, group):
             :,
             ["project_accession", "sample_name"]
             + list(config["upload"][group].keys())
-            + ["file_name", "file_md5", "file2_name", "file2_md5"]
+            + ["file_name", "file_md5", "file2_name", "file2_md5"],
         ]
         run_df.to_excel(output, sheet_name="Metadata", index=False)
 
@@ -83,6 +83,6 @@ def gen_info(input_list, output, config, workers, group):
             :,
             ["project_accession", "sample_accession", "sample_name", "assembly_name"]
             + list(config["upload"][group].keys())
-            + ["fasta_file_name", "fasta_file_md5"]
+            + ["fasta_file_name", "fasta_file_md5"],
         ]
         asm_df.to_excel(output, sheet_name="Genome_Assembly", index=False)
