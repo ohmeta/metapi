@@ -123,22 +123,27 @@ rule jgi_profile_merge:
         config["params"]["profiling"]["threads"]
     run:
         import pandas as pd
+
         taxonomy_df = pd.read_csv(input.taxonomy, sep='\t')
-        merger.global_init(input.index_metadata)
-        depth_df, abun_df = merger.get_all_abun_df(input.abun_files, threads, "jgi")
+
+        profiler.global_init(input.index_metadata)
+
+        depth_df, abun_df = profiler.get_all_abun_df(input.abun_files, threads, "jgi")
+        samples_list = sorted(abun_df.columns[1:].to_list())
+
         depth_df.to_csv(output.depth_profile, sep='\t', index=False)
         abun_df.to_csv(output.abundance_profile, sep='\t', index=False)
-        samples_list = sorted(abun_df.columns[1:].to_list())
+
         abun_tax_df = abun_df.merge(taxonomy_df)
 
-        merger.get_profile(abun_tax_df, samples_list,  "lineages_superkingdom_new", output.abundance_profile_k)
-        merger.get_profile(abun_tax_df, samples_list, "lineages_phylum_new", output.abundance_profile_p)
-        merger.get_profile(abun_tax_df, samples_list, "lineages_order_new", output.abundance_profile_o)
-        merger.get_profile(abun_tax_df, samples_list, "lineages_class_new", output.abundance_profile_c)
-        merger.get_profile(abun_tax_df, samples_list, "lineages_family_new", output.abundance_profile_f)
-        merger.get_profile(abun_tax_df, samples_list, "lineages_genus_new", output.abundance_profile_g)
-        merger.get_profile(abun_tax_df, samples_list, "lineages_species_new", output.abundance_profile_s)
-        merger.get_profile(abun_tax_df, samples_list, "lineages_strain_new", output.abundance_profile_t)
+        profiler.get_profile(abun_tax_df, samples_list,  "lineages_superkingdom_new", output.abundance_profile_k)
+        profiler.get_profile(abun_tax_df, samples_list, "lineages_phylum_new", output.abundance_profile_p)
+        profiler.get_profile(abun_tax_df, samples_list, "lineages_order_new", output.abundance_profile_o)
+        profiler.get_profile(abun_tax_df, samples_list, "lineages_class_new", output.abundance_profile_c)
+        profiler.get_profile(abun_tax_df, samples_list, "lineages_family_new", output.abundance_profile_f)
+        profiler.get_profile(abun_tax_df, samples_list, "lineages_genus_new", output.abundance_profile_g)
+        profiler.get_profile(abun_tax_df, samples_list, "lineages_species_new", output.abundance_profile_s)
+        profiler.get_profile(abun_tax_df, samples_list, "lineages_strain_new", output.abundance_profile_t)
 
 
 rule humann2_profiling:
