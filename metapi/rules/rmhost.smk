@@ -107,7 +107,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                           -1 {input.reads[0]} -2 {input.reads[1]} 2> {log} | \
                           tee >(samtools flagstat -@{threads} - > {output.flagstat}) | \
                           tee >(samtools fastq -@{threads} -N -f 12 -F 256 -1 {output.reads[0]} -2 {output.reads[1]} -) | \
-                          samtools sort -@{threads} -O BAM -o {params.bam}''')
+                          samtools sort -@{threads} -O BAM -o {params.bam} -''')
                 else:
                     shell('''bowtie2 --threads {threads} -x {params.index_prefix} \
                           -1 {input.reads[0]} -2 {input.reads[1]} 2> {log} | \
@@ -119,7 +119,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                           -U {input.reads[0]} 2> {log} | \
                           tee >(samtools flagstat -@{threads} - > {output.flagstat}) | \
                           tee >(samtools fastq -@{threads} -N -f 4 -F 256 - > {output.reads[0]}) | \
-                          samtools sort -@{threads} -O BAM -o {params.bam}''')
+                          samtools sort -@{threads} -O BAM -o {params.bam} -''')
                 else:
                     shell('''bowtie2 --threads {threads} -x {params.index_prefix} \
                           -U {input.reads[0]} 2> {log} | \
