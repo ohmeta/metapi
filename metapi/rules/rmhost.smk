@@ -52,17 +52,17 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                           tee >(samtools fastq -@{threads} -N -f 12 -F 256 -1 {output.reads[0]} -2 {output.reads[1]} -) | \
                           samtools sort -@{threads} -O BAM -o {params.bam} - 2>{log}''')
                 else:
-                    shell('''bwa mem -k {params.minimum_seed_length} -t {threads} {params.prefix} {input.reads[0]} | \
+                    shell('''bwa mem -k {params.minimum_seed_length} -t {threads} {params.index_prefix} {input.reads[0]} {input.reads[1]} | \
                           tee >(samtools flagstat -@{threads} - > {output.flagstat}) | \
                           samtools fastq -@{threads} -N -f 12 -F 256 -1 {output.reads} -2 {output.r2} - 2>{log}''')
             else:
                 if config["params"]["rmhost"]["bwa"]["save_bam"]:
-                    shell('''bwa mem -k {params.minimum_seed_length} -t {threads} {params.index_prefix} {input.reads[0] | \
-                          tee >(samtools flagstat -@{threads} - > {output.flagstat} | \
+                    shell('''bwa mem -k {params.minimum_seed_length} -t {threads} {params.index_prefix} {input.reads[0]} | \
+                          tee >(samtools flagstat -@{threads} - > {output.flagstat}) | \
                           tee >(samtools fastq -@{threads} -N -f 4 -F 256 - > {output.reads[0]}) | \
                           samtools sort -@{threads} -O BAM -o {params.bam} - 2>{log}''')
                 else:
-                    shell('''bwa mem -k {params.minimum_seed_length} -t {threads} {params.prefix} {input.reads[0]} | \
+                    shell('''bwa mem -k {params.minimum_seed_length} -t {threads} {params.index_prefix} {input.reads[0]} | \
                           tee >(samtools flagstat -@{threads} - > {output.flagstat}) | \
                           samtools fastq -@{threads} -N -f 4 -F 256 - > {output.reads[0]} 2>{log}''')
 
