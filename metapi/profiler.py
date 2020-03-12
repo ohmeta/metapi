@@ -179,11 +179,12 @@ def main():
     parser.add_argument(
         "--database", default=None, help="contig and genome relationships"
     )
-    parser.add_argument("--threads", default=8, type=int, help="threads")
-    parser.add_argument("--out_count_profile", type=str, help="output count profile")
     parser.add_argument(
-        "--out_abundance_profile", type=str, help="output abundance profile"
+        "--taxonomy", default=None, help="genome database taxonomy information"
     )
+    parser.add_argument("--threads", default=8, type=int, help="threads")
+    parser.add_argument("--out_prefix", default="./", type=str, help="output prefix")
+
     args = parser.parse_args()
 
     abun_files = pd.read_csv(args.abundance_list, names=["path"]).loc[:, "path"].values
@@ -200,8 +201,67 @@ def main():
     else:
         print("unsupport method: %s" % args.method)
 
-    count_df.to_csv(args.out_count_profile, sep="\t", index=False)
-    abun_df.to_csv(args.out_abundance_profile, sep="\t", index=False)
+    outdir = os.path.dirname(args.out_prefix)
+    outprefix = os.path.basename(args.out_prefix)
+    os.makedirs(outdir, exist_ok=True)
+    count_profile = os.path.join(outdir, outprefix + "_count_profile.tsv")
+    abun_profile = os.path.join(outdir, outprefix + "_abundance_profile.tsv")
+    count_df.to_csv(count_profile, sep="\t", index=False)
+    abun_df.to_csv(abun_profile, sep="\t", index=False)
+
+    if args.taxonomy is not None:
+        taxonomy_df = pd.read_csv(args.taxonomy, sep="\t")
+        abun_tax_df = abun_df.merge(taxonomy_df)
+        samples_list = sorted(abun_df.columns[1:].to_list())
+
+        get_profile(
+            abun_tax_df,
+            samples_list,
+            "lineages_superkingdom_new",
+            os.path.join(outdir, outprefix + "_abundance_profile_superkingdom.tsv"),
+        )
+        get_profile(
+            abun_tax_df,
+            samples_list,
+            "lineages_phylum_new",
+            os.path.join(outdir, outprefix + "_abundance_profile_phylum.tsv"),
+        )
+        get_profile(
+            abun_tax_df,
+            samples_list,
+            "lineages_order_new",
+            os.path.join(outdir, outprefix + "_abundance_profile_order.tsv"),
+        )
+        get_profile(
+            abun_tax_df,
+            samples_list,
+            "lineages_class_new",
+            os.path.join(outdir, outprefix + "_abundance_profile_class.tsv"),
+        )
+        get_profile(
+            abun_tax_df,
+            samples_list,
+            "lineages_family_new",
+            os.path.join(outdir, outprefix + "_abundance_profile_family.tsv"),
+        )
+        get_profile(
+            abun_tax_df,
+            samples_list,
+            "lineages_genus_new",
+            os.path.join(outdir, outprefix + "_abundance_profile_genus.tsv"),
+        )
+        get_profile(
+            abun_tax_df,
+            samples_list,
+            "lineages_species_new",
+            os.path.join(outdir, outprefix + "_abundance_profile_species.tsv"),
+        )
+        get_profile(
+            abun_tax_df,
+            samples_list,
+            "lineages_strain_new",
+            os.path.join(outdir, outprefix + "_abundance_profile_strain.tsv"),
+        )
 
 
 if __name__ == "__main__":
