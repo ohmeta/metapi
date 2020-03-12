@@ -202,8 +202,11 @@ def main():
         print("unsupport method: %s" % args.method)
 
     outdir = os.path.dirname(args.out_prefix)
+    if (outdir == "") or (outdir == "."):
+        outdir = "."
+    else:
+        os.makedirs(outdir, exist_ok=True)
     outprefix = os.path.basename(args.out_prefix)
-    os.makedirs(outdir, exist_ok=True)
     count_profile = os.path.join(outdir, outprefix + "_count_profile.tsv")
     abun_profile = os.path.join(outdir, outprefix + "_abundance_profile.tsv")
     count_df.to_csv(count_profile, sep="\t", index=False)
