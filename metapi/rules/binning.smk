@@ -1,8 +1,8 @@
 rule coverage_metabat2:
     input:
         # scaftigs_flagstat_summary = os.path.join(config["results"]["alignment"], "scaftigs_flagstat_summary.tsv"),
-        bai = temp(os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam.bai")),
-        bam = temp(os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam"))
+        bai = os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam.bai"),
+        bam = os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam")
     output:
         depth = os.path.join(config["results"]["binning"]["depth"], "{sample}.{assembler}.metabat2.depth.txt")
     params:
@@ -15,8 +15,8 @@ rule coverage_metabat2:
 
 rule coverage_maxbin2:
     input:
-        bai = temp(os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam.bai")),
-        bam = temp(os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam"))
+        bai = os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam.bai"),
+        bam = os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam")
     output:
         depth_bb = os.path.join(config["results"]["binning"]["depth"], "{sample}.{assembler}.bbmap.depth.txt"),
         depth = os.path.join(config["results"]["binning"]["depth"], "{sample}.{assembler}.maxbin2.depth.txt")
