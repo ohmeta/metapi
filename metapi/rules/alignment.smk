@@ -40,7 +40,7 @@ rule align_reads_to_scaftigs:
 
 rule build_index_for_bam:
     input:
-        os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam")
+        temp(os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam"))
     output:
         temp(os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam.bai"))
     log:
