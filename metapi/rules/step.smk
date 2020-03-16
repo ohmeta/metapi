@@ -137,8 +137,8 @@ prodigal_output = expand([
 
 alignment_bwa_output = expand([
     "{alignment}/{sample}.bwa_out/{sample}.{assembler}.flagstat",
-    "{alignment}/{sample}.bwa_out/{sample}.{assembler}.sorted.bam",
-    "{alignment}/{sample}.bwa_out/{sample}.{assembler}.sorted.bam.bai",
+#    "{alignment}/{sample}.bwa_out/{sample}.{assembler}.sorted.bam",
+#    "{alignment}/{sample}.bwa_out/{sample}.{assembler}.sorted.bam.bai",
     "{alignment}/scaftigs_flagstat_summary.tsv"
 ],
                           alignment=config["results"]["alignment"],
