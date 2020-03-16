@@ -95,11 +95,11 @@ if len(config["params"]["assembly"]["spades"]["kmers"]) > 0:
     spades_kmer_list = config["params"]["assembly"]["spades"]["kmers"]
 
 def get_kmer_dirs(wildcards, asmer, kmer_list):
-    return expand(directory(temp(os.path.join(config["results"]["assembly"],
-                                              "{sample}.{asmer}_out/K{kmer}"))),
+    return directory(temp(expand(os.path.join(config["results"]["assembly"],
+                                              "{sample}.{asmer}_out/K{kmer}"),
                   asmer=asmer,
                   sample=wildcards.sample,
-                  kmer=kmer_list)
+                  kmer=kmer_list)))
 
 rule assembly_metaspades:
     input:
