@@ -129,7 +129,6 @@ params:
       identity: 0.75
   checkm:
     do: True
-    env: "bioenv2"
     threads: 8
     completeness: 90
     contamination: 10

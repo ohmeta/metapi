@@ -7,8 +7,7 @@ rule checkm_lineage_wf:
     params:
         txt_dir = directory(config["results"]["checkm"]["out"]),
         data_dir = directory(config["results"]["checkm"]["data"]),
-        checkm_data_dir = directory(os.path.join(config["results"]["checkm"]["data"], "{sample}.{assembler}")),
-        checkm_env = config["params"]["checkm"]["env"]
+        checkm_data_dir = directory(os.path.join(config["results"]["checkm"]["data"], "{sample}.{assembler}"))
     log:
         os.path.join(config["logs"]["checkm"], "{sample}.{assembler}.checkm.log")
     threads:
@@ -20,7 +19,6 @@ rule checkm_lineage_wf:
         mkdir -p {params.checkm_data_dir}
         num=$(find {input.bins_dir} -type f -name "*.fa" | wc -l)
         if [[ $num > 0 ]]; then
-            set +u; source activate {params.checkm_env}; set -u;
             rm -rf {params.checkm_data_dir}
             checkm lineage_wf -f {output.checkm_txt} -t {threads} -x fa {input.bins_dir}/ {params.checkm_data_dir}/ 2> {log}
         else
