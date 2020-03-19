@@ -96,11 +96,11 @@ def main():
                 taxid=mpa_df.loc[i, "taxid"],
                 outdir=args.outdir,
                 parallel=args.parallel,
-                table=os.path.join(args.logdir, i + ".ngd.metadata.tsv"),
+                table=os.path.join(args.logdir, "species_taxid_" + mpa_df.loc[i, "taxid"] + ".ngd.metadata.tsv"),
                 group=tax_df.loc[i, "kingdom"],
             )
             if args.print:
-                print(cmd + "\n")
+                print(cmd)
             if args.download:
                 ngd.download(
                     section="genbank",
@@ -123,8 +123,6 @@ def main():
                 print(logstr)
             if args.download:
                 logout.write(logstr + "\n")
-
-    logout.close()
 
 
 if __name__ == "__main__":
