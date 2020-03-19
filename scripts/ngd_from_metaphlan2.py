@@ -45,7 +45,7 @@ def parse_pickle(mpa_pickle):
     for marker in mpa["markers"]:
         tax_id = marker.split("__")[0]
         if tax_id not in mpa_dict:
-            mpa_dict[tax_id] = mpa["markers"][marker]["taxon"]
+            mpa_dict[tax_id] = "|".join(mpa["markers"][marker]["taxon"].split("|")[0:7])
     mpa_df = pd.DataFrame(mpa_dict.items(), columns=["taxid", "lineages"]).set_index(
         "lineages"
     )
@@ -66,8 +66,12 @@ def main():
         "--mpa_pkl", help="MetaPhlAn2 clade pickle",
     )
     parser.add_argument("--tax_list", help="a file contain species taxonmy lineages")
-    parser.add_argument("--print", action="store_true", help="print download shell")
-    parser.add_argument("--download", action="store_true", help="just download")
+    parser.add_argument(
+        "--print", action="store_true", default=False, help="print download shell"
+    )
+    parser.add_argument(
+        "--download", action="store_true", default=False, help="just download"
+    )
     parser.add_argument("--outdir", default=None, type=str, help="output directory")
     parser.add_argument(
         "--parallel", default=4, type=int, help="parallel download number, default: 4"
@@ -80,48 +84,47 @@ def main():
     mpa_df = parse_pickle(args.mpa_pkl)
     tax_df = parse_taxonomy(args.tax_list)
 
-    if args.print:
-        for i in tax_df.index:
-            cmd = """ngd \
-            --section genbank \
-            --format all \
-            --assembly-level all
-            --genus "{genus}" \
-            --species-taxid {taxid} \
-            --refseq-category representative \
-            --output-folder {outdir} \
-            --flat-output \
-            --parallel {parallel} \
-            --retries 3 \
-            --metadata-table {table}
-            {group}""".format(
+    if args.download:
+        os.mkdirs(args.outdir, exists_ok=True)
+        os.mkdirs(args.logdir, exists_ok=True)
+        logout = open(os.path.join(args.logdir, "ngd.log"), "w")
+
+    for i in tax_df.index:
+        if i in mpa_df.index:
+            cmd = """ngd --section genbank --format all --assembly-level all --genus "{genus}" --species-taxid {taxid} --refseq-category representative --output-folder {outdir} --flat-output --parallel {parallel} --retries 3 --metadata-table {table} {group}""".format(
                 genus=tax_df.loc[i, "genus"],
                 taxid=mpa_df.loc[i, "taxid"],
                 outdir=args.outdir,
                 parallel=args.parallel,
-                table=os.path.join(args.logdir, i + ".ngd.log"),
+                table=os.path.join(args.logdir, i + ".ngd.metadata.tsv"),
                 group=tax_df.loc[i, "kingdom"],
             )
-            print(cmd)
+            if args.print:
+                print(cmd + "\n")
+            if args.download:
+                ngd.download(
+                    section="genbank",
+                    format="all",
+                    assembly_level="all",
+                    genus=tax_df.loc[i, "genus"],
+                    species_taxid=mpa_df.loc[i, "taxid"],
+                    refseq_category="representative",
+                    outdir=args.outdir,
+                    flat_output=True,
+                    parallel=args.parallel,
+                    retries=3,
+                    metadata_table=os.path.join(args.logdir, i + ".ngd.log"),
+                    group=tax_df.loc[i, "kingdom"],
+                )
+                logout.write(cmd + "\n")
+        else:
+            logstr = "Can't find taxid for: %s, please check" % i
+            if args.print:
+                print(logstr)
+            if args.download:
+                logout.write(logstr + "\n")
 
-    if args.download:
-        os.mkdirs(args.outdir, exists_ok=True)
-        os.mkdirs(args.logdir, exists_ok=True)
-        for i in tax_df.index:
-            ngd.download(
-                section="genbank",
-                format="all",
-                assembly_level="all",
-                genus=tax_df.loc[i, "genus"],
-                species_taxid=mpa_df.loc[i, "taxid"],
-                refseq_category="representative",
-                outdir=args.outdir,
-                flat_output=True,
-                parallel=args.parallel,
-                retries=3,
-                metadata_table=os.path.join(args.logdir, i + ".ngd.log"),
-                group=tax_df.loc[i, "kingdom"],
-            )
+    logout.close()
 
 
 if __name__ == "__main__":
