@@ -63,6 +63,7 @@ def parse_taxonomy(taxonomy):
 def main():
     parser = argparse.ArgumentParser(description="ncbi-genome-downloader wrapper")
     parser.add_argument(
+<<<<<<< HEAD
         "--mpa_pkl",
         "MetaPhlAn2 clade pickle",
     )
@@ -75,6 +76,20 @@ def main():
     parser.add_argument("--outdir", default=None, type=str, "output directory")
     parser.add_argument("--parallel", default=4, type=int, "parallel download number, default: 4")
     parser.add_argument("--logdir", default="./ngd_logs", type=str, "ngd download log directory")
+=======
+        "--mpa_pkl", help="MetaPhlAn2 clade pickle",
+    )
+    parser.add_argument("--tax_list", help="a file contain species taxonmy lineages")
+    parser.add_argument("--print", action="store_true", help="print download shell")
+    parser.add_argument("--download", action="store_true", help="just download")
+    parser.add_argument("--outdir", default=None, type=str, help="output directory")
+    parser.add_argument(
+        "--parallel", default=4, type=int, help="parallel download number, default: 4"
+    )
+    parser.add_argument(
+        "--logdir", default="./ngd_logs", type=str, help="ngd download log directory"
+    )
+>>>>>>> a3e3bead53b91c2287ef41a0dc659c186301eca3
     args = parser.parse_args()
 
     mpa_df = parse_pickle(args.mpa_pkl)
@@ -82,7 +97,11 @@ def main():
 
     if args.print:
         for i in tax_df.index:
+<<<<<<< HEAD
             cmd = '''ngd \
+=======
+            cmd = """ngd \
+>>>>>>> a3e3bead53b91c2287ef41a0dc659c186301eca3
             --section genbank \
             --format all \
             --assembly-level all
@@ -94,6 +113,7 @@ def main():
             --parallel {parallel} \
             --retries 3 \
             --metadata-table {table}
+<<<<<<< HEAD
             {group}'''.format(
                 genus = tax_df.loc[i, "genus"],
                 taxid = mpa_df.loc[i, "taxid"],
@@ -101,6 +121,15 @@ def main():
                 parallel = args.parallel,
                 table = os.path.join(args.logdir, i + ".ngd.log"),
                 group = tax_df.loc[i, "kingdom"]
+=======
+            {group}""".format(
+                genus=tax_df.loc[i, "genus"],
+                taxid=mpa_df.loc[i, "taxid"],
+                outdir=args.outdir,
+                parallel=args.parallel,
+                table=os.path.join(args.logdir, i + ".ngd.log"),
+                group=tax_df.loc[i, "kingdom"],
+>>>>>>> a3e3bead53b91c2287ef41a0dc659c186301eca3
             )
             print(cmd)
 
@@ -109,6 +138,7 @@ def main():
         os.mkdirs(args.logdir, exists_ok=True)
         for i in tax_df.index:
             ngd.download(
+<<<<<<< HEAD
                 section = "genbank",
                 format = "all",
                 assembly_level = "all",
@@ -123,6 +153,22 @@ def main():
                 group = tax_df.loc[i, "kingdom"]
             )
            
+=======
+                section="genbank",
+                format="all",
+                assembly_level="all",
+                genus=tax_df.loc[i, "genus"],
+                species_taxid=mpa_df.loc[i, "taxid"],
+                refseq_category="representative",
+                outdir=args.outdir,
+                flat_output=True,
+                parallel=args.parallel,
+                retries=3,
+                metadata_table=os.path.join(args.logdir, i + ".ngd.log"),
+                group=tax_df.loc[i, "kingdom"],
+            )
+
+>>>>>>> a3e3bead53b91c2287ef41a0dc659c186301eca3
 
 if __name__ == "__main__":
     main()
