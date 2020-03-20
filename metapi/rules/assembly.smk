@@ -212,6 +212,6 @@ rule assembly_report:
         '''
         seqtk comp {input.scaftigs} | \
         awk 'BEGIN {{print "sample_id\tchr\tlength\t#A\t#C\t#G\t#T\t#2\t#3\t#4\t#CpG\t#tv\t#ts\t#CpG-ts"}}; \
-             {{print {params.sample_id} "\t" $0}}' | \
+             {{print {{params.sample_id}} "\t" $0}}' | \
         gzip -c > {output.report}
         '''
