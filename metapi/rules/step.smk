@@ -92,7 +92,7 @@ spades_output = expand(
     sample=_samples.index.unique())
 
 assembly_report_output = expand(
-    "{assembly}/{sample}.{assembler}/{sample}.{assembler}.scafitgs.seqtk.comp.tsv.gz",
+    "{assembly}/{sample}.{assembler}_out/{sample}.{assembler}.scafitgs.seqtk.comp.tsv.gz",
     assembly=config["results"]["assembly"],
     sample=_samples.index.unique(),
     assembler=config["params"]["assembler"]
