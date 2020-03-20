@@ -202,11 +202,7 @@ rule assembly_spades:
 rule assembly_report:
     input:
         scaftigs = os.path.join(config["results"]["assembly"],
-<<<<<<< HEAD
-                                "{sample}.{assembler}_out/{sample}.{assembler}.scaftigs.fa.gz"))
-=======
                                 "{sample}.{assembler}_out/{sample}.{assembler}.scaftigs.fa.gz")
->>>>>>> 1f0512217f9833818f7c1573a7498f5cd2d49ef0
     output:
         report = os.path.join(config["results"]["assembly"],
                               "{sample}.{assembler}_out/{sample}.{assembler}.scaftigs.seqtk.comp.tsv.gz")
