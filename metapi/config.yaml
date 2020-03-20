@@ -63,7 +63,7 @@ params:
   assembler: ["megahit", "idba_ud", "metaspades", "spades"]
   assembly:
     report:
-      do: False
+      do: True
     megahit:
       do: False
       threads: 8
@@ -78,7 +78,7 @@ params:
     metaspades:
       do: True
       only_assembler: False
-      only_save_scaftigs: False
+      only_save_scaftigs: True
       memory: 20
       threads: 8
       kmers: ['21', '29', '39', '59', '79', '99']
@@ -131,6 +131,7 @@ params:
       identity: 0.75
   checkm:
     do: True
+    report: True
     threads: 8
     completeness: 90
     contamination: 10
@@ -211,6 +212,7 @@ results:
     cds: "results/05.cobinning/cds"
     depth: "results/05.cobinning/depth"
   checkm:
+    base_dir: "results/06.checkm"
     out: "results/06.checkm/checkm_out"
     data: "results/06.checkm/checkm_data"
     coverage: "results/06.checkm/checkm_coverage"

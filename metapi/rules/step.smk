@@ -205,6 +205,12 @@ checkm_lineage_wf_output = expand([
                         assembler=config["params"]["assembler"],
                         sample=_samples.index.unique())
 
+checkm_report_output = expand(
+    "{basedir}/checkm_{assembler}_out.tsv",
+    basedir=config["results"]["checkm"]["basedir"],
+    assembler=config["params"]["assembler"]
+)
+
 '''
 checkm_coverage_output = expand(
     "{coverage}/{sample}.{assembler}.checkm_coverage.tsv",
@@ -393,10 +399,12 @@ binning_target = (binning_target + cobinning_output)
 
 checkm_output = ([])
 if config["params"]["checkm"]["do"]:
-    checkm_output = checkm_lineage_wf_output
+    checkm_output = (checkm_lineage_wf_output)
     # checkm_output = (checkm_lineage_wf_output +
     #                  checkm_coverage_output +
     #                  checkm_profile_output)
+if config["params"]["checkm"]["report"]:
+    checkm_output = (checkm_output + checkm_report_output)
 checkm_target = (binning_target + checkm_output)
 
 annotation_output = ([])

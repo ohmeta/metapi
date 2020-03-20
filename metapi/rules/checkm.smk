@@ -38,15 +38,12 @@ rule checkm_report:
                sample=_samples.index.unique(),
                assembler=config["params"]["assembler"])
     output:
-        os.path.join(config["results"]["checkm"]["basedir"], "checkm_out.tsv")
-    params:
-        completeness = config["params"]["checkm"]["completeness"],
-        contamination = config["params"]["checkm"]["contamination"]
+        os.path.join(config["results"]["checkm"]["base_dir"], "checkm_{assembler}_out.tsv")
     threads:
         config["params"]["checkm"]["threads"]
     run:
         from metapi import checkmer
-        checkmer.report(input, output[0], params.completeness, params.contamination)
+        checkmer.report(input, output[0], threads)
        
 
 # rule checkm_coverage:

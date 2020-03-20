@@ -298,6 +298,12 @@ checkm_lineage_wf:
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
+checkm_report:
+  mem: "512M"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{assembler}.o"
+  error: "assay/cluster_logs/{rule}.{assembler}.e"
+
 checkm_coverage:
   mem: "512M"
   cores: 8
