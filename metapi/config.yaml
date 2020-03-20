@@ -62,6 +62,8 @@ params:
       fq_encoding: "sanger"
   assembler: ["megahit", "idba_ud", "metaspades", "spades"]
   assembly:
+    report:
+      do: False
     megahit:
       do: False
       threads: 8

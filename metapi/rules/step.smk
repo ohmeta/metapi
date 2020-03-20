@@ -91,6 +91,13 @@ spades_output = expand(
     assembly=config["results"]["assembly"],
     sample=_samples.index.unique())
 
+assembly_report_output = expand(
+    "{assembly}/{sample}.{assembler}/{sample}.{assembler}.scafitgs.seqtk.comp.tsv.gz",
+    assembly=config["results"]["assembly"],
+    sample=_samples.index.unique(),
+    assembler=config["params"]["assembler"]
+)
+
 upload_cnsa_output = expand(
     "{upload}/{target}.xlsx",
     upload=config["results"]["upload"],
@@ -348,6 +355,9 @@ else:
         assembly_target = (assembly_target +
                            raw_report_output +
                            trimming_report_output)
+
+if config["params"]["assembly"]["report"]["do"]:
+    assembly_target = (assembly_target + assembly_report_output)
 
 if config["params"]["metaquast"]["do"]:
     assembly_target = (assembly_target + metaquast_output)

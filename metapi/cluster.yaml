@@ -147,6 +147,12 @@ assembly_spades:
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
 
+assembly_report:
+  mem: "512M"
+  cores: 1
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+
 coassembly_megahit:
   mem: "20G"
   cores: 8
