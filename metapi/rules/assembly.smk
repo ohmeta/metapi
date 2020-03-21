@@ -221,7 +221,7 @@ rule assembly_report:
 rule assembly_summary:
     input:
         comp_list = expand(os.path.join(config["results"]["assembly"],
-                           "{sample}.{{assembler}}_out/{sample}.{{assembler}}.scaftigs.seqtk.comp.tsv.gz"),
+                                        "{sample}.{{assembler}}_out/{sample}.{{assembler}}.scaftigs.seqtk.comp.tsv.gz"),
                            sample=_samples.index.unique())
     output:
         summary = os.path.join(config["results"]["report"]["base_dir"], "{assembler}.assembly.summary.tsv")

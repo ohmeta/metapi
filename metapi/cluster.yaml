@@ -157,7 +157,7 @@ assembly_summary:
   mem: "1G"
   cores: 8
   output: "assay/cluster_logs/{rule}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.assembler.e"
+  error: "assay/cluster_logs/{rule}.{wildcards.assembler}.e"
 
 coassembly_megahit:
   mem: "20G"
