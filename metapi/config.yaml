@@ -63,7 +63,9 @@ params:
   assembler: ["megahit", "idba_ud", "metaspades", "spades"]
   assembly:
     report:
-      do: False
+      do: true
+      threads: 8
+      len_ranges: [0, 1000, 1500, 2000, 2500, 3000]
     megahit:
       do: False
       threads: 8

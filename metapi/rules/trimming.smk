@@ -279,4 +279,4 @@ rule merge_trimming_report:
         os.path.join(config["results"]["report"]["base_dir"], "trimming.stats.tsv")
     run:
         from metapi import reporter
-        reporter.merge(input, 8, save=True, output=output[0])
+        reporter.merge(input, reporter.parse, 8, save=True, output=output[0])

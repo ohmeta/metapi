@@ -162,7 +162,7 @@ rule merge_rmhost_report:
         os.path.join(config["results"]["report"]["base_dir"], "rmhost.stats.tsv")
     run:
         from metapi import reporter
-        reporter.merge(input, 8, save=True, output=output[0])
+        reporter.merge(input, reporter.parse, 8, save=True, output=output[0])
 
 
 rule qc_report:
@@ -176,5 +176,5 @@ rule qc_report:
         from metapi import reporter
         import pandas as pd
 
-        df = reporter.merge([input.raw_stats, input.trim_stats, input.rmhost_stats], 8)
+        df = reporter.merge([input.raw_stats, input.trim_stats, input.rmhost_stats], reporter.parse, 8)
         reporter.compute_host_rate(df, save=True, output=output.stats)

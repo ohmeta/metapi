@@ -207,11 +207,31 @@ rule assembly_report:
         report = os.path.join(config["results"]["assembly"],
                               "{sample}.{assembler}_out/{sample}.{assembler}.scaftigs.seqtk.comp.tsv.gz")
     params:
-        sample_id = "{sample}"
+        sample_id = "{sample}",
+        assembler = "{assembler}"
     shell:
         """
         seqtk comp {input.scaftigs} | \
         awk 'BEGIN {{print "sample_id\tchr\tlength\t#A\t#C\t#G\t#T\t#2\t#3\t#4\t#CpG\t#tv\t#ts\t#CpG-ts"}}; \
-             {{print "{params.sample_id}" "\t" $0}}' | \
+             {{print "{params.sample_id}" "\t" "{params.assembler}" "\t" $0}}' | \
         gzip -c > {output.report}
         """
+
+
+rule assembly_summary:
+    input:
+        comp_list = expand(os.path.join(config["results"]["assembly"],
+                           "{sample}.{assembler}_out/{sample}.{assembler}.scafitgs.seqtk.comp.tsv.gz"),
+                           sample=_samples.index.unique(),
+                           assembler=config["params"]["assembler"])
+    output:
+        summary = expand(os.path.join(config["results"]["report"]["base_dir"], "{assembler}.assembly.summary.tsv"),
+                         assembler=config["params"]["assembler"])
+    params:
+        len_ranges = config["params"]["assembly"]["report"]["len_ranges"]
+    threads:
+        config["params"]["assembly"]["report"]["threads"]
+    run:
+        from metapi import reporter
+        reporter.global_init(params.len_ranges)
+        reporter.merge(input.comp_list, reporter.parse_assembly, threads, save=True, output.summary)

@@ -92,10 +92,14 @@ spades_output = expand(
     sample=_samples.index.unique())
 
 assembly_report_output = expand(
-    "{assembly}/{sample}.{assembler}_out/{sample}.{assembler}.scaftigs.seqtk.comp.tsv.gz",
+    [
+        "{assembly}/{sample}.{assembler}_out/{sample}.{assembler}.scaftigs.seqtk.comp.tsv.gz",
+        "{reportout}/{assembler}.assembly.summary.tsv"
+    ],
     assembly=config["results"]["assembly"],
     sample=_samples.index.unique(),
-    assembler=config["params"]["assembler"]
+    assembler=config["params"]["assembler"],
+    reportout=config["results"]["report"]["base_dir"]
 )
 
 upload_cnsa_output = expand(
