@@ -221,12 +221,10 @@ rule assembly_report:
 rule assembly_summary:
     input:
         comp_list = expand(os.path.join(config["results"]["assembly"],
-                           "{sample}.{assembler}_out/{sample}.{assembler}.scaftigs.seqtk.comp.tsv.gz"),
-                           sample=_samples.index.unique(),
-                           assembler=config["params"]["assembler"])
+                           "{sample}.{{assembler}}_out/{sample}.{{assembler}}.scaftigs.seqtk.comp.tsv.gz"),
+                           sample=_samples.index.unique())
     output:
-        summary = expand(os.path.join(config["results"]["report"]["base_dir"], "{assembler}.assembly.summary.tsv"),
-                         assembler=config["params"]["assembler"])
+        summary = os.path.join(config["results"]["report"]["base_dir"], "{assembler}.assembly.summary.tsv")
     params:
         len_ranges = config["params"]["assembly"]["report"]["len_ranges"]
     threads:
