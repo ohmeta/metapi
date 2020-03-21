@@ -234,4 +234,4 @@ rule assembly_summary:
     run:
         from metapi import reporter
         reporter.global_init(params.len_ranges)
-        reporter.merge(input.comp_list, reporter.parse_assembly, threads, save=True, output.summary)
+        reporter.merge(input.comp_list, reporter.parse_assembly, threads, save=True, output=output.summary)
