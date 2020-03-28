@@ -10,7 +10,7 @@ import argparse
 
 def MIMAG_quality_level(row):
     """
-    https://www.nature.com/articles/nbt.3893
+    https://doi.org/10.1038/nbt.3893
     """
     if (row["completeness"] > 90.0) and (row["contamination"] < 5.0):
         return "high_quality"
@@ -22,7 +22,7 @@ def MIMAG_quality_level(row):
 
 def SGB_quality_level(row):
     """
-    http://www.nature.com/articles/s41586-019-0965-1
+    https://doi.org/10.1016/j.cell.2019.01.001
     """
     if (
         (row["strain_heterogeneity"] < 0.5)
@@ -34,6 +34,13 @@ def SGB_quality_level(row):
         return "medium_quality"
     else:
         return "low_quality"
+
+
+def quality_score(row):
+    """
+    https://doi.org/10.1038/s41586-019-0965-1
+    """
+    return row["completeness"] - 5 * row["contamination"]
 
 
 def parse(checkm_file):
@@ -94,23 +101,21 @@ def report(checkm_list, output, threads):
     df_["MIMAG_quality_level"] = df_.apply(lambda x: MIMAG_quality_level(x), axis=1)
     df_["SGB_quality_level"] = df_.apply(lambda x: SGB_quality_level(x), axis=1)
 
-    df_.to_csv(output, sep='\t')
+    df_.to_csv(output, sep="\t")
 
 
 def main():
     parser = argparse.ArgumentParser("CheckM reporter")
     parser.add_argument("--checkm_list", type=str, help="checkm out list")
-    parser.add_argument(
-        "--output", type=str, required=True, help="checkm output file"
-    )
+    parser.add_argument("--output", type=str, required=True, help="checkm output file")
     parser.add_argument(
         "--threads", type=int, default=8, help="threads used on combine CheckM output"
     )
     args = parser.parse_args()
 
-    checkm_list = [l.strip() for l in open(args.checkm_list, 'r')]
+    checkm_list = [l.strip() for l in open(args.checkm_list, "r")]
     report(checkm_list, args.output, args.threads)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
