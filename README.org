@@ -94,3 +94,6 @@ snakemake --snakefile /path/to/metapi/metapi/Snakefile \
     -k \
     --until checkm_lineage_wf
 #+END_SRC
+* License
+Omics for all, Open Source for all.
+GPLv3+.
