@@ -134,8 +134,8 @@ if config["params"]["trimming"]["fastp"]["do"]:
                                --cut_front --cut_right \
                                --cut_front_window_size {params.cut_front_window_size} \
                                --cut_front_mean_quality {params.cut_front_mean_quality} \
-                               --cut_right_window_size {params.cut_tail_window_size} \
-                               --cut_right_mean_quality {params.cut_tail_mean_quality} \
+                               --cut_right_window_size {params.cut_right_window_size} \
+                               --cut_right_mean_quality {params.cut_right_mean_quality} \
                                --n_base_limit {params.n_base_limit} --length_required {params.length_required} \
                                --thread {threads} --html {output.html} --json {output.json} 2> {log}")
                     else:
@@ -161,8 +161,8 @@ if config["params"]["trimming"]["fastp"]["do"]:
                                --cut_front --cut_right \
                                --cut_front_window_size {params.cut_front_window_size} \
                                --cut_front_mean_quality {params.cut_front_mean_quality} \
-                               --cut_right_window_size {params.cut_tail_window_size} \
-                               --cut_right_mean_quality {params.cut_tail_mean_quality} \
+                               --cut_right_window_size {params.cut_right_window_size} \
+                               --cut_right_mean_quality {params.cut_right_mean_quality} \
                                --n_base_limit {params.n_base_limit} --length_required {params.length_required} \
                                --thread {threads} --html {output.html} --json {output.json} 2> {log}" % (r1, r2))
                     else:
@@ -185,8 +185,8 @@ if config["params"]["trimming"]["fastp"]["do"]:
                                --cut_front --cut_right \
                                --cut_front_window_size {params.cut_front_window_size} \
                                --cut_front_mean_quality {params.cut_front_mean_quality} \
-                               --cut_right_window_size {params.cut_tail_window_size} \
-                               --cut_right_mean_quality {params.cut_tail_mean_quality} \
+                               --cut_right_window_size {params.cut_right_window_size} \
+                               --cut_right_mean_quality {params.cut_right_mean_quality} \
                                --n_base_limit {params.n_base_limit} --length_required {params.length_required} \
                                --thread {threads} --html {output.html} --json {output.json} 2> {log}")
                     else:
@@ -209,8 +209,8 @@ if config["params"]["trimming"]["fastp"]["do"]:
                                --cut_front --cut_right \
                                --cut_front_window_size {params.cut_front_window_size} \
                                --cut_front_mean_quality {params.cut_front_mean_quality} \
-                               --cut_right_window_size {params.cut_tail_window_size} \
-                               --cut_right_mean_quality {params.cut_tail_mean_quality} \
+                               --cut_right_window_size {params.cut_right_window_size} \
+                               --cut_right_mean_quality {params.cut_right_mean_quality} \
                                --n_base_limit {params.n_base_limit} --length_required {params.length_required} \
                                --thread {threads} --html {output.html} --json {output.json} 2> {log}" % r)
                     else:
