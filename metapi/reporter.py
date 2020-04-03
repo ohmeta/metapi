@@ -97,7 +97,7 @@ def parse_assembly(stats_file):
     df_ = parse(stats_file)
     if df_ is not None:
         df = (
-            df_.groupby("sample_id")
+            df_.groupby(["sample_id", "assembler"])
             .agg(
                 {
                     "chr": ["count"],
