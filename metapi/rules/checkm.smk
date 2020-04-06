@@ -69,9 +69,12 @@ rule checkm_link_bins:
         import pandas as pd
         import os
 
-        os.rmdir(output.bins_hq)
-        os.rmdir(output.bins_mq)
-        os.rmdir(output.bins_lq)
+        if os.path.exists(output.bins_hq):
+            os.rmdir(output.bins_hq)
+        if os.path.exists(output.bins_mq):
+            os.rmdir(output.bins_mq)
+        if os.path.exists(output.bins_lq):
+            os.rmdir(output.bins_lq)
 
         os.mkdir(output.bins_hq)
         os.mkdir(output.bins_mq)
