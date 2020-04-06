@@ -211,7 +211,7 @@ checkm_lineage_wf_output = expand([
 
 checkm_report_output = expand(
     "{basedir}/checkm_{assembler}_out.tsv",
-    basedir=config["results"]["checkm"]["basedir"],
+    basedir=config["results"]["checkm"]["base_dir"],
     assembler=config["params"]["assembler"]
 )
 
