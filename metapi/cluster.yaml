@@ -339,6 +339,12 @@ multiqc_prokka_bins:
   output: "assay/cluster_logs/{rule}.o"
   error: "assay/cluster_logs/{rule}.e"
 
+classification_hmq_bins_by_gtdbtk:
+  mem: "130G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.o"
+  error: "assay/cluster_logs/{rule}.e"
+
 metaphlan2_profiling:
   mem: "8G"
   cores: 8

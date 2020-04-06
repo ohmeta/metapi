@@ -265,6 +265,11 @@ kraken2_output = expand(
     kraken2=config["results"]["classification"]["kraken2"],
     sample=_samples.index.unique())
 
+gtdbtk_output = expand(
+    "{gtdbtk}",
+    gtdbtk=config["results"]["classification"]["gtdbtk"]
+)
+
 metaphlan2_profiling_output = expand(
     [
         "{bowtie2out}/{sample}.bowtie2.bz2",
@@ -436,6 +441,8 @@ annotation_target = (checkm_target + annotation_output)
 classification_output = ([])
 if config["params"]["classification"]["kraken2"]["do"]:
     classification_output = (kraken2_output)
+if config["params"]["classification"]["gtdbtk"]["do"]:
+    classification_output = (classification_output + gtdbtk_output)
 classification_target = (annotation_target + classification_output)
 
 profiling_output = ([])

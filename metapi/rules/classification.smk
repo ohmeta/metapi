@@ -24,3 +24,27 @@ rule kraken2:
         {input[0]} {input[1]} \
         2> {log}
         '''
+
+
+rule classification_hmq_bins_by_gtdbtk:
+    input:
+        bins_hmq = directory(os.path.join(config["results"]["checkm"]["base_dir"],
+                                          "bins.{assembler}.{binner}_out.hmq"))
+    output:
+        outdir = directory(config["results"]["classification"]["gtdbtk"])
+    params:
+        extension = config["params"]["classification"]["gtdbtk"]["extension"]
+    threads:
+        config["params"]["classification"]["gtdbtk"]["threads"]
+    log:
+        os.path.join(config["logs"]["classification"]["gtdbtk"], "bins.hmq.gtdbtk.log")
+    shell:
+        '''
+        rm -rf {output.outdir}
+
+        gtdbtk classify_wf \
+        --genome_dir {input.bins_hmq}/ \
+        --out_dir {output.outdir} \
+        --extension {params.extension} \
+        --cpus {threads} >{log}
+        '''
