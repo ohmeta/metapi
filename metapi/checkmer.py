@@ -45,13 +45,14 @@ def quality_score(row):
 
 def parse(checkm_file):
     total_list = []
+    sample_id = os.path.basename(checkm_file).split(".")[0]
     with open(checkm_file, "r") as ih:
         next(ih), next(ih), next(ih)
         for line in ih:
             if not line.startswith("--"):
                 x_x = re.split(r"\s+", line.strip())
                 total_list.append(
-                    [x_x[0]]
+                    [sample_id, x_x[0]]
                     + ["-".join(x_x[1:3])]
                     + [
                         int(x_x[3]),
@@ -70,6 +71,7 @@ def parse(checkm_file):
     checkm_df = pd.DataFrame(
         total_list,
         columns=[
+            "sample_id",
             "bin_id",
             "marker_lineage",
             "genomes",
@@ -100,8 +102,9 @@ def report(checkm_list, output, threads):
 
     df_["MIMAG_quality_level"] = df_.apply(lambda x: MIMAG_quality_level(x), axis=1)
     df_["SGB_quality_level"] = df_.apply(lambda x: SGB_quality_level(x), axis=1)
+    df_["quality_score"] = df_.apply(lambda x: quality_score(x), axis=1)
 
-    df_.to_csv(output, sep="\t")
+    df_.to_csv(output, sep="\t", index=False)
 
 
 def main():

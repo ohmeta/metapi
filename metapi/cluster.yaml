@@ -301,25 +301,25 @@ get_marker_contigs_depth:
 checkm_lineage_wf:
   mem: "20G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.e"
 
 checkm_report:
   mem: "512M"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{assembler}.o"
-  error: "assay/cluster_logs/{rule}.{assembler}.e"
+  output: "assay/cluster_logs/{rule}.{assembler}.{binner}.o"
+  error: "assay/cluster_logs/{rule}.{assembler}.{binner}.e"
 
-checkm_coverage:
-  mem: "512M"
-  cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+#checkm_coverage:
+#  mem: "512M"
+#  cores: 8
+#  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+#  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
-checkm_profile:
-  mem: "512M"
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+#checkm_profile:
+#  mem: "512M"
+#  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+#  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 prokka_bins:
   mem: "1G"

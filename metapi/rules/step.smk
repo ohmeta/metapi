@@ -194,25 +194,28 @@ cobin_vsearch_clust_output = expand([
     assembler=config["params"]["assembler"])
 
 cobin_alignment_cds_output = expand(
-    "{depth}/{sample_}/{sample_}.{sample}.{assembler}.metabat2.depth.txt.gz",
+    "{depth}/{sample_}/{sample_}.{sample}.{assembler}.{binner}.depth.txt.gz",
     depth=config["results"]["cobinning"]["depth"],
     sample_= _samples_id,
     sample=_samples.index.unique(),
-    assembler=config["params"]["assembler"])
+    assembler=config["params"]["assembler"],
+    binner=config["params"]["binner"])
 
 checkm_lineage_wf_output = expand([
-    "{out}/{sample}.{assembler}.checkm.txt",
-    "{data}/{sample}.{assembler}.checkm.data.tar.gz"
+    "{out}/{sample}.{assembler}.{binner}.checkm.txt",
+    "{data}/{sample}.{assembler}.{binner}.checkm.data.tar.gz"
 ],
                         out=config["results"]["checkm"]["out"],
                         data=config["results"]["checkm"]["data"],
                         assembler=config["params"]["assembler"],
+                        binner=config["params"]["binning"]["binner"],
                         sample=_samples.index.unique())
 
 checkm_report_output = expand(
-    "{basedir}/checkm_{assembler}_out.tsv",
+    "{basedir}/{assembler}.{binner}.checkm.out.tsv",
     basedir=config["results"]["checkm"]["base_dir"],
-    assembler=config["params"]["assembler"]
+    assembler=config["params"]["assembler"],
+    binner=config["params"]["binning"]["binner"]
 )
 
 '''
