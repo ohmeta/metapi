@@ -89,13 +89,13 @@ rule checkm_link_bins:
                                   bin_id + params.bin_suffix)
 
             if df.loc[bin_id, params.standard] == "high_quality":
-                os.symlink("../../../" + bin_fa, output.bins_hq + "/")
+                os.symlink("../../../" + bin_fa, os.path.join(output.bins_hq, bin_id + ".fa"))
 
             if df.loc[bin_id, params.standard] == "medium_quality":
-                os.symlink("../../../" + bin_fa, output.bins_mq + "/")
+                os.symlink("../../../" + bin_fa, os.path.join(output.bins_mq, bin_id + ".fa"))
 
             if df.loc[bin_id, params.standard] == "low_quality":
-                os.symlink("../../../" + bin_fa, output.bins_lq + "/")
+                os.symlink("../../../" + bin_fa, os.path.join(output.bins_lq, bin_id + ".fa"))
 
 
 # rule checkm_coverage:
