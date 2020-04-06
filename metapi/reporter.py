@@ -114,7 +114,7 @@ def parse_assembly(stats_file):
 
         N_ = []
         for N in range(0, 105, 5):
-            N_.append(N + str(N))
+            N_.append('N' + str(N))
 
         for i in range(0, 21):
             df[("length", N_[i])] = df.apply(
