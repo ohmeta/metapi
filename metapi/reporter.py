@@ -92,6 +92,17 @@ def cal_len_range(x):
     return tuple([len_dict[i] for i in CONTIGS_LENGTH_RANGES__])
 
 
+def cumulative_len(x):
+    '''
+    for x, y in enumerate(len_y):
+        plt.plot(x, y)
+    '''
+    len_y = [0]
+    for l in sorted(x)[::-1]:
+        len_y.append(len_y[-1] + l)
+    return len_y
+
+
 def parse_assembly(stats_file):
     df_ = parse(stats_file)
     if df_ is not None:
@@ -114,12 +125,10 @@ def parse_assembly(stats_file):
 
         N_ = []
         for N in range(0, 105, 5):
-            N_.append('N' + str(N))
+            N_.append("N" + str(N))
 
         for i in range(0, 21):
-            df[("length", N_[i])] = df.apply(
-                lambda x: x[("length", "Nx")][i], axis=1
-            )
+            df[("length", N_[i])] = df.apply(lambda x: x[("length", "Nx")][i], axis=1)
 
         for i in range(0, len(CONTIGS_LENGTH_RANGES__) - 1):
             len_tuple = CONTIGS_LENGTH_RANGES__[i]
