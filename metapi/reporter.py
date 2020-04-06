@@ -55,9 +55,9 @@ def Nx(x):
     for i in sorted(x)[::-1]:
         len_sum += i
         for j in range(0, len(Nx_len)):
-            if (Nx_len[j] == 0) and (len_sum >= Nx_len_[j]):
+            if (Nx_len[j] == 0.0) and (len_sum >= Nx_len_[j]):
                 Nx_len[j] = i
-    return Nx_len
+    return list(Nx_len)
 
 
 def GC_content(x):
