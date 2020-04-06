@@ -31,6 +31,21 @@ rule checkm_lineage_wf:
         '''
 
 
+rule checkm_report:
+    input:
+        expand("{checkmout}/{sample}.{assembler}.checkm.txt",
+               checkmout=config["results"]["checkm"]["out"],
+               sample=_samples.index.unique(),
+               assembler=config["params"]["assembler"])
+    output:
+        os.path.join(config["results"]["checkm"]["base_dir"], "checkm_{assembler}_out.tsv")
+    threads:
+        config["params"]["checkm"]["threads"]
+    run:
+        from metapi import checkmer
+        checkmer.report(input, output[0], threads)
+       
+
 # rule checkm_coverage:
 #     input:
 #         bins_dir = os.path.join(config["results"]["binning"]["bins"], "{sample}.{assembler}.metabat2_out"),
