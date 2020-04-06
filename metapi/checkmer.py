@@ -93,7 +93,7 @@ def report(checkm_list, output, threads):
     df_list = []
     with concurrent.futures.ProcessPoolExecutor(max_workers=threads) as executor:
         for df in executor.map(parse, checkm_list):
-            if not df.empty():
+            if not df.empty:
                 df_list.append(df)
 
     df_ = pd.concat(df_list)
