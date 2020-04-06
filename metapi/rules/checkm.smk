@@ -58,7 +58,7 @@ rule checkm_link_bins:
         bins_mq = directory(os.path.join(config["results"]["checkm"]["base_dir"],
                                          "bins.{assembler}.{binner}_out.mq")),
         bins_lq = directory(os.path.join(config["results"]["checkm"]["base_dir"],
-                                         "bins.{assembler}.{binner}_out.lq"))
+                                         "bins.{assembler}.{binner}_out.lq")),
         bins_hmq = directory(os.path.join(config["results"]["checkm"]["base_dir"],
                                           "bins.{assembler}.{binner}_out.hmq"))
     params:
