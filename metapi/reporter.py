@@ -46,19 +46,18 @@ def merge(input_list, func, workers, **kwargs):
     return df_
 
 
-def N50_N80_N90(x):
-    len_total = sum(x)
-    len_50, len_80, len_90 = len_total * 0.5, len_total * 0.8, len_total * 0.9
-    N50, N80, N90, len_sum = 0, 0, 0, 0
+def Nx(x):
+    Nx_len = np.zeros(21)
+    Nx_rate = np.linspace(0, 1, 21)
+    Nx_len_ = Nx_rate * sum(x)
+
+    len_sum = 0
     for i in sorted(x)[::-1]:
         len_sum += i
-        if (N50 == 0) and (len_sum >= len_50):
-            N50 = i
-        if (N80 == 0) and (len_sum >= len_80):
-            N80 = i
-        if (N90 == 0) and (len_sum >= len_90):
-            N90 = i
-    return N50, N80, N90
+        for j in range(0, len(Nx_len)):
+            if (Nx_len[j] == 0) and (len_sum >= Nx_len_[j]):
+                Nx_len[j] = i
+    return Nx_len
 
 
 def GC_content(x):
@@ -101,7 +100,7 @@ def parse_assembly(stats_file):
             .agg(
                 {
                     "chr": ["count"],
-                    "length": ["sum", "min", "max", "std", N50_N80_N90, cal_len_range],
+                    "length": ["sum", "min", "max", "std", Nx, cal_len_range],
                     "#A": ["sum", "min", "max", "std"],
                     "#C": ["sum", "min", "max", "std"],
                     "#G": ["sum", "min", "max", "std"],
@@ -113,10 +112,13 @@ def parse_assembly(stats_file):
         )
         df["GC_content"] = df.apply(lambda x: GC_content(x), axis=1)
 
-        N_ = ["N50", "N80", "N90"]
-        for i in range(0, len(N_)):
+        N_ = []
+        for N in range(0, 105, 5):
+            N_.append(N + str(N))
+
+        for i in range(0, 21):
             df[("length", N_[i])] = df.apply(
-                lambda x: x[("length", "N50_N80_N90")][i], axis=1
+                lambda x: x[("length", "Nx")][i], axis=1
             )
 
         for i in range(0, len(CONTIGS_LENGTH_RANGES__) - 1):
