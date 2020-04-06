@@ -199,7 +199,7 @@ cobin_alignment_cds_output = expand(
     sample_= _samples_id,
     sample=_samples.index.unique(),
     assembler=config["params"]["assembler"],
-    binner=config["params"]["binner"])
+    binner=config["params"]["binning"]["binner"])
 
 checkm_lineage_wf_output = expand([
     "{out}/{sample}.{assembler}.{binner}.checkm.txt",
