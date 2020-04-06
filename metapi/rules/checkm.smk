@@ -59,6 +59,8 @@ rule checkm_link_bins:
                                          "bins.{assembler}.{binner}_out.mq")),
         bins_lq = directory(os.path.join(config["results"]["checkm"]["base_dir"],
                                          "bins.{assembler}.{binner}_out.lq"))
+        bins_hmq = directory(os.path.join(config["results"]["checkm"]["base_dir"],
+                                          "bins.{assembler}.{binner}_out.hmq"))
     params:
         standard = config["params"]["checkm"]["standard"] + "_quality_level",
         bin_suffix = ".fa",
@@ -75,10 +77,13 @@ rule checkm_link_bins:
             os.rmdir(output.bins_mq)
         if os.path.exists(output.bins_lq):
             os.rmdir(output.bins_lq)
+        if os.path.exists(output.bins_hmq):
+            os.rmdir(output.bins_hmq)
 
         os.mkdir(output.bins_hq)
         os.mkdir(output.bins_mq)
         os.mkdir(output.bins_lq)
+        os.mkdir(output.bins_hmq)
 
         df = pd.read_csv(input[0], sep='\t').set_index("bin_id")
 
@@ -90,9 +95,11 @@ rule checkm_link_bins:
 
             if df.loc[bin_id, params.standard] == "high_quality":
                 os.symlink("../../../" + bin_fa, os.path.join(output.bins_hq, bin_id + ".fa"))
+                os.symlink("../../../" + bin_fa, os.path.join(output.bins_hmq, bin_id + ".fa"))
 
             if df.loc[bin_id, params.standard] == "medium_quality":
                 os.symlink("../../../" + bin_fa, os.path.join(output.bins_mq, bin_id + ".fa"))
+                os.symlink("../../../" + bin_fa, os.path.join(output.bins_hmq, bin_id + ".fa"))
 
             if df.loc[bin_id, params.standard] == "low_quality":
                 os.symlink("../../../" + bin_fa, os.path.join(output.bins_lq, bin_id + ".fa"))

@@ -221,8 +221,9 @@ checkm_report_output = expand(
 checkm_link_bins_output = expand(
     [
         "{basedir}/bins.{assembler}.{binner}_out.hq",
-        "{basedir}/bins.{assembler}.{binner}_out.hq",
-        "{basedir}/bins.{assembler}.{binner}_out.hq"
+        "{basedir}/bins.{assembler}.{binner}_out.mq",
+        "{basedir}/bins.{assembler}.{binner}_out.lq",
+        "{basedir}/bins.{assembler}.{binner}_out.hmq"
     ],
     basedir=config["results"]["checkm"]["base_dir"],
     assembler=config["params"]["assembler"],
