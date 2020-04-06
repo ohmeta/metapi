@@ -39,7 +39,8 @@ rule checkm_report:
                assembler=config["params"]["assembler"],
                binner=config["params"]["binning"]["binner"])
     output:
-        os.path.join(config["results"]["checkm"]["base_dir"], "{assembler}.{binner}.checkm.out.tsv")
+        os.path.join(config["results"]["checkm"]["base_dir"],
+                     "{assembler}.{binner}.checkm.out.tsv")
     threads:
         config["params"]["checkm"]["threads"]
     run:
@@ -49,11 +50,15 @@ rule checkm_report:
 
 rule checkm_link_bins:
     input:
-        os.path.join(config["results"]["checkm"]["base_dir"], "{assembler}.{binner}.checkm.out.tsv")
+        os.path.join(config["results"]["checkm"]["base_dir"],
+                     "{assembler}.{binner}.checkm.out.tsv")
     output:
-        bins_hq = directory(os.path.dirname(config["results"]["checkm"]["bins_hq"])),
-        bins_mq = directory(os.path.dirname(config["results"]["checkm"]["bins_mq"])),
-        bins_lq = directory(os.path.dirname(config["results"]["checkm"]["bins_lq"]))
+        bins_hq = directory(os.path.join(config["results"]["checkm"]["base_dir"],
+                                         "bins.{assembler}.{binner}_out.hq")),
+        bins_mq = directory(os.path.join(config["results"]["checkm"]["base_dir"],
+                                         "bins.{assembler}.{binner}_out.mq")),
+        bins_lq = directory(os.path.join(config["results"]["checkm"]["base_dir"],
+                                         "bins.{assembler}.{binner}_out.lq"))
     params:
         standard = config["params"]["checkm"]["standard"] + "_quality_level",
         bin_suffix = ".fa",

@@ -310,6 +310,12 @@ checkm_report:
   output: "assay/cluster_logs/{rule}.{assembler}.{binner}.o"
   error: "assay/cluster_logs/{rule}.{assembler}.{binner}.e"
 
+checkm_link_bins:
+  mem: "128M"
+  cores: 1
+  output: "assay/cluster_logs/{rule}.{assembler}.{binner}.o"
+  error: "assay/cluster_logs/{rule}.{assembler}.{binner}.e"
+
 #checkm_coverage:
 #  mem: "512M"
 #  cores: 8

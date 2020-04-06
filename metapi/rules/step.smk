@@ -218,6 +218,17 @@ checkm_report_output = expand(
     binner=config["params"]["binning"]["binner"]
 )
 
+checkm_link_bins_output = expand(
+    [
+        "{basedir}/bins.{assembler}.{binner}_out.hq",
+        "{basedir}/bins.{assembler}.{binner}_out.hq",
+        "{basedir}/bins.{assembler}.{binner}_out.hq"
+    ],
+    basedir=config["results"]["checkm"]["base_dir"],
+    assembler=config["params"]["assembler"],
+    binner=config["params"]["binning"]["binner"]
+)
+
 '''
 checkm_coverage_output = expand(
     "{coverage}/{sample}.{assembler}.checkm_coverage.tsv",
@@ -411,7 +422,9 @@ if config["params"]["checkm"]["do"]:
     #                  checkm_coverage_output +
     #                  checkm_profile_output)
 if config["params"]["checkm"]["report"]:
-    checkm_output = (checkm_output + checkm_report_output)
+    checkm_output = (checkm_output +
+                     checkm_report_output +
+                     checkm_link_bins_output)
 checkm_target = (binning_target + checkm_output)
 
 annotation_output = ([])
