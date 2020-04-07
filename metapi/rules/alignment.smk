@@ -53,6 +53,17 @@ rule build_index_for_bam:
         '''
 
 
+rule cal_base_depth:
+    input:
+        os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.sorted.bam")
+    output:
+        os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.depth.gz")
+    shell:
+        '''
+        samtools depth {input} | gzip -c > {output}
+        '''
+
+
 rule alignment_summary:
     input:
         expand(os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.flagstat"),

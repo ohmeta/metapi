@@ -114,6 +114,8 @@ params:
   alignment:
     do: True
     threads: 8
+    cal_base_depth: False
+    report: True
   binning:
     binner: "metabat2"
     metabat2:

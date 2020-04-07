@@ -240,6 +240,12 @@ build_index_for_bam:
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
+cal_base_depth:
+  mem: "512M"
+  cores: 1
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+
 alignment_summary:
   mem: "128M"
   cores: 1

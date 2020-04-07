@@ -146,16 +146,25 @@ prodigal_output = expand([
                           assembler=config["params"]["assembler"],
                           sample=_samples.index.unique())
 
-alignment_bwa_output = expand([
-    "{alignment}/{sample}.bwa_out/{sample}.{assembler}.flagstat",
+alignment_flagstat_and_bam_output = expand([
 #    "{alignment}/{sample}.bwa_out/{sample}.{assembler}.sorted.bam",
-#    "{alignment}/{sample}.bwa_out/{sample}.{assembler}.sorted.bam.bai",
-    "{reportout}/{assembler}.alignment.summary.tsv"
+#    "{alignment}/{sample}.bwa_out/{sample}.{assembler}.sorted.bam.bai"
+    "{alignment}/{sample}.bwa_out/{sample}.{assembler}.flagstat"
 ],
-                          assembler=config["params"]["assembler"],
                           alignment=config["results"]["alignment"],
-                          reportout=config["results"]["report"]["base_dir"],
+                          assembler=config["params"]["assembler"],
                           sample=_samples.index.unique())
+
+alignment_depth_output = expand(
+    "{alignment}/{sample}.bwa_out/{sample}.{assembler}.depth.gz",
+    alignment=config["results"]["alignment"],
+    assembler=config["params"]["assembler"],
+    sample=_samples.index.unique())
+
+alignment_summary_output = expand(
+    "{reportout}/{assembler}.alignment.summary.tsv",
+    reportout=config["results"]["report"]["base_dir"],
+    assembler=config["params"]["assembler"])
 
 metabat2_output = expand([
     "{depth}/{sample}.{assembler}.metabat2.depth.txt",
@@ -407,7 +416,11 @@ upload_target = (prediction_target + upload_output)
 
 alignment_output = ([])
 if config["params"]["alignment"]["do"]:
-    alignment_output = (alignment_bwa_output)
+    alignment_output = (alignment_flagstat_and_bam_output)
+if config["params"]["alignment"]["cal_base_depth"]:
+    alignment_output = (alignment_output + alignment_depth_output)
+if config["params"]["alignment"]["report"]:
+    alignment_output = (alignment_output + alignment_summary_output)
 alignment_target = (upload_target + alignment_output)
 
 binning_output = ([])
