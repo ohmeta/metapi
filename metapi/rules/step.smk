@@ -150,10 +150,11 @@ alignment_bwa_output = expand([
     "{alignment}/{sample}.bwa_out/{sample}.{assembler}.flagstat",
 #    "{alignment}/{sample}.bwa_out/{sample}.{assembler}.sorted.bam",
 #    "{alignment}/{sample}.bwa_out/{sample}.{assembler}.sorted.bam.bai",
-    "{alignment}/scaftigs_flagstat_summary.tsv"
+    "{reportout}/{assembler}.alignment.summary.tsv"
 ],
-                          alignment=config["results"]["alignment"],
                           assembler=config["params"]["assembler"],
+                          alignment=config["results"]["alignment"],
+                          reportout=config["results"]["report"]["base_dir"],
                           sample=_samples.index.unique())
 
 metabat2_output = expand([
