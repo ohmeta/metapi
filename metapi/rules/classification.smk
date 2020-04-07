@@ -31,9 +31,10 @@ rule classification_hmq_bins_by_gtdbtk:
         bins_hmq = directory(os.path.join(config["results"]["checkm"]["base_dir"],
                                           "bins.{assembler}.{binner}_out.hmq"))
     output:
-        outdir = directory(config["results"]["classification"]["gtdbtk"])
+        outdir = directory(config["results"]["classification"]["gtdbtk"]["out_dir"])
     params:
-        extension = config["params"]["classification"]["gtdbtk"]["extension"]
+        extension = config["params"]["classification"]["gtdbtk"]["extension"],
+        scratch_dir = "--scratch_dir %s" % config["results"]["classification"]["gtdbtk"]["scratch_dir"] if config["params"]["classification"]["gtdbtk"]["reduce_memory"] else ""
     threads:
         config["params"]["classification"]["gtdbtk"]["threads"]
     log:
@@ -41,10 +42,12 @@ rule classification_hmq_bins_by_gtdbtk:
     shell:
         '''
         rm -rf {output.outdir}
+        rm -rf {params.scratch_dir}
 
         gtdbtk classify_wf \
         --genome_dir {input.bins_hmq}/ \
         --out_dir {output.outdir} \
         --extension {params.extension} \
-        --cpus {threads} >{log}
+        --cpus {threads} \
+        {params.scratch_dir} >{log}
         '''

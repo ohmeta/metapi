@@ -149,6 +149,7 @@ params:
       do: True
       database: /path/to/gtdbtk/database
       extension: "fa"
+      reduce_memory: True
       threads: 8
   annotation:
     prokka:
@@ -229,7 +230,9 @@ results:
   dereplication: "results/07.dereplication"
   classification: 
     kraken2: "results/08.classification/kraken2"
-    gtdbtk: "results/08.classification/gtdbtk_out"
+    gtdbtk:
+      out_dir: "results/08.classification/gtdbtk_out"
+      scratch_dir: "results/08.classification/gtdbtk_scratch"
   annotation:
     prokka: "results/09.annotation/prokka"
     multiqc_prokka: "results/09.annotation/multiqc_prokka"

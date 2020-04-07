@@ -266,8 +266,8 @@ kraken2_output = expand(
     sample=_samples.index.unique())
 
 gtdbtk_output = expand(
-    "{gtdbtk}",
-    gtdbtk=config["results"]["classification"]["gtdbtk"]
+    "{gtdbtkout}",
+    gtdbtkout=config["results"]["classification"]["gtdbtk"]["out_dir"]
 )
 
 metaphlan2_profiling_output = expand(
