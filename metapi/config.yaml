@@ -231,8 +231,7 @@ results:
   classification: 
     kraken2: "results/08.classification/kraken2"
     gtdbtk:
-      out_dir: "results/08.classification/gtdbtk_out"
-      scratch_dir: "results/08.classification/gtdbtk_scratch"
+      base_dir: "results/08.classification/gtdbtk_out"
   annotation:
     prokka: "results/09.annotation/prokka"
     multiqc_prokka: "results/09.annotation/multiqc_prokka"

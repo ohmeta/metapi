@@ -31,14 +31,18 @@ rule classification_hmq_bins_by_gtdbtk:
         bins_hmq = directory(os.path.join(config["results"]["checkm"]["base_dir"],
                                           "bins.{assembler}.{binner}_out.hmq"))
     output:
-        outdir = directory(config["results"]["classification"]["gtdbtk"]["out_dir"])
+        outdir = directory(os.path.join(config["results"]["classification"]["gtdbtk"]["base_dir"],
+                                        "hmq.bins.{assembler}.{binner}.gtdbtk_out"))
     params:
         extension = config["params"]["classification"]["gtdbtk"]["extension"],
-        scratch_dir = "--scratch_dir %s" % config["results"]["classification"]["gtdbtk"]["scratch_dir"] if config["params"]["classification"]["gtdbtk"]["reduce_memory"] else ""
+        scratch_dir = "--scratch_dir %s" % os.path.join(config["results"]["classification"]["gtdbtk"]["base_dir"],
+                                                        "{assembler}.{binner}.scratch_tmp") \
+                                                        if config["params"]["classification"]["gtdbtk"]["reduce_memory"] \
+                                                        else ""
     threads:
         config["params"]["classification"]["gtdbtk"]["threads"]
     log:
-        os.path.join(config["logs"]["classification"]["gtdbtk"], "bins.hmq.gtdbtk.log")
+        os.path.join(config["logs"]["classification"]["gtdbtk"], "hmq.bins.{assembler}.{binner}.gtdbtk.log")
     shell:
         '''
         rm -rf {output.outdir}

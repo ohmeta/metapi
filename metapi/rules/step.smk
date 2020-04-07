@@ -266,8 +266,10 @@ kraken2_output = expand(
     sample=_samples.index.unique())
 
 gtdbtk_output = expand(
-    "{gtdbtkout}",
-    gtdbtkout=config["results"]["classification"]["gtdbtk"]["out_dir"]
+    "{gtdbtkout}/hmq.bins.{assembler}.{binner}.gtdbtk_out",
+    gtdbtkout=config["results"]["classification"]["gtdbtk"]["base_dir"],
+    assembler=config["params"]["assembler"],
+    binner=config["params"]["binning"]["binner"]
 )
 
 metaphlan2_profiling_output = expand(
