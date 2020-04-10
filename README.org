@@ -4,7 +4,7 @@
 #+BEGIN_SRC bash
 # install dependencies
 conda install \
-    pandas ruamel_yaml \
+    pandas ruamel.yaml \
     snakemake pigz sra-tools \
     insilicoseq ncbi-genome-download \
     sickle-trim fastp \
