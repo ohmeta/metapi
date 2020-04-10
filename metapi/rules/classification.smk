@@ -48,7 +48,7 @@ rule classification_hmq_bins_by_gtdbtk:
     shell:
         '''
         rm -rf {output.outdir}
-        mkdir -p {params.outdir}
+        mkdir -p {output.outdir}
 
         if [[ "{params.scratch}" != "" ]]; then
             rm -rf {params.scratch_dir}
