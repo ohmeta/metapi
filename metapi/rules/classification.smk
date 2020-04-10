@@ -48,7 +48,7 @@ rule classification_hmq_bins_by_gtdbtk:
     shell:
         '''
         rm -rf {output.outdir}
-        if [[ {params.scratch} != "" ]]; then
+        if [[ "{params.scratch}" != "" ]]; then
             rm -rf {params.scratch_dir}
         fi
 
