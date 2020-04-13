@@ -351,6 +351,12 @@ classification_hmq_bins_by_gtdbtk:
   output: "assay/cluster_logs/{rule}.{assembler}.{binner}.o"
   error: "assay/cluster_logs/{rule}.{assembler}.{binner}.e"
 
+drep:
+  mem: "2G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{assembler}.{binner}.o"
+  error: "assay/cluster_logs/{rule}.{assembler}.{binner}.e"
+
 metaphlan2_profiling:
   mem: "8G"
   cores: 8

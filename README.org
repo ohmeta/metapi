@@ -11,7 +11,8 @@ conda install \
     bwa bowtie2 samtools \
     spades idba megahit quast \
     metabat2 maxbin2 checkm-genome \
-    prodigal prokka gtdbtk metaphlan2 humann2
+    prodigal prokka gtdbtk drep galah \
+    metaphlan2 humann2
 
 conda install -c alienzj seqtk
 

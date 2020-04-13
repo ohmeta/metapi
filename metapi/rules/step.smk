@@ -282,6 +282,13 @@ gtdbtk_output = expand(
     binner=config["params"]["binning"]["binner"]
 )
 
+drep_output = expand(
+    "{dereplicationout}/hmq.bins.{assembler}.{binner}.drep_out",
+    dereplicationout=config["results"]["dereplication"],
+    assembler=config["params"]["assembler"],
+    binner=config["params"]["binning"]["binner"]
+)
+
 metaphlan2_profiling_output = expand(
     [
         "{bowtie2out}/{sample}.bowtie2.bz2",
@@ -461,6 +468,11 @@ if config["params"]["classification"]["gtdbtk"]["do"]:
     classification_output = (classification_output + gtdbtk_output)
 classification_target = (annotation_target + classification_output)
 
+dereplication_output= ([])
+if config["params"]["dereplication"]["drep"]["do"]:
+    dereplication_output = (drep_output)
+dereplication_target = (classification_target + dereplication_output)
+
 profiling_output = ([])
 if config["params"]["profiling"]["metaphlan2"]["do"]:
     profiling_output = (metaphlan2_profiling_output)
@@ -473,7 +485,7 @@ if config["params"]["profiling"]["humann2"]["do"]:
                         humann2_profiling_output +
                         humann2_postprocess_output +
                         humann2_join_split_output)
-profiling_target = (classification_target + profiling_output)
+profiling_target = (dereplication_target + profiling_output)
 
 burst_output_ = ([])
 if config["params"]["burst"]["do"]:
@@ -494,6 +506,7 @@ debug_target = (
     checkm_output +
     annotation_output +
     classification_output +
+    dereplication_output +
     profiling_output +
     burst_output)
 

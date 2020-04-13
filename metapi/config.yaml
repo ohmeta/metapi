@@ -141,7 +141,15 @@ params:
     completeness: 90
     contamination: 10
     standard: "MIMAG" # SGB
-  dereplication: ""
+  dereplication:
+    drep:
+      threads: 8
+      filtering_genome_min_length: 50000
+      filtering_completeness: 75
+      filtering_contamination: 25
+      genome_comparison_algorithm: "ANImf"
+      clustering_primary_ANI: 0.9
+      clustering_secondary_ANI: 0.99
   classification:
     kraken2:
       do: False
