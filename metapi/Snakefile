@@ -1,9 +1,7 @@
 #!/usr/bin/env snakemake
 import sys
-from metapi import sample
-from metapi import summary
-from metapi import profiler
-from metapi import uploader
+import metapi
+import pandas as pd
 
 shell.executable("bash")
 
@@ -11,33 +9,18 @@ configfile: "config.yaml"
 
 IS_PE = True if config["params"]["reads_layout"] == "pe" else False
 
-_samples = sample.parse_samples(config["params"]["samples"],
-                                config["params"]["reads_format"],
-                                IS_PE, True)
+SAMPLES = metapi.manager.parse_samples(
+    config["params"]["samples"],
+    config["params"]["reads_format"],
+    IS_PE,
+    True)
 
-if config["params"]["begin"] == "assembly":
-    cancel_task = False
-    if config["params"]["reads_format"] == "fastq":
-        for i in _samples.index.unique():
-            count = len(_samples.loc[[i], "fq1"].dropna().tolist())
-            if count > 1:
-                cancel_task = True
-                print("exists duplicated sample: %s" % i)
-    if cancel_task:
-        sys.exit(1)
-
-_samples_id = []
-
-if config["params"]["cobinning"]["do"]:
-    _samples_id = sample.parse_cobin_samples_id(config["params"]["cobinning"]["samples_id"])
-    if config["params"]["cobinning"]["rename"]:
-        rename_dict = { k : "S" + str(v + 1) \
-                        for k,v in zip(_samples.index.unique(),
-                                       range(len(_samples.index.unique())))}
-        _samples = _samples.assign(id_2=_samples.id.apply(lambda x: rename_dict[x]))
-        _samples.loc[:, ["id", "id_2"]]\
-                .drop_duplicates(["id", "id_2"])\
-                .to_csv(config["params"]["cobinning"]["renamed_id"], sep='\t', index=False)
+SAMPLES_ID = SAMPLES_ID = metapi.manager.parse_cobin_samples_id(
+    SAMPLES,
+    config["params"]["cobinning"]["do"],
+    config["params"]["cobinning"]["samples_id"],
+    config["params"]["cobinning"]["rename"])
+    config["params"]["cobinning"]["rename_id"])
 
 include: "rules/step.smk"
 
@@ -45,7 +28,7 @@ if config["params"]["reads_format"] == "sra":
     include: "rules/sra2fq.smk"
 
 if config["params"]["simulation"]["do"]:
-    include: "rules/simulation.smk"
+   include: "rules/simulation.smk"
 
 if config["params"]["begin"] == "raw":
     include: "rules/fastqc.smk"
@@ -65,10 +48,7 @@ include: "rules/classification.smk"
 include: "rules/profiling.smk"
 include: "rules/burst.smk"
 include: "rules/upload.smk"
-
-'''
 include: "rules/dereplication.smk"
-'''
 
 rule all:
     input:

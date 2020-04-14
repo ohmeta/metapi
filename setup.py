@@ -4,7 +4,7 @@ import setuptools
 with open("README.md") as f:
     long_description = f.read()
 
-version = "0.6.4"
+version = "0.7.0"
 print("""------------------------
 Installing metapi version {}
 ------------------------
@@ -23,14 +23,20 @@ setuptools.setup(
     packages=['metapi'],
     package_data={'metapi': ['metapi/core.py',
                              'metapi/__init__.py',
-                             'metapi/check.py',
                              'metapi/config.py',
-                             'metapi/sample.py',
-                             'metapi/summary.py',
+                             'metapi/parse.py',
+                             'metapi/qc.py',
+                             'metapi/assembly.py',
+                             'metapi/alignment.py',
+                             'metapi/binning.py',
+                             'metapi/profiling.py',
+                             'metapi/checkm.py',
+                             'metapi/upload.py',
                              'metapi/config.yaml',
                              'metapi/cluster.yaml',
                              'metapi/Snakefile',
-                             'metapi/step.smk',
+                             'metapi/rules/step.smk',
+                             'metapi/rules/upload.smk',
                              'metapi/rules/simulation.smk',
                              'metapi/rules/sra2fq.smk',
                              'metapi/rules/fastqc.smk',
@@ -47,7 +53,7 @@ setuptools.setup(
                              'metapi/rules/dereplication.smk',
                              'metapi/rules/annotation.smk',
                              'metapi/rules/classification.smk',
-                             'metapi/rules/porfilling.smk',
+                             'metapi/rules/porfiling.smk',
                              'metapi/rules/burst.smk',
                              ]},
     include_package_data=True,

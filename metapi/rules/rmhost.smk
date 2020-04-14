@@ -157,12 +157,11 @@ rule merge_rmhost_report:
     input:
         expand("{reportout}/{sample}.rmhost.stats.tsv",
                reportout=config["results"]["report"]["rmhost"],
-               sample=_samples.index.unique())
+               sample=SAMPLES.index.unique())
     output:
         os.path.join(config["results"]["report"]["base_dir"], "rmhost.stats.tsv")
     run:
-        from metapi import reporter
-        reporter.merge(input, reporter.parse, 8, save=True, output=output[0])
+        metapi.tooler.merge(input, metapi.qcer.parse, 8, save=True, output=output[0])
 
 
 rule qc_report:
@@ -173,8 +172,5 @@ rule qc_report:
     output:
         stats = os.path.join(config["results"]["report"]["base_dir"], "qc.stats.tsv")
     run:
-        from metapi import reporter
-        import pandas as pd
-
-        df = reporter.merge([input.raw_stats, input.trim_stats, input.rmhost_stats], reporter.parse, 8)
-        reporter.compute_host_rate(df, save=True, output=output.stats)
+        df = metapi.tooler.merge([input.raw_stats, input.trim_stats, input.rmhost_stats], metapi.qcer.parse, 8)
+        metapi.qcer.compute_host_rate(df, save=True, output=output.stats)

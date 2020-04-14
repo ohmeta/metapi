@@ -5,91 +5,148 @@ import sys
 import pandas as pd
 from metapi import config
 
+SIMULATION_STEPS = ["genome_download", "genome_merge", "genome_simulate"]
 
-simulation_steps = [
-    "genome_download",
-    "genome_merge",
-    "genome_simulate",
+QUALITY_CONTROL_STEPS = [
+    # fastqc
     "fastqc",
     "multiqc_fastqc",
+    "raw_report",
+    "merge_raw_report",
+    # sra2fq
+    "sra2fq",
+    # trimming
     "trimming_oas1",
     "trimming_sickle",
     "trimming_fastp",
     "multiqc_fastp",
+    "trimming_report",
+    "merge_trimming_report",
+    # rmhost
     "build_host_index_for_bwa",
     "rmhost_bwa",
     "build_host_index_for_bowtie2",
     "rmhost_bowtie2",
+    "rmhost_report",
+    "merge_rmhost_report",
+    # qc report
+    "qc_report",
+]
+
+ASSEMBLY_STEPS = [
     "assembly_megahit",
     "assembly_idba_ud",
     "assembly_metaspades",
     "assembly_spades",
+    "assembly_report",
+    "assembly_summary",
+]
+
+COASSEMBLY_STEPS = [
     "coassembly_megahit",
-    "metaquast",
-    "multiqc_metaquast",
-    "prediction",
+    "demultiplex_kraken2_reads",
+    "merge_kraken2_reads",
+]
+
+ASSEMBLY_EVULATION_STEPS = ["metaquast", "multiqc_metaquast"]
+
+ALIGNMENT_STEPS = [
     "build_index_for_scaftigs",
     "align_reads_to_scaftigs",
+    "build_index_for_bam",
+    "cal_base_depth",
+    "alignment_summary",
+]
+
+BINNING_STEPS = [
     "coverage_metabat2",
     "coverage_maxbin2",
     "binning_metabat2",
     "binning_maxbin2",
+]
+
+COBINNING_STEPS = [
     "filter_rename_prediction",
     "vsearch_clust_cds",
     "choose_cds_marker",
     "index_marker_cds",
     "get_marker_contigs_depth",
+]
+
+CHECKM_STEPS = [
     "checkm_lineage_wf",
-    "prokka_bins",
-    "multiqc_prokka_bins",
+    "checkm_report",
+    "checkm_link_bins",
+    # "checkm_coverage",
+    # "checkm_profile"
+]
+
+ANNOTATION_STEPS = ["prediction", "prokka_bins", "multiqc_prokka_bins"]
+
+CLASSIFICATION_STEPS = ["kraken2", "classification_hmq_bins_by_gtdbtk"]
+
+
+DEREPLICATION_STEPS = ["drep"]
+
+PROFILING_STEPS = [
     "metaphlan2_profiling",
     "metaphlan2_merge",
     "jgi_profiling",
     "jgi_profile_merge",
     "humann2_profiling",
-    "burst_reads",
-    "all",
+    "humann2_postprocess",
+    "humann2_join",
+    "humann2_split_straified",
 ]
 
-workflow_steps = [
-    "sra2fq",
-    "fastqc",
-    "multiqc_fastqc",
-    "trimming_oas1",
-    "trimming_sickle",
-    "trimming_fastp",
-    "multiqc_fastp",
-    "build_host_index_for_bwa",
-    "rmhost_bwa",
-    "build_host_index_for_bowtie2",
-    "rmhost_bowtie2",
-    "assembly_megahit",
-    "assembly_idba_ud",
-    "assembly_metaspades",
-    "assembly_spades",
-    "coassembly_megahit",
-    "metaquast",
-    "multiqc_metaquast",
-    "prediction",
-    "build_index_for_scaftigs",
-    "align_reads_to_scaftigs",
-    "coverage_metabat2",
-    "coverage_maxbin2",
-    "binning_metabat2",
-    "binning_maxbin2",
-    "filter_rename_prediction",
-    "vsearch_clust_cds",
-    "choose_cds_marker",
-    "index_marker_cds",
-    "get_marker_contigs_depth",
-    "checkm_lineage_wf",
-    "prokka_bins",
-    "multiqc_prokka_bins",
-    "metaphlan2_profiling",
-    "metaphlan2_merge",
+BURST_STEPS = [
     "burst_reads",
-    "all",
+    # "burst_contigs",
+    # "burst_bins"
 ]
+
+UPLOAD_STEPS = [
+    "rmhost_md5",
+    "assembly_md5",
+    "generate_samples_info",
+    "generate_run_info",
+    "generate_assembly_info",
+]
+
+
+SIMULATION_WORKFLOW = (
+    SIMULATION_STEPS
+    + QUALITY_CONTROL_STEPS
+    + ASSEMBLY_STEPS
+    + ASSEMBLY_EVULATION_STEPS
+    + COASSEMBLY_STEPS
+    + ALIGNMENT_STEPS
+    + BINNING_STEPS
+    + COBINNING_STEPS
+    + CHECKM_STEPS
+    + CLASSIFICATION_STEPS
+    + DEREPLICATION_STEPS
+    + ANNOTATION_STEPS
+    + PROFILING_STEPS
+    + BURST_STEPS
+)
+
+RUN_WORKFLOW = (
+    QUALITY_CONTROL_STEPS
+    + ASSEMBLY_STEPS
+    + ASSEMBLY_EVULATION_STEPS
+    + COASSEMBLY_STEPS
+    + ALIGNMENT_STEPS
+    + BINNING_STEPS
+    + COBINNING_STEPS
+    + CHECKM_STEPS
+    + CLASSIFICATION_STEPS
+    + DEREPLICATION_STEPS
+    + ANNOTATION_STEPS
+    + PROFILING_STEPS
+    + BURST_STEPS
+    + UPLOAD_STEPS
+)
 
 
 def initialization(args):
@@ -302,7 +359,7 @@ def main():
         "-u",
         "--step",
         type=str,
-        choices=simulation_steps,
+        choices=SIMULATION_WORKFLOW,
         default="checkm",
         help="run step",
     )
@@ -320,8 +377,8 @@ def main():
         "-u",
         "--step",
         type=str,
-        choices=workflow_steps,
-        default="checkm",
+        choices=RUN_WORKFLOW,
+        default="drep",
         help="run step",
     )
     parser_workflow._optionals.title = "arguments"

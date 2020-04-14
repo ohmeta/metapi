@@ -1,9 +1,9 @@
 def raw_reads(wildcards):
     if IS_PE:
-        return [sample.get_reads(_samples, wildcards, "fq1"),
-                sample.get_reads(_samples, wildcards, "fq2")]
+        return [metapi.manager.get_reads(SAMPLES, wildcards, "fq1"),
+                metapi.manager.get_reads(SAMPLES, wildcards, "fq2")]
     else:
-        return [sample.get_reads(_samples, wildcards, "fq1")]
+        return [metapi.manager.get_reads(SAMPLES, wildcards, "fq1")]
 
 
 if config["params"]["trimming"]["oas1"]["do"]:
@@ -229,7 +229,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
         input:
             expand("{trimming}/{sample}.fastp.json",
                    trimming=config["results"]["trimming"],
-                   sample=_samples.index.unique())
+                   sample=SAMPLES.index.unique())
         output:
             html = os.path.join(config["results"]["trimming"], "fastp_multiqc_report.html"),
             data_dir = directory(os.path.join(config["results"]["trimming"], "fastp_multiqc_report_data"))
@@ -255,28 +255,26 @@ rule trimming_report:
     threads:
         config["params"]["report"]["seqkit"]["threads"]
     run:
-        from metapi import reporter
         if IS_PE:
             shell("seqkit stats --all --basename --tabular \
                   --fq-encoding %s \
                   --out-file %s \
                   --threads %d %s" % (params.fq_encoding, output, threads, " ".join(input)))
-            reporter.change(output[0], params.sample_id, "trimming", "pe", ["fq1", "fq2"])
+            metapi.qcer.change(output[0], params.sample_id, "trimming", "pe", ["fq1", "fq2"])
         else:
             shell("seqkit stats --all --basename --tabular \
                   --fq-encoding %s \
                   --out-file %s \
                   --threads %d %s" % (params.fq_encoding, output, threads, input))
-            reporter.change(output[0], params.sample_id, "trimming", "se", ["fq1"])
+            metapi.qcer.change(output[0], params.sample_id, "trimming", "se", ["fq1"])
 
 
 rule merge_trimming_report:
     input:
         expand("{reportout}/{sample}.trimming.stats.tsv",
                reportout=config["results"]["report"]["trimming"],
-               sample=_samples.index.unique())
+               sample=SAMPLES.index.unique())
     output:
         os.path.join(config["results"]["report"]["base_dir"], "trimming.stats.tsv")
     run:
-        from metapi import reporter
-        reporter.merge(input, reporter.parse, 8, save=True, output=output[0])
+        metapi.tooler.merge(input, metapi.qcer.parse, 8, save=True, output=output[0])
