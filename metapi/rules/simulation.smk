@@ -24,7 +24,7 @@ rule genome_merge:
     output:
         expand("{simulation}/{sample}_genome.fa",
                simulation=config["results"]["simulation"],
-               sample=_samples.index.unique())
+               sample=SAMPLES.index.unique())
     params:
         outdir = config["results"]["simulation"]
     run:

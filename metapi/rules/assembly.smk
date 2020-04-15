@@ -2,10 +2,10 @@ def clean_reads(wildcards):
     if config["params"]["begin"] == "assembly":
         if config["params"]["reads_format"] == "fastq":
             if IS_PE:
-                return [sample.get_sample_id(_samples, wildcards, "fq1"),
-                        sample.get_sample_id(_samples, wildcards, "fq2")]
+                return [sampler.get_sample_id(SAMPLES, wildcards, "fq1"),
+                        sampler.get_sample_id(SAMPLES, wildcards, "fq2")]
             else:
-                return [sample.get_sample_id(_samples, wildcards, "fq1")]
+                return [sampler.get_sample_id(SAMPLES, wildcards, "fq1")]
         elif config["params"]["reads_format"] == "sra":
             return expand("{sra2fq}/{sample}{read}.fq.gz",
                           sra2fq=config["results"]["sra2fq"],
@@ -222,7 +222,7 @@ rule assembly_summary:
     input:
         comp_list = expand(os.path.join(config["results"]["assembly"],
                                         "{sample}.{{assembler}}_out/{sample}.{{assembler}}.scaftigs.seqtk.comp.tsv.gz"),
-                           sample=_samples.index.unique())
+                           sample=SAMPLES.index.unique())
     output:
         summary = os.path.join(config["results"]["report"]["base_dir"], "{assembler}.assembly.summary.tsv")
     params:
@@ -230,6 +230,5 @@ rule assembly_summary:
     threads:
         config["params"]["assembly"]["report"]["threads"]
     run:
-        from metapi import reporter
-        reporter.global_init(params.len_ranges)
-        reporter.merge(input.comp_list, reporter.parse_assembly, threads, save=True, output=output.summary)
+        metapi.assembler.global_init(params.len_ranges)
+        metapi.tooler.merge(input.comp_list, metapi.assembler.parse_assembly, threads, save=True, output=output.summary)

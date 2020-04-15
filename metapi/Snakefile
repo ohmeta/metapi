@@ -9,13 +9,13 @@ configfile: "config.yaml"
 
 IS_PE = True if config["params"]["reads_layout"] == "pe" else False
 
-SAMPLES = metapi.manager.parse_samples(
+SAMPLES = metapi.sampler.parse_samples(
     config["params"]["samples"],
     config["params"]["reads_format"],
     IS_PE,
     True)
 
-SAMPLES_ID = SAMPLES_ID = metapi.manager.parse_cobin_samples_id(
+SAMPLES_ID = SAMPLES_ID = metapi.sampler.parse_cobin_samples_id(
     SAMPLES,
     config["params"]["cobinning"]["do"],
     config["params"]["cobinning"]["samples_id"],

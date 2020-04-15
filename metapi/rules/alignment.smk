@@ -67,7 +67,7 @@ rule cal_base_depth:
 rule alignment_summary:
     input:
         expand(os.path.join(config["results"]["alignment"], "{sample}.bwa_out/{sample}.{assembler}.flagstat"),
-               sample=_samples.index.unique(),
+               sample=SAMPLES.index.unique(),
                assembler=config["params"]["assembler"])
     output:
         os.path.join(config["results"]["report"]["base_dir"], "{assembler}.alignment.summary.tsv")
@@ -76,4 +76,4 @@ rule alignment_summary:
         for i in input:
             input_list.append(str(i))
         output_str = str(output)
-        summary.flagstats_summary(input_list, output_str, 2)
+        metapi.aligner.flagstats_summary(input_list, output_str, 2)

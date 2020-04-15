@@ -2,39 +2,39 @@ def coassembly_inputs():
     if config["params"]["begin"] == "assembly":
         if config["params"]["reads_format"] == "fastq":
             if IS_PE:
-                return [_samples.fq1, _samples.fq2]
+                return [SAMPLES.fq1, SAMPLES.fq2]
             else:
-                return [_samples.fq1]
+                return [SAMPLES.fq1]
         elif config["params"]["reads_format"] == "sra":
             fq1s = expand("{sra2fq}/{sample}.1.fq.gz",
                           sra2fq=config["results"]["sra2fq"],
-                          sample=_samples.index.unique())
+                          sample=SAMPLES.index.unique())
             if IS_PE:
                 fq2s = expand("{sra2fq}/{sample}.2.fq.gz",
                               sra2fq=config["results"]["sra2fq"],
-                              sample=_samples.index.unique())
+                              sample=SAMPLES.index.unique())
                 return [fq1s, fq2s]
             else:
                 return [fq1s]
     elif config["params"]["rmhost"]["do"]:
         fq1s = expand("{rmhost}/{sample}.rmhost.1.fq.gz",
                       rmhost=config["results"]["rmhost"],
-                      sample=_samples.index.unique())
+                      sample=SAMPLES.index.unique())
         if IS_PE:
             fq2s = expand("{rmhost}/{sample}.rmhost.2.fq.gz",
                           rmhost=config["results"]["rmhost"],
-                          sample=_samples.index.unique())
+                          sample=SAMPLES.index.unique())
             return [fq1s, fq2s]
         else:
             return [fq1s]
     else:
         fq1s = expand("{trimming}/{sample}.trimmed.1.fq.gz",
                       trimming=config["results"]["trimming"],
-                      sample=_samples.index.unique())
+                      sample=SAMPLES.index.unique())
         if IS_PE:
             fq2s = expand("{trimming}/{sample}.trimmed.2.fq.gz",
                           trimming=config["results"]["trimming"],
-                          sample=_samples.index.unique())
+                          sample=SAMPLES.index.unique())
             return [fq1s, fq2s]
         else:
             return [fq1s]
@@ -118,7 +118,7 @@ rule merge_kraken2_reads:
     input:
         expand("{demultiplex_kraken2}/{sample}.demultiplex_out/{sample}.demultiplex.done",
                demultiplex_kraken2=config["results"]["coassembly"]["demultiplex_kraken2"],
-               sample=_samples.index.unique())
+               sample=SAMPLES.index.unique())
     output:
         os.path.join(config["results"]["coassembly"]["demultiplex_kraken2"], "merged")
     run:

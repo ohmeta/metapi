@@ -28,8 +28,8 @@ rule kraken2:
 
 rule classification_hmq_bins_by_gtdbtk:
     input:
-        bins_hmq = directory(os.path.join(config["results"]["checkm"]["base_dir"],
-                                          "bins.{assembler}.{binner}_out.hmq"))
+        bins_hmq = os.path.join(config["results"]["checkm"]["base_dir"],
+                                "bins.{assembler}.{binner}_out.hmq")
     output:
         outdir = directory(os.path.join(config["results"]["classification"]["gtdbtk"]["base_dir"],
                                         "hmq.bins.{assembler}.{binner}.gtdbtk_out"))

@@ -2,7 +2,7 @@ sra2fq_output = expand(
     "{sra2fq}/{sample}{read}.fq.gz",
     sra2fq=config["results"]["sra2fq"],
     read=[".1", ".2"] if IS_PE else "",
-    sample=_samples.index.unique())
+    sample=SAMPLES.index.unique())
 
 simulation_output = expand([
     "{simulation}/species_metadata.tsv", "{simulation}/{sample}_genome.fa",
@@ -11,7 +11,7 @@ simulation_output = expand([
                            simulation=config["results"]["simulation"],
                            raw=config["results"]["raw"]["reads"],
                            read=[".1", ".2"] if IS_PE else "",
-                           sample=_samples.index.unique())
+                           sample=SAMPLES.index.unique())
 
 fastqc_output = expand([
     "{fastqc}/{sample}/done",
@@ -20,7 +20,7 @@ fastqc_output = expand([
 ],
                        fastqc=config["results"]["raw"]["fastqc"],
                        multiqc=config["results"]["raw"]["multiqc"],
-                       sample=_samples.index.unique())
+                       sample=SAMPLES.index.unique())
 
 oas1_output = expand([
     "{trimming}/{sample}.trimmed{read}.fq.gz",
@@ -28,12 +28,12 @@ oas1_output = expand([
 ],
                      trimming=config["results"]["trimming"],
                      read=[".1", ".2", ".single"] if IS_PE else "",
-                     sample=_samples.index.unique())
+                     sample=SAMPLES.index.unique())
 
 sickle_output = expand(
     "{trimming}/{sample}.trimmed{read}.fq.gz",
     trimming=config["results"]["trimming"],
-    sample=_samples.index.unique(),
+    sample=SAMPLES.index.unique(),
     read=[".1", ".2", ".single"] if IS_PE else "")
 
 fastp_output = expand([
@@ -43,7 +43,7 @@ fastp_output = expand([
     "{trimming}/fastp_multiqc_report.html",
     "{trimming}/fastp_multiqc_report_data"
 ],
-                      sample=_samples.index.unique(),
+                      sample=SAMPLES.index.unique(),
                       trimming=config["results"]["trimming"],
                       read=[".1", ".2"] if IS_PE else "")
 
@@ -52,7 +52,7 @@ rmhost_output = expand([
     "{rmhost}/{sample}.rmhost{read}.fq.gz"
 ],
                        rmhost=config["results"]["rmhost"],
-                       sample=_samples.index.unique(),
+                       sample=SAMPLES.index.unique(),
                        read=[".1", ".2"] if IS_PE else "")
 
 raw_report_output = expand(
@@ -74,22 +74,22 @@ qc_report_output = expand(
 megahit_output = expand(
     "{assembly}/{sample}.megahit_out/{sample}.megahit.scaftigs.fa.gz",
     assembly=config["results"]["assembly"],
-    sample=_samples.index.unique())
+    sample=SAMPLES.index.unique())
 
 idba_ud_output = expand(
     "{assembly}/{sample}.idba_ud_out/{sample}.idba_ud.scaftigs.fa.gz",
     assembly=config["results"]["assembly"],
-    sample=_samples.index.unique())
+    sample=SAMPLES.index.unique())
 
 metaspades_output = expand(
     "{assembly}/{sample}.metaspades_out/{sample}.metaspades.scaftigs.fa.gz",
     assembly=config["results"]["assembly"],
-    sample=_samples.index.unique())
+    sample=SAMPLES.index.unique())
 
 spades_output = expand(
     "{assembly}/{sample}.spades_out/{sample}.spades.scaftigs.fa.gz",
     assembly=config["results"]["assembly"],
-    sample=_samples.index.unique())
+    sample=SAMPLES.index.unique())
 
 assembly_report_output = expand(
     [
@@ -97,7 +97,7 @@ assembly_report_output = expand(
         "{reportout}/{assembler}.assembly.summary.tsv"
     ],
     assembly=config["results"]["assembly"],
-    sample=_samples.index.unique(),
+    sample=SAMPLES.index.unique(),
     assembler=config["params"]["assembler"],
     reportout=config["results"]["report"]["base_dir"]
 )
@@ -118,7 +118,7 @@ demultiplex_kraken2_output = expand(
         "{demultiplex_kraken2}/merged"
     ],
     demultiplex_kraken2=config["results"]["coassembly"]["demultiplex_kraken2"],
-    sample = _samples.index.unique())
+    sample = SAMPLES.index.unique())
 
 metaquast_output = expand([
     "{metaquast}/{sample}.{assembler}.metaquast_out/report.html",
@@ -134,7 +134,7 @@ metaquast_output = expand([
 ],
                           metaquast=config["results"]["metaquast"],
                           assembler=config["params"]["assembler"],
-                          sample=_samples.index.unique())
+                          sample=SAMPLES.index.unique())
 
 prodigal_output = expand([
     "{prediction}/{sample}.prodigal_out/{sample}.{assembler}.pep.faa",
@@ -144,7 +144,7 @@ prodigal_output = expand([
 ],
                           prediction=config["results"]["prediction"],
                           assembler=config["params"]["assembler"],
-                          sample=_samples.index.unique())
+                          sample=SAMPLES.index.unique())
 
 alignment_flagstat_and_bam_output = expand([
 #    "{alignment}/{sample}.bwa_out/{sample}.{assembler}.sorted.bam",
@@ -153,13 +153,13 @@ alignment_flagstat_and_bam_output = expand([
 ],
                           alignment=config["results"]["alignment"],
                           assembler=config["params"]["assembler"],
-                          sample=_samples.index.unique())
+                          sample=SAMPLES.index.unique())
 
 alignment_depth_output = expand(
     "{alignment}/{sample}.bwa_out/{sample}.{assembler}.depth.gz",
     alignment=config["results"]["alignment"],
     assembler=config["params"]["assembler"],
-    sample=_samples.index.unique())
+    sample=SAMPLES.index.unique())
 
 alignment_summary_output = expand(
     "{reportout}/{assembler}.alignment.summary.tsv",
@@ -175,7 +175,7 @@ metabat2_output = expand([
                          bins=config["results"]["binning"]["bins"],
                          logs=config["logs"]["binning"]["metabat2"],
                          assembler=config["params"]["assembler"],
-                         sample=_samples.index.unique())
+                         sample=SAMPLES.index.unique())
 
 maxbin2_output = expand([
     "{depth}/{sample}.{assembler}.bbmap.depth.txt",
@@ -185,14 +185,14 @@ maxbin2_output = expand([
                         depth=config["results"]["binning"]["depth"],
                         bins=config["results"]["binning"]["bins"],
                         assembler=config["params"]["assembler"],
-                        sample=_samples.index.unique())
+                        sample=SAMPLES.index.unique())
 
 cobin_prediction_output = expand([
     "{cds}/{sample}/{sample}.{assembler}.cds.fa.gz",
     "{cds}/{sample}/{sample}.{assembler}.cds.gff.gz"
 ],
     cds=config["results"]["cobinning"]["cds"],
-    sample=_samples.index.unique(),
+    sample=SAMPLES.index.unique(),
     assembler=config["params"]["assembler"])
 
 cobin_vsearch_clust_output = expand([
@@ -200,14 +200,14 @@ cobin_vsearch_clust_output = expand([
     "{cds}/{sample}/{sample}.{assembler}.cds.marker.fa.gz"
 ],
     cds=config["results"]["cobinning"]["cds"],
-    sample=_samples.index.unique(),
+    sample=SAMPLES.index.unique(),
     assembler=config["params"]["assembler"])
 
 cobin_alignment_cds_output = expand(
     "{depth}/{sample_}/{sample_}.{sample}.{assembler}.{binner}.depth.txt.gz",
     depth=config["results"]["cobinning"]["depth"],
-    sample_= _samples_id,
-    sample=_samples.index.unique(),
+    sample_= SAMPLES_ID,
+    sample=SAMPLES.index.unique(),
     assembler=config["params"]["assembler"],
     binner=config["params"]["binning"]["binner"])
 
@@ -219,7 +219,7 @@ checkm_lineage_wf_output = expand([
                         data=config["results"]["checkm"]["data"],
                         assembler=config["params"]["assembler"],
                         binner=config["params"]["binning"]["binner"],
-                        sample=_samples.index.unique())
+                        sample=SAMPLES.index.unique())
 
 checkm_report_output = expand(
     "{basedir}/{assembler}.{binner}.checkm.out.tsv",
@@ -265,7 +265,7 @@ prokka_output = expand(
     prokka=config["results"]["annotation"]["prokka"],
     multiqc_prokka=config["results"]["annotation"]["multiqc_prokka"],
     assembler=config["params"]["assembler"],
-    sample=_samples.index.unique())
+    sample=SAMPLES.index.unique())
 
 kraken2_output = expand(
     [
@@ -273,7 +273,7 @@ kraken2_output = expand(
         "{kraken2}/{sample}.kraken2.report"
     ],
     kraken2=config["results"]["classification"]["kraken2"],
-    sample=_samples.index.unique())
+    sample=SAMPLES.index.unique())
 
 gtdbtk_output = expand(
     "{gtdbtkout}/hmq.bins.{assembler}.{binner}.gtdbtk_out",
@@ -298,12 +298,12 @@ metaphlan2_profiling_output = expand(
     bowtie2out=config["results"]["profiling"]["metaphlan2"]["bowtie2_out"],
     profile=config["results"]["profiling"]["metaphlan2"]["profile"],
     metaphlan2=config["results"]["profiling"]["metaphlan2"]["base_dir"],
-    sample=_samples.index.unique())
+    sample=SAMPLES.index.unique())
 
 jgi_profiling_output = expand(
     "{depth}/{sample}.jgi.depth.gz",
     depth=config["results"]["profiling"]["jgi"]["depth"],
-    sample=_samples.index.unique())
+    sample=SAMPLES.index.unique())
 
 jgi_profile_merge_output = expand(
     [
@@ -318,7 +318,7 @@ jgi_profile_merge_output = expand(
 humann2_profiling_output = expand(
     "{humann2}/{sample}.humann2_out/{sample}_{target}.tsv",
     humann2=config["results"]["profiling"]["humann2"],
-    sample=_samples.index.unique(),
+    sample=SAMPLES.index.unique(),
     target=["genefamilies", "pathabundance", "pathcoverage"])
 
 humann2_postprocess_output = expand(
@@ -327,7 +327,7 @@ humann2_postprocess_output = expand(
         "{humann2}/{sample}.humann2_out/{sample}_group-{group}-profile.tsv"
     ],
     humann2=config["results"]["profiling"]["humann2"],
-    sample=_samples.index.unique(),
+    sample=SAMPLES.index.unique(),
     target=["genefamilies", "pathabundance", "pathcoverage"],
     norm=config["params"]["profiling"]["humann2"]["normalize_method"],
     group=config["params"]["profiling"]["humann2"]["map_database"])
@@ -345,7 +345,7 @@ humann2_join_split_output = expand(
 burst_output = expand(
     "{burst}/{sample}.reads.burst.b6",
     burst=config["results"]["burst"],
-    sample=_samples.index.unique())
+    sample=SAMPLES.index.unique())
 
 #----------------------------------------------------------------#
 

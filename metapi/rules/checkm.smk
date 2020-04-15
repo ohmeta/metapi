@@ -35,7 +35,7 @@ rule checkm_report:
     input:
         expand("{checkmout}/{sample}.{assembler}.{binner}.checkm.txt",
                checkmout=config["results"]["checkm"]["out"],
-               sample=_samples.index.unique(),
+               sample=SAMPLES.index.unique(),
                assembler=config["params"]["assembler"],
                binner=config["params"]["binning"]["binner"])
     output:
@@ -44,8 +44,7 @@ rule checkm_report:
     threads:
         config["params"]["checkm"]["threads"]
     run:
-        from metapi import checkmer
-        checkmer.report(input, output[0], threads)
+        metapi.checkmer.report(input, output[0], threads)
        
 
 rule checkm_link_bins:
@@ -68,9 +67,6 @@ rule checkm_link_bins:
         assembler = "{assembler}",
         binner = "{binner}"
     run:
-        import pandas as pd
-        import os
-
         if os.path.exists(output.bins_hq):
             os.rmdir(output.bins_hq)
         if os.path.exists(output.bins_mq):

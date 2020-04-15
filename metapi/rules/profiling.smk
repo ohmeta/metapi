@@ -40,7 +40,7 @@ rule metaphlan2_merge:
     input:
         expand("{profile}/{sample}.metaphlan2.profile",
                profile=config["results"]["profiling"]["metaphlan2"]["profile"],
-               sample=_samples.index.unique())
+               sample=SAMPLES.index.unique())
     output:
         os.path.join(config["results"]["profiling"]["metaphlan2"]["base_dir"], "metaphlan2.merged.profile")
     log:
@@ -95,7 +95,7 @@ rule jgi_profile_merge:
     input:
         abun_files = expand(os.path.join(config["results"]["profiling"]["jgi"]["depth"],
                                          "{sample}.jgi.depth.gz"),
-                            sample=_samples.index.unique()),
+                            sample=SAMPLES.index.unique()),
         taxonomy = config["params"]["profiling"]["taxonomy"],
         index_metadata = config["params"]["profiling"]["index_metadata"],
     output:
@@ -122,13 +122,11 @@ rule jgi_profile_merge:
     threads:
         config["params"]["profiling"]["threads"]
     run:
-        import pandas as pd
-
         taxonomy_df = pd.read_csv(input.taxonomy, sep='\t')
 
-        profiler.global_init(input.index_metadata)
+        metapi.profiler.global_init(input.index_metadata)
 
-        depth_df, abun_df = profiler.get_all_abun_df(input.abun_files, threads, "jgi")
+        depth_df, abun_df = metapi.profiler.get_all_abun_df(input.abun_files, threads, "jgi")
         samples_list = sorted(abun_df.columns[1:].to_list())
 
         depth_df.to_csv(output.depth_profile, sep='\t', index=False)
@@ -136,14 +134,14 @@ rule jgi_profile_merge:
 
         abun_tax_df = abun_df.merge(taxonomy_df)
 
-        profiler.get_profile(abun_tax_df, samples_list,  "lineages_superkingdom_new", output.abundance_profile_k)
-        profiler.get_profile(abun_tax_df, samples_list, "lineages_phylum_new", output.abundance_profile_p)
-        profiler.get_profile(abun_tax_df, samples_list, "lineages_order_new", output.abundance_profile_o)
-        profiler.get_profile(abun_tax_df, samples_list, "lineages_class_new", output.abundance_profile_c)
-        profiler.get_profile(abun_tax_df, samples_list, "lineages_family_new", output.abundance_profile_f)
-        profiler.get_profile(abun_tax_df, samples_list, "lineages_genus_new", output.abundance_profile_g)
-        profiler.get_profile(abun_tax_df, samples_list, "lineages_species_new", output.abundance_profile_s)
-        profiler.get_profile(abun_tax_df, samples_list, "lineages_strain_new", output.abundance_profile_t)
+        metapi.profiler.get_profile(abun_tax_df, samples_list,  "lineages_superkingdom_new", output.abundance_profile_k)
+        metapi.profiler.get_profile(abun_tax_df, samples_list, "lineages_phylum_new", output.abundance_profile_p)
+        metapi.profiler.get_profile(abun_tax_df, samples_list, "lineages_order_new", output.abundance_profile_o)
+        metapi.profiler.get_profile(abun_tax_df, samples_list, "lineages_class_new", output.abundance_profile_c)
+        metapi.profiler.get_profile(abun_tax_df, samples_list, "lineages_family_new", output.abundance_profile_f)
+        metapi.profiler.get_profile(abun_tax_df, samples_list, "lineages_genus_new", output.abundance_profile_g)
+        metapi.profiler.get_profile(abun_tax_df, samples_list, "lineages_species_new", output.abundance_profile_s)
+        metapi.profiler.get_profile(abun_tax_df, samples_list, "lineages_strain_new", output.abundance_profile_t)
 
 
 rule humann2_profiling:
@@ -222,7 +220,7 @@ rule humann2_join:
         expand(["{humann2}/{sample}.humann2_out/{sample}_{target}.tsv",
                 "{humann2}/{sample}.humann2_out/{sample}_{group}_groupped.tsv"],
                humann2=config["results"]["profiling"]["humann2"],
-               sample=_samples.index.unique(),
+               sample=SAMPLES.index.unique(),
                target=["genefamilies", "pathabundance", "pathcoverage"],
                group=config["params"]["profiling"]["humann2"]["map_database"])
     output:

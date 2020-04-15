@@ -12,7 +12,7 @@ rule filter_rename_prediction:
         gff = os.path.join(config["results"]["cobinning"]["cds"],
                            "{sample}/{sample}.{assembler}.cds.gff"),
         length = config["params"]["cobinning"]["scaftigs_length"],
-        id = lambda wildcards: sample.renamed_id(_samples, wildcards) \
+        id = lambda wildcards: sample.renamed_id(SAMPLES, wildcards) \
                                if config["params"]["cobinning"]["rename"] else "{sample}",
         assembler = "{assembler}"
     threads:
@@ -106,8 +106,8 @@ rule index_marker_cds:
 def clean_reads_(wildcards):
     if config["params"]["begin"] == "assembly":
         if config["params"]["type"] == "fastq":
-            r1 = sample.get_sample_id_(_samples, wildcards, "fq1")
-            r2 = sample.get_sample_id_(_samples, wildcards, "fq2")
+            r1 = metapi.sampler.get_sample_id_(SAMPLES, wildcards, "fq1")
+            r2 = metapi.sampler.get_sample_id_(SAMPLES, wildcards, "fq2")
             return [r1, r2]
         elif config["params"]["type"] == "sra":
             return expand("{sra2fq}/{sample_}.{read}.fq.gz",

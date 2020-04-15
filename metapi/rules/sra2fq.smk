@@ -1,6 +1,6 @@
 rule sra2fq:
     input:
-        lambda wildcards: metapi.manager.get_reads(SAMPLES, wildcards, "sra")
+        lambda wildcards: metapi.sampler.get_reads(SAMPLES, wildcards, "sra")
     output:
         r1 = os.path.join(config["results"]["sra2fq"], "{sample}.1.fq.gz"),
         r2 = os.path.join(config["results"]["sra2fq"], "{sample}.2.fq.gz")

@@ -1,9 +1,9 @@
 def raw_reads(wildcards):
     if IS_PE:
-        return [metapi.manager.get_reads(SAMPLES, wildcards, "fq1"),
-                metapi.manager.get_reads(SAMPLES, wildcards, "fq2")]
+        return [metapi.sampler.get_reads(SAMPLES, wildcards, "fq1"),
+                metapi.sampler.get_reads(SAMPLES, wildcards, "fq2")]
     else:
-        return [metapi.manager.get_reads(SAMPLES, wildcards, "fq1")]
+        return [metapi.sampler.get_reads(SAMPLES, wildcards, "fq1")]
 
 
 if config["params"]["trimming"]["oas1"]["do"]:
@@ -277,4 +277,4 @@ rule merge_trimming_report:
     output:
         os.path.join(config["results"]["report"]["base_dir"], "trimming.stats.tsv")
     run:
-        metapi.tooler.merge(input, metapi.qcer.parse, 8, save=True, output=output[0])
+        metapi.tooler.merge(input, metapi.tooler.parse, 8, save=True, output=output[0])

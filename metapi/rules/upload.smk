@@ -33,31 +33,31 @@ rule generate_samples_info:
     output:
         os.path.join(config["results"]["upload"], "MIxS_Samples.xlsx")
     run:
-        uploader.gen_samples_info(_samples, output[0], config)
+        metapi.uploader.gen_samples_info(SAMPLES, output[0], config)
        
 
 rule generate_run_info:
     input:
         expand("{rmhost}/{sample}.rmhost.fq.gz.md5",
                rmhost=config["results"]["rmhost"],
-               sample=_samples.index.unique())
+               sample=SAMPLES.index.unique())
     output:
         os.path.join(config["results"]["upload"], "Experiment_Run.xlsx")
     threads:
         config["upload"]["threads"]
     run:
-        uploader.gen_info(input, output[0], config, threads, "sequencing_run")
+        metapi.uploader.gen_info(input, output[0], config, threads, "sequencing_run")
 
 
 rule generate_assembly_info:
     input:
         expand("{assembly}/{sample}.{assembler}_out/{sample}.{assembler}.scaftigs.fa.gz.md5",
                assembly=config["results"]["assembly"],
-               sample=_samples.index.unique(),
+               sample=SAMPLES.index.unique(),
                assembler=config["params"]["assembler"])
     output:
         os.path.join(config["results"]["upload"], "Genome_Assembly.xlsx")
     threads:
         config["upload"]["threads"]
     run:
-        uploader.gen_info(input, output[0], config, threads, "assembly")
+        metapi.uploader.gen_info(input, output[0], config, threads, "assembly")

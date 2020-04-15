@@ -42,7 +42,7 @@ rule multiqc_metaquast:
         expand("{metaquast}/{sample}.{assembler}.metaquast_out/combined_reference/report.tsv",
                metaquast=config["results"]["metaquast"],
                assembler=config["params"]["assembler"],
-               sample=_samples.index)
+               sample=SAMPLES.index)
     output:
         html = os.path.join(config["results"]["metaquast"], "metaquast_multiqc_report.html"),
         data_dir = directory(os.path.join(config["results"]["metaquast"],

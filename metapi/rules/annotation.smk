@@ -40,7 +40,7 @@ rule multiqc_prokka_bins:
         expand("{prokka}/{sample}.{assembler}.prokka_out/done",
                prokka=config["results"]["annotation"]["prokka"],
                assembler=config["params"]["assembler"],
-               sample=_samples.index.unique())
+               sample=SAMPLES.index.unique())
     output:
         html = os.path.join(config["results"]["annotation"]["multiqc_prokka"], "prokka_multiqc_report.html"),
         data_dir = directory(os.path.join(config["results"]["annotation"]["multiqc_prokka"], "prokka_multiqc_report_data"))

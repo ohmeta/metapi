@@ -138,19 +138,18 @@ rule rmhost_report:
     threads:
         config["params"]["report"]["seqkit"]["threads"]
     run:
-        from metapi import reporter
         if IS_PE:
             shell("seqkit stats --all --basename --tabular \
                    --fq-encoding %s \
                    --out-file %s \
                    --threads %d %s" % (params.fq_encoding, output, threads, " ".join(input)))
-            reporter.change(output[0], params.sample_id, "rmhost", "pe", ["fq1", "fq2"])
+            metapi.qcer.change(output[0], params.sample_id, "rmhost", "pe", ["fq1", "fq2"])
         else:
             shell("seqkit stats --all --basename --tabular \
                    --fq-encoding %s \
                    --out-file %s \
                    --threads %d %s" % (params.fq_encoding, output, threads, input))
-            reporter.change(output[0], params.sample_id, "rmhost", "se", ["fq1"])
+            metapi.qcer.change(output[0], params.sample_id, "rmhost", "se", ["fq1"])
 
 
 rule merge_rmhost_report:
@@ -161,7 +160,7 @@ rule merge_rmhost_report:
     output:
         os.path.join(config["results"]["report"]["base_dir"], "rmhost.stats.tsv")
     run:
-        metapi.tooler.merge(input, metapi.qcer.parse, 8, save=True, output=output[0])
+        metapi.tooler.merge(input, metapi.tooler.parse, 8, save=True, output=output[0])
 
 
 rule qc_report:
@@ -172,5 +171,5 @@ rule qc_report:
     output:
         stats = os.path.join(config["results"]["report"]["base_dir"], "qc.stats.tsv")
     run:
-        df = metapi.tooler.merge([input.raw_stats, input.trim_stats, input.rmhost_stats], metapi.qcer.parse, 8)
+        df = metapi.tooler.merge([input.raw_stats, input.trim_stats, input.rmhost_stats], metapi.tooler.parse, 8)
         metapi.qcer.compute_host_rate(df, save=True, output=output.stats)
