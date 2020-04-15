@@ -2,10 +2,10 @@ def clean_reads(wildcards):
     if config["params"]["begin"] == "assembly":
         if config["params"]["reads_format"] == "fastq":
             if IS_PE:
-                return [sampler.get_sample_id(SAMPLES, wildcards, "fq1"),
-                        sampler.get_sample_id(SAMPLES, wildcards, "fq2")]
+                return [metapi.get_sample_id(SAMPLES, wildcards, "fq1"),
+                        metapi.get_sample_id(SAMPLES, wildcards, "fq2")]
             else:
-                return [sampler.get_sample_id(SAMPLES, wildcards, "fq1")]
+                return [metapi.get_sample_id(SAMPLES, wildcards, "fq1")]
         elif config["params"]["reads_format"] == "sra":
             return expand("{sra2fq}/{sample}{read}.fq.gz",
                           sra2fq=config["results"]["sra2fq"],
@@ -230,5 +230,5 @@ rule assembly_summary:
     threads:
         config["params"]["assembly"]["report"]["threads"]
     run:
-        metapi.assembler.global_init(params.len_ranges)
-        metapi.tooler.merge(input.comp_list, metapi.assembler.parse_assembly, threads, save=True, output=output.summary)
+        metapi.assembler_init(params.len_ranges)
+        metapi.merge(input.comp_list, metapi.parse_assembly, threads, save=True, output=output.summary)

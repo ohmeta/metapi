@@ -102,15 +102,9 @@ rule demultiplex_kraken2_reads:
     run:
         shell('''pigz -p {threads} -kdc {input.reads[0]} > {output.r1}''')
         shell('''pigz -p {threads} -kdc {input.reads[1]} > {output.r2}''')
-        from metapi import demultiplexer
-        demultiplexer.main(["--r1", output.r1,
-                            "--r2", output.r2,
-                            "--kraken2_output", input.kraken2_output,
-                            "--rank", params.rank,
-                            "--taxadb", params.taxadb,
-                            "--prefix", params.prefix,
-                            '--log', log,
-                            params.change_seq_id])
+        metapi.demultiplex(input.kraken2_output,
+                           output.r1, output.r2,
+                           params.change_seq_id, params.prefix, log)
         shell('''echo done > {output.done}''')
 
 

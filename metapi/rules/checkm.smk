@@ -44,7 +44,7 @@ rule checkm_report:
     threads:
         config["params"]["checkm"]["threads"]
     run:
-        metapi.checkmer.report(input, output[0], threads)
+        metapi.report(input, output[0], threads)
        
 
 rule checkm_link_bins:

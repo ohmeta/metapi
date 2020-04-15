@@ -1,9 +1,9 @@
 def raw_reads(wildcards):
     if IS_PE:
-        return [metapi.sampler.get_reads(SAMPLES, wildcards, "fq1"),
-                metapi.sampler.get_reads(SAMPLES, wildcards, "fq2")]
+        return [metapi.get_reads(SAMPLES, wildcards, "fq1"),
+                metapi.get_reads(SAMPLES, wildcards, "fq2")]
     else:
-        return [metapi.sampler.get_reads(SAMPLES, wildcards, "fq1")]
+        return [metapi.get_reads(SAMPLES, wildcards, "fq1")]
 
 
 if config["params"]["trimming"]["oas1"]["do"]:
@@ -260,13 +260,13 @@ rule trimming_report:
                   --fq-encoding %s \
                   --out-file %s \
                   --threads %d %s" % (params.fq_encoding, output, threads, " ".join(input)))
-            metapi.qcer.change(output[0], params.sample_id, "trimming", "pe", ["fq1", "fq2"])
+            metapi.change(output[0], params.sample_id, "trimming", "pe", ["fq1", "fq2"])
         else:
             shell("seqkit stats --all --basename --tabular \
                   --fq-encoding %s \
                   --out-file %s \
                   --threads %d %s" % (params.fq_encoding, output, threads, input))
-            metapi.qcer.change(output[0], params.sample_id, "trimming", "se", ["fq1"])
+            metapi.change(output[0], params.sample_id, "trimming", "se", ["fq1"])
 
 
 rule merge_trimming_report:
@@ -277,4 +277,4 @@ rule merge_trimming_report:
     output:
         os.path.join(config["results"]["report"]["base_dir"], "trimming.stats.tsv")
     run:
-        metapi.tooler.merge(input, metapi.tooler.parse, 8, save=True, output=output[0])
+        metapi.merge(input, metapi.tooler.parse, 8, save=True, output=output[0])

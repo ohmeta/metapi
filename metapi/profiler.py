@@ -7,7 +7,7 @@ import sys
 import argparse
 
 
-def global_init(index_metadata):
+def profiler_init(index_metadata):
     global INDEX_METADATA__
     INDEX_METADATA__ = pd.read_csv(index_metadata, sep="\t")
 
@@ -196,7 +196,7 @@ def main():
     if args.method == "hsx":
         count_df, abun_df = get_all_abun_df(abun_files, args.threads, "hsx")
     elif args.method == "jgi":
-        global_init(args.database)
+        profiler_init(args.database)
         count_df, abun_df = get_all_abun_df(abun_files, args.threads, "jgi")
     else:
         print("unsupport method: %s" % args.method)

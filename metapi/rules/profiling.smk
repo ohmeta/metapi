@@ -124,9 +124,9 @@ rule jgi_profile_merge:
     run:
         taxonomy_df = pd.read_csv(input.taxonomy, sep='\t')
 
-        metapi.profiler.global_init(input.index_metadata)
+        metapi.profiler_init(input.index_metadata)
 
-        depth_df, abun_df = metapi.profiler.get_all_abun_df(input.abun_files, threads, "jgi")
+        depth_df, abun_df = metapi.get_all_abun_df(input.abun_files, threads, "jgi")
         samples_list = sorted(abun_df.columns[1:].to_list())
 
         depth_df.to_csv(output.depth_profile, sep='\t', index=False)
@@ -134,14 +134,14 @@ rule jgi_profile_merge:
 
         abun_tax_df = abun_df.merge(taxonomy_df)
 
-        metapi.profiler.get_profile(abun_tax_df, samples_list,  "lineages_superkingdom_new", output.abundance_profile_k)
-        metapi.profiler.get_profile(abun_tax_df, samples_list, "lineages_phylum_new", output.abundance_profile_p)
-        metapi.profiler.get_profile(abun_tax_df, samples_list, "lineages_order_new", output.abundance_profile_o)
-        metapi.profiler.get_profile(abun_tax_df, samples_list, "lineages_class_new", output.abundance_profile_c)
-        metapi.profiler.get_profile(abun_tax_df, samples_list, "lineages_family_new", output.abundance_profile_f)
-        metapi.profiler.get_profile(abun_tax_df, samples_list, "lineages_genus_new", output.abundance_profile_g)
-        metapi.profiler.get_profile(abun_tax_df, samples_list, "lineages_species_new", output.abundance_profile_s)
-        metapi.profiler.get_profile(abun_tax_df, samples_list, "lineages_strain_new", output.abundance_profile_t)
+        metapi.get_profile(abun_tax_df, samples_list,  "lineages_superkingdom_new", output.abundance_profile_k)
+        metapi.get_profile(abun_tax_df, samples_list, "lineages_phylum_new", output.abundance_profile_p)
+        metapi.get_profile(abun_tax_df, samples_list, "lineages_order_new", output.abundance_profile_o)
+        metapi.get_profile(abun_tax_df, samples_list, "lineages_class_new", output.abundance_profile_c)
+        metapi.get_profile(abun_tax_df, samples_list, "lineages_family_new", output.abundance_profile_f)
+        metapi.get_profile(abun_tax_df, samples_list, "lineages_genus_new", output.abundance_profile_g)
+        metapi.get_profile(abun_tax_df, samples_list, "lineages_species_new", output.abundance_profile_s)
+        metapi.get_profile(abun_tax_df, samples_list, "lineages_strain_new", output.abundance_profile_t)
 
 
 rule humann2_profiling:

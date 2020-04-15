@@ -4,7 +4,7 @@ import numpy as np
 from metapi import tooler
 
 
-def global_init(contigs_length_range):
+def assembler_init(contigs_length_range):
     global CONTIGS_LENGTH_RANGES__
     temp = sorted(list(set(contigs_length_range)))
     if (temp is None) or (temp == [0]) or (len(temp) == 0):

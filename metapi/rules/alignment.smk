@@ -76,4 +76,4 @@ rule alignment_summary:
         for i in input:
             input_list.append(str(i))
         output_str = str(output)
-        metapi.aligner.flagstats_summary(input_list, output_str, 2)
+        metapi.flagstats_summary(input_list, output_str, 2)

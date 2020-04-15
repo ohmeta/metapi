@@ -3,7 +3,7 @@ import argparse
 import os
 import sys
 import pandas as pd
-from metapi import config
+from metapi import configer
 
 SIMULATION_STEPS = ["genome_download", "genome_merge", "genome_simulate"]
 
@@ -151,7 +151,7 @@ RUN_WORKFLOW = (
 
 def initialization(args):
     if args.workdir:
-        project = config.metaconfig(args.workdir)
+        project = configer.metaconfig(args.workdir)
         print(project.__str__())
         project.create_dirs()
         configuration, cluster = project.get_config()
@@ -169,10 +169,10 @@ def initialization(args):
         if args.project:
             cluster["__default__"]["project"] = args.project
 
-        config.update_config(
+        configer.update_config(
             project.config_file, project.new_config_file, configuration, remove=False
         )
-        config.update_config(
+        configer.update_config(
             project.cluster_file, project.new_cluster_file, cluster, remove=False
         )
     else:
@@ -183,7 +183,7 @@ def initialization(args):
 def simulation(args):
     if args.workdir:
         config_file = os.path.join(args.workdir, "config.yaml")
-        configuration = config.parse_yaml(config_file)
+        configuration = configer.parse_yaml(config_file)
 
         if args.taxid and not args.genomes:
             configuration["params"]["simulation"]["taxid"] = args.taxid
@@ -198,20 +198,32 @@ def simulation(args):
         if args.model:
             configuration["params"]["simulation"]["model"] = args.model
 
-        config.update_config(config_file, config_file, configuration, remove=True)
+        configer.update_config(config_file, config_file, configuration, remove=True)
 
         samples_df = pd.DataFrame(
             {
                 "id": ["s1", "s2", "s3"],
                 "fq1": [
-                    os.path.join(config["results"]["raw"]["reads"], "s1_1.fq.gz"),
-                    os.path.join(config["results"]["raw"]["reads"], "s2_1.fq.gz"),
-                    os.path.join(config["results"]["raw"]["reads"], "s3_1.fq.gz"),
+                    os.path.join(
+                        configuration["results"]["raw"]["reads"], "s1_1.fq.gz"
+                    ),
+                    os.path.join(
+                        configuration["results"]["raw"]["reads"], "s2_1.fq.gz"
+                    ),
+                    os.path.join(
+                        configuration["results"]["raw"]["reads"], "s3_1.fq.gz"
+                    ),
                 ],
                 "fq2": [
-                    os.path.join(config["results"]["raw"]["reads"], "s1_2.fq.gz"),
-                    os.path.join(config["results"]["raw"]["reads"], "s2_2.fq.gz"),
-                    os.path.join(config["results"]["raw"]["reads"], "s3_2.fq.gz"),
+                    os.path.join(
+                        configuration["results"]["raw"]["reads"], "s1_2.fq.gz"
+                    ),
+                    os.path.join(
+                        configuration["results"]["raw"]["reads"], "s2_2.fq.gz"
+                    ),
+                    os.path.join(
+                        configuration["results"]["raw"]["reads"], "s3_2.fq.gz"
+                    ),
                 ],
             }
         )
@@ -236,13 +248,13 @@ def simulation(args):
 def workflow(args):
     if args.workdir:
         config_file = os.path.join(args.workdir, "config.yaml")
-        configuration = config.parse_yaml(config_file)
+        configuration = configer.parse_yaml(config_file)
         if not os.path.exists(configuration["params"]["samples"]):
             print("please specific samples list on initialization step")
             sys.exit(1)
         if args.rmhost:
             configuration["params"]["rmhost"]["do"] = True
-        config.update_config(config_file, config_file, configuration, remove=True)
+        configer.update_config(config_file, config_file, configuration, remove=True)
     else:
         print("please supply a workdir!")
         sys.exit(1)
@@ -374,12 +386,7 @@ def main():
         help="need to remove host sequence? default: False",
     )
     parser_workflow.add_argument(
-        "-u",
-        "--step",
-        type=str,
-        choices=RUN_WORKFLOW,
-        default="drep",
-        help="run step",
+        "-u", "--step", type=str, choices=RUN_WORKFLOW, default="drep", help="run step",
     )
     parser_workflow._optionals.title = "arguments"
     parser_workflow.set_defaults(func=workflow)

@@ -33,7 +33,7 @@ rule generate_samples_info:
     output:
         os.path.join(config["results"]["upload"], "MIxS_Samples.xlsx")
     run:
-        metapi.uploader.gen_samples_info(SAMPLES, output[0], config)
+        metapi.gen_samples_info(SAMPLES, output[0], config)
        
 
 rule generate_run_info:
@@ -46,7 +46,7 @@ rule generate_run_info:
     threads:
         config["upload"]["threads"]
     run:
-        metapi.uploader.gen_info(input, output[0], config, threads, "sequencing_run")
+        metapi.gen_info(input, output[0], config, threads, "sequencing_run")
 
 
 rule generate_assembly_info:
@@ -60,4 +60,4 @@ rule generate_assembly_info:
     threads:
         config["upload"]["threads"]
     run:
-        metapi.uploader.gen_info(input, output[0], config, threads, "assembly")
+        metapi.gen_info(input, output[0], config, threads, "assembly")
