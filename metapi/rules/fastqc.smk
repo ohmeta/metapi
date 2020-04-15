@@ -1,9 +1,9 @@
 def raw_reads(wildcards):
     if IS_PE:
-        return [metapi.sampler.get_reads(SAMPLES, wildcards, "fq1"),
-                metapi.sampler.get_reads(SAMPLES, wildcards, "fq2")]
+        return [metapi.get_reads(SAMPLES, wildcards, "fq1"),
+                metapi.get_reads(SAMPLES, wildcards, "fq2")]
     else:
-        return [metapi.sampler.get_reads(SAMPLES, wildcards, "fq1")]
+        return [metapi.get_reads(SAMPLES, wildcards, "fq1")]
 
 
 rule fastqc:
@@ -76,9 +76,9 @@ rule raw_report:
                        --fq-encoding %s \
                        --out-file %s \
                        --threads %d" % (r2_str, params.fq_encoding, output[0] + ".2", threads))
-                metapi.qcer.change(output[0] + ".1", params.sample_id, "raw", "pe", ["fq1"])
-                metapi.qcer.change(output[0] + ".2", params.sample_id, "raw", "pe", ["fq2"])
-                metapi.tooler.merge([output[0] + ".1", output[0] + ".2"], metapi.tooler.parse, 8, save=True, output=output[0])
+                metapi.change(output[0] + ".1", params.sample_id, "raw", "pe", ["fq1"])
+                metapi.change(output[0] + ".2", params.sample_id, "raw", "pe", ["fq2"])
+                metapi.merge([output[0] + ".1", output[0] + ".2"], metapi.parse, 8, save=True, output=output[0])
                 shell("rm -rf %s %s" % (output[0] + ".1", output[0] + ".2"))
         else:
             if reads_num == 1:
@@ -86,7 +86,7 @@ rule raw_report:
                        --fq-encoding %s \
                        --out-file %s \
                        --threads %d %s" % (params.fq_encoding, output, threads))
-                metapi.qcer.change(output[0], params.sample_id, "raw", "se", ["fq1"])
+                metapi.change(output[0], params.sample_id, "raw", "se", ["fq1"])
             else:
                 r_str = " ".join(input)
                 shell("cat %s | \
@@ -94,7 +94,7 @@ rule raw_report:
                        --fq-encoding %s \
                        --out-file %s \
                        --threads %d" % (r_str, params.fq_encoding, output, threads))
-                metapi.qcer.change(output[0], params.sample_id, "raw", "se", ["fq1"])
+                metapi.change(output[0], params.sample_id, "raw", "se", ["fq1"])
 
 
 rule merge_raw_report:
@@ -105,7 +105,7 @@ rule merge_raw_report:
     output:
         os.path.join(config["results"]["report"]["base_dir"], "raw.stats.tsv")
     run:
-        metapi.tooler.merge(input, metapi.tooler.parse, 8, save=True, output=output[0])
+        metapi.merge(input, metapi.parse, 8, save=True, output=output[0])
 
        
 rule fastqc_output:

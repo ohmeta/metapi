@@ -171,7 +171,7 @@ rule qc_report:
     output:
         stats = os.path.join(config["results"]["report"]["base_dir"], "qc.stats.tsv")
     run:
-        df = metapi.tooler.merge([input.raw_stats, input.trim_stats, input.rmhost_stats], metapi.tooler.parse, 8)
+        df = metapi.merge([input.raw_stats, input.trim_stats, input.rmhost_stats], metapi.tooler.parse, 8)
         metapi.compute_host_rate(df, save=True, output=output.stats)
 
 
