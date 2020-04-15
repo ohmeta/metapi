@@ -22,7 +22,7 @@ SAMPLES_ID = SAMPLES_ID = metapi.sampler.parse_cobin_samples_id(
     config["params"]["cobinning"]["rename"])
     config["params"]["cobinning"]["rename_id"])
 
-include: "rules/step.smk"
+include: "rules/output.smk"
 
 if config["params"]["reads_format"] == "sra":
     include: "rules/sra2fq.smk"
