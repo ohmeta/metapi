@@ -5,6 +5,24 @@ def raw_reads(wildcards):
     else:
         return [metapi.get_reads(SAMPLES, wildcards, "fq1")]
 
+rule prepare_input:
+    input:
+        unpack(raw_reads)
+    output:
+        expand(os.path.join("{short_reads}",
+                            "{{sample}}.link_or_merge.out/{{sample}}.raw{read}.fq.gz"),
+               short_reads=config["results"]["raw"]["short_reads"],
+               read=[".1", ".2"] if IS_PE else "")
+    params:
+        output_dir = os.path.join(config["results"]["raw"]["short_reads"],
+                                  "{sample}.link_or_merge.out")
+    run:
+        reads_num = len(input)
+        if IS_PE:
+            if reads_num == 2:
+                os.mkdirs(params.output_dir, exists_ok=True)
+                os.symlink(input[0], output[0])
+                os.symlink(input[1], output[1])
 
 rule trimming_oas1:
     input:
