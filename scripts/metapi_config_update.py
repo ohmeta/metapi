@@ -2,7 +2,7 @@
 
 import argparse
 import os
-from metapi import config
+from metapi import configer
 
 
 def update_config(
@@ -18,7 +18,7 @@ def update_config(
     conf_file = os.path.join(workdir, "config.yaml")
     conf_file_up = os.path.join(workdir, "config_update.yaml")
 
-    conf = config.parse_yaml(os.path.join(workdir, "config.yaml"))
+    conf = configer.parse_yaml(os.path.join(workdir, "config.yaml"))
 
     conf["params"]["rmhost"]["host_fasta"] = rmhost_host_fasta
     conf["params"]["rmhost"]["bwa"]["index_prefix"] = rmhost_bwa_index
@@ -27,7 +27,7 @@ def update_config(
     conf["params"]["profiling"]["taxonomy"] = prof_taxonomy
     conf["params"]["profiling"]["jgi"]["index_prefix"] = prof_jgi_index
 
-    config.update_config(conf_file, conf_file_up, conf, remove=False)
+    configer.update_config(conf_file, conf_file_up, conf, remove=False)
     os.rename(conf_file_up, conf_file)
 
 

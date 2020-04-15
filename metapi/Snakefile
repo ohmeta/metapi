@@ -12,6 +12,7 @@ IS_PE = True if config["params"]["reads_layout"] == "pe" else False
 SAMPLES = metapi.parse_samples(
     config["params"]["samples"],
     config["params"]["reads_format"],
+    config["params"]["begin"],
     IS_PE,
     True)
 
@@ -20,9 +21,9 @@ SAMPLES_ID = SAMPLES_ID = metapi.parse_cobin_samples_id(
     config["params"]["cobinning"]["do"],
     config["params"]["cobinning"]["samples_id"],
     config["params"]["cobinning"]["rename"],
-    config["params"]["cobinning"]["rename_id"])
+    config["params"]["cobinning"]["renamed_id"])
 
-include: "rules/output.smk"
+#include: "rules/output.smk"
 
 if config["params"]["reads_format"] == "sra":
     include: "rules/sra2fq.smk"
@@ -52,8 +53,10 @@ include: "rules/dereplication.smk"
 
 rule all:
     input:
-        all_target
+        rules.trimming_fastp.output,
+        rules.rmhost_bowtie2.output,
+        rules.kraken2.output
 
-rule debug:
-    input:
-        debug_target
+#rule debug:
+#    input:
+#        debug_target

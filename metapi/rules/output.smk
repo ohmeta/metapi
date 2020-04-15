@@ -1,9 +1,3 @@
-sra2fq_output = expand(
-    "{sra2fq}/{sample}{read}.fq.gz",
-    sra2fq=config["results"]["sra2fq"],
-    read=[".1", ".2"] if IS_PE else "",
-    sample=SAMPLES.index.unique())
-
 simulation_output = expand([
     "{simulation}/species_metadata.tsv", "{simulation}/{sample}_genome.fa",
     "{raw}/{sample}{read}.fq.gz", "{raw}/{sample}_abundance.txt"
@@ -13,39 +7,6 @@ simulation_output = expand([
                            read=[".1", ".2"] if IS_PE else "",
                            sample=SAMPLES.index.unique())
 
-fastqc_output = expand([
-    "{fastqc}/{sample}/done",
-    "{multiqc}/fastqc_multiqc_report.html",
-    "{multiqc}/fastqc_multiqc_report_data"
-],
-                       fastqc=config["results"]["raw"]["fastqc"],
-                       multiqc=config["results"]["raw"]["multiqc"],
-                       sample=SAMPLES.index.unique())
-
-oas1_output = expand([
-    "{trimming}/{sample}.trimmed{read}.fq.gz",
-    "{trimming}/{sample}.trimmed.stat_out"
-],
-                     trimming=config["results"]["trimming"],
-                     read=[".1", ".2", ".single"] if IS_PE else "",
-                     sample=SAMPLES.index.unique())
-
-sickle_output = expand(
-    "{trimming}/{sample}.trimmed{read}.fq.gz",
-    trimming=config["results"]["trimming"],
-    sample=SAMPLES.index.unique(),
-    read=[".1", ".2", ".single"] if IS_PE else "")
-
-fastp_output = expand([
-#    temp("{trimming}/{sample}.trimmed{read}.fq.gz"),
-    "{trimming}/{sample}.fastp.html",
-    "{trimming}/{sample}.fastp.json",
-    "{trimming}/fastp_multiqc_report.html",
-    "{trimming}/fastp_multiqc_report_data"
-],
-                      sample=SAMPLES.index.unique(),
-                      trimming=config["results"]["trimming"],
-                      read=[".1", ".2"] if IS_PE else "")
 
 rmhost_output = expand([
     "{rmhost}/{sample}.rmhost.flagstat.txt",
@@ -324,7 +285,7 @@ humann2_profiling_output = expand(
 humann2_postprocess_output = expand(
     [
         "{humann2}/{sample}.humann2_out/{sample}_{target}.{norm}.tsv",
-        "{humann2}/{sample}.humann2_out/{sample}_group-{group}-profile.tsv"
+        "{humann2}/{sample}.humann2_out/{sample}_{group}_groupped.tsv"
     ],
     humann2=config["results"]["profiling"]["humann2"],
     sample=SAMPLES.index.unique(),

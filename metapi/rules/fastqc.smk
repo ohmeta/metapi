@@ -23,6 +23,7 @@ rule fastqc:
         echo done > {output.done}
         '''
 
+
 rule multiqc_fastqc:
     input:
         expand("{fastqc}/{sample}/done",
@@ -105,3 +106,14 @@ rule merge_raw_report:
         os.path.join(config["results"]["report"]["base_dir"], "raw.stats.tsv")
     run:
         metapi.tooler.merge(input, metapi.tooler.parse, 8, save=True, output=output[0])
+
+       
+rule fastqc_output:
+    input:
+        expand([
+            "{fastqc}/{sample}/done",
+            "{multiqc}/fastqc_multiqc_report.html",
+            "{multiqc}/fastqc_multiqc_report_data"],
+            fastqc=config["results"]["raw"]["fastqc"],
+            multiqc=config["results"]["raw"]["multiqc"],
+            sample=SAMPLES.index.unique())

@@ -278,3 +278,41 @@ rule merge_trimming_report:
         os.path.join(config["results"]["report"]["base_dir"], "trimming.stats.tsv")
     run:
         metapi.merge(input, metapi.tooler.parse, 8, save=True, output=output[0])
+
+
+rule all_oas1_output:
+    input:
+        expand(["{trimming}/{sample}.trimmed{read}.fq.gz",
+                "{trimming}/{sample}.trimmed.stat_out"],
+               trimming=config["results"]["trimming"],
+               read=[".1", ".2", ".single"] if IS_PE else "",
+               sample=SAMPLES.index.unique())
+
+
+rule all_sickle_output:
+    input:
+        expand(
+            "{trimming}/{sample}.trimmed{read}.fq.gz",
+            trimming=config["results"]["trimming"],
+            sample=SAMPLES.index.unique(),
+            read=[".1", ".2", ".single"] if IS_PE else "")
+
+
+rule all_fastp_output:
+    input:
+        expand([
+            #temp("{trimming}/{sample}.trimmed{read}.fq.gz"),
+            "{trimming}/{sample}.fastp.html",
+            "{trimming}/{sample}.fastp.json",
+            "{trimming}/fastp_multiqc_report.html",
+            "{trimming}/fastp_multiqc_report_data"],
+               sample=SAMPLES.index.unique(),
+               trimming=config["results"]["trimming"],
+               read=[".1", ".2"] if IS_PE else "")
+
+
+rule all_trimming_output:
+    input:
+        rules.all_oas1_output.input,
+        rules.all_sickle_output.input,
+        rules.all_fastp_output.input

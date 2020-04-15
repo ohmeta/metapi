@@ -48,10 +48,10 @@ def is_exists(samples_df, input_type, is_pe):
     return error_count
 
 
-def parse_samples(samples_tsv, input_type, is_pe, begin, format, check=True):
+def parse_samples(samples_tsv, reads_format, is_pe, begin, check=True):
     samples_df = pd.read_csv(samples_tsv, sep="\s+").set_index("id", drop=False)
     if check:
-        error_count = is_exists(samples_df, input_type, is_pe)
+        error_count = is_exists(samples_df, reads_format, is_pe)
         if error_count == 0:
             is_duplicated(samples_df, begin, format)
             return samples_df

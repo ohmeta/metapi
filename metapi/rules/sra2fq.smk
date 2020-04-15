@@ -43,3 +43,12 @@ rule sra2fq:
             shell('''cat %s > %s''' % (r2_str, output.r2))
             shell('''rm -rf %s''' % r1_str)
             shell('''rm -rf %s''' % r2_str)
+
+
+rule sra2fq_output:
+    input:
+        expand(
+            "{sra2fq}/{sample}{read}.fq.gz",
+            sra2fq=config["results"]["sra2fq"],
+            read=[".1", ".2"] if IS_PE else "",
+            sample=SAMPLES.index.unique())

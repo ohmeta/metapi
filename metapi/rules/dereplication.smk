@@ -11,7 +11,7 @@ rule drep:
         filtering_genome_min_length = config["params"]["dereplication"]["drep"]["filtering_genome_min_length"],
         filtering_completeness = config["params"]["dereplication"]["drep"]["filtering_completeness"],
         filtering_contamination = config["params"]["dereplication"]["drep"]["filtering_contamination"],
-        genome_comparison_algorithm = config["params"]["dereplication"]["drep"]["genome_comparison_algorithms"],
+        genome_comparison_algorithm = config["params"]["dereplication"]["drep"]["genome_comparison_algorithm"],
         clustering_primary_ANI = config["params"]["dereplication"]["drep"]["clustering_primary_ANI"],
         clustering_secondary_ANI = config["params"]["dereplication"]["drep"]["clustering_secondary_ANI"]
     log:

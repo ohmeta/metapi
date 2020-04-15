@@ -173,3 +173,13 @@ rule qc_report:
     run:
         df = metapi.tooler.merge([input.raw_stats, input.trim_stats, input.rmhost_stats], metapi.tooler.parse, 8)
         metapi.compute_host_rate(df, save=True, output=output.stats)
+
+
+rule all_rmhost_output:
+    input:
+        expand([
+            "{rmhost}/{sample}.rmhost.flagstat.txt",
+            "{rmhost}/{sample}.rmhost{read}.fq.gz"],
+               rmhost=config["results"]["rmhost"],
+               sample=SAMPLES.index.unique(),
+               read=[".1", ".2"] if IS_PE else "")

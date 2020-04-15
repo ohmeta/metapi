@@ -143,6 +143,7 @@ params:
     standard: "MIMAG" # SGB
   dereplication:
     drep:
+      do: True
       threads: 8
       filtering_genome_min_length: 50000
       filtering_completeness: 75
@@ -152,7 +153,7 @@ params:
       clustering_secondary_ANI: 0.99
   classification:
     kraken2:
-      do: False
+      do: True
       database: /path/to/kraken2/database
       threads: 8
     gtdbtk:
@@ -163,7 +164,7 @@ params:
       threads: 8
   annotation:
     prokka:
-      do: False
+      do: True
       kingdom: Bacteria
       metagenome: False
       threads: 8
@@ -172,7 +173,7 @@ params:
     index_metadata: /path/to/index_metadata
     taxonomy: /path/to/taxonomy
     metaphlan2:
-      do: False
+      do: True
       threads: 8
       bowtie2db: "/path/to/metaphlan_databases"
       index: "latest"
@@ -188,7 +189,7 @@ params:
       memory_limit: 2G
       index_prefix: /path/to/bowtie2_index_prefix
     humann2:
-      do: False
+      do: True
       threads: 8
       remove-temp-output: True
       normalize_method: "relab"
