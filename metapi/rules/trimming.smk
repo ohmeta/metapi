@@ -36,12 +36,11 @@ rule prepare_reads:
         output_prefix = os.path.join(config["output"]["raw"],
                                      "short_reads/{sample}.link_or_merge.out/{sample}")
     run:
-        shell("mkdir -p {params.output_dir}")
         reads_num = len(input)
         if IS_PE:
             if reads_num == 2:
-                shell("ln -s {input[0]}  {output[0]}")
-                shell("ln -s {input[1]}  {output[1]}")
+                os.symlink(os.path.realpath(input[0]), output[0])
+                os.symlink(os.path.realpath(input[1]), output[1])
             else:
                 r1_str = " ".join(input[0:reads_num//2])
                 r2_str = " ".join(input[reads_num//2:])
@@ -51,7 +50,7 @@ rule prepare_reads:
                 shell("cat %s > %s" % (r2_str, r2))
         else:
             if reads_num == 1:
-                shell("ln -s {input[0]}  {output[0]}")
+                os.symlink(os.path.realpath(input[0]), output[0])
             else:
                 r_str = " ".join(input)
                 r = "%s.raw.fq.gz" % params.output_prefix
@@ -136,7 +135,7 @@ rule trimming_fastp:
     output:
         reads = expand(os.path.join(config["output"]["trimming"],
                                     "short_reads/{{sample}}.fastp.out/{{sample}}.trimmed{read}.fq.gz"),
-                       read=[".1", ".2", ".single"] if IS_PE else ""),
+                       read=[".1", ".2"] if IS_PE else ""),
         html = os.path.join(config["output"]["trimming"],
                             "short_reads/{sample}.fastp.out/{sample}.fastp.html"),
         json = os.path.join(config["output"]["trimming"],
@@ -331,11 +330,7 @@ rule all_output_fastp:
             os.path.join(config["output"]["trimming"],
                          "short_reads/{sample}.fastp.out/{sample}.fastp.html"),
             os.path.join(config["output"]["trimming"],
-                         "short_reads/{sample}.fastp.out/{sample}.fastp.json"),
-            os.path.join(config["output"]["trimming"],
-                         "report/report_multiqc_fastp.html"),
-            os.path.join(config["output"]["trimming"],
-                         "report/report_multiqc_fastp_data")],
+                         "short_reads/{sample}.fastp.out/{sample}.fastp.json")],
                read=[".1", ".2"] if IS_PE else "",
                sample=SAMPLES.index.unique())
 

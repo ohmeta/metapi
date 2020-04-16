@@ -23,7 +23,7 @@ rule simulate_short_reads:
                                     params.output_prefix,
                                     output.r1, output.r2, output.abunf,
                                     params.model, params.reads_num,
-                                    abundance, threads, log)
+                                    params.abundance, threads, str(log))
 
 
 rule simulate:

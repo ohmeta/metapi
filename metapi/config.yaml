@@ -200,7 +200,7 @@ params:
 output:
   sra2fq: "results/00.sra2fq"
   simulate: "results/00.simulate"
-  raw: "results/00.raw/reads"
+  raw: "results/00.raw"
   trimming: "results/01.trimming"
   rmhost: "results/02.rmhost"
   report:
