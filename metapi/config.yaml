@@ -6,9 +6,7 @@ params:
   simulation:
     do: False
     taxid: ["362948", "321967", "1125630", "702459", "226186", "272563"]
-    genomes: ''
-    n_genomes: 4
-    n_reads: "5M"
+    samples: [("s1", "2M", "2"), ("s2", "3M", "3"), ("s3", "4M", "4")]
     model:  "hiseq"
     threads: 8
   fastqc:

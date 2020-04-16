@@ -1,13 +1,29 @@
-def raw_reads(wildcards):
+def raw_samples(wildcards):
     if IS_PE:
         return [metapi.get_reads(SAMPLES, wildcards, "fq1"),
                 metapi.get_reads(SAMPLES, wildcards, "fq2")]
     else:
         return [metapi.get_reads(SAMPLES, wildcards, "fq1")]
 
-rule prepare_input:
+
+def raw_reads(wildcards, have_single):
+    if have_single:
+        return expand(os.path.join("{short_reads}",
+                                   "{sample}.link_or_merge.out/{sample}.raw{read}.fq.gz"),
+                      short_reads=config["results"]["raw"]["short_reads"],
+                      read=[".1", ".2", ".single"] if IS_PE else "",
+                      sample=wildcards.sample)
+    else:
+        return expand(os.path.join("{short_reads}",
+                                   "{sample}.link_or_merge.out/{sample}.raw{read}.fq.gz"),
+                      short_reads=config["results"]["raw"]["short_reads"],
+                      read=[".1", ".2"] if IS_PE else "",
+                      sample=wildcards.sample)
+
+
+rule prepare_reads:
     input:
-        unpack(raw_reads)
+        unpack(raw_samples)
     output:
         expand(os.path.join("{short_reads}",
                             "{{sample}}.link_or_merge.out/{{sample}}.raw{read}.fq.gz"),
@@ -15,18 +31,35 @@ rule prepare_input:
                read=[".1", ".2"] if IS_PE else "")
     params:
         output_dir = os.path.join(config["results"]["raw"]["short_reads"],
-                                  "{sample}.link_or_merge.out")
+                                  "{sample}.link_or_merge.out"),
+        output_prefix = os.path.join(config["results"]["raw"]["short_reads"],
+                                  "{sample}.link_or_merge.out/{sample}")
     run:
+        shell("mkdir -p {params.output_dir}")
         reads_num = len(input)
         if IS_PE:
             if reads_num == 2:
-                os.mkdirs(params.output_dir, exists_ok=True)
-                os.symlink(input[0], output[0])
-                os.symlink(input[1], output[1])
+                shell("ln -s {input[0]}  {output[0]}")
+                shell("ln -s {input[1]}  {output[1]}")
+            else:
+                r1_str = " ".join(input[0:reads_num//2])
+                r2_str = " ".join(input[reads_num//2:])
+                r1 = "%s.raw.1.fq.gz" % params.output_prefix
+                r2 = "%s.raw.2.fq.gz" % params.output_prefix
+                shell("cat %s > %s" % (r1_str, r1))
+                shell("cat %s > %s" % (r2_str, r2))
+        else:
+            if reads_num == 1:
+                shell("ln -s {input[0]}  {output[0]}")
+            else:
+                r_str = " ".join(input)
+                r = "%s.raw.fq.gz" % params.output_prefix
+                shell("cat %s > %s" % (r_str, r))
+
 
 rule trimming_oas1:
     input:
-        unpack(raw_reads)
+        lambda wildcards: raw_reads(wildcards, False)
     output:
         reads = expand(os.path.join("{short_reads}",
                                     "{{sample}}.oas1.out/{{sample}}.trimmed{read}.fq.gz"),
@@ -47,69 +80,30 @@ rule trimming_oas1:
     log:
         os.path.join(config["logs"]["trimming"], "trimming.oas1.{sample}.log")
     run:
-        reads_num = len(input)
+        reads_str = ",".join(input)
+        shell("OAs1 %s \
+              {params.output_prefix} \
+              {params.quality_system} \
+              {params.min_length} \
+              {params.seed_oa} \
+              {params.fragment_oa} 2> {log}" % reads_str)
         if IS_PE:
-            if reads_num == 2:
-                shell("OAs1 \
-                      {input[0]},{input[1]} \
-                      {params.output_prefix} \
-                      {params.quality_system} \
-                      {params.min_length} \
-                      {params.seed_oa} \
-                      {params.fragment_oa} 2> {log}")
-            else:
-                r1_str = " ".join(input[0:reads_num//2])
-                r2_str = " ".join(input[reads_num//2:])
-                r1 = "%s.raw.1.fq.gz" % params.output_prefix
-                r2 = "%s.raw.2.fq.gz" % params.output_prefix
-                shell("cat %s > %s" % (r1_str, r1))
-                shell("cat %s > %s" % (r2_str, r2))
-                shell("OAs1 \
-                      %s,%s \
-                      {params.output_prefix} \
-                      {params.quality_system} \
-                      {params.min_length} \
-                      {params.seed_oa} \
-                      {params.fragment_oa} 2> {log}" % (r1, r2))
-                shell("rm -rf %s" % r1)
-                shell("rm -rf %s" % r2)
-         else:
-             if reads_num == 1:
-                 shell("OAs1 \
-                       {input[0]} \
-                       {params.output_prefix} \
-                       {params.quality_system} \
-                       {params.min_length} \
-                       {params.seed_oa} \
-                       {params.fragment_oa} 2> {log}")
-             else:
-                 r_str = " ".join(input)
-                 r = "%s.raw.fq.gz" % params.prefix
-                 shell("cat %s > %s" % (r_str, r))
-                 shell("OAs1 \
-                       %s \
-                       {params.output_prefix} \
-                       {params.quality_system} \
-                       {params.min_length} \
-                       {params.seed_oa} \
-                       {params.fragment_oa} 2> {log}" % r)
-                 shell("rm -rf %s" % r)
-         if IS_PE:
             shell("mv {params.output_prefix}.clean.1.fq.gz {output.reads[0]}")
             shell("mv {params.output_prefix}.clean.2.fq.gz {output.reads[1]}")
             shell("mv {params.output_prefix}.clean.single.fq.gz {output.reads[2]}")
-         else:
+        else:
             shell("mv {params.output_prefix}.clean.fq.gz  {output.reads[0]}")
+        shell("mv {params.output_prefix}.clean.stat_out {output.stat_out}")
 
 
 rule trimming_sickle:
     input:
-        unpack(raw_reads)
+        lambda wildcards: raw_reads(wildcards, False)
     output:
-        reads = expand(os.path.join("{short_reads}",
-                                    "{{sample}}.sickle.out/{{sample}}.trimmed{read}.fq.gz"),
-                       short_reads=config["results"]["trimmed"]["short_reads"],
-                       read=[".1", ".2", ".single"] if IS_PE else "")
+        expand(os.path.join("{short_reads}",
+                            "{{sample}}.sickle.out/{{sample}}.trimmed{read}.fq.gz"),
+               short_reads=config["results"]["trimmed"]["short_reads"],
+               read=[".1", ".2", ".single"] if IS_PE else "")
     params:
         output_prefix = os.path.join(config["results"]["trimmed"]["short_reads"],
                                      "{sample}.sickle.out/{sample}"),
@@ -119,64 +113,30 @@ rule trimming_sickle:
     log:
         os.path.join(config["logs"]["trimming"], "trimming.sickle.{sample}.log")
     run:
-        reads_num = len(input)
         if IS_PE:
-            if reads_num == 2:
-                shell("sickle pe \
-                      --pe-file1 {input[0]} \
-                      --pe-file2 {input[1]} \
-                      --output-pe1 {output.reads[0]} \
-                      --output-pe2 {output.reads[1]} \
-                      --output-single {output.reads[2]} \
-                      --gzip-output \
-                      --qual-type {params.quality_type} \
-                      --qual-threshold {params.quality_cutoff} \
-                      --length-threshold {params.length_cutoff} 2> {log}")
-            else:
-                r1_str = " ".join(input[0:reads_num//2])
-                r2_str = " ".join(input[reads_num//2:])
-                r1 =  "%s.raw.1.fq.gz" % params.output_prefix
-                r2 =  "%s.raw.2.fq.gz" % params.output_prefix
-                shell("cat %s > %s" % (r1_str, r1))
-                shell("cat %s > %s" % (r2_str, r2))
-                shell("sickle pe \
-                      --pe-file1 %s \
-                      --pe-file2 %s \
-                      --output-pe1 {output.reads[0]} \
-                      --output-pe2 {output.reads[1]} \
-                      --output-single {output.reads[2]} \
-                      --gzip-output \
-                      --qual-type {params.quality_type} \
-                      --qual-threshold {params.quality_cutoff} \
-                      --length-threshold {params.length_cutoff} 2> {log}" % (r1, r2))
-                shell("rm -rf %s" % r1)
-                shell("rm -rf %s" % r2)
+            shell("sickle pe \
+                  --pe-file1 {input[0]} \
+                  --pe-file2 {input[1]} \
+                  --output-pe1 {output[0]} \
+                  --output-pe2 {output[1]} \
+                  --output-single {output[2]} \
+                  --qual-type {params.quality_type} \
+                  --qual-threshold {params.quality_cutoff} \
+                  --length-threshold {params.length_cutoff} \
+                  --gzip-output 2> {log}")
         else:
-            if reads_num == 1:
-                shell("sickle se \
-                      --fastq-file {input[0]} \
-                      --output-file {output.reads[0]} \
-                      --gzip-output \
-                      --qual-type {params.quality_type} \
-                      --qual-threshold {params.quality_cutoff} \
-                      --length-threshold {params.length_cutoff} 2> {log}")
-            else:
-                r_str = " ".join(input)
-                r = "%s.raw.fq.gz" % params.output_prefix
-                shell("cat %s > %s" % (r_str, r))
-                shell("sickle se \
-                      --fastq-file %s \
-                      --output-file {output.reads[0]} \
-                      --gzip-output \
-                      --qual-type {params.quality_type} \
-                      --qual-threshold {params.quality_cutoff} \
-                      --length-threshold {params.length_cutoff} 2> {log}" % r)
-                shell("rm -rf %s" % r)
+            shell("sickle se \
+                  --fastq-file {input[0]} \
+                  --output-file {output[0]} \
+                  --qual-type {params.quality_type} \
+                  --qual-threshold {params.quality_cutoff} \
+                  --length-threshold {params.length_cutoff} \
+                  --gzip-output 2> {log}")
 
 
 rule trimming_fastp:
     input:
-        unpack(raw_reads)
+        reads = lambda wildcards: raw_reads(wildcards, False)
     output:
         reads = expand(os.path.join("{short_reads}",
                                     "{{sample}}.fastp.out/{{sample}}.trimmed{read}.fq.gz"),
@@ -205,136 +165,97 @@ rule trimming_fastp:
     threads:
         config["params"]["trimming"]["fastp"]["threads"]
     run:
-        reads_num = len(input)
         if IS_PE:
-            if reads_num == 2:
-                if config["params"]["trimming"]["fastp"]["use_slide_window"]:
-                    shell("fastp \
-                          --in1 {input[0]} \
-                          --in2 {input[1]} \
-                          --out1 {output.reads[0]} \
-                          --out2 {output.reads[1]} \
-                          --compression {params.compression} \
-                          {params.adapter_trimming} \
-                          --cut_front \
-                          --cut_right \
-                          --cut_front_window_size {params.cut_front_window_size} \
-                          --cut_front_mean_quality {params.cut_front_mean_quality} \
-                          --cut_right_window_size {params.cut_right_window_size} \
-                          --cut_right_mean_quality {params.cut_right_mean_quality} \
-                          --n_base_limit {params.n_base_limit} \
-                          --length_required {params.length_required} \
-                          --thread {threads} \
-                          --html {output.html} \
-                          --json {output.json} 2> {log}")
-                else:
-                    shell("fastp \
-                          --in1 {input[0]} \
-                          --in2 {input[1]} \
-                          --out1 {output.reads[0]} \
-                          --out2 {output.reads[1]} \
-                          --compression {params.compression} \
-                          {params.adapter_trimming} \
-                          --cut_front \
-                          --cut_tail \
-                          --cut_front_window_size {params.cut_front_window_size} \
-                          --cut_front_mean_quality {params.cut_front_mean_quality} \
-                          --cut_tail_window_size {params.cut_tail_window_size} \
-                          --cut_tail_mean_quality {params.cut_tail_mean_quality} \
-                          --n_base_limit {params.n_base_limit} \
-                          --length_required {params.length_required} \
-                          --thread {threads} \
-                          --html {output.html} \
-                          --json {output.json} 2> {log}")
+            if config["params"]["trimming"]["fastp"]["use_slide_window"]:
+                shell("fastp \
+                      --in1 {input[0]} \
+                      --in2 {input[1]} \
+                      --out1 {output.reads[0]} \
+                      --out2 {output.reads[1]} \
+                      --compression {params.compression} \
+                      {params.adapter_trimming} \
+                      --cut_front \
+                      --cut_right \
+                      --cut_front_window_size {params.cut_front_window_size} \
+                      --cut_front_mean_quality {params.cut_front_mean_quality} \
+                      --cut_right_window_size {params.cut_right_window_size} \
+                      --cut_right_mean_quality {params.cut_right_mean_quality} \
+                      --n_base_limit {params.n_base_limit} \
+                      --length_required {params.length_required} \
+                      --thread {threads} \
+                      --html {output.html} \
+                      --json {output.json} 2> {log}")
             else:
-                r1_str = " ".join(input[0:reads_num//2])
-                r2_str = " ".join(input[reads_num//2:])
-                r1 =  "%s.raw.1.fq.gz" % params.output_prefix
-                r2 =  "%s.raw.2.fq.gz" % params.output_prefix
-                shell("cat %s > %s" % (r1_str, r1))
-                shell("cat %s > %s" % (r2_str, r2))
-                if config["params"]["trimming"]["fastp"]["use_slide_window"]:
-                    shell("fastp --in1 %s --in2 %s --out1 {output.reads[0]} --out2 {output.reads[1]} \
-                          --compression {params.compression} {params.adapter_trimming} \
-                          --cut_front --cut_right \
-                          --cut_front_window_size {params.cut_front_window_size} \
-                          --cut_front_mean_quality {params.cut_front_mean_quality} \
-                          --cut_right_window_size {params.cut_right_window_size} \
-                          --cut_right_mean_quality {params.cut_right_mean_quality} \
-                          --n_base_limit {params.n_base_limit} --length_required {params.length_required} \
-                          --thread {threads} --html {output.html} --json {output.json} 2> {log}" % (r1, r2))
-                else:
-                    shell("fastp --in1 %s --in2 %s --out1 {output.reads[0]} --out2 {output.reads[1]} \
-                          --compression {params.compression} {params.adapter_trimming} \
-                          --cut_front --cut_tail \
-                          --cut_front_window_size {params.cut_front_window_size} \
-                          --cut_front_mean_quality {params.cut_front_mean_quality} \
-                          --cut_tail_window_size {params.cut_tail_window_size} \
-                          --cut_tail_mean_quality {params.cut_tail_mean_quality} \
-                          --n_base_limit {params.n_base_limit} --length_required {params.length_required} \
-                          --thread {threads} --html {output.html} --json {output.json} 2> {log}" % (r1, r2))
-                shell("rm -rf %s" % r1)
-                shell("rm -rf %s" % r2)
+                shell("fastp \
+                      --in1 {input[0]} \
+                      --in2 {input[1]} \
+                      --out1 {output.reads[0]} \
+                      --out2 {output.reads[1]} \
+                      --compression {params.compression} \
+                      {params.adapter_trimming} \
+                      --cut_front \
+                      --cut_tail \
+                      --cut_front_window_size {params.cut_front_window_size} \
+                      --cut_front_mean_quality {params.cut_front_mean_quality} \
+                      --cut_tail_window_size {params.cut_tail_window_size} \
+                      --cut_tail_mean_quality {params.cut_tail_mean_quality} \
+                      --n_base_limit {params.n_base_limit} \
+                      --length_required {params.length_required} \
+                      --thread {threads} \
+                      --html {output.html} \
+                      --json {output.json} 2> {log}")
         else:
-            if reads_num == 1:
-                if config["params"]["trimming"]["fastp"]["use_slide_window"]:
-                    shell("fastp --in1 {input[0]} --out1 {output.reads[0]} \
-                          --compression {params.compression} {params.adapter_trimming} \
-                          --cut_front --cut_right \
-                          --cut_front_window_size {params.cut_front_window_size} \
-                          --cut_front_mean_quality {params.cut_front_mean_quality} \
-                          --cut_right_window_size {params.cut_right_window_size} \
-                          --cut_right_mean_quality {params.cut_right_mean_quality} \
-                          --n_base_limit {params.n_base_limit} --length_required {params.length_required} \
-                          --thread {threads} --html {output.html} --json {output.json} 2> {log}")
-                else:
-                    shell("fastp --in1 {input[0]} --out1 {output.reads[0]} \
-                          --compression {params.compression} {params.adapter_trimming} \
-                          --cut_front --cut_tail \
-                          --cut_front_window_size {params.cut_front_window_size} \
-                          --cut_front_mean_quality {params.cut_front_mean_quality} \
-                          --cut_tail_window_size {params.cut_tail_window_size} \
-                          --cut_tail_mean_quality {params.cut_tail_mean_quality} \
-                          --n_base_limit {params.n_base_limit} --length_required {params.length_required} \
-                          --thread {threads} --html {output.html} --json {output.json} 2> {log}")
+            if config["params"]["trimming"]["fastp"]["use_slide_window"]:
+                shell("fastp
+                      --in1 {input[0]} \
+                      --out1 {output.reads[0]} \
+                      --compression {params.compression} \
+                      {params.adapter_trimming} \
+                      --cut_front \
+                      --cut_right \
+                      --cut_front_window_size {params.cut_front_window_size} \
+                      --cut_front_mean_quality {params.cut_front_mean_quality} \
+                      --cut_right_window_size {params.cut_right_window_size} \
+                      --cut_right_mean_quality {params.cut_right_mean_quality} \
+                      --n_base_limit {params.n_base_limit} \
+                      --length_required {params.length_required} \
+                      --thread {threads} \
+                      --html {output.html} \
+                      --json {output.json} 2> {log}")
             else:
-                r_str = " ".join(input)
-                r = os.path.join(config["results"]["trimming"], "%s.raw.fq.gz" % params.prefix)
-                shell("cat %s > %s" % (r_str, r))
-                if config["params"]["trimming"]["fastp"]["use_slide_window"]:
-                    shell("fastp --in1 %s --out1 {output.reads[0]} \
-                          --compression {params.compression} {params.adapter_trimming} \
-                          --cut_front --cut_right \
-                          --cut_front_window_size {params.cut_front_window_size} \
-                          --cut_front_mean_quality {params.cut_front_mean_quality} \
-                          --cut_right_window_size {params.cut_right_window_size} \
-                          --cut_right_mean_quality {params.cut_right_mean_quality} \
-                          --n_base_limit {params.n_base_limit} --length_required {params.length_required} \
-                          --thread {threads} --html {output.html} --json {output.json} 2> {log}" % r)
-                else:
-                    shell("fastp --in1 %s --out1 {output.reads[0]} \
-                          --compression {params.compression} {params.adapter_trimming} \
-                          --cut_front --cut_tail \
-                          --cut_front_window_size {params.cut_front_window_size} \
-                          --cut_front_mean_quality {params.cut_front_mean_quality} \
-                          --cut_tail_window_size {params.cut_tail_window_size} \
-                          --cut_tail_mean_quality {params.cut_tail_mean_quality} \
-                          --n_base_limit {params.n_base_limit} --length_required {params.length_required} \
-                          --thread {threads} --html {output.html} --json {output.json} 2> {log}" % r)
-                shell("rm -rf %s" % r)
+                shell("fastp \
+                      --in1 {input[0]} \
+                      --out1 {output.reads[0]} \
+                      --compression {params.compression} \
+                      {params.adapter_trimming} \
+                      --cut_front \
+                      --cut_tail \
+                      --cut_front_window_size {params.cut_front_window_size} \
+                      --cut_front_mean_quality {params.cut_front_mean_quality} \
+                      --cut_tail_window_size {params.cut_tail_window_size} \
+                      --cut_tail_mean_quality {params.cut_tail_mean_quality} \
+                      --n_base_limit {params.n_base_limit} \
+                      --length_required {params.length_required} \
+                      --thread {threads} \
+                      --html {output.html} \
+                      --json {output.json} 2> {log}")
+
 
 rule multiqc_fastp:
     input:
-        expand("{trimming}/{sample}.fastp.json",
-               trimming=config["results"]["trimming"],
+        expand(os.path.join("{short_reads}",
+                            "{sample}.fastp.out/{sample}.fastp.json"),
+               short_reads=config["results"]["trimming"]["short_reads"],
                sample=SAMPLES.index.unique())
     output:
-        html = os.path.join(config["results"]["trimming"], "fastp_multiqc_report.html"),
-        data_dir = directory(os.path.join(config["results"]["trimming"], "fastp_multiqc_report_data"))
+        html = os.path.join(config["results"]["trimming"]["report"],
+                            "report_multiqc_fastp.html"),
+        data_dir = directory(os.path.join(config["results"]["trimming"]["report"],
+                                          "report_multiqc_fastp_data"))
     log:
-        os.path.join(config["logs"]["trimming"], "multiqc_fastp.log")
+        os.path.join(config["logs"]["trimming"], "trimming.multiqc.fastp.log")
     params:
-        outdir = config["results"]["trimming"]
+        outdir = config["results"]["trimming"]["report"]
     shell:
         '''
         multiqc --outdir {params.outdir} --title fastp --module fastp {input} 2> {log}
@@ -343,24 +264,31 @@ rule multiqc_fastp:
 
 rule trimming_report:
     input:
-        reads = expand(os.path.join(config["results"]["trimming"], "{{sample}}.trimmed{read}.fq.gz"),
+        reads = expand(os.path.join("{short_reads}",
+                                    "{{sample}}.{{trimmer}}.out/{{sample}}.trimmed{read}.fq.gz"),
                        read=[".1", ".2"] if IS_PE else "")
     output:
-        os.path.join(config["results"]["report"]["trimming"], "{sample}.trimming.stats.tsv")
+        os.path.join(config["results"]["trimming"]["report"], "temp/{sample}.{trimmer}.stats.tsv")
     params:
-        fq_encoding = config["params"]["report"]["seqkit"]["fq_encoding"],
+        fq_encoding = config["params"]["qc_report"]"seqkit"]["fq_encoding"],
         sample_id = "{sample}"
     threads:
-        config["params"]["report"]["seqkit"]["threads"]
+        config["params"]["qc_report"]["seqkit"]["threads"]
     run:
         if IS_PE:
-            shell("seqkit stats --all --basename --tabular \
+            shell("seqkit stats \
+                  --all \
+                  --basename \
+                  --tabular \
                   --fq-encoding %s \
                   --out-file %s \
                   --threads %d %s" % (params.fq_encoding, output, threads, " ".join(input)))
             metapi.change(output[0], params.sample_id, "trimming", "pe", ["fq1", "fq2"])
         else:
-            shell("seqkit stats --all --basename --tabular \
+            shell("seqkit stats \
+                  --all \
+                  --basename \
+                  --tabular \
                   --fq-encoding %s \
                   --out-file %s \
                   --threads %d %s" % (params.fq_encoding, output, threads, input))
@@ -369,21 +297,25 @@ rule trimming_report:
 
 rule trimming_report_merge:
     input:
-        expand("{reportout}/{sample}.trimming.stats.tsv",
-               reportout=config["results"]["report"]["trimming"],
+        expand(os.path.join("{report}",
+                            "temp/{sample}.{{trimmer}}.stats.tsv"),
+               report=config["results"]["trimming"]["report"],
                sample=SAMPLES.index.unique())
     output:
-        os.path.join(config["results"]["report"]["base_dir"], "trimming.stats.tsv")
+        os.path.join(config["results"]["trimming"]["report"],
+                     "trimming.{trimmer}.stats.tsv")
     run:
-        metapi.merge(input, metapi.tooler.parse, 8, save=True, output=output[0])
+        metapi.merge(input, metapi.parse, 8, save=True, output=output[0])
 
 
 rule all_output_oas1:
     input:
         expand([
-            "{short_reads}/{sample}.oas1.out/{sample}.trimmed{read}.fq.gz",
-            "{short_reads}/{sample}.oas1.out/{sample}.trimmed.stat_out"],
-            short_reads=config["results"]["trimmed"]["short_reads"],
+            os.path.join("{short_reads}",
+                         "{sample}.oas1.out/{sample}.trimmed{read}.fq.gz"),
+            os.path.join("{short_reads}",
+                         "{sample}.oas1.out/{sample}.trimmed.stat_out")],
+            short_reads=config["results"]["trimming"]["short_reads"],
             read=[".1", ".2", ".single"] if IS_PE else "",
             sample=SAMPLES.index.unique())
 
@@ -391,8 +323,9 @@ rule all_output_oas1:
 rule all_output_sickle:
     input:
         expand(
-            "{short_reads}/{sample}.sickle.out/{sample}.trimmed{read}.fq.gz",
-            short_reads=config["results"]["trimmed"]["short_reads"],
+            os.path.join("{short_reads}",
+                         "{sample}.sickle.out/{sample}.trimmed{read}.fq.gz"),
+            short_reads=config["results"]["trimming"]["short_reads"],
             read=[".1", ".2", ".single"] if IS_PE else "",
             sample=SAMPLES.index.unique())
 
@@ -400,19 +333,26 @@ rule all_output_sickle:
 rule all_output_fastp:
     input:
         expand([
-            "{short_reads}/{sample}.fastp.out/{sample}.trimmed{read}.fq.gz",
-            "{short_reads}/{sample}.fastp.out/{sample}.fastp.html",
-            "{short_reads}/{sample}.fastp.out/{sample}.fastp.json",
-            "{report}/report_multiqc_fastp.html",
-            "{report}/report_multiqc_fastp_data"],
-            short_reads=config["results"]["trimmed"]["short_reads"],
-            report=config["results"]["trimmed"]["report"],
+            os.path.join("{short_reads}", "{sample}.fastp.out/{sample}.trimmed{read}.fq.gz"),
+            os.path.join("{short_reads}", "{sample}.fastp.out/{sample}.fastp.html"),
+            os.path.join("{short_reads}", "{sample}.fastp.out/{sample}.fastp.json"),
+            os.path.join("{report}", "report_multiqc_fastp.html"),
+            os.path.join("{report}", "report_multiqc_fastp_data")],
+            short_reads=config["results"]["trimming"]["short_reads"],
+            report=config["results"]["trimming"]["report"],
             read=[".1", ".2"] if IS_PE else "",
             sample=SAMPLES.index.unique())
 
 
-rule all_output_trimmed:
+rule all_output_trimming_report:
+    input:
+        os.path.join(config["results"]["trimming"]["report"],
+                     "trimming.{trimmer}.stats.tsv")
+
+
+rule all_output_trimming:
     input:
         rules.all_output_oas1.input,
         rules.all_output_sickle.input,
-        rules.all_output_fastp.input
+        rules.all_output_fastp.input,
+        rules.all_output_trimming_report

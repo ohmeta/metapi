@@ -180,25 +180,26 @@ def initialization(args):
         sys.exit(1)
 
 
-def simulation(args):
-    if args.workdir:
-        config_file = os.path.join(args.workdir, "config.yaml")
-        configuration = configer.parse_yaml(config_file)
+def run():
+    pass
 
-        if args.taxid and not args.genomes:
-            configuration["params"]["simulation"]["taxid"] = args.taxid
-        if not args.taxid and args.genomes:
-            configuration["params"]["simulation"]["genomes"] = args.genomes
-        if args.taxid and args.genomes:
-            print("can't specific taxid and genomes at same time")
-        if args.n_genomes:
-            configuration["params"]["simulation"]["n_genomes"] = args.n_genomes
-        if args.n_reads:
-            configuration["params"]["simulation"]["n_reads"] = args.n_reads
-        if args.model:
-            configuration["params"]["simulation"]["model"] = args.model
 
-        configer.update_config(config_file, config_file, configuration, remove=True)
+def sub():
+    pass
+
+
+def snakerun(args):
+    config_file = os.path.join(args.workdir, "config.yaml")
+    conf = configer.parse_yaml(config_file)
+    if conf["params"]["simulation"]["do"]:
+        print("Running on simulation datasets\n")
+    else:
+        if args.simulate:
+            conf["params"]["simulation"]["do"] = True
+            print("Running on simulation datasets\n")
+            configer.update_config(config_file, config_file, conf, remove=True)
+        else:
+            print("Running on real datasets\n")
 
         samples_df = pd.DataFrame(
             {
@@ -243,6 +244,10 @@ def simulation(args):
         args.step,
     )
     print(snakecmd)
+
+
+def snakesub():
+    pass
 
 
 def workflow(args):

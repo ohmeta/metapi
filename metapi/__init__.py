@@ -3,6 +3,8 @@
 from metapi.tooler import parse
 from metapi.tooler import merge
 
+from metapi.simulator import generate_samples
+
 from metapi.sampler import parse_samples
 from metapi.sampler import parse_cobin_samples_id
 from metapi.sampler import get_reads

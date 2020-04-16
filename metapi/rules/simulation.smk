@@ -1,4 +1,4 @@
-rule genome_download:
+rule download_genomes:
     output:
         metadata = os.path.join(config["results"]["simulation"], "species_metadata.tsv")
     params:
@@ -18,7 +18,7 @@ rule genome_download:
         '''
 
 
-rule genome_merge:
+rule merge_genomes:
     input:
         metadata = os.path.join(config["results"]["simulation"], "species_metadata.tsv")
     output:
@@ -51,12 +51,12 @@ rule genome_merge:
         extract_genome(genomes_list[2:6], output[2])
 
 
-rule genome_simulate:
+rule simulate_reads:
     input:
         os.path.join(config["results"]["simulation"], "{sample}_genome.fa")
     output:
-        r1 = os.path.join(config["results"]["raw"]["reads"], "{sample}_1.fq.gz"),
-        r2 = os.path.join(config["results"]["raw"]["reads"], "{sample}_2.fq.gz"),
+        r1 = os.path.join(config["results"]["simulation"]["short_reads"], "{sample}_1.fq.gz"),
+        r2 = os.path.join(config["results"]["simulation"]["short_reads"], "{sample}_2.fq.gz"),
         abundance = os.path.join(config["results"]["raw"]["reads"], "{sample}_abundance.txt")
     params:
         model = config["params"]["simulation"]["model"],

@@ -48,12 +48,15 @@ def is_exists(samples_df, input_type, is_pe):
     return error_count
 
 
-def parse_samples(samples_tsv, reads_format, is_pe, begin, check=True):
-    samples_df = pd.read_csv(samples_tsv, sep="\s+").set_index("id", drop=False)
+def parse_samples(config, check=True):
+    samples_df = pd.read_csv(config["params"]["samples"], sep="\s+").set_index(
+        "id", drop=False
+    )
+    is_pe = True if config["params"]["reads_layout"] == "pe" else False
     if check:
-        error_count = is_exists(samples_df, reads_format, is_pe)
+        error_count = is_exists(samples_df, config["params"]["reads_format"], is_pe)
         if error_count == 0:
-            is_duplicated(samples_df, begin, format)
+            is_duplicated(samples_df, config["params"]["begin"], format)
             return samples_df
         else:
             print("find %d error" % error_count)
@@ -89,12 +92,12 @@ def get_bin_id(bin_df, wildcards, col):
     return bin_df.loc[wildcards.bin, [col]].dropna()[0]
 
 
-def parse_cobin_samples_id(samples_df, cobinning_do, sample_id_f, rename_do, rename_f):
+def parse_cobin_samples_id(samples_df, config):
     samples_id = []
-    if cobinning_do:
-        with open(rename_f, "r") as ih:
+    if config["params"]["cobinning"]["do"]:
+        with open(config["params"]["cobinning"]["renamed_id"], "r") as ih:
             samples_id = [line.strip() for line in ih]
-        if rename_do:
+        if config["params"]["cobinning"]["rename"]:
             rename_dict = {
                 k: "S" + str(v + 1)
                 for k, v in zip(
@@ -105,7 +108,7 @@ def parse_cobin_samples_id(samples_df, cobinning_do, sample_id_f, rename_do, ren
                 id_2=samples_df.id.apply(lambda x: rename_dict[x])
             )
             samples_df.loc[:, ["id", "id_2"]].drop_duplicates(["id", "id_2"]).to_csv(
-                rename_f, sep="\t", index=False
+                config["params"]["cobinning"]["rename_id"], sep="\t", index=False
             )
     return samples_id
 

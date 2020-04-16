@@ -9,19 +9,12 @@ configfile: "config.yaml"
 
 IS_PE = True if config["params"]["reads_layout"] == "pe" else False
 
-SAMPLES = metapi.parse_samples(
-    config["params"]["samples"],
-    config["params"]["reads_format"],
-    config["params"]["begin"],
-    IS_PE,
-    True)
+if config["params"]["simulation"]["do"]:
+    SAMPLES = metapi.generate_samples(config)
+else:
+    SAMPLES = metapi.parse_samples(config)
 
-SAMPLES_ID = SAMPLES_ID = metapi.parse_cobin_samples_id(
-    SAMPLES,
-    config["params"]["cobinning"]["do"],
-    config["params"]["cobinning"]["samples_id"],
-    config["params"]["cobinning"]["rename"],
-    config["params"]["cobinning"]["renamed_id"])
+SAMPLES_ID = metapi.parse_cobin_samples_id(SAMPLES, config)
 
 #include: "rules/output.smk"
 
