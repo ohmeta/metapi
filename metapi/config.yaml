@@ -1,6 +1,7 @@
 params:
   reads_format: "fastq"
   reads_layout: "pe"
+  fq_encoding: "sanger"
   samples: "samples.tsv"
   begin: "raw"
   simulate:
@@ -11,20 +12,18 @@ params:
     do: True
     threads: 8
   trimming:
+    trimmer: "fastp"
     oas1:
-      do: False
-      qual_system: 33
+      quality_system: 33
       min_length: 30
       seed_oa: 0.9
       fragment_oa: 0.8
     sickle:
-      do: False
-      qual_type: "sanger"
+      quality_type: "sanger"
       sickle_pe: ""
       length_cutoff: 51
-      qual_cutoff: 20
+      quality_cutoff: 20
     fastp:
-      do: True
       threads: 4
       disable_adapter_trimming: True
       use_slide_window: True
@@ -51,11 +50,10 @@ params:
       index_prefix: /path/to/host
       threads: 8
       save_bam: False
-  report:
+  qc_report:
     seqkit:
       do: True
       threads: 4
-      fq_encoding: "sanger"
   assembler: ["megahit", "idba_ud", "metaspades", "spades"]
   assembly:
     report:
@@ -202,10 +200,7 @@ params:
 output:
   sra2fq: "results/00.sra2fq"
   simulate: "results/00.simulate"
-  raw:
-    reads: "results/00.raw/reads"
-    fastqc: "results/00.raw/fastqc"
-    multiqc: "results/00.raw/multiqc"
+  raw: "results/00.raw/reads"
   trimming: "results/01.trimming"
   rmhost: "results/02.rmhost"
   report:

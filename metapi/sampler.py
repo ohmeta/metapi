@@ -77,6 +77,7 @@ def parse_bins(bins_dir):
 
 
 def get_reads(sample_df, wildcards, col):
+    print(wildcards.sample)
     return sample_df.loc[[wildcards.sample], col].dropna().tolist()
 
 

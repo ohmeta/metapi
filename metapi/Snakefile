@@ -2,6 +2,7 @@
 import sys
 import metapi
 import pandas as pd
+from pprint import pprint
 
 shell.executable("bash")
 
@@ -16,12 +17,14 @@ else:
 
 SAMPLES_ID = metapi.parse_cobin_samples_id(SAMPLES, config)
 
+pprint(SAMPLES)
 #include: "rules/output.smk"
 
 #if config["params"]["reads_format"] == "sra":
 #    include: "rules/sra2fq.smk"
 
 include: "rules/simulate.smk"
+include: "rules/trimming.smk"
 
 '''
 if config["params"]["begin"] == "raw":
@@ -47,4 +50,5 @@ include: "rules/dereplication.smk"
 
 rule all:
     input:
-        rules.simulate.input
+        rules.simulate.input,
+        rules.trimming.input
