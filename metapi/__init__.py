@@ -3,7 +3,9 @@
 from metapi.tooler import parse
 from metapi.tooler import merge
 
-from metapi.simulator import generate_samples
+from metapi.simulator import parse_genomes
+from metapi.simulator import get_simulate_info
+from metapi.simulator import simulate_short_reads
 
 from metapi.sampler import parse_samples
 from metapi.sampler import parse_cobin_samples_id

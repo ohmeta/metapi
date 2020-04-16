@@ -3,11 +3,9 @@ params:
   reads_layout: "pe"
   samples: "samples.tsv"
   begin: "raw"
-  simulation:
-    do: False
-    taxid: ["362948", "321967", "1125630", "702459", "226186", "272563"]
-    samples: [("s1", "2M", "2"), ("s2", "3M", "3"), ("s3", "4M", "4")]
-    model:  "hiseq"
+  simulate:
+    do: True
+    genomes: "genomes.tsv"
     threads: 8
   fastqc:
     do: True
@@ -201,9 +199,9 @@ params:
     mode: "ALLPATHS"
     threads: 8
 
-results:
+output:
   sra2fq: "results/00.sra2fq"
-  simulation: "results/00.simulation"
+  simulate: "results/00.simulate"
   raw:
     reads: "results/00.raw/reads"
     fastqc: "results/00.raw/fastqc"
@@ -254,41 +252,6 @@ results:
       profile: "results/10.profiling/jgi/profile"
     humann2: "results/10.profiling/humann2"
   burst: "results/12.burst"
-
-logs:
-  simulation: "assay/00.simulation/iss_logs"
-  raw:
-    fastqc: "assay/00.raw/fastqc_logs"
-    multiqc: "assay/00.raw/multiqc_logs"
-  trimming: "assay/01.trimming/logs"
-  rmhost: "assay/02.rmhost/logs"
-  assembly:
-    megahit: "assay/03.assembly/megahit_logs"
-    idba_ud: "assay/03.assembly/idba_ud_logs"
-    metaspades: "assay/03.assembly/metaspades_logs"
-    spades: "assay/03.assembly/spades_logs"
-  coassembly:
-    megahit: "assay/03.coassembly/megahit_logs"
-    demultiplex_kraken2: "assay/03.coassembly/demultiplex_krakne2_logs"
-  metaquast: "assay/03.metaquast/metaquast_logs"
-  prediction: "assay/04.prediction/logs"
-  alignment: "assay/04.alignment/logs"
-  binning:
-    metabat2: "assay/05.binning/metabat2_logs"
-    maxbin2: "assay/05.binning/maxbin2_logs"
-  cobinning: "assay/05.cobinning/logs"
-  checkm: "assay/06.checkm/logs"
-  dereplication: "assay/07.dereplication/logs"
-  classification:
-    kraken2: "assay/08.classification/kraken2_logs"
-    gtdbtk: "assay/08.classification/gtdbtk_logs"
-  annotation:
-    prokka: "assay/09.annotation/prokka_logs"
-  profiling:
-    metaphlan2: "assay/10.profiling/metaphlan2_logs"
-    jgi: "assay/10.profiling/jgi_logs"
-    humann2: "assay/10.profiling/humann2_logs"
-  burst: "assay/12.burst/burst12_logs"
 
 upload:
   do: False

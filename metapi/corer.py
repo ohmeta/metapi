@@ -149,7 +149,7 @@ RUN_WORKFLOW = (
 )
 
 
-def initialization(args):
+def init(args):
     if args.workdir:
         project = configer.metaconfig(args.workdir)
         print(project.__str__())
@@ -180,77 +180,28 @@ def initialization(args):
         sys.exit(1)
 
 
-def run():
-    pass
-
-
-def sub():
-    pass
-
-
-def snakerun(args):
+def simulate_wf(args):
     config_file = os.path.join(args.workdir, "config.yaml")
     conf = configer.parse_yaml(config_file)
-    if conf["params"]["simulation"]["do"]:
-        print("Running on simulation datasets\n")
+    if conf["params"]["simulate"]["do"]:
+        print("Running on simulate datasets\n")
     else:
         if args.simulate:
-            conf["params"]["simulation"]["do"] = True
-            print("Running on simulation datasets\n")
+            conf["params"]["simulate"]["do"] = True
+            print("Running on simulate datasets\n")
             configer.update_config(config_file, config_file, conf, remove=True)
         else:
             print("Running on real datasets\n")
 
-        samples_df = pd.DataFrame(
-            {
-                "id": ["s1", "s2", "s3"],
-                "fq1": [
-                    os.path.join(
-                        configuration["results"]["raw"]["reads"], "s1_1.fq.gz"
-                    ),
-                    os.path.join(
-                        configuration["results"]["raw"]["reads"], "s2_1.fq.gz"
-                    ),
-                    os.path.join(
-                        configuration["results"]["raw"]["reads"], "s3_1.fq.gz"
-                    ),
-                ],
-                "fq2": [
-                    os.path.join(
-                        configuration["results"]["raw"]["reads"], "s1_2.fq.gz"
-                    ),
-                    os.path.join(
-                        configuration["results"]["raw"]["reads"], "s2_2.fq.gz"
-                    ),
-                    os.path.join(
-                        configuration["results"]["raw"]["reads"], "s3_2.fq.gz"
-                    ),
-                ],
-            }
-        )
-        samples_df.to_csv(
-            configuration["params"]["samples"],
-            sep="\t",
-            index=False,
-            columns=["id", "fq1", "fq2"],
-        )
-    else:
-        print("please supply a workdir!")
-        sys.exit(1)
-
     snakecmd = "snakemake --snakefile %s --configfile %s --until %s" % (
-        configuration["snakefile"],
-        configuration["configfile"],
+        conf["snakefile"],
+        conf["configfile"],
         args.step,
     )
     print(snakecmd)
 
 
-def snakesub():
-    pass
-
-
-def workflow(args):
+def denovo_wf(args):
     if args.workdir:
         config_file = os.path.join(args.workdir, "config.yaml")
         configuration = configer.parse_yaml(config_file)
@@ -299,15 +250,15 @@ def main():
         description="a metagenomics project initialization",
         help="a metagenomics project initialization",
     )
-    parser_simulation = subparsers.add_parser(
-        "simulation",
+    parser_simulate_wf = subparsers.add_parser(
+        "simulate_wf",
         parents=[parent_parser],
         prog="metapi simulation",
         description="a simulation on metagenomics data",
         help="a simulation on metagenomics data",
     )
-    parser_workflow = subparsers.add_parser(
-        "workflow",
+    parser_denovo_wf = subparsers.add_parser(
+        "denovo_wf",
         parents=[parent_parser],
         prog="metapi workflow",
         description="a workflow on real metagenomics data",
@@ -334,30 +285,30 @@ def main():
         help="support metaspades, spades, idba_ud, megahit",
     )
     parser_init._optionals.title = "arguments"
-    parser_init.set_defaults(func=initialization)
+    parser_init.set_defaults(func=init)
 
-    parser_simulation.add_argument(
+    parser_simulate_wf.add_argument(
         "-t",
         "--taxid",
         nargs="*",
         metavar="<int>",
         help="reference database species id(sapce-separated)",
     )
-    parser_simulation.add_argument(
+    parser_simulate_wf.add_argument(
         "-g",
         "--genomes",
         type=str,
         metavar="<genomes.fasta>",
         help="genomes fasta, default: None",
     )
-    parser_simulation.add_argument(
+    parser_simulate_wf.add_argument(
         "-ng",
         "--n_genomes",
         type=int,
         metavar="<int>",
         help="genomes number, default: 6",
     )
-    parser_simulation.add_argument(
+    parser_simulate_wf.add_argument(
         "-nr",
         "--n_reads",
         type=str,
@@ -365,14 +316,14 @@ def main():
         default="5M",
         help="reads coverage, default: 5M",
     )
-    parser_simulation.add_argument(
+    parser_simulate_wf.add_argument(
         "-m",
         "--model",
         choices=["hiseq", "novaseq", "miseq"],
         default="hiseq",
         help="reads error model, default: hiseq",
     )
-    parser_simulation.add_argument(
+    parser_simulate_wf.add_argument(
         "-u",
         "--step",
         type=str,
@@ -380,21 +331,21 @@ def main():
         default="checkm",
         help="run step",
     )
-    parser_simulation._optionals.title = "arguments"
-    parser_simulation.set_defaults(func=simulation)
+    parser_simulate_wf._optionals.title = "arguments"
+    parser_simulate_wf.set_defaults(func=simulate_wf)
 
-    parser_workflow.add_argument(
+    parser_denovo_wf.add_argument(
         "-r",
         "--rmhost",
         action="store_true",
         default=False,
         help="need to remove host sequence? default: False",
     )
-    parser_workflow.add_argument(
+    parser_denovo_wf.add_argument(
         "-u", "--step", type=str, choices=RUN_WORKFLOW, default="drep", help="run step",
     )
-    parser_workflow._optionals.title = "arguments"
-    parser_workflow.set_defaults(func=workflow)
+    parser_denovo_wf._optionals.title = "arguments"
+    parser_denovo_wf.set_defaults(func=denovo_wf)
 
     args = parser.parse_args()
     try:

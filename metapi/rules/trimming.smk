@@ -1,9 +1,13 @@
 def raw_samples(wildcards):
-    if IS_PE:
-        return [metapi.get_reads(SAMPLES, wildcards, "fq1"),
-                metapi.get_reads(SAMPLES, wildcards, "fq2")]
+    if config["params"]["simulation"]["do"]:
+        return [metapi.get_reads(SAMPLES, wildcards, "fq1")[0],
+                metapi.get_reads(SAMPLES, wildcards, "fq2")[0]]
     else:
-        return [metapi.get_reads(SAMPLES, wildcards, "fq1")]
+        if IS_PE:
+            return [metapi.get_reads(SAMPLES, wildcards, "fq1"),
+                    metapi.get_reads(SAMPLES, wildcards, "fq2")]
+        else:
+            return [metapi.get_reads(SAMPLES, wildcards, "fq1")]
 
 
 def raw_reads(wildcards, have_single):

@@ -1,47 +1,92 @@
 #!/usr/bin/env python3
 
 import os
+import gzip
+import sys
+import subprocess
 import pandas as pd
-import ncbi_genome_download as ngd
+from Bio import SeqIO
 
 
-def download_genomes(config):
-    """
-    ncbi-genome-download
-    """
-    ngd.download(
-        format="fasta,assembly-report",
-        assembly_level="complete",
-        taxid=config["params"]["simulation"]["taxid"],
-        refseq_category="reference",
-        output_folder=config["results"]["simulation"]["genomes"],
-        retries=3,
-        metadata_table=os.path.join(
-            config["results"]["simulation"]["genomes"], "metadata.tsv"
+def parse_genomes(config):
+    header = ["id", "genome", "abundance", "reads_num", "model"]
+
+    genomes_df = pd.read_csv(
+        config["params"]["simulate"]["genomes"], sep="\t"
+    ).set_index("id", drop=False)
+
+    cancel = False
+    for i in header:
+        if i not in genomes_df.columns:
+            cancel = True
+            print(
+                'Error: "%s" not in %s header'
+                % (i, config["params"]["simulate"]["genomes"])
+            )
+
+    for i in genomes_df.index.unique():
+        if "." in i:
+            cancel = True
+            print('Error: sample id %s contains ".", please remove all "."' % i)
+
+    if cancel:
+        sys.exit(1)
+
+    genomes_df["fq1"] = genomes_df.apply(
+        lambda x: os.path.join(
+            config["output"]["simulate"], "short_reads/%s.simulated.1.fq.gz" % x["id"],
         ),
-        group="bacteria",
+        axis=1,
+    )
+    genomes_df["fq2"] = genomes_df.apply(
+        lambda x: os.path.join(
+            config["output"]["simulate"], "short_reads/%s.simulated.2.fq.gz" % x["id"],
+        ),
+        axis=1,
+    )
+    return genomes_df
+
+
+def simulate_short_reads(
+    genomes, output_prefix, r1, r2, abunf, model, reads_num, abundance, threads, logf,
+):
+    if len(abundance) != 0:
+        with open(abunf, "w") as outh:
+            for (g, a) in zip(genomes, abundance):
+                inh = gzip.open(g, "rt") if g.ends_with(".gz") else open(g, "r")
+                for record in SeqIO.parse(inh, "fasta"):
+                    genome_id = record.id
+                    outh.write("%s\t%f\n" % (genome_id, float(a)))
+                    break
+                inh.close()
+    args = (
+        ["iss", "generate", "--compress", "--cpus", threads, "--genomes"]
+        + genomes
+        + ["--n_reads", reads_num, "--model", model, "--output", output_prefix]
     )
 
+    if len(abundance) != 0:
+        args += ["--abundance_file", abunf]
 
-def generate_samples(config):
-    """
-    generate samples
-    """
-    download_genomes(config)
-
-    samples_list = []
-    for i in config["params"]["simulation"]["samples"]:
-        sample_id = i[0]
-        fq_prefix = "_".join(i)
-        fq1 = os.path.join(
-            config["results"]["simulation"]["short_reads"], fq_prefix + ".1.fq.gz"
-        )
-        fq2 = os.path.join(
-            config["results"]["simulation"]["short_reads"], fq_prefix + ".2.fq.gz"
-        )
-        samples_list.append([sample_id, fq1, fq2])
-
-    samples_df = pd.DataFrame(samples_list, columns=["id", "fq1", "fq2"]).set_index(
-        "id", drop=False
+    env = os.environ.copy()
+    proc = subprocess.Popen(
+        args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, encoding="utf-8",
     )
-    return samples_df
+
+    output, error = proc.communicate()
+    with open(logf, "w") as logh:
+        logh.write(output.strip())
+
+    if proc.returncod == 0:
+        if len(abundance) == 0:
+            default_abunf = output_prefix + "_abundance.txt"
+            if os.path.exists(default_abunf):
+                os.rename(default_abunf, abunf)
+        os.rename(output_prefix + "_R1.fastq.gz", r1)
+        os.rename(output_prefix + "_R2.fastq.gz", r2)
+    else:
+        sys.exit(1)
+
+
+def get_simulate_info(genomes_df, wildcards, col):
+    return genomes_df.loc[[wildcards.sample], col].dropna().tolist()
