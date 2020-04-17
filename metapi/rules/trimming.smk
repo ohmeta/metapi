@@ -292,7 +292,7 @@ rule trimming_report:
 rule trimming_report_merge:
     input:
         expand(os.path.join(config["output"]["trimming"],
-                            "report/stats/{sample})_{{trimmer}}_stats.tsv"),
+                            "report/stats/{sample}_{{trimmer}}_stats.tsv"),
                sample=SAMPLES.index.unique())
     output:
         stats = os.path.join(config["output"]["trimming"],
