@@ -25,7 +25,7 @@ pprint(SAMPLES)
 
 include: "rules/simulate.smk"
 include: "rules/trimming.smk"
-#include: "rules/rmhost.smk"
+include: "rules/rmhost.smk"
 
 '''
 if config["params"]["begin"] == "raw":
@@ -51,6 +51,6 @@ include: "rules/dereplication.smk"
 
 rule all:
     input:
-        rules.simulate.input,
-        rules.trimming.input
-        #rules.rmhost.input
+        rules.simulate_all.input,
+        rules.trimming_all.input,
+        rules.rmhost_all.input

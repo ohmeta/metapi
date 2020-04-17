@@ -93,6 +93,17 @@ if config["params"]["trimming"]["oas1"]["do"]:
                 shell("mv {params.output_prefix}.clean.stat_out {output.stat_out}")
 
 
+    rule trimming_oas1_all:
+        input:
+            expand([
+                os.path.join(config["output"]["trimming"],
+                             "short_reads/{sample}/{sample}.trimmed{read}.fq.gz"),
+                os.path.join(config["output"]["trimming"],
+                             "short_reads/{sample}/{sample}.trimmed.stat_out")],
+                   read=[".1", ".2", ".single"] if IS_PE else "",
+                   sample=SAMPLES.index.unique())
+
+
 elif config["params"]["trimming"]["sickle"]["do"]:
     rule trimming_sickle:
         input:
@@ -129,6 +140,14 @@ elif config["params"]["trimming"]["sickle"]["do"]:
                 --qual-threshold {params.quality_cutoff} \
                 --length-threshold {params.length_cutoff} \
                 --gzip-output 2> {log}")
+
+
+    rule trimming_sickle_all:
+        input:
+            expand(os.path.join(config["output"]["trimming"],
+                                "short_reads/{sample}/{sample}.trimmed{read}.fq.gz"),
+                   read=[".1", ".2", ".single"] if IS_PE else "",
+                   sample=SAMPLES.index.unique())
 
 
 elif config["params"]["trimming"]["fastp"]["do"]:
@@ -238,7 +257,7 @@ elif config["params"]["trimming"]["fastp"]["do"]:
                     --json {output.json} 2> {log}")
 
 
-    rule multiqc_fastp:
+    rule trimming_fastp_multiqc:
         input:
             expand(os.path.join(config["output"]["trimming"],
                                 "short_reads/{sample}/{sample}.fastp.json"),
@@ -256,6 +275,23 @@ elif config["params"]["trimming"]["fastp"]["do"]:
             '''
             multiqc --outdir {params.outdir} --title fastp --module fastp {input} 2> {log}
             '''
+
+           
+    rule trimming_fastp_all:
+        input:
+            expand([
+                os.path.join(config["output"]["trimming"],
+                             "short_reads/{sample}/{sample}.trimmed{read}.fq.gz"),
+                os.path.join(config["output"]["trimming"],
+                             "short_reads/{sample}/{sample}.fastp.html"),
+                os.path.join(config["output"]["trimming"],
+                             "short_reads/{sample}/{sample}.fastp.json"),
+                os.path.join(config["output"]["trimming"],
+                             "report/fastp_multiqc_report.html"),
+                os.path.join(config["output"]["trimming"],
+                             "report/fastp_multiqc_report_data")],
+                   read=[".1", ".2"] if IS_PE else "",
+                   sample=SAMPLES.index.unique())
 
 
 rule trimming_report:
@@ -306,69 +342,28 @@ rule trimming_report_merge:
         metapi.merge(input, metapi.parse, threads, save=True, output=output.stats)
 
 
-rule all_output_oas1:
-    input:
-        expand([
-            os.path.join(config["output"]["trimming"],
-                         "short_reads/{sample}/{sample}.trimmed{read}.fq.gz"),
-            os.path.join(config["output"]["trimming"],
-                         "short_reads/{sample}/{sample}.trimmed.stat_out")],
-               read=[".1", ".2", ".single"] if IS_PE else "",
-               sample=SAMPLES.index.unique())
-
-
-rule all_output_sickle:
-    input:
-        expand(os.path.join(config["output"]["trimming"],
-                            "short_reads/{sample}/{sample}.trimmed{read}.fq.gz"),
-               read=[".1", ".2", ".single"] if IS_PE else "",
-               sample=SAMPLES.index.unique())
-
-
-rule all_output_fastp:
-    input:
-        expand([
-            os.path.join(config["output"]["trimming"],
-                         "short_reads/{sample}/{sample}.trimmed{read}.fq.gz"),
-            os.path.join(config["output"]["trimming"],
-                         "short_reads/{sample}/{sample}.fastp.html"),
-            os.path.join(config["output"]["trimming"],
-                         "short_reads/{sample}/{sample}.fastp.json")],
-               read=[".1", ".2"] if IS_PE else "",
-               sample=SAMPLES.index.unique())
-
-       
-rule all_output_multiqc_fastp:
-    input:
-        html = os.path.join(config["output"]["trimming"],
-                            "report/fastp_multiqc_report.html"),
-        data_dir = os.path.join(config["output"]["trimming"],
-                                "report/fastp_multiqc_report_data")
-
-       
-rule all_output_trimming_report:
+rule trimming_report_all:
     input:
         os.path.join(config["output"]["trimming"], "report/trimming_stats.tsv")
 
 
 if config["params"]["trimming"]["oas1"]["do"]:
-    rule trimming:
+    rule trimming_all:
         input:
-            rules.all_output_oas1.input,
-            rules.all_output_trimming_report.input
+            rules.trimming_oas1_all.input,
+            rules.trimming_report_all.input
 
 elif config["params"]["trimming"]["sickle"]["do"]:
-    rule trimming:
+    rule trimming_all:
         input:
-            rules.all_output_sickle.input,
-            rules.all_output_trimming_report.input
+            rules.trimming_sickle_all.input,
+            rules.trimming_report_all.input
 
 elif config["params"]["trimming"]["fastp"]["do"]:
-    rule trimming:
+    rule trimming_all:
         input:
-            rules.all_output_fastp.input,
-            rules.all_output_multiqc_fastp.input,
-            rules.all_output_trimming_report.input
+            rules.trimming_fastp_all.input,
+            rules.trimming_report_all.input
 else:
-    rule trimming:
+    rule trimming_all:
         input:

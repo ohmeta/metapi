@@ -26,7 +26,7 @@ rule simulate_short_reads:
                                     params.abundance, threads, str(log))
 
 
-rule simulate:
+rule simulate_all:
     input:
         expand([
             os.path.join(config["output"]["simulate"], "short_reads/{sample}.simulated.{read}.fq.gz"),

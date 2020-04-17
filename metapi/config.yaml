@@ -39,15 +39,16 @@ params:
       length_required: 51
       n_base_limit: 5
   rmhost:
-    rmhoster: "bowtie2"
-    host_fasta: /path/to/host.fa
+    host_fasta: /genomepy/hg38/hg38.fa
     threads: 8
     save_bam: False
     bwa:
-      index_prefix: /path/to/host.fa
+      do: False
+      index_prefix: /genomepy/hg38/index/bwa/hg38.fa
       minimum_seed_length: 23
     bowtie2:
-      index_prefix: /path/to/host
+      do: True
+      index_prefix: /genomepy/hg38/index/bowtie2/hg38
   qc_report:
     seqkit:
       do: True
