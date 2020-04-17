@@ -79,7 +79,7 @@ def simulate_short_reads(
     output, error = proc.communicate()
 
     with open(logf, "w") as logh:
-        logh.write(error.strip())
+        logh.write(error)
 
     if proc.returncode == 0:
         if len(abundance) == 0:

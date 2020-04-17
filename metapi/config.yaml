@@ -12,18 +12,20 @@ params:
     do: True
     threads: 8
   trimming:
-    trimmer: "fastp"
     oas1:
+      do: False
       quality_system: 33
       min_length: 30
       seed_oa: 0.9
       fragment_oa: 0.8
     sickle:
+      do: False
       quality_type: "sanger"
       sickle_pe: ""
       length_cutoff: 51
       quality_cutoff: 20
     fastp:
+      do: True
       threads: 4
       disable_adapter_trimming: True
       use_slide_window: True
@@ -37,19 +39,15 @@ params:
       length_required: 51
       n_base_limit: 5
   rmhost:
-    do: True
+    rmhoster: "bowtie2"
     host_fasta: /path/to/host.fa
+    threads: 8
+    save_bam: False
     bwa:
-      do: False
       index_prefix: /path/to/host.fa
-      threads: 8
       minimum_seed_length: 23
-      save_bam: False
     bowtie2:
-      do: True
       index_prefix: /path/to/host
-      threads: 8
-      save_bam: False
   qc_report:
     seqkit:
       do: True
@@ -203,11 +201,6 @@ output:
   raw: "results/00.raw"
   trimming: "results/01.trimming"
   rmhost: "results/02.rmhost"
-  report:
-    base_dir: "results/03.report"
-    raw: "results/03.report/00.raw"
-    trimming: "results/03.report/01.trimming"
-    rmhost: "results/03.report/02.rmhost"
   assembly: "results/03.assembly"
   coassembly:
     megahit: "results/03.coassembly/megahit"
