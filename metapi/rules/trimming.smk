@@ -262,7 +262,7 @@ rule trimming_report:
                read=[".1", ".2"] if IS_PE else "")
     output:
         stats = os.path.join(config["output"]["trimming"],
-                             "report/{sample}.{trimmer}.stats.tsv")
+                             "report/stats/{sample}_{trimmer}_stats.tsv")
     params:
         fq_encoding = config["params"]["fq_encoding"],
         sample_id = lambda wildcards: metapi.get_sample_id(SAMPLES, wildcards, "id")
@@ -292,7 +292,7 @@ rule trimming_report:
 rule trimming_report_merge:
     input:
         expand(os.path.join(config["output"]["trimming"],
-                            "report/{sample}.{{trimmer}}.stats.tsv"),
+                            "report/stats/{sample})_{{trimmer}}_stats.tsv"),
                sample=SAMPLES.index.unique())
     output:
         stats = os.path.join(config["output"]["trimming"],
