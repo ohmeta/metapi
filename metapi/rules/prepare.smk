@@ -1,31 +1,14 @@
-def raw_reads(wildcards):
-    if READS_FORMAT == "fastq":
-        if config["params"]["simulate"]["do"]:
-            return [[metapi.get_reads(SAMPLES, wildcards, "fq1")[0]],
-                    [metapi.get_reads(SAMPLES, wildcards, "fq2")[0]]]
-        else:
-            if IS_PE:
-                return [metapi.get_reads(SAMPLES, wildcards, "fq1"),
-                        metapi.get_reads(SAMPLES, wildcards, "fq2")]
-            else:
-                return [metapi.get_reads(SAMPLES, wildcards, "fq1")]
-    elif READS_FORMAT == "sra":
-        return [metapi.get_reads(SAMPLES, wildcards, "sra")]
-
-
 rule prepare_reads:
     input:
         unpack(raw_reads)
     output:
         expand(
             os.path.join(config["output"]["raw"],
-                         "short_reads/{{sample}}/{{sample}}{read}.fq.gz"),
+                         "short_reads/{{sample}}/{{sample}}.raw{read}.fq.gz"),
             read=[".1", ".2"] if IS_PE else "")
     params:
         output_dir = os.path.join(config["output"]["raw"],
-                                  "short_reads/{sample}"),
-        output_prefix = os.path.join(config["output"]["raw"],
-                                     "short_reads/{sample}/{sample}")
+                                  "short_reads/{sample}")
     run:
         reads_num = len(input)
 
@@ -35,19 +18,13 @@ rule prepare_reads:
                     os.symlink(os.path.realpath(input[0]), output[0])
                     os.symlink(os.path.realpath(input[1]), output[1])
                 else:
-                    r1_str = " ".join(input[0:reads_num//2])
-                    r2_str = " ".join(input[reads_num//2:])
-                    r1 = "%s.raw.1.fq.gz" % params.output_prefix
-                    r2 = "%s.raw.2.fq.gz" % params.output_prefix
-                    shell('''cat %s > %s''' % (r1_str, r1))
-                    shell('''cat %s > %s''' % (r2_str, r2))
+                    shell('''cat %s > %s''' % (" ".join(input[0:reads_num//2]), output[0]))
+                    shell('''cat %s > %s''' % (" ".join(input[reads_num//2:]), output[0]))
             else:
                 if reads_num == 1:
                     os.symlink(os.path.realpath(input[0]), output[0])
                 else:
-                    r_str = " ".join(input)
-                    r = "%s.raw.fq.gz" % params.output_prefix
-                    shell('''cat %s > %s''' % (r_str, r))
+                    shell('''cat %s > %s''' % (" ".join(input), output[0]))
 
         elif READS_FORMAT == "sra":
             reads_direction = str("+"),
@@ -102,7 +79,7 @@ rule prepare_reads_all:
     input:
          expand(
              os.path.join(config["output"]["raw"],
-                          "short_reads/{sample}/{sample}{read}.fq.gz"),
+                          "short_reads/{sample}/{sample}.raw{read}.fq.gz"),
              read=[".1", ".2"] if IS_PE else "",
              sample=SAMPLES.index.unique())
 
@@ -111,12 +88,14 @@ def get_reads(wildcards, step, have_single):
     if have_single:
         return expand(
             os.path.join(config["output"][step],
-                         "short_reads/{sample}/{sample}{read}.fq.gz"),
+                         "short_reads/{sample}/{sample}.{step}{read}.fq.gz"),
+            step=step,
             read=[".1", ".2", ".single"] if IS_PE else "",
             sample=wildcards.sample)
     else:
         return expand(
             os.path.join(config["output"][step],
-                         "short_reads/{sample}/{sample}{read}.fq.gz"),
+                         "short_reads/{sample}/{sample}.{step}{read}.fq.gz"),
+            step=step,
             read=[".1", ".2"] if IS_PE else "",
             sample=wildcards.sample)

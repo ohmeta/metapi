@@ -1,13 +1,28 @@
+def raw_reads(wildcards):
+    if READS_FORMAT == "fastq":
+        if config["params"]["simulate"]["do"]:
+            return [metapi.get_reads(SAMPLES, wildcards, "fq1")[0],
+                    metapi.get_reads(SAMPLES, wildcards, "fq2")[0]]
+        else:
+            if IS_PE:
+                return [metapi.get_reads(SAMPLES, wildcards, "fq1"),
+                        metapi.get_reads(SAMPLES, wildcards, "fq2")]
+            else:
+                return [metapi.get_reads(SAMPLES, wildcards, "fq1")]
+    elif READS_FORMAT == "sra":
+        return [metapi.get_reads(SAMPLES, wildcards, "sra")]
+
+
 rule simulate_short_reads:
     input:
         genomes = lambda wildcards: metapi.get_simulate_info(SAMPLES, wildcards, "genome")
     output:
         r1 = os.path.join(config["output"]["simulate"],
-                          "short_reads/{sample}.1.fq.gz"),
+                          "short_reads/{sample}.simulate.1.fq.gz"),
         r2 = os.path.join(config["output"]["simulate"],
-                          "short_reads/{sample}.2.fq.gz"),
+                          "short_reads/{sample}.simulate.2.fq.gz"),
         abunf = os.path.join(config["output"]["simulate"],
-                             "abundance/{sample}.abundance.txt")
+                             "abundance/{sample}.simulate.abundance.txt")
     log:
         os.path.join(config["output"]["simulate"], "logs/{sample}.iss.log")
     params:
@@ -30,8 +45,8 @@ rule simulate_all:
     input:
         expand([
             os.path.join(config["output"]["simulate"],
-                         "short_reads/{sample}.{read}.fq.gz"),
+                         "short_reads/{sample}.simulate.{read}.fq.gz"),
             os.path.join(config["output"]["simulate"],
-                         "abundance/{sample}.abundance.txt")],
+                         "abundance/{sample}.simulate.abundance.txt")],
                read=["1", "2"],
                sample=SAMPLES.index.unique())

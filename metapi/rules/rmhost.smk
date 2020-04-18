@@ -32,9 +32,9 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                            suffix=["amb", "ann", "bwt", "pac", "sa"])
         output:
             flagstat = os.path.join(config["output"]["rmhost"],
-                                    "report/flagstat/{sample}.flagstat"),
+                                    "report/flagstat/{sample}.align2host.flagstat"),
             reads = expand(os.path.join(config["output"]["rmhost"],
-                                        "short_reads/{{sample}}/{{sample}}{read}.fq.gz"),
+                                        "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
                            read=[".1", ".2"] if IS_PE else "")
         log:
             os.path.join(config["output"]["rmhost"], "logs/{sample}.bwa.log")
@@ -43,7 +43,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
             minimum_seed_length = config["params"]["rmhost"]["bwa"]["minimum_seed_length"],
             index_prefix = config["params"]["rmhost"]["bwa"]["index_prefix"],
             bam = os.path.join(config["output"]["rmhost"],
-                               "bam/{sample}/{sample}.sorted.bam")
+                               "bam/{sample}/{sample}.align2host.sorted.bam")
         threads:
             config["params"]["rmhost"]["threads"]
         run:
@@ -139,9 +139,9 @@ if config["params"]["rmhost"]["bwa"]["do"]:
         input:
             expand([
                 os.path.join(config["output"]["rmhost"],
-                             "report/flagstat/{sample}.flagstat"),
+                             "report/flagstat/{sample}.align2host.flagstat"),
                 os.path.join(config["output"]["rmhost"],
-                             "short_reads/{sample}/{sample}{read}.fq.gz")],
+                             "short_reads/{sample}/{sample}.rmhost{read}.fq.gz")],
                    read=[".1", ".2"] if IS_PE else "",
                    sample=SAMPLES.index.unique())
 
@@ -172,9 +172,9 @@ elif config["params"]["rmhost"]["bowtie2"]["do"]:
                            suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
         output:
             flagstat = os.path.join(config["output"]["rmhost"],
-                                    "report/flagstat/{sample}.flagstat"),
+                                    "report/flagstat/{sample}.align2host.flagstat"),
             reads = expand(os.path.join(config["output"]["rmhost"],
-                                        "short_reads/{{sample}}/{{sample}}{read}.fq.gz"),
+                                        "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
                            read=[".1", ".2"] if IS_PE else "")
         log:
             os.path.join(config["output"]["rmhost"], "logs/{sample}.bowtie2.log")
@@ -182,7 +182,7 @@ elif config["params"]["rmhost"]["bowtie2"]["do"]:
             compression = config["params"]["rmhost"]["compression"],
             index_prefix = config["params"]["rmhost"]["bowtie2"]["index_prefix"],
             bam = os.path.join(config["output"]["rmhost"],
-                               "bam/{sample}/{sample}.sorted.bam")
+                               "bam/{sample}/{sample}.align2host.sorted.bam")
         threads:
             config["params"]["rmhost"]["threads"]
         run:
@@ -276,21 +276,22 @@ elif config["params"]["rmhost"]["bowtie2"]["do"]:
         input:
             expand([
                 os.path.join(config["output"]["rmhost"],
-                             "report/flagstat/{sample}.flagstat"),
+                             "report/flagstat/{sample}.align2host.flagstat"),
                 os.path.join(config["output"]["rmhost"],
-                             "short_reads/{sample}/{sample}{read}.fq.gz")],
+                             "short_reads/{sample}/{sample}.rmhost{read}.fq.gz")],
                    read=[".1", ".2"] if IS_PE else "",
                    sample=SAMPLES.index.unique())
+
 
 if RMHOST_DO:
     rule rmhost_report:
         input:
             expand(os.path.join(config["output"]["rmhost"],
-                                "short_reads/{{sample}}/{{sample}}{read}.fq.gz"),
+                                "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
                    read=[".1", ".2"] if IS_PE else "")
         output:
             os.path.join(config["output"]["rmhost"],
-                         "report/stats/{sample}_stats.tsv")
+                         "report/stats/{sample}_rmhost_stats.tsv")
         params:
             fq_encoding = config["params"]["fq_encoding"],
             sample_id = "{sample}"
@@ -322,7 +323,7 @@ if RMHOST_DO:
     rule rmhost_report_merge:
         input:
             expand(os.path.join(config["output"]["rmhost"],
-                                "report/stats/{sample}_stats.tsv"),
+                                "report/stats/{sample}_rmhost_stats.tsv"),
                    sample=SAMPLES.index.unique())
         output:
             os.path.join(config["output"]["rmhost"],
@@ -346,19 +347,20 @@ rule qc_report:
         rmhost_stats = os.path.join(config["output"]["rmhost"],
                                     "report/rmhost_stats.tsv")
     output:
-        stats = os.path.join(config["output"]["rmhost"],
-                             "report/qc_stats_tsv")
+        os.path.join(config["output"]["rmhost"],
+                     "report/qc_stats.tsv")
     threads:
         config["params"]["qc_report"]["seqkit"]["threads"]
     run:
-        df = metapi.merge([input.raw_stats, input.trim_stats, input.rmhost_stats],
+        df = metapi.merge([input.trim_stats, input.rmhost_stats],
                           metapi.parse, threads)
-        metapi.compute_host_rate(df, save=True, output=output.stats)
+        metapi.compute_host_rate(df, save=True, output=output[0])
 
 
 rule qc_report_all:
     input:
-        os.path.join(config["output"]["rmhost"], "report/rmhost_stats.tsv")
+        os.path.join(config["output"]["rmhost"],
+                     "report/qc_stats.tsv")
 
 
 if config["params"]["rmhost"]["bwa"]["do"]:

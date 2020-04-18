@@ -43,8 +43,8 @@ READS_FORMAT = "sra" \
 #if config["params"]["reads_format"] == "sra":
 #    include: "rules/sra2fq.smk"
 
-include: "rules/input.smk"
 include: "rules/simulate.smk"
+include: "rules/prepare.smk"
 include: "rules/trimming.smk"
 include: "rules/rmhost.smk"
 

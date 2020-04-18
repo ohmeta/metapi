@@ -5,10 +5,10 @@ if config["params"]["trimming"]["oas1"]["do"]:
         output:
             reads = expand(
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{{sample}}/{{sample}}{read}.fq.gz"),
+                             "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
                 read=[".1", ".2", ".single"] if IS_PE else ""),
             stat_out = os.path.join(config["output"]["trimming"],
-                                    "short_reads/{sample}/{sample}.stat_out")
+                                    "short_reads/{sample}/{sample}.oas1.stat_out")
         log:
             os.path.join(config["output"]["trimming"], "logs/{sample}.oas1.log")
         params:
@@ -42,9 +42,9 @@ if config["params"]["trimming"]["oas1"]["do"]:
         input:
             expand([
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{sample}/{sample}{read}.fq.gz"),
+                             "short_reads/{sample}/{sample}.trimming{read}.fq.gz"),
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{sample}/{sample}.stat_out")],
+                             "short_reads/{sample}/{sample}.oas1.stat_out")],
                    read=[".1", ".2", ".single"] if IS_PE else "",
                    sample=SAMPLES.index.unique())
 
@@ -56,7 +56,7 @@ elif config["params"]["trimming"]["sickle"]["do"]:
         output:
             expand(
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{{sample}}/{{sample}}{read}.fq.gz"),
+                             "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
                 read=[".1", ".2", ".single"] if IS_PE else "")
         log:
             os.path.join(config["output"]["trimming"], "logs/{sample}.sickle.log")
@@ -98,7 +98,7 @@ elif config["params"]["trimming"]["sickle"]["do"]:
         input:
             expand(
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{sample}/{sample}{read}.fq.gz"),
+                             "short_reads/{sample}/{sample}.trimming{read}.fq.gz"),
                 read=[".1", ".2", ".single"] if IS_PE else "",
                 sample=SAMPLES.index.unique())
 
@@ -110,7 +110,7 @@ elif config["params"]["trimming"]["fastp"]["do"]:
         output:
             reads = expand(
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{{sample}}/{{sample}}{read}.fq.gz"),
+                             "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
                 read=[".1", ".2"] if IS_PE else ""),
             html = os.path.join(config["output"]["trimming"],
                                 "short_reads/{sample}/{sample}.fastp.html"),
@@ -248,7 +248,7 @@ elif config["params"]["trimming"]["fastp"]["do"]:
         input:
             expand([
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{sample}/{sample}{read}.fq.gz"),
+                             "short_reads/{sample}/{sample}.trimming{read}.fq.gz"),
                 os.path.join(config["output"]["trimming"],
                              "short_reads/{sample}/{sample}.fastp.html"),
                 os.path.join(config["output"]["trimming"],
@@ -260,16 +260,17 @@ elif config["params"]["trimming"]["fastp"]["do"]:
                    read=[".1", ".2"] if IS_PE else "",
                    sample=SAMPLES.index.unique())
 
+
 if TRIMMING_DO:
     rule trimming_report:
         input:
             expand(
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{{sample}}/{{sample}}{read}.fq.gz"),
+                             "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
                 read=[".1", ".2"] if IS_PE else "")
         output:
             stats = os.path.join(config["output"]["trimming"],
-                                 "report/stats/{sample}_stats.tsv")
+                                 "report/stats/{sample}_trimming_stats.tsv")
         params:
             sample_id = "{sample}",
             fq_encoding = config["params"]["fq_encoding"]
@@ -306,7 +307,7 @@ if TRIMMING_DO:
         input:
             expand(
                 os.path.join(config["output"]["trimming"],
-                             "report/stats/{sample}_stats.tsv"),
+                             "report/stats/{sample}_trimming_stats.tsv"),
                 sample=SAMPLES.index.unique())
         output:
             stats = os.path.join(config["output"]["trimming"],

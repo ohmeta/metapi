@@ -2,7 +2,6 @@ params:
   reads_layout: "pe"
   fq_encoding: "sanger"
   samples: "samples.tsv"
-  begin: "qc"
   simulate:
     do: True
     genomes: "genomes.tsv"
