@@ -8,21 +8,36 @@ shell.executable("bash")
 
 configfile: "config.yaml"
 
-IS_PE = True if config["params"]["reads_layout"] == "pe" else False
+IS_PE = True \
+    if config["params"]["reads_layout"] == "pe" \
+       else False
+
+RMHOST_DO = True \
+    if config["params"]["rmhost"]["bwa"]["do"] or \
+       config["params"]["rmhost"]["bowtie2"]["do"] \
+       else False
 
 if config["params"]["simulate"]["do"]:
     SAMPLES = metapi.parse_genomes(config)
 else:
     SAMPLES = metapi.parse_samples(config)
 
-SAMPLES_ID = metapi.parse_cobin_samples_id(SAMPLES, config)
+if config["params"]["cobinning"]["do"]:
+    SAMPLES_ID = metapi.parse_cobin_samples_id(SAMPLES, config)
 
 pprint(SAMPLES)
+
+READS_FORMAT = "sra" \
+    if "sra" in SAMPLES.columns \
+       else "fastq"
+
+
 #include: "rules/output.smk"
 
 #if config["params"]["reads_format"] == "sra":
 #    include: "rules/sra2fq.smk"
 
+include: "rules/input.smk"
 include: "rules/simulate.smk"
 include: "rules/trimming.smk"
 include: "rules/rmhost.smk"

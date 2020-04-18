@@ -1,9 +1,8 @@
 params:
-  reads_format: "fastq"
   reads_layout: "pe"
   fq_encoding: "sanger"
   samples: "samples.tsv"
-  begin: "raw"
+  begin: "qc"
   simulate:
     do: True
     genomes: "genomes.tsv"
@@ -39,16 +38,16 @@ params:
       length_required: 51
       n_base_limit: 5
   rmhost:
-    host_fasta: /genomepy/hg38/hg38.fa
+    host_fasta: /home/alienzj/databases/genomepy/hg38/hg38.fa
     threads: 8
     save_bam: False
     bwa:
       do: False
-      index_prefix: /genomepy/hg38/index/bwa/hg38.fa
+      index_prefix: /home/alienzj/databases/genomepy/hg38/index/bwa/hg38.fa
       minimum_seed_length: 23
     bowtie2:
       do: True
-      index_prefix: /genomepy/hg38/index/bowtie2/hg38
+      index_prefix: /home/alienzj/databases/genomepy/hg38/index/bowtie2/hg38
   qc_report:
     seqkit:
       do: True

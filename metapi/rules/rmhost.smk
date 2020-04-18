@@ -55,29 +55,85 @@ if config["params"]["rmhost"]["bwa"]["do"]:
             if IS_PE:
                 if config["params"]["rmhost"]["save_bam"]:
                     shell("mkdir -p %s" % os.path.dirname(params.bam))
-                    shell('''bwa mem -k {params.minimum_seed_length} -t {threads} \
-                    {params.index_prefix} {input.reads[0]} {input.reads[1]} | \
-                    tee >(samtools flagstat -@{threads} - > {output.flagstat}) | \
-                    tee >(samtools fastq -@{threads} -N -f 12 -F 256 -1 {output.reads[0]} -2 {output.reads[1]} -) | \
-                    samtools sort -@{threads} -T {params.bam} -O BAM -o {params.bam} - 2>{log}''')
+                    shell(
+                        '''
+                        bwa mem \
+                        -k {params.minimum_seed_length} \
+                        -t {threads} \
+                        {params.index_prefix} \
+                        {input.reads[0]} {input.reads[1]} | \
+                        tee >(samtools flagstat \
+                              -@{threads} - \
+                              > {output.flagstat}) | \
+                        tee >(samtools fastq \
+                              -@{threads} \
+                              -N -f 12 -F 256 \
+                              -1 {output.reads[0]} \
+                              -2 {output.reads[1]} -) | \
+                        samtools sort \
+                        -@{threads} \
+                        -T {params.bam} \
+                        -O BAM -o {params.bam} - \
+                        2> {log}
+                        ''')
                 else:
-                    shell('''bwa mem -k {params.minimum_seed_length} -t {threads} \
-                    {params.index_prefix} {input.reads[0]} {input.reads[1]} | \
-                    tee >(samtools flagstat -@{threads} - > {output.flagstat}) | \
-                    samtools fastq -@{threads} -N -f 12 -F 256 -1 {output.reads} -2 {output.r2} - 2>{log}''')
+                    shell(
+                        '''
+                        bwa mem \
+                        -k {params.minimum_seed_length} \
+                        -t {threads} \
+                        {params.index_prefix} \
+                        {input.reads[0]} {input.reads[1]} | \
+                        tee >(samtools flagstat \
+                              -@{threads} - \
+                              > {output.flagstat}) | \
+                        samtools fastq \
+                        -@{threads} \
+                        -N -f 12 -F 256 \
+                        -1 {output.reads} \
+                        -2 {output.r2} - \
+                        2> {log}
+                        ''')
             else:
                 if config["params"]["rmhost"]["save_bam"]:
-                    shell("mkdir -p %s" % os.path.dirname(params.bam))
-                    shell('''bwa mem -k {params.minimum_seed_length} -t {threads} \
-                    {params.index_prefix} {input.reads[0]} | \
-                    tee >(samtools flagstat -@{threads} - > {output.flagstat}) | \
-                    tee >(samtools fastq -@{threads} -N -f 4 -F 256 - > {output.reads[0]}) | \
-                    samtools sort -@{threads} -T {params.bam} -O BAM -o {params.bam} - 2>{log}''')
+                    shell('''mkdir -p %s''' % os.path.dirname(params.bam))
+                    shell(
+                        '''
+                        bwa mem \
+                        -k {params.minimum_seed_length} \
+                        -t {threads} \
+                        {params.index_prefix} \
+                        {input.reads[0]} | \
+                        tee >(samtools flagstat \
+                              -@{threads} - \
+                              > {output.flagstat}) | \
+                        tee >(samtools fastq \
+                              -@{threads} \
+                              -N -f 4 -F 256 - \
+                              > {output.reads[0]}) | \
+                        samtools sort \
+                        -@{threads} \
+                        -T {params.bam} \
+                        -O BAM -o {params.bam} - \
+                        2> {log}
+                        ''')
                 else:
-                    shell('''bwa mem -k {params.minimum_seed_length} -t {threads} \
-                    {params.index_prefix} {input.reads[0]} | \
-                    tee >(samtools flagstat -@{threads} - > {output.flagstat}) | \
-                    samtools fastq -@{threads} -N -f 4 -F 256 - > {output.reads[0]} 2>{log}''')
+                    shell(
+                        '''
+                        bwa mem \
+                        -k {params.minimum_seed_length} \
+                        -t {threads} \
+                        {params.index_prefix} \
+                        {input.reads[0]} | \
+                        tee >(samtools flagstat \
+                              -@{threads} - \
+                              > {output.flagstat}) | \
+                        samtools fastq \
+                        -@{threads} \
+                        -N -f 4 -F 256 - \
+                        > {output.reads[0]} \
+                        2> {log}
+                        ''')
 
 
     rule rmhost_bwa_all:
@@ -132,30 +188,84 @@ elif config["params"]["rmhost"]["bowtie2"]["do"]:
         run:
             if IS_PE:
                 if config["params"]["rmhost"]["save_bam"]:
-                    shell("mkdir -p %s" % os.path.dirname(params.bam))
-                    shell('''bowtie2 --threads {threads} -x {params.index_prefix} \
-                    -1 {input.reads[0]} -2 {input.reads[1]} 2> {log} | \
-                    tee >(samtools flagstat -@{threads} - > {output.flagstat}) | \
-                    tee >(samtools fastq -@{threads} -N -f 12 -F 256 -1 {output.reads[0]} -2 {output.reads[1]} -) | \
-                    samtools sort -@{threads} -T {params.bam} -O BAM -o {params.bam} -''')
+                    shell('''mkdir -p %s''' % os.path.dirname(params.bam))
+                    shell(
+                        '''
+                        bowtie2 \
+                        --threads {threads} \
+                        -x {params.index_prefix} \
+                        -1 {input.reads[0]} \
+                        -2 {input.reads[1]} \
+                        2> {log} | \
+                        tee >(samtools flagstat \
+                              -@{threads} - \
+                              > {output.flagstat}) | \
+                        tee >(samtools fastq \
+                              -@{threads} \
+                              -N -f 12 -F 256 \
+                              -1 {output.reads[0]} \
+                              -2 {output.reads[1]} -) | \
+                        samtools sort \
+                        -@{threads} \
+                        -T {params.bam} \
+                        -O BAM -o {params.bam} -
+                        ''')
                 else:
-                    shell('''bowtie2 --threads {threads} -x {params.index_prefix} \
-                    -1 {input.reads[0]} -2 {input.reads[1]} 2> {log} | \
-                    tee >(samtools flagstat -@{threads} - > {output.flagstat}) | \
-                    samtools fastq -@{threads} -N -f 12 -F 256 -1 {output.reads[0]} -2 {output.reads[1]} -''')
+                    shell(
+                        '''
+                        bowtie2 \
+                        --threads {threads} \
+                        -x {params.index_prefix} \
+                        -1 {input.reads[0]} \
+                        -2 {input.reads[1]} \
+                        2> {log} | \
+                        tee >(samtools flagstat \
+                              -@{threads} - \
+                              > {output.flagstat}) | \
+                        samtools fastq \
+                        -@{threads} \
+                        -N -f 12 -F 256 \
+                        -1 {output.reads[0]} \
+                        -2 {output.reads[1]} -
+                        ''')
             else:
                 if config["params"]["rmhost"]["save_bam"]:
-                    shell("mkdir -p %s" % os.path.dirname(params.bam))
-                    shell('''bowtie2 --threads {threads} -x {params.index_prefix} \
-                    -U {input.reads[0]} 2> {log} | \
-                    tee >(samtools flagstat -@{threads} - > {output.flagstat}) | \
-                    tee >(samtools fastq -@{threads} -N -f 4 -F 256 - > {output.reads[0]}) | \
-                    samtools sort -@{threads} -T {params.bam} -O BAM -o {params.bam} -''')
+                    shell('''mkdir -p %s''' % os.path.dirname(params.bam))
+                    shell(
+                        '''
+                        bowtie2 \
+                        --threads {threads} \
+                        -x {params.index_prefix} \
+                        -U {input.reads[0]} \
+                        2> {log} | \
+                        tee >(samtools flagstat \
+                              -@{threads} - \
+                              > {output.flagstat}) | \
+                        tee >(samtools fastq \
+                              -@{threads} \
+                              -N -f 4 -F 256 - \
+                              > {output.reads[0]}) | \
+                        samtools sort \
+                        -@{threads} \
+                        -T {params.bam} \
+                        -O BAM -o {params.bam} -
+                        ''')
                 else:
-                    shell('''bowtie2 --threads {threads} -x {params.index_prefix} \
-                    -U {input.reads[0]} 2> {log} | \
-                    tee >(samtools flagstat -@{threads} - > {output.flagstat}) | \
-                    samtools fastq -@{threads} -N -f 4 -F 256 - > {output.reads[0]}''')
+                    shell(
+                        '''
+                        bowtie2 \
+                        --threads {threads} \
+                        -x {params.index_prefix} \
+                        -U {input.reads[0]} \
+                        2> {log} | \
+                        tee >(samtools flagstat \
+                              -@{threads} - \
+                              > {output.flagstat}) | \
+                        samtools fastq \
+                        -@{threads} \
+                        -N -f 4 -F 256 - \
+                        > {output.reads[0]}
+                        ''')
 
 
     rule rmhost_bowtie2_all:
@@ -184,18 +294,24 @@ rule rmhost_report:
         config["params"]["qc_report"]["seqkit"]["threads"]
     run:
         if IS_PE:
-            shell("seqkit stats \
-                  --all --basename --tabular \
-                  --fq-encoding %s \
-                  --out-file %s \
-                  --threads %d %s" % (params.fq_encoding, output, threads, " ".join(input)))
+            shell(
+                '''
+                seqkit stats \
+                --all --basename --tabular \
+                --fq-encoding %s \
+                --out-file %s \
+                --threads %d %s
+                ''' % (params.fq_encoding, output, threads, " ".join(input)))
             metapi.change(output[0], params.sample_id, "rmhost", "pe", ["fq1", "fq2"])
         else:
-            shell("seqkit stats \
-                  --all --basename --tabular \
-                  --fq-encoding %s \
-                  --out-file %s \
-                  --threads %d %s" % (params.fq_encoding, output, threads, input))
+            shell(
+                '''
+                seqkit stats \
+                --all --basename --tabular \
+                --fq-encoding %s \
+                --out-file %s \
+                --threads %d %s
+                ''' % (params.fq_encoding, output, threads, input))
             metapi.change(output[0], params.sample_id, "rmhost", "se", ["fq1"])
 
 
