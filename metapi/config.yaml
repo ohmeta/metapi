@@ -50,38 +50,34 @@ params:
       index_prefix: /home/alienzj/databases/genomepy/hg38/index/bowtie2/hg38
   qc_report:
     seqkit:
-      do: True
       threads: 4
-  assembler: ["megahit", "idba_ud", "metaspades", "spades"]
   assembly:
+    threads: 8
     report:
-      do: true
       threads: 8
       len_ranges: [0, 1000, 1500, 2000, 2500, 3000]
     megahit:
       do: False
-      threads: 8
       min_contig: 500
+      only_save_scaftigs: True
     idba_ud:
       do: False
       mink: 27
       maxk: 127
       step: 10
       min_contig: 500
-      threads: 8
+      only_save_scaftigs: True
     metaspades:
       do: True
       only_assembler: False
       only_save_scaftigs: True
       memory: 20
-      threads: 8
       kmers: ['21', '29', '39', '59', '79', '99']
     spades:
       do: False
       only_assembler: False
-      only_save_scaftigs: False
+      only_save_scaftigs: True
       memory: 20
-      threads: 8
       kmers: ['21', '29', '39', '59', '79', '99']
   coassembly:
     megahit:
