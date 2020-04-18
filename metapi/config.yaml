@@ -41,6 +41,7 @@ params:
     host_fasta: /home/alienzj/databases/genomepy/hg38/hg38.fa
     threads: 8
     save_bam: False
+    compression: 6
     bwa:
       do: False
       index_prefix: /home/alienzj/databases/genomepy/hg38/index/bwa/hg38.fa

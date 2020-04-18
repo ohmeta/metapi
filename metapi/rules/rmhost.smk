@@ -1,14 +1,8 @@
-def trimmed_reads(wildcards, have_single):
-    if have_single:
-        return temp(expand(os.path.join(config["output"]["trimming"],
-                                        "short_reads/{sample}/{sample}.trimmed{read}.fq.gz"),
-                           sample=wildcards.sample,
-                           read=[".1", ".2", ".single"] if IS_PE else ""))
+def rmhost_input(wildcards, have_single):
+    if TRIMMING_DO:
+        return get_reads(wildcards, "trimming", have_single)
     else:
-        return temp(expand(os.path.join(config["output"]["trimming"],
-                                        "short_reads/{sample}/{sample}.trimmed{read}.fq.gz"),
-                           sample=wildcards.sample,
-                           read=[".1", ".2"] if IS_PE else ""))
+        return get_reads(wildcards, "raw", have_single)
 
 
 if config["params"]["rmhost"]["bwa"]["do"]:
@@ -32,7 +26,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
 
     rule rmhost_bwa:
         input:
-            reads = lambda wildcards: trimmed_reads(wildcards, False),
+            reads = lambda wildcards: rmhost_input(wildcards, False),
             index = expand("{prefix}.{suffix}",
                            prefix=config["params"]["rmhost"]["bwa"]["index_prefix"],
                            suffix=["amb", "ann", "bwt", "pac", "sa"])
@@ -40,11 +34,12 @@ if config["params"]["rmhost"]["bwa"]["do"]:
             flagstat = os.path.join(config["output"]["rmhost"],
                                     "report/flagstat/{sample}.flagstat"),
             reads = expand(os.path.join(config["output"]["rmhost"],
-                                        "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                                        "short_reads/{{sample}}/{{sample}}{read}.fq.gz"),
                            read=[".1", ".2"] if IS_PE else "")
         log:
             os.path.join(config["output"]["rmhost"], "logs/{sample}.bwa.log")
         params:
+            compression = config["params"]["rmhost"]["compression"],
             minimum_seed_length = config["params"]["rmhost"]["bwa"]["minimum_seed_length"],
             index_prefix = config["params"]["rmhost"]["bwa"]["index_prefix"],
             bam = os.path.join(config["output"]["rmhost"],
@@ -67,6 +62,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                               > {output.flagstat}) | \
                         tee >(samtools fastq \
                               -@{threads} \
+                              -c {params.compression} \
                               -N -f 12 -F 256 \
                               -1 {output.reads[0]} \
                               -2 {output.reads[1]} -) | \
@@ -89,6 +85,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                               > {output.flagstat}) | \
                         samtools fastq \
                         -@{threads} \
+                        -c {params.compression} \
                         -N -f 12 -F 256 \
                         -1 {output.reads} \
                         -2 {output.r2} - \
@@ -109,6 +106,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                               > {output.flagstat}) | \
                         tee >(samtools fastq \
                               -@{threads} \
+                              -c {params.compression} \
                               -N -f 4 -F 256 - \
                               > {output.reads[0]}) | \
                         samtools sort \
@@ -130,6 +128,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                               > {output.flagstat}) | \
                         samtools fastq \
                         -@{threads} \
+                        -c {params.compression} \
                         -N -f 4 -F 256 - \
                         > {output.reads[0]} \
                         2> {log}
@@ -142,7 +141,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                 os.path.join(config["output"]["rmhost"],
                              "report/flagstat/{sample}.flagstat"),
                 os.path.join(config["output"]["rmhost"],
-                             "short_reads/{sample}/{sample}.rmhost{read}.fq.gz")],
+                             "short_reads/{sample}/{sample}{read}.fq.gz")],
                    read=[".1", ".2"] if IS_PE else "",
                    sample=SAMPLES.index.unique())
 
@@ -167,7 +166,7 @@ elif config["params"]["rmhost"]["bowtie2"]["do"]:
 
     rule rmhost_bowtie2:
         input:
-            reads = lambda wildcards: trimmed_reads(wildcards, False),
+            reads = lambda wildcards: rmhost_input(wildcards, False),
             index = expand("{prefix}.{suffix}",
                            prefix=config["params"]["rmhost"]["bowtie2"]["index_prefix"],
                            suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
@@ -175,11 +174,12 @@ elif config["params"]["rmhost"]["bowtie2"]["do"]:
             flagstat = os.path.join(config["output"]["rmhost"],
                                     "report/flagstat/{sample}.flagstat"),
             reads = expand(os.path.join(config["output"]["rmhost"],
-                                        "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                                        "short_reads/{{sample}}/{{sample}}{read}.fq.gz"),
                            read=[".1", ".2"] if IS_PE else "")
         log:
             os.path.join(config["output"]["rmhost"], "logs/{sample}.bowtie2.log")
         params:
+            compression = config["params"]["rmhost"]["compression"],
             index_prefix = config["params"]["rmhost"]["bowtie2"]["index_prefix"],
             bam = os.path.join(config["output"]["rmhost"],
                                "bam/{sample}/{sample}.sorted.bam")
@@ -202,6 +202,7 @@ elif config["params"]["rmhost"]["bowtie2"]["do"]:
                               > {output.flagstat}) | \
                         tee >(samtools fastq \
                               -@{threads} \
+                              -c {params.compression} \
                               -N -f 12 -F 256 \
                               -1 {output.reads[0]} \
                               -2 {output.reads[1]} -) | \
@@ -224,6 +225,7 @@ elif config["params"]["rmhost"]["bowtie2"]["do"]:
                               > {output.flagstat}) | \
                         samtools fastq \
                         -@{threads} \
+                        -c {params.compression} \
                         -N -f 12 -F 256 \
                         -1 {output.reads[0]} \
                         -2 {output.reads[1]} -
@@ -243,6 +245,7 @@ elif config["params"]["rmhost"]["bowtie2"]["do"]:
                               > {output.flagstat}) | \
                         tee >(samtools fastq \
                               -@{threads} \
+                              -c {params.compression} \
                               -N -f 4 -F 256 - \
                               > {output.reads[0]}) | \
                         samtools sort \
@@ -263,6 +266,7 @@ elif config["params"]["rmhost"]["bowtie2"]["do"]:
                               > {output.flagstat}) | \
                         samtools fastq \
                         -@{threads} \
+                        -c {params.compression} \
                         -N -f 4 -F 256 - \
                         > {output.reads[0]}
                         ''')
@@ -274,64 +278,64 @@ elif config["params"]["rmhost"]["bowtie2"]["do"]:
                 os.path.join(config["output"]["rmhost"],
                              "report/flagstat/{sample}.flagstat"),
                 os.path.join(config["output"]["rmhost"],
-                             "short_reads/{sample}/{sample}.rmhost{read}.fq.gz")],
+                             "short_reads/{sample}/{sample}{read}.fq.gz")],
                    read=[".1", ".2"] if IS_PE else "",
                    sample=SAMPLES.index.unique())
 
-
-rule rmhost_report:
-    input:
-        expand(os.path.join(config["output"]["rmhost"],
-                            "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
-               read=[".1", ".2"] if IS_PE else "")
-    output:
-        os.path.join(config["output"]["rmhost"],
-                     "report/stats/{sample}_stats.tsv")
-    params:
-        fq_encoding = config["params"]["fq_encoding"],
-        sample_id = "{sample}"
-    threads:
-        config["params"]["qc_report"]["seqkit"]["threads"]
-    run:
-        if IS_PE:
-            shell(
-                '''
-                seqkit stats \
-                --all --basename --tabular \
-                --fq-encoding %s \
-                --out-file %s \
-                --threads %d %s
-                ''' % (params.fq_encoding, output, threads, " ".join(input)))
-            metapi.change(output[0], params.sample_id, "rmhost", "pe", ["fq1", "fq2"])
-        else:
-            shell(
-                '''
-                seqkit stats \
-                --all --basename --tabular \
-                --fq-encoding %s \
-                --out-file %s \
-                --threads %d %s
-                ''' % (params.fq_encoding, output, threads, input))
-            metapi.change(output[0], params.sample_id, "rmhost", "se", ["fq1"])
-
-
-rule rmhost_report_merge:
-    input:
-        expand(os.path.join(config["output"]["rmhost"],
-                            "report/stats/{sample}_stats.tsv"),
-               sample=SAMPLES.index.unique())
-    output:
-        os.path.join(config["output"]["rmhost"],
-                     "report/rmhost_stats.tsv")
-    threads:
-        config["params"]["qc_report"]["seqkit"]["threads"]
-    run:
-        metapi.merge(input, metapi.parse, threads, save=True, output=output[0])
+if RMHOST_DO:
+    rule rmhost_report:
+        input:
+            expand(os.path.join(config["output"]["rmhost"],
+                                "short_reads/{{sample}}/{{sample}}{read}.fq.gz"),
+                   read=[".1", ".2"] if IS_PE else "")
+        output:
+            os.path.join(config["output"]["rmhost"],
+                         "report/stats/{sample}_stats.tsv")
+        params:
+            fq_encoding = config["params"]["fq_encoding"],
+            sample_id = "{sample}"
+        threads:
+            config["params"]["qc_report"]["seqkit"]["threads"]
+        run:
+            if IS_PE:
+                shell(
+                    '''
+                    seqkit stats \
+                    --all --basename --tabular \
+                    --fq-encoding %s \
+                    --out-file %s \
+                    --threads %d %s
+                    ''' % (params.fq_encoding, output, threads, " ".join(input)))
+                metapi.change(output[0], params.sample_id, "rmhost", "pe", ["fq1", "fq2"])
+            else:
+                shell(
+                    '''
+                    seqkit stats \
+                    --all --basename --tabular \
+                    --fq-encoding %s \
+                    --out-file %s \
+                    --threads %d %s
+                    ''' % (params.fq_encoding, output, threads, input))
+                metapi.change(output[0], params.sample_id, "rmhost", "se", ["fq1"])
 
 
-rule rmhost_report_all:
-    input:
-         os.path.join(config["output"]["rmhost"], "report/rmhost_stats.tsv")
+    rule rmhost_report_merge:
+        input:
+            expand(os.path.join(config["output"]["rmhost"],
+                                "report/stats/{sample}_stats.tsv"),
+                   sample=SAMPLES.index.unique())
+        output:
+            os.path.join(config["output"]["rmhost"],
+                         "report/rmhost_stats.tsv")
+        threads:
+            config["params"]["qc_report"]["seqkit"]["threads"]
+        run:
+            metapi.merge(input, metapi.parse, threads, save=True, output=output[0])
+
+
+    rule rmhost_report_all:
+        input:
+            os.path.join(config["output"]["rmhost"], "report/rmhost_stats.tsv")
 
 
 rule qc_report:

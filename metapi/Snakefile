@@ -17,6 +17,12 @@ RMHOST_DO = True \
        config["params"]["rmhost"]["bowtie2"]["do"] \
        else False
 
+TRIMMING_DO = True \
+    if config["params"]["trimming"]["oas1"]["do"] or \
+       config["params"]["trimming"]["sickle"]["do"] or \
+       config["params"]["trimming"]["fastp"]["do"] \
+       else False
+
 if config["params"]["simulate"]["do"]:
     SAMPLES = metapi.parse_genomes(config)
 else:

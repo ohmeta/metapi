@@ -34,13 +34,13 @@ def parse_genomes(config):
 
     genomes_df["fq1"] = genomes_df.apply(
         lambda x: os.path.join(
-            config["output"]["simulate"], "short_reads/%s.simulated.1.fq.gz" % x["id"],
+            config["output"]["simulate"], "short_reads/%s.1.fq.gz" % x["id"],
         ),
         axis=1,
     )
     genomes_df["fq2"] = genomes_df.apply(
         lambda x: os.path.join(
-            config["output"]["simulate"], "short_reads/%s.simulated.2.fq.gz" % x["id"],
+            config["output"]["simulate"], "short_reads/%s.2.fq.gz" % x["id"],
         ),
         axis=1,
     )

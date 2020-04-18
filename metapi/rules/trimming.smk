@@ -1,14 +1,14 @@
 if config["params"]["trimming"]["oas1"]["do"]:
     rule trimming_oas1:
         input:
-            lambda wildcards: raw_reads(wildcards, False)
+            lambda wildcards: get_reads(wildcards, "raw", False)
         output:
             reads = expand(
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{{sample}}/{{sample}}.trimmed{read}.fq.gz"),
+                             "short_reads/{{sample}}/{{sample}}{read}.fq.gz"),
                 read=[".1", ".2", ".single"] if IS_PE else ""),
             stat_out = os.path.join(config["output"]["trimming"],
-                                    "short_reads/{sample}/{sample}.trimmed.stat_out")
+                                    "short_reads/{sample}/{sample}.stat_out")
         log:
             os.path.join(config["output"]["trimming"], "logs/{sample}.oas1.log")
         params:
@@ -42,9 +42,9 @@ if config["params"]["trimming"]["oas1"]["do"]:
         input:
             expand([
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{sample}/{sample}.trimmed{read}.fq.gz"),
+                             "short_reads/{sample}/{sample}{read}.fq.gz"),
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{sample}/{sample}.trimmed.stat_out")],
+                             "short_reads/{sample}/{sample}.stat_out")],
                    read=[".1", ".2", ".single"] if IS_PE else "",
                    sample=SAMPLES.index.unique())
 
@@ -52,11 +52,11 @@ if config["params"]["trimming"]["oas1"]["do"]:
 elif config["params"]["trimming"]["sickle"]["do"]:
     rule trimming_sickle:
         input:
-            lambda wildcards: raw_reads(wildcards, False)
+            lambda wildcards: get_reads(wildcards, "raw", False)
         output:
             expand(
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{{sample}}/{{sample}}.trimmed{read}.fq.gz"),
+                             "short_reads/{{sample}}/{{sample}}{read}.fq.gz"),
                 read=[".1", ".2", ".single"] if IS_PE else "")
         log:
             os.path.join(config["output"]["trimming"], "logs/{sample}.sickle.log")
@@ -98,7 +98,7 @@ elif config["params"]["trimming"]["sickle"]["do"]:
         input:
             expand(
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{sample}/{sample}.trimmed{read}.fq.gz"),
+                             "short_reads/{sample}/{sample}{read}.fq.gz"),
                 read=[".1", ".2", ".single"] if IS_PE else "",
                 sample=SAMPLES.index.unique())
 
@@ -106,11 +106,11 @@ elif config["params"]["trimming"]["sickle"]["do"]:
 elif config["params"]["trimming"]["fastp"]["do"]:
     rule trimming_fastp:
         input:
-            lambda wildcards: raw_reads(wildcards, False)
+            lambda wildcards: get_reads(wildcards, "raw", False)
         output:
             reads = expand(
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{{sample}}/{{sample}}.trimmed{read}.fq.gz"),
+                             "short_reads/{{sample}}/{{sample}}{read}.fq.gz"),
                 read=[".1", ".2"] if IS_PE else ""),
             html = os.path.join(config["output"]["trimming"],
                                 "short_reads/{sample}/{sample}.fastp.html"),
@@ -248,7 +248,7 @@ elif config["params"]["trimming"]["fastp"]["do"]:
         input:
             expand([
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{sample}/{sample}.trimmed{read}.fq.gz"),
+                             "short_reads/{sample}/{sample}{read}.fq.gz"),
                 os.path.join(config["output"]["trimming"],
                              "short_reads/{sample}/{sample}.fastp.html"),
                 os.path.join(config["output"]["trimming"],
@@ -260,66 +260,66 @@ elif config["params"]["trimming"]["fastp"]["do"]:
                    read=[".1", ".2"] if IS_PE else "",
                    sample=SAMPLES.index.unique())
 
-
-rule trimming_report:
-    input:
-        expand(
-            os.path.join(config["output"]["trimming"],
-                         "short_reads/{{sample}}/{{sample}}.trimmed{read}.fq.gz"),
-            read=[".1", ".2"] if IS_PE else "")
-    output:
-        stats = os.path.join(config["output"]["trimming"],
-                             "report/stats/{sample}_stats.tsv")
-    params:
-        sample_id = "{sample}",
-        fq_encoding = config["params"]["fq_encoding"]
-    threads:
-        config["params"]["qc_report"]["seqkit"]["threads"]
-    run:
-        if IS_PE:
-            shell(
-                '''
-                seqkit stats \
-                --all \
-                --basename \
-                --tabular \
-                --fq-encoding %s \
-                --out-file %s \
-                --threads %d %s
-                ''' % (params.fq_encoding, output.stats, threads, " ".join(input)))
-            metapi.change(output.stats, params.sample_id, "trimming", "pe", ["fq1", "fq2"])
-        else:
-            shell(
-                '''
-                seqkit stats \
-                --all \
-                --basename \
-                --tabular \
-                --fq-encoding %s \
-                --out-file %s \
-                --threads %d %s
-                ''' % (params.fq_encoding, output.stats, threads, input))
-            metapi.change(output.stats, params.sample_id, "trimming", "se", ["fq1"])
-
-
-rule trimming_report_merge:
-    input:
-        expand(
-            os.path.join(config["output"]["trimming"],
-                         "report/stats/{sample}_stats.tsv"),
-            sample=SAMPLES.index.unique())
-    output:
-        stats = os.path.join(config["output"]["trimming"],
-                             "report/trimming_stats.tsv")
-    threads:
-        config["params"]["qc_report"]["seqkit"]["threads"]
-    run:
-        metapi.merge(input, metapi.parse, threads, save=True, output=output.stats)
+if TRIMMING_DO:
+    rule trimming_report:
+        input:
+            expand(
+                os.path.join(config["output"]["trimming"],
+                             "short_reads/{{sample}}/{{sample}}{read}.fq.gz"),
+                read=[".1", ".2"] if IS_PE else "")
+        output:
+            stats = os.path.join(config["output"]["trimming"],
+                                 "report/stats/{sample}_stats.tsv")
+        params:
+            sample_id = "{sample}",
+            fq_encoding = config["params"]["fq_encoding"]
+        threads:
+            config["params"]["qc_report"]["seqkit"]["threads"]
+        run:
+            if IS_PE:
+                shell(
+                    '''
+                    seqkit stats \
+                    --all \
+                    --basename \
+                    --tabular \
+                    --fq-encoding %s \
+                    --out-file %s \
+                    --threads %d %s
+                    ''' % (params.fq_encoding, output.stats, threads, " ".join(input)))
+                metapi.change(output.stats, params.sample_id, "trimming", "pe", ["fq1", "fq2"])
+            else:
+                shell(
+                    '''
+                    seqkit stats \
+                    --all \
+                    --basename \
+                    --tabular \
+                    --fq-encoding %s \
+                    --out-file %s \
+                    --threads %d %s
+                    ''' % (params.fq_encoding, output.stats, threads, input))
+                metapi.change(output.stats, params.sample_id, "trimming", "se", ["fq1"])
 
 
-rule trimming_report_all:
-    input:
-        os.path.join(config["output"]["trimming"], "report/trimming_stats.tsv")
+    rule trimming_report_merge:
+        input:
+            expand(
+                os.path.join(config["output"]["trimming"],
+                             "report/stats/{sample}_stats.tsv"),
+                sample=SAMPLES.index.unique())
+        output:
+            stats = os.path.join(config["output"]["trimming"],
+                                 "report/trimming_stats.tsv")
+        threads:
+            config["params"]["qc_report"]["seqkit"]["threads"]
+        run:
+            metapi.merge(input, metapi.parse, threads, save=True, output=output.stats)
+
+
+    rule trimming_report_all:
+        input:
+            os.path.join(config["output"]["trimming"], "report/trimming_stats.tsv")
 
 
 if config["params"]["trimming"]["oas1"]["do"]:

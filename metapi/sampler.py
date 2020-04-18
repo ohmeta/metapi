@@ -8,7 +8,7 @@ import pandas as pd
 from Bio import bgzf
 
 
-def is_duplicated(samples_df, begin, format):
+def check_duplicated(samples_df, begin, format):
     if begin == "assembly":
         cancel_task = False
         if format == "fastq":
@@ -21,7 +21,7 @@ def is_duplicated(samples_df, begin, format):
             sys.exit(1)
 
 
-def is_exists(samples_df, input_type, is_pe):
+def check_exists(samples_df, input_type, is_pe):
     error_count = 0
     for i in samples_df.index:
         if input_type == "fastq":
@@ -30,39 +30,37 @@ def is_exists(samples_df, input_type, is_pe):
                 fq2 = samples_df.loc[[i], "fq2"].dropna().tolist()
                 for r1, r2 in zip(fq1, fq2):
                     if (not os.path.exists(r1)) or (not os.path.exists(r2)):
-                        print("error:\t%s\t%s\t%s" % (i, r1, r2))
+                        print("Error:\t%s\t%s\t%s" % (i, r1, r2))
                         error_count += 1
             else:
                 fq = samples_df.loc[[i], "fq1"].dropna().tolist()
                 for r in fq:
                     if not os.path.exists(r):
-                        print("error:\t%s\t%s" % (i, r))
+                        print("Error:\t%s\t%s" % (i, r))
                         error_count += 1
         elif input_type == "sra":
             for sra in samples_df.loc[[i], "sra"].dropna().tolist():
                 if not os.path.exists(sra):
-                    print("error:\t%s\t%s" % (i, sra))
+                    print("Error:\t%s\t%s" % (i, sra))
                     error_count += 1
         else:
-            print("wrong input type! just support fastq or sra")
+            print("Wrong input type! just support fastq or sra")
     return error_count
 
 
-def parse_samples(config, check=True):
+def parse_samples(config):
     samples_df = pd.read_csv(config["params"]["samples"], sep="\s+").set_index(
         "id", drop=False
     )
     is_pe = True if config["params"]["reads_layout"] == "pe" else False
-    if check:
-        error_count = is_exists(samples_df, config["params"]["reads_format"], is_pe)
-        if error_count == 0:
-            is_duplicated(samples_df, config["params"]["begin"], format)
-            return samples_df
-        else:
-            print("find %d error" % error_count)
-            sys.exit(1)
-    else:
+    error_count = check_exists(samples_df, config["params"]["reads_format"], is_pe)
+    if error_count == 0:
+        check_duplicated(samples_df, config["params"]["begin"], format)
         return samples_df
+    else:
+        print("find %d error" % error_count)
+        sys.exit(1)
+    return samples_df
 
 
 def parse_bins(bins_dir):

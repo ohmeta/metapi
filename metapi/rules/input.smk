@@ -1,4 +1,4 @@
-def raw_samples(wildcards):
+def raw_reads(wildcards):
     if READS_FORMAT == "fastq":
         if config["params"]["simulate"]["do"]:
             return [[metapi.get_reads(SAMPLES, wildcards, "fq1")[0]],
@@ -15,17 +15,17 @@ def raw_samples(wildcards):
 
 rule prepare_reads:
     input:
-        unpack(raw_samples)
+        unpack(raw_reads)
     output:
         expand(
             os.path.join(config["output"]["raw"],
-                         "short_reads/{{sample}}.link_or_merge.out/{{sample}}.raw{read}.fq.gz"),
+                         "short_reads/{{sample}}/{{sample}}{read}.fq.gz"),
             read=[".1", ".2"] if IS_PE else "")
     params:
         output_dir = os.path.join(config["output"]["raw"],
-                                  "short_reads/{sample}.link_or_merge.out"),
+                                  "short_reads/{sample}"),
         output_prefix = os.path.join(config["output"]["raw"],
-                                     "short_reads/{sample}.link_or_merge.out/{sample}")
+                                     "short_reads/{sample}/{sample}")
     run:
         reads_num = len(input)
 
@@ -102,20 +102,21 @@ rule prepare_reads_all:
     input:
          expand(
              os.path.join(config["output"]["raw"],
-                          "short_reads/{{sample}}.link_or_merge.out/{{sample}}.raw{read}.fq.gz"),
-             read=[".1", ".2"] if IS_PE else "")
+                          "short_reads/{sample}/{sample}{read}.fq.gz"),
+             read=[".1", ".2"] if IS_PE else "",
+             sample=SAMPLES.index.unique())
 
 
-def raw_reads(wildcards, have_single):
+def get_reads(wildcards, step, have_single):
     if have_single:
         return expand(
-            os.path.join(config["output"]["raw"],
-                         "short_reads/{sample}.link_or_merge.out/{sample}.raw{read}.fq.gz"),
+            os.path.join(config["output"][step],
+                         "short_reads/{sample}/{sample}{read}.fq.gz"),
             read=[".1", ".2", ".single"] if IS_PE else "",
             sample=wildcards.sample)
     else:
         return expand(
-            os.path.join(config["output"]["raw"],
-                         "short_reads/{sample}.link_or_merge.out/{sample}.raw{read}.fq.gz"),
+            os.path.join(config["output"][step],
+                         "short_reads/{sample}/{sample}{read}.fq.gz"),
             read=[".1", ".2"] if IS_PE else "",
             sample=wildcards.sample)

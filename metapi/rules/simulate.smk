@@ -3,11 +3,11 @@ rule simulate_short_reads:
         genomes = lambda wildcards: metapi.get_simulate_info(SAMPLES, wildcards, "genome")
     output:
         r1 = os.path.join(config["output"]["simulate"],
-                          "short_reads/{sample}.simulated.1.fq.gz"),
+                          "short_reads/{sample}.1.fq.gz"),
         r2 = os.path.join(config["output"]["simulate"],
-                          "short_reads/{sample}.simulated.2.fq.gz"),
+                          "short_reads/{sample}.2.fq.gz"),
         abunf = os.path.join(config["output"]["simulate"],
-                             "abundance/{sample}.simulated.abundance.txt")
+                             "abundance/{sample}.abundance.txt")
     log:
         os.path.join(config["output"]["simulate"], "logs/{sample}.iss.log")
     params:
@@ -29,7 +29,9 @@ rule simulate_short_reads:
 rule simulate_all:
     input:
         expand([
-            os.path.join(config["output"]["simulate"], "short_reads/{sample}.simulated.{read}.fq.gz"),
-            os.path.join(config["output"]["simulate"], "abundance/{sample}.simulated.abundance.txt")],
+            os.path.join(config["output"]["simulate"],
+                         "short_reads/{sample}.{read}.fq.gz"),
+            os.path.join(config["output"]["simulate"],
+                         "abundance/{sample}.abundance.txt")],
                read=["1", "2"],
                sample=SAMPLES.index.unique())
