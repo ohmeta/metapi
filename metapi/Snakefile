@@ -34,7 +34,7 @@ if config["params"]["assembly"]["spades"]["do"]:
     ASSEMBLERS += ["spades"]
 
 pprint(ASSEMBLERS)
-
+   
 if config["params"]["simulate"]["do"]:
     SAMPLES = metapi.parse_genomes(config)
 else:
@@ -60,6 +60,7 @@ include: "rules/prepare.smk"
 include: "rules/trimming.smk"
 include: "rules/rmhost.smk"
 include: "rules/assembly.smk"
+include: "rules/alignment.smk"
 
 '''
 if config["params"]["begin"] == "raw":
@@ -88,4 +89,5 @@ rule all:
         rules.simulate_all.input,
         rules.trimming_all.input,
         rules.rmhost_all.input,
-        rules.assembly_all.input
+        rules.assembly_all.input,
+        rules.alignment_all.input
