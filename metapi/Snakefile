@@ -33,8 +33,13 @@ if config["params"]["assembly"]["metaspades"]["do"]:
 if config["params"]["assembly"]["spades"]["do"]:
     ASSEMBLERS += ["spades"]
 
-pprint(ASSEMBLERS)
-   
+BINNERS = []
+if config["params"]["binning"]["metabat2"]["do"]:
+    BINNERS += ["metabat2"]
+if config["params"]["binning"]["maxbin2"]["do"]:
+    BINNERS += ["maxbin2"]
+
+
 if config["params"]["simulate"]["do"]:
     SAMPLES = metapi.parse_genomes(config)
 else:
@@ -50,17 +55,13 @@ READS_FORMAT = "sra" \
        else "fastq"
 
 
-#include: "rules/output.smk"
-
-#if config["params"]["reads_format"] == "sra":
-#    include: "rules/sra2fq.smk"
-
 include: "rules/simulate.smk"
 include: "rules/prepare.smk"
 include: "rules/trimming.smk"
 include: "rules/rmhost.smk"
 include: "rules/assembly.smk"
 include: "rules/alignment.smk"
+include: "rules/binning.smk"
 
 '''
 if config["params"]["begin"] == "raw":
@@ -90,4 +91,5 @@ rule all:
         rules.trimming_all.input,
         rules.rmhost_all.input,
         rules.assembly_all.input,
-        rules.alignment_all.input
+        rules.alignment_all.input,
+        rules.binning_all.input

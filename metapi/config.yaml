@@ -105,7 +105,6 @@ params:
     cal_base_depth: False
     report: True
   binning:
-    binner: "metabat2"
     metabat2:
       do: True
       min_contig: 1500
@@ -205,9 +204,7 @@ output:
   metaquast: "results/03.metaquast"
   prediction: "results/04.prediction"
   alignment: "results/04.alignment"
-  binning:
-    depth: "results/05.binning/coverage"
-    bins: "results/05.binning/bins"
+  binning: "results/05.binning"
   cobinning:
     scaftigs: "results/05.cobinning/scaftigs"
     cds: "results/05.cobinning/cds"
