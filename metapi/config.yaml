@@ -209,12 +209,7 @@ output:
     scaftigs: "results/05.cobinning/scaftigs"
     cds: "results/05.cobinning/cds"
     depth: "results/05.cobinning/depth"
-  checkm:
-    base_dir: "results/06.checkm"
-    out: "results/06.checkm/checkm_out"
-    data: "results/06.checkm/checkm_data"
-    coverage: "results/06.checkm/checkm_coverage"
-    profile: "results/06.checkm/checkm_profile"
+  checkm: "results/06.checkm"
   dereplication: "results/07.dereplication"
   classification: 
     kraken2: "results/08.classification/kraken2"

@@ -12,9 +12,9 @@ def MIMAG_quality_level(row):
     """
     https://doi.org/10.1038/nbt.3893
     """
-    if (row["completeness"] > 90.0) and (row["contamination"] < 5.0):
+    if (row["Completeness"] > 90.0) and (row["Contamination"] < 5.0):
         return "high_quality"
-    elif (row["completeness"] > 50.0) and (row["contamination"] < 10.0):
+    elif (row["Completeness"] > 50.0) and (row["Contamination"] < 10.0):
         return "medium_quality"
     else:
         return "low_quality"
@@ -25,12 +25,12 @@ def SGB_quality_level(row):
     https://doi.org/10.1016/j.cell.2019.01.001
     """
     if (
-        (row["strain_heterogeneity"] < 0.5)
-        and (row["completeness"] > 90.0)
-        and (row["contamination"] < 5.0)
+        (row["Strain heterogeneity"] < 0.5)
+        and (row["Completeness"] > 90.0)
+        and (row["Contamination"] < 5.0)
     ):
         return "high_quality"
-    elif (row["completeness"] > 50.0) and (row["contamination"] < 5.0):
+    elif (row["Completeness"] > 50.0) and (row["Contamination"] < 5.0):
         return "medium_quality"
     else:
         return "low_quality"
@@ -40,58 +40,15 @@ def quality_score(row):
     """
     https://doi.org/10.1038/s41586-019-0965-1
     """
-    return row["completeness"] - 5 * row["contamination"]
+    return row["Completeness"] - 5 * row["Contamination"]
 
 
-def parse(checkm_file):
-    total_list = []
-    sample_id = os.path.basename(checkm_file).split(".")[0]
-    with open(checkm_file, "r") as ih:
-        next(ih), next(ih), next(ih)
-        for line in ih:
-            if not line.startswith("--"):
-                x_x = re.split(r"\s+", line.strip())
-                total_list.append(
-                    [sample_id, x_x[0]]
-                    + ["-".join(x_x[1:3])]
-                    + [
-                        int(x_x[3]),
-                        int(x_x[4]),
-                        int(x_x[5]),
-                        int(x_x[6]),
-                        int(x_x[7]),
-                        int(x_x[8]),
-                        int(x_x[9]),
-                        int(x_x[10]),
-                        int(x_x[11]),
-                    ]
-                    + [float(x_x[12]), float(x_x[13]), float(x_x[14])]
-                )
-
-    checkm_df = pd.DataFrame(
-        total_list,
-        columns=[
-            "sample_id",
-            "bin_id",
-            "marker_lineage",
-            "genomes",
-            "markers",
-            "marker_sets",
-            "0",
-            "1",
-            "2",
-            "3",
-            "4",
-            "5+",
-            "completeness",
-            "contamination",
-            "strain_heterogeneity",
-        ],
-    )
+def parse(checkm_table):
+    checkm_df = pd.read_csv(checkm_table, sep='\t')
     return checkm_df
 
 
-def report(checkm_list, output, threads):
+def checkm_report(checkm_list, output, threads):
     df_list = []
     with concurrent.futures.ProcessPoolExecutor(max_workers=threads) as executor:
         for df in executor.map(parse, checkm_list):
@@ -117,7 +74,7 @@ def main():
     args = parser.parse_args()
 
     checkm_list = [l.strip() for l in open(args.checkm_list, "r")]
-    report(checkm_list, args.output, args.threads)
+    checkm_report(checkm_list, args.output, args.threads)
 
 
 if __name__ == "__main__":

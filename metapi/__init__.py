@@ -20,7 +20,7 @@ from metapi.assembler import parse_assembly
 
 from metapi.aligner import flagstats_summary
 
-from metapi.checkmer import report
+from metapi.checkmer import checkm_report
 
 from metapi.classifier import demultiplex
 

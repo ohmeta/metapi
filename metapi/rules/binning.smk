@@ -1,5 +1,5 @@
 if config["params"]["binning"]["metabat2"]["do"]:
-    rule binning_coverage_metabat2:
+    rule binning_metabat2_coverage:
         input:
             bam = os.path.join(
                 config["output"]["alignment"],
@@ -73,7 +73,7 @@ if config["params"]["binning"]["metabat2"]["do"]:
 
 
 if config["params"]["binning"]["maxbin2"]["do"]:
-    rule binning_coverage_maxbin2:
+    rule binning_maxbin2_coverage:
         input:
             bam = os.path.join(
                 config["output"]["alignment"],
