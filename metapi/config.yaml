@@ -1,8 +1,6 @@
 params:
   reads_layout: "pe"
-
   fq_encoding: "sanger"
-
   samples: "samples.tsv"
 
   simulate:
@@ -105,11 +103,16 @@ params:
     min_contig: 500
     env: "bioenv2"
 
-  prediction:
+  predict:
     prodigal:
       do: False
       format: "gff"
       mode: "meta"
+    prokka:
+      do: True
+      kingdom: Bacteria
+      metagenome: False
+      threads: 8
 
   alignment:
     do: True
@@ -165,13 +168,6 @@ params:
       clustering_primary_ANI: 0.9
       clustering_secondary_ANI: 0.99
 
-  annotation:
-    prokka:
-      do: True
-      kingdom: Bacteria
-      metagenome: False
-      threads: 8
-
   profiling:
     threads: 8
     index_metadata: /path/to/index_metadata
@@ -209,7 +205,6 @@ params:
     threads: 8
 
 output:
-  sra2fq: "results/00.sra2fq"
   simulate: "results/00.simulate"
   raw: "results/00.raw"
   trimming: "results/01.trimming"
@@ -218,31 +213,28 @@ output:
   coassembly:
     megahit: "results/03.coassembly/megahit"
     demultiplex_kraken2: "results/03.coassembly/demultiplex_kraken2"
-  upload: "results/03.upload"
   metaquast: "results/03.metaquast"
-  prediction: "results/04.prediction"
   alignment: "results/04.alignment"
-  binning: "results/05.binning"
+  binning: "results/04.binning"
   cobinning:
-    scaftigs: "results/05.cobinning/scaftigs"
-    cds: "results/05.cobinning/cds"
-    depth: "results/05.cobinning/depth"
+    scaftigs: "results/04.cobinning/scaftigs"
+    cds: "results/04.cobinning/cds"
+    depth: "results/04.cobinning/depth"
+  predict: "results/05.predict"
   checkm: "results/06.checkm"
-  dereplication: "results/07.dereplication"
-  classify: "results/08.classify"
-  annotation:
-    prokka: "results/09.annotation/prokka"
-    multiqc_prokka: "results/09.annotation/multiqc_prokka"
+  classify: "results/07.classify"
+  dereplicate: "results/08.dereplicate"
   profiling:
     metaphlan2:
-      base_dir: "results/10.profiling/metaphlan2"
-      bowtie2_out: "results/10.profiling/metaphlan2/bowtie2out"
-      profile: "results/10.profiling/metaphlan2/profile"
+      base_dir: "results/09.profiling/metaphlan2"
+      bowtie2_out: "results/09.profiling/metaphlan2/bowtie2out"
+      profile: "results/09.profiling/metaphlan2/profile"
     jgi:
-      depth: "results/10.profiling/jgi/depth"
-      profile: "results/10.profiling/jgi/profile"
-    humann2: "results/10.profiling/humann2"
-  burst: "results/12.burst"
+      depth: "results/09.profiling/jgi/depth"
+      profile: "results/09.profiling/jgi/profile"
+    humann2: "results/09.profiling/humann2"
+  burst: "results/10.burst"
+  upload: "results/11.upload"
 
 upload:
   do: False
