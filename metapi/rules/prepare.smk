@@ -24,7 +24,7 @@ rule prepare_reads:
                 if reads_num == 1:
                     os.symlink(os.path.realpath(input[0]), output[0])
                 else:
-                    shell('''cat %s > %s''' % (" ".join(input), output[0]))
+                    shell('''cat {input} > {output}''')
 
         elif READS_FORMAT == "sra":
             reads_direction = str("+"),
