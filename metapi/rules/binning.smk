@@ -19,7 +19,6 @@ if config["params"]["binning"]["metabat2"]["do"]:
                                       "coverage/{sample}.{assembler}.out")
         shell:
             '''
-            mkdir -p {params.output_dir}
             jgi_summarize_bam_contig_depths \
             --outputDepth {output.coverage} \
             {input.bam} \
@@ -49,9 +48,6 @@ if config["params"]["binning"]["metabat2"]["do"]:
             seed = config["params"]["binning"]["metabat2"]["seed"]
         shell:
             '''
-            rm -rf {output.bins_dir}
-            mkdir -p {output.bins_dir}
-
             metabat2 \
             -i {input.scaftigs} \
             -a {input.coverage} \
@@ -96,7 +92,6 @@ if config["params"]["binning"]["maxbin2"]["do"]:
                                       "coverage/{sample}.{assembler}.out")
         shell:
             '''
-            mkdir -p {params.output_dir}
             pileup.sh in={input.bam} out={output.coverage_bb} 2> {log}
             awk '{print $1 "\t" $5}' {output.coverage_bb} | grep -v '^#' > {output.coverage}
             '''
@@ -124,9 +119,6 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             config["params"]["binning"]["maxbin2"]["threads"]
         shell:
             '''
-            rm -rf {output.bins_dir}
-            mkdir -p {output.bins_dir}
-
             run_MaxBin.pl \
             -thread {threads} \
             -contig {input.scaftigs} \

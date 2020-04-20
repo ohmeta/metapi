@@ -1,64 +1,87 @@
-rule kraken2:
+rule classify_short_reads_kraken2:
     input:
-        clean_reads
+        assembly_input
     output:
-        out = os.path.join(config["results"]["classification"]["kraken2"], "{sample}.kraken2.output"),
-        report = os.path.join(config["results"]["classification"]["kraken2"], "{sample}.kraken2.report")
-    params:
-        database = config["params"]["classification"]["kraken2"]["database"]
-    threads:
-        config["params"]["classification"]["kraken2"]["threads"]
+        table = os.path.join(
+            config["output"]["classify"],
+            "short_reads/{sample}.kraken2.out/{sample}.kraken2.table"),
+        report = os.path.join(
+            config["output"]["classify"],
+            "short_reads/{sample}.kraken2.out/{sample}.kraken2.report")
     log:
-        os.path.join(config["logs"]["classification"]["kraken2"], "{sample}.kraken2.log")
+        os.path.join(config["output"]["classify"],
+                     "logs/{sample}.kraken2.log")
+    params:
+        database = config["params"]["classify"]["kraken2"]["database"],
+        paired = "--paired" if IS_PE else ""
+    threads:
+        config["params"]["classify"]["kraken2"]["threads"]
     shell:
         '''
         kraken2 \
         --use-names \
         --threads {threads} \
         --db {params.database} \
-        --output {output.out} \
+        --output {output.table} \
         --report {output.report} \
         --report-zero-counts \
-        --paired \
+        {params.paired} \
         --gzip-compressed \
-        {input[0]} {input[1]} \
+        {input} \
         2> {log}
         '''
 
 
-rule classification_hmq_bins_by_gtdbtk:
+rule classify_short_reads_kraken2_all:
     input:
-        bins_hmq = os.path.join(config["results"]["checkm"]["base_dir"],
-                                "bins.{assembler}.{binner}_out.hmq")
+        expand([
+            os.path.join(
+                config["output"]["classify"],
+                "short_reads/{sample}.kraken2.out/{sample}.kraken2.table"),
+            os.path.join(
+                config["output"]["classify"],
+                "short_reads/{sample}.kraken2.out/{sample}.kraken2.report")],
+               sample=SAMPLES.index.unique())
+
+
+rule classify_hmq_bins_gtdbtk:
+    input:
+        os.path.join(
+            config["output"]["checkm"],
+            "hmq_bins/{assembler}.{binner}.links")
     output:
-        outdir = directory(os.path.join(config["results"]["classification"]["gtdbtk"]["base_dir"],
-                                        "hmq.bins.{assembler}.{binner}.gtdbtk_out"))
-    params:
-        extension = config["params"]["classification"]["gtdbtk"]["extension"],
-        scratch = "--scratch_dir %s" % os.path.join(config["results"]["classification"]["gtdbtk"]["base_dir"],
-                                                    "{assembler}.{binner}.scratch_tmp") \
-                                                    if config["params"]["classification"]["gtdbtk"]["reduce_memory"] \
-                                                    else "",
-        scratch_dir = os.path.join(config["results"]["classification"]["gtdbtk"]["base_dir"],
-                                   "{assembler}.{binner}.scratch_tmp")
-    threads:
-        config["params"]["classification"]["gtdbtk"]["threads"]
+        directory(os.path.join(
+            config["output"]["classify"],
+            "hmq_bins/{assembler}.{binner}.gtdbtk.out"))
     log:
-        os.path.join(config["logs"]["classification"]["gtdbtk"], "hmq.bins.{assembler}.{binner}.gtdbtk.log")
+        os.path.join(config["output"]["classify"],
+                     "logs/{assembler}.{binner}.gtdbtk.log")
+    params:
+        bin_suffix = "fa"
+    threads:
+        config["params"]["classify"]["gtdbtk"]["threads"]
     shell:
         '''
-        rm -rf {output.outdir}
-        mkdir -p {output.outdir}
-
-        if [[ "{params.scratch}" != "" ]]; then
-            rm -rf {params.scratch_dir}
-            mkdir -p {params.scratch_dir}
-        fi
-
         gtdbtk classify_wf \
-        --genome_dir {input.bins_hmq}/ \
-        --out_dir {output.outdir} \
-        --extension {params.extension} \
+        --genome_dir {input}/ \
+        --out_dir {output} \
+        --extension {params.bin_suffix} \
         --cpus {threads} \
-        {params.scratch} >{log}
+        > {log}
         '''
+
+
+rule classify_hmq_bins_gtdbtk_all:
+    input:
+        expand(
+            os.path.join(
+                config["output"]["classify"],
+                "hmq_bins/{assembler}.{binner}.gtdbtk.out"),
+            assembler=ASSEMBLERS,
+            binner=BINNERS)
+
+
+rule classify_all:
+    input:
+        rules.classify_short_reads_kraken2_all.input,
+        rules.classify_hmq_bins_gtdbtk_all.input

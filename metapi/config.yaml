@@ -1,14 +1,19 @@
 params:
   reads_layout: "pe"
+
   fq_encoding: "sanger"
+
   samples: "samples.tsv"
+
   simulate:
     do: True
     genomes: "genomes.tsv"
     threads: 8
+
   fastqc:
     do: True
     threads: 8
+
   trimming:
     oas1:
       do: False
@@ -36,6 +41,7 @@ params:
       cut_right_mean_quality: 20
       length_required: 51
       n_base_limit: 5
+
   rmhost:
     host_fasta: /home/alienzj/databases/genomepy/hg38/hg38.fa
     threads: 8
@@ -48,9 +54,11 @@ params:
     bowtie2:
       do: True
       index_prefix: /home/alienzj/databases/genomepy/hg38/index/bowtie2/hg38
+
   qc_report:
     seqkit:
       threads: 4
+
   assembly:
     threads: 8
     report:
@@ -79,6 +87,7 @@ params:
       only_save_scaftigs: True
       memory: 20
       kmers: ['21', '29', '39', '59', '79', '99']
+
   coassembly:
     megahit:
       do: False
@@ -89,21 +98,25 @@ params:
       rank: "genus"
       taxadb: /path/to/ncbi_taxonomy.database/
       change_seq_id: True
+
   metaquast:
     do: False
     threads: 8
     min_contig: 500
     env: "bioenv2"
+
   prediction:
     prodigal:
       do: False
       format: "gff"
       mode: "meta"
+
   alignment:
     do: True
     threads: 8
     cal_base_depth: False
     report: True
+
   binning:
     metabat2:
       do: True
@@ -112,6 +125,7 @@ params:
     maxbin2:
       do: False
       threads: 8
+
   cobinning:
     do: False
     rename: False
@@ -121,6 +135,7 @@ params:
     scaftigs_length: 1000
     vsearch:
       identity: 0.75
+
   checkm:
     do: True
     report: True
@@ -128,6 +143,17 @@ params:
     completeness: 90
     contamination: 10
     standard: "MIMAG" # SGB
+
+  classify:
+    kraken2:
+      do: True
+      database: /path/to/kraken2/database
+      threads: 8
+    gtdbtk:
+      do: True
+      database: /path/to/gtdbtk/database
+      threads: 8
+
   dereplication:
     drep:
       do: True
@@ -138,23 +164,14 @@ params:
       genome_comparison_algorithm: "ANImf"
       clustering_primary_ANI: 0.9
       clustering_secondary_ANI: 0.99
-  classification:
-    kraken2:
-      do: True
-      database: /path/to/kraken2/database
-      threads: 8
-    gtdbtk:
-      do: True
-      database: /path/to/gtdbtk/database
-      extension: "fa"
-      reduce_memory: True
-      threads: 8
+
   annotation:
     prokka:
       do: True
       kingdom: Bacteria
       metagenome: False
       threads: 8
+
   profiling:
     threads: 8
     index_metadata: /path/to/index_metadata
@@ -182,6 +199,7 @@ params:
       normalize_method: "relab"
       regroup_method: "sum"
       map_database: ["uniref90_go", "uniref90_ko", "uniref90_eggnog", "uniref90_pfam", "uniref90_level4ec", "uniref90_infogo1000", "uniref90_rxn"]
+
   burst:
     do: False
     references: "/path/to/references.edx"
@@ -211,10 +229,7 @@ output:
     depth: "results/05.cobinning/depth"
   checkm: "results/06.checkm"
   dereplication: "results/07.dereplication"
-  classification: 
-    kraken2: "results/08.classification/kraken2"
-    gtdbtk:
-      base_dir: "results/08.classification/gtdbtk_out"
+  classify: "results/08.classify"
   annotation:
     prokka: "results/09.annotation/prokka"
     multiqc_prokka: "results/09.annotation/multiqc_prokka"

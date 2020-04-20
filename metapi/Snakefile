@@ -63,6 +63,7 @@ include: "rules/assembly.smk"
 include: "rules/alignment.smk"
 include: "rules/binning.smk"
 include: "rules/checkm.smk"
+include: "rules/classify.smk"
 
 '''
 if config["params"]["begin"] == "raw":
@@ -94,4 +95,5 @@ rule all:
         rules.assembly_all.input,
         rules.alignment_all.input,
         rules.binning_all.input,
-        rules.checkm_all.input
+        rules.checkm_all.input,
+        rules.classify_all.input
