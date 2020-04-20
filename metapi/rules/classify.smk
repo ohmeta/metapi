@@ -12,8 +12,10 @@ rule classify_short_reads_kraken2:
         os.path.join(config["output"]["classify"],
                      "logs/{sample}.kraken2.log")
     params:
+        paired = "--paired" if IS_PE else "",
         database = config["params"]["classify"]["kraken2"]["database"],
-        paired = "--paired" if IS_PE else ""
+        report_zero_counts = \
+            config["params"]["classify"]["kraken2"]["report_zero_counts"]
     threads:
         config["params"]["classify"]["kraken2"]["threads"]
     shell:
@@ -24,7 +26,7 @@ rule classify_short_reads_kraken2:
         --db {params.database} \
         --output {output.table} \
         --report {output.report} \
-        --report-zero-counts \
+        {params.report_zero_counts} \
         {params.paired} \
         --gzip-compressed \
         {input} \

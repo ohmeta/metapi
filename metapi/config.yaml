@@ -149,9 +149,9 @@ params:
       do: True
       database: /path/to/kraken2/database
       threads: 8
+      report_zero_counts: True
     gtdbtk:
       do: True
-      database: /path/to/gtdbtk/database
       threads: 8
 
   dereplication:
