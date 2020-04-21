@@ -8,9 +8,10 @@ params:
     genomes: "genomes.tsv"
     threads: 8
 
-  fastqc:
-    do: True
-    threads: 8
+  raw:
+    fastqc:
+      do: True
+      threads: 8
 
   trimming:
     oas1:
@@ -53,7 +54,8 @@ params:
       do: True
       index_prefix: /home/alienzj/databases/genomepy/hg38/index/bowtie2/hg38
 
-  qc_report:
+  qcreport:
+    do: True
     seqkit:
       threads: 4
 
@@ -208,31 +210,30 @@ output:
   raw: "results/00.raw"
   trimming: "results/01.trimming"
   rmhost: "results/02.rmhost"
-  assembly: "results/03.assembly"
+  qcreport: "results/03.qcreport"
+  assembly: "results/04.assembly"
   coassembly:
-    megahit: "results/03.coassembly/megahit"
-    demultiplex_kraken2: "results/03.coassembly/demultiplex_kraken2"
-  metaquast: "results/03.metaquast"
-  alignment: "results/04.alignment"
-  binning: "results/04.binning"
+    megahit: "results/04.coassembly/megahit"
+    demultiplex_kraken2: "results/04.coassembly/demultiplex_kraken2"
+  alignment: "results/05.alignment"
+  binning: "results/05.binning"
   cobinning:
-    scaftigs: "results/04.cobinning/scaftigs"
-    cds: "results/04.cobinning/cds"
-    depth: "results/04.cobinning/depth"
-  predict: "results/05.predict"
-  checkm: "results/06.checkm"
-  classify: "results/07.classify"
-  dereplicate: "results/08.dereplicate"
+    scaftigs: "results/05.cobinning/scaftigs"
+    cds: "results/05.cobinning/cds"
+    depth: "results/05.cobinning/depth"
+  predict: "results/06.predict"
+  checkm: "results/07.checkm"
+  classify: "results/08.classify"
+  dereplicate: "results/09.dereplicate"
   profiling:
     metaphlan2:
-      base_dir: "results/09.profiling/metaphlan2"
-      bowtie2_out: "results/09.profiling/metaphlan2/bowtie2out"
-      profile: "results/09.profiling/metaphlan2/profile"
+      base_dir: "results/10.profiling/metaphlan2"
+      bowtie2_out: "results/10.profiling/metaphlan2/bowtie2out"
+      profile: "results/10.profiling/metaphlan2/profile"
     jgi:
-      depth: "results/09.profiling/jgi/depth"
-      profile: "results/09.profiling/jgi/profile"
-    humann2: "results/09.profiling/humann2"
-  burst: "results/10.burst"
+      depth: "results/10.profiling/jgi/depth"
+      profile: "results/10.profiling/jgi/profile"
+    humann2: "results/10.profiling/humann2"
   upload: "results/11.upload"
 
 upload:

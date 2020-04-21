@@ -56,9 +56,10 @@ READS_FORMAT = "sra" \
 
 
 include: "rules/simulate.smk"
-include: "rules/prepare.smk"
+include: "rules/raw.smk"
 include: "rules/trimming.smk"
 include: "rules/rmhost.smk"
+include: "rules/qcreport.smk"
 include: "rules/assembly.smk"
 include: "rules/alignment.smk"
 include: "rules/binning.smk"
@@ -91,8 +92,10 @@ include: "rules/dereplication.smk"
 rule all:
     input:
         rules.simulate_all.input,
+        rules.raw_all.input,
         rules.trimming_all.input,
         rules.rmhost_all.input,
+        rules.qcreport_all.input,
         rules.assembly_all.input,
         rules.alignment_all.input,
         rules.binning_all.input,

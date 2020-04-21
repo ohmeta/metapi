@@ -1,7 +1,7 @@
 if config["params"]["trimming"]["oas1"]["do"]:
     rule trimming_oas1:
         input:
-            lambda wildcards: get_reads(wildcards, "raw", False)
+            lambda wildcards: get_reads(wildcards, "raw")
         output:
             reads = expand(
                 os.path.join(config["output"]["trimming"],
@@ -48,8 +48,12 @@ if config["params"]["trimming"]["oas1"]["do"]:
                    read=[".1", ".2", ".single"] if IS_PE else "",
                    sample=SAMPLES.index.unique())
 
+else:
+    rule trimming_oas1_all:
+        input:
 
-elif config["params"]["trimming"]["sickle"]["do"]:
+
+if config["params"]["trimming"]["sickle"]["do"]:
     rule trimming_sickle:
         input:
             lambda wildcards: get_reads(wildcards, "raw", False)
@@ -102,11 +106,15 @@ elif config["params"]["trimming"]["sickle"]["do"]:
                 read=[".1", ".2", ".single"] if IS_PE else "",
                 sample=SAMPLES.index.unique())
 
+else:
+    rule trimming_sickle_all:
+        input:
 
-elif config["params"]["trimming"]["fastp"]["do"]:
+
+if config["params"]["trimming"]["fastp"]["do"]:
     rule trimming_fastp:
         input:
-            lambda wildcards: get_reads(wildcards, "raw", False)
+            lambda wildcards: get_reads(wildcards, "raw")
         output:
             reads = expand(
                 os.path.join(config["output"]["trimming"],
@@ -261,85 +269,8 @@ elif config["params"]["trimming"]["fastp"]["do"]:
                    sample=SAMPLES.index.unique())
 
 
-if TRIMMING_DO:
-    rule trimming_report:
-        input:
-            expand(
-                os.path.join(config["output"]["trimming"],
-                             "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                read=[".1", ".2"] if IS_PE else "")
-        output:
-            stats = os.path.join(config["output"]["trimming"],
-                                 "report/stats/{sample}_trimming_stats.tsv")
-        params:
-            sample_id = "{sample}",
-            fq_encoding = config["params"]["fq_encoding"]
-        threads:
-            config["params"]["qc_report"]["seqkit"]["threads"]
-        run:
-            if IS_PE:
-                shell(
-                    '''
-                    seqkit stats \
-                    --all \
-                    --basename \
-                    --tabular \
-                    --fq-encoding %s \
-                    --out-file %s \
-                    --threads %d %s
-                    ''' % (params.fq_encoding, output.stats, threads, " ".join(input)))
-                metapi.change(output.stats, params.sample_id, "trimming", "pe", ["fq1", "fq2"])
-            else:
-                shell(
-                    '''
-                    seqkit stats \
-                    --all \
-                    --basename \
-                    --tabular \
-                    --fq-encoding %s \
-                    --out-file %s \
-                    --threads %d %s
-                    ''' % (params.fq_encoding, output.stats, threads, input))
-                metapi.change(output.stats, params.sample_id, "trimming", "se", ["fq1"])
-
-
-    rule trimming_report_merge:
-        input:
-            expand(
-                os.path.join(config["output"]["trimming"],
-                             "report/stats/{sample}_trimming_stats.tsv"),
-                sample=SAMPLES.index.unique())
-        output:
-            stats = os.path.join(config["output"]["trimming"],
-                                 "report/trimming_stats.tsv")
-        threads:
-            config["params"]["qc_report"]["seqkit"]["threads"]
-        run:
-            metapi.merge(input, metapi.parse, threads, save=True, output=output.stats)
-
-
-    rule trimming_report_all:
-        input:
-            os.path.join(config["output"]["trimming"], "report/trimming_stats.tsv")
-
-
-if config["params"]["trimming"]["oas1"]["do"]:
-    rule trimming_all:
-        input:
-            rules.trimming_oas1_all.input,
-            rules.trimming_report_all.input
-
-elif config["params"]["trimming"]["sickle"]["do"]:
-    rule trimming_all:
-        input:
-            rules.trimming_sickle_all.input,
-            rules.trimming_report_all.input
-
-elif config["params"]["trimming"]["fastp"]["do"]:
-    rule trimming_all:
-        input:
-            rules.trimming_fastp_all.input,
-            rules.trimming_report_all.input
-else:
-    rule trimming_all:
-        input:
+rule trimming_all:
+    input:
+        rules.trimming_oas1_all.input,
+        rules.trimming_sickle_all.input,
+        rules.trimming_fastp_all.input

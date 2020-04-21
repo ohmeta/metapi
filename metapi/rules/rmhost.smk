@@ -1,4 +1,4 @@
-def rmhost_input(wildcards, have_single):
+def rmhost_input(wildcards, have_single=False):
     if TRIMMING_DO:
         return get_reads(wildcards, "trimming", have_single)
     else:
@@ -26,7 +26,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
 
     rule rmhost_bwa:
         input:
-            reads = lambda wildcards: rmhost_input(wildcards, False),
+            reads = lambda wildcards: rmhost_input(wildcards),
             index = expand("{prefix}.{suffix}",
                            prefix=config["params"]["rmhost"]["bwa"]["index_prefix"],
                            suffix=["amb", "ann", "bwt", "pac", "sa"])
@@ -145,8 +145,12 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                    read=[".1", ".2"] if IS_PE else "",
                    sample=SAMPLES.index.unique())
 
+else:
+    rule rmhost_bwa_all:
+        input:
 
-elif config["params"]["rmhost"]["bowtie2"]["do"]:
+
+if config["params"]["rmhost"]["bowtie2"]["do"]:
     rule rmhost_bowtie2_index:
         input:
             config["params"]["rmhost"]["host_fasta"]
@@ -166,7 +170,7 @@ elif config["params"]["rmhost"]["bowtie2"]["do"]:
 
     rule rmhost_bowtie2:
         input:
-            reads = lambda wildcards: rmhost_input(wildcards, False),
+            reads = lambda wildcards: rmhost_input(wildcards),
             index = expand("{prefix}.{suffix}",
                            prefix=config["params"]["rmhost"]["bowtie2"]["index_prefix"],
                            suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
@@ -282,101 +286,12 @@ elif config["params"]["rmhost"]["bowtie2"]["do"]:
                    read=[".1", ".2"] if IS_PE else "",
                    sample=SAMPLES.index.unique())
 
-
-if RMHOST_DO:
-    rule rmhost_report:
-        input:
-            expand(os.path.join(config["output"]["rmhost"],
-                                "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
-                   read=[".1", ".2"] if IS_PE else "")
-        output:
-            os.path.join(config["output"]["rmhost"],
-                         "report/stats/{sample}_rmhost_stats.tsv")
-        params:
-            fq_encoding = config["params"]["fq_encoding"],
-            sample_id = "{sample}"
-        threads:
-            config["params"]["qc_report"]["seqkit"]["threads"]
-        run:
-            if IS_PE:
-                shell(
-                    '''
-                    seqkit stats \
-                    --all --basename --tabular \
-                    --fq-encoding %s \
-                    --out-file %s \
-                    --threads %d %s
-                    ''' % (params.fq_encoding, output, threads, " ".join(input)))
-                metapi.change(output[0], params.sample_id, "rmhost", "pe", ["fq1", "fq2"])
-            else:
-                shell(
-                    '''
-                    seqkit stats \
-                    --all --basename --tabular \
-                    --fq-encoding %s \
-                    --out-file %s \
-                    --threads %d %s
-                    ''' % (params.fq_encoding, output, threads, input))
-                metapi.change(output[0], params.sample_id, "rmhost", "se", ["fq1"])
-
-
-    rule rmhost_report_merge:
-        input:
-            expand(os.path.join(config["output"]["rmhost"],
-                                "report/stats/{sample}_rmhost_stats.tsv"),
-                   sample=SAMPLES.index.unique())
-        output:
-            os.path.join(config["output"]["rmhost"],
-                         "report/rmhost_stats.tsv")
-        threads:
-            config["params"]["qc_report"]["seqkit"]["threads"]
-        run:
-            metapi.merge(input, metapi.parse, threads, save=True, output=output[0])
-
-
-    rule rmhost_report_all:
-        input:
-            os.path.join(config["output"]["rmhost"], "report/rmhost_stats.tsv")
-
-
-rule qc_report:
-    input:
-        #raw_stats = os.path.join(config["results"]["report"]["base_dir"], "raw.stats.tsv"),
-        trim_stats = os.path.join(config["output"]["trimming"],
-                                  "report/trimming_stats.tsv"),
-        rmhost_stats = os.path.join(config["output"]["rmhost"],
-                                    "report/rmhost_stats.tsv")
-    output:
-        os.path.join(config["output"]["rmhost"],
-                     "report/qc_stats.tsv")
-    threads:
-        config["params"]["qc_report"]["seqkit"]["threads"]
-    run:
-        df = metapi.merge([input.trim_stats, input.rmhost_stats],
-                          metapi.parse, threads)
-        metapi.compute_host_rate(df, save=True, output=output[0])
-
-
-rule qc_report_all:
-    input:
-        os.path.join(config["output"]["rmhost"],
-                     "report/qc_stats.tsv")
-
-
-if config["params"]["rmhost"]["bwa"]["do"]:
-    rule rmhost_all:
-        input:
-            rules.rmhost_bwa_all.input,
-            rules.rmhost_report_all.input,
-            rules.qc_report_all.input
-
-elif config["params"]["rmhost"]["bowtie2"]["do"]:
-    rule rmhost_all:
-        input:
-            rules.rmhost_bowtie2_all.input,
-            rules.rmhost_report_all.input,
-            rules.qc_report_all.input
-
 else:
-    rule rmhost_all:
+    rule rmhost_bowtie2_all:
         input:
+
+
+rule rmhost_all:
+    input:
+        rules.rmhost_bwa_all.input,
+        rules.rmhost_bowtie2_all.input
