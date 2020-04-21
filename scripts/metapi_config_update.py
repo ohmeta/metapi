@@ -10,6 +10,7 @@ def update_config(
     rmhost_host_fasta,
     rmhost_bwa_index,
     rmhost_bowtie2_index,
+    kraken2_db,
     prof_index_metadata,
     prof_taxonomy,
     prof_jgi_index,
@@ -23,6 +24,7 @@ def update_config(
     conf["params"]["rmhost"]["host_fasta"] = rmhost_host_fasta
     conf["params"]["rmhost"]["bwa"]["index_prefix"] = rmhost_bwa_index
     conf["params"]["rmhost"]["bowtie2"]["index_prefix"] = rmhost_bowtie2_index
+    conf["params"]["classify"]["kraken2"]["database"] = kraken2_db
     conf["params"]["profiling"]["index_metadata"] = prof_index_metadata
     conf["params"]["profiling"]["taxonomy"] = prof_taxonomy
     conf["params"]["profiling"]["jgi"]["index_prefix"] = prof_jgi_index
@@ -41,6 +43,7 @@ def main():
     parser.add_argument(
         "-I", "--rmhost_bowtie2_index", type=str, help="rmhost bowtie2 index prefix"
     )
+    parser.add_argument("-k", "--kraken2_db", type=str, help="kraken2 database")
     parser.add_argument(
         "-m", "--profiling_index_metadata", type=str, help="profiling index metadata"
     )
@@ -57,6 +60,7 @@ def main():
         args.rmhost_host_fasta,
         args.rmhost_bwa_index,
         args.rmhost_bowtie2_index,
+        args.kraken2_db,
         args.profiling_index_metadata,
         args.profiling_taxonomy,
         args.profiling_jgi_index,
