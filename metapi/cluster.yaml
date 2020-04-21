@@ -7,31 +7,19 @@ __default__:
   mem: "1G"
   cores: 1
 
-genome_simulate:
+simulate_short_reads:
   mem: "2G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "logs/{rule}/{rule}.{wildcards.sample}.o"
+  error: "logs/{rule}/{rule}.{wildcards.sample}.e"
 
-fastqc:
+raw_fastqc:
   mem: "512M"
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
 
-multiqc_fastqc:
+raw_fastqc_multiqc:
   mem: "128M"
-  output: "assay/cluster_logs/{rule}.o"
-  error: "assay/cluster_logs/{rule}.e"
-
-raw_report:
-  mem: "512M"
-  cores: 4
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
-
-merge_raw_report:
-  mem: "512M"
-  cores: 8
   output: "assay/cluster_logs/{rule}.o"
   error: "assay/cluster_logs/{rule}.e"
 
@@ -53,24 +41,12 @@ trimming_fastp:
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
 
-multiqc_fastp:
+trimming_fastp_multiqc:
   mem: "128M"
   output: "assay/cluster_logs/{rule}.o"
   error: "assay/cluster_logs/{rule}.e"
 
-trimming_report:
-  mem: "512M"
-  cores: 4
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
-
-merge_trimming_report:
-  mem: "512M"
-  cores: 8
-  output: "assay/cluster_logs/{rule}.o"
-  error: "assay/cluster_logs/{rule}.e"
-
-build_host_index_for_bwa:
+rmhost_bwa_index:
   mem: "1G"
   cores: 1
   output: "assay/cluster_logs/{rule}.o"
@@ -82,7 +58,7 @@ rmhost_bwa:
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
 
-build_host_index_for_bowtie2:
+rmhost_bowtie2_index:
   mem: "1G"
   cores: 1
   output: "assay/cluster_logs/{rule}.o"
@@ -94,22 +70,23 @@ rmhost_bowtie2:
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
 
-rmhost_report:
+qc_report:
   mem: "512M"
   cores: 4
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
 
-merge_rmhost_report:
+qc_report_merge:
   mem: "512M"
-  cores: 8
-  output: "assay/cluster_logs/{rule}.o"
-  error: "assay/cluster_logs/{rule}.e"
+  cores: 4
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
 
-qc_report:
+qc_report_summary:
   mem: "512M"
-  output: "assay/cluster_logs/{rule}.o"
-  error: "assay/cluster_logs/{rule}.e"
+  cores: 4
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
 
 kraken2:
   mem: "8G"
@@ -141,13 +118,25 @@ assembly_spades:
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
 
+assembly_metaquast:
+  mem: "2G"
+  cores: 8
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+
+assembly_metaquast_multiqc:
+  mem: "128M"
+  cores: 1
+  output: "assay/cluster_logs/{rule}.o"
+  error: "assay/cluster_logs/{rule}.e"
+
 assembly_report:
   mem: "512M"
   cores: 1
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
-assembly_summary:
+assembly_report_merge:
   mem: "1G"
   cores: 8
   output: "assay/cluster_logs/{rule}.{wildcards.assembler}.o"
@@ -198,65 +187,59 @@ merge_kraken2_reads:
   output: "assay/cluster_logs/{rule}.o"
   error: "assay/cluster_logs/{rule}.e"
 
-metaquast:
-  mem: "2G"
-  cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
-
-multiqc_metaquast:
-  mem: "128M"
-  cores: 1
-  output: "assay/cluster_logs/{rule}.o"
-  error: "assay/cluster_logs/{rule}.e"
-
-prediction:
+predict_scaftigs_gene:
   mem: "1G"
   cores: 1
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
-build_index_for_scaftigs:
+predict_bins_gene:
+  mem: "1G"
+  cores: 1
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+
+alignment_scaftigs_index:
   mem: "512M"
   cores: 1
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
-align_reads_to_scaftigs:
+alignment_reads_scaftigs:
   mem: "1G"
   cores: 8
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
-build_index_for_bam:
+alignment_bam_index:
   mem: "512M"
   cores: 8
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
-cal_base_depth:
+alignment_base_depth:
   mem: "512M"
   cores: 1
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
-alignment_summary:
+alignment_report:
   mem: "128M"
   cores: 1
   output: "assay/cluster_logs/{rule}.{wildcards.assembler}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.assembler}.o"
 
-coverage_metabat2:
-  mem: "1G"
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
-
-coverage_maxbin2:
+binning_metabat2_coverage:
   mem: "1G"
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 binning_metabat2:
+  mem: "1G"
+  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+
+binning_maxbin2_coverage:
   mem: "2G"
   cores: 8
   output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
@@ -327,25 +310,19 @@ checkm_link_bins:
 #  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
 #  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
-prokka_bins:
-  mem: "1G"
+classify_short_reads_kraken2:
+  mem: "8G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "assay/cluster_logs/{rule}.{assembler}.{binner}.o"
+  error: "assay/cluster_logs/{rule}.{assembler}.{binner}.e"
 
-multiqc_prokka_bins:
-  mem: "1G"
-  cores: 1
-  output: "assay/cluster_logs/{rule}.o"
-  error: "assay/cluster_logs/{rule}.e"
-
-classification_hmq_bins_by_gtdbtk:
+classify_hmq_bins_gtdbtk:
   mem: "130G"
   cores: 8
   output: "assay/cluster_logs/{rule}.{assembler}.{binner}.o"
   error: "assay/cluster_logs/{rule}.{assembler}.{binner}.e"
 
-drep:
+dereplicate_drep:
   mem: "2G"
   cores: 8
   output: "assay/cluster_logs/{rule}.{assembler}.{binner}.o"
@@ -394,9 +371,3 @@ jgi_profile_merge:
   cores: 8
   output: "assay/cluster_logs/{rule}.o"
   error: "assay/cluster_logs/{rule}.e"
-
-burst_reads:
-  mem: "10G"
-  cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
