@@ -72,11 +72,14 @@ if "megahit" in ASSEMBLERS:
 
     rule assembly_megahit_all:
         input:
-            scaftigs = expand(
-                os.path.join(
-                    config["output"]["assembly"],
-                    "scafitgs/{sample}.megahit.out/{sample}.megahit.scaftigs.fa.gz"),
-                sample=SAMPLES.index.unique())
+            expand(os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.megahit.out/{sample}.megahit.scaftigs.fa.gz"),
+                   sample=SAMPLES.index.unique())
+
+else:
+    rule assembly_megahit_all:
+        input:
 
 
 if "idba_ud" in ASSEMBLERS:
@@ -149,29 +152,14 @@ if "idba_ud" in ASSEMBLERS:
 
     rule assembly_idba_ud_all:
         input:
-            scaftigs = expand(
-                os.path.join(
-                    config["output"]["assembly"],
-                    "scafitgs/{sample}.idba_ud.out/{sample}.idba_ud.scaftigs.fa.gz"),
-                sample=SAMPLES.index.unique())
+            expand(os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.idba_ud.out/{sample}.idba_ud.scaftigs.fa.gz"),
+                   sample=SAMPLES.index.unique())
 
-
-metaspades_kmer_list = ["21", "33", "55"]
-if len(config["params"]["assembly"]["metaspades"]["kmers"]) > 0:
-    metaspades_kmer_list = config["params"]["assembly"]["metaspades"]["kmers"]
-
-spades_kmer_list = ["21", "33", "55"]
-if len(config["params"]["assembly"]["spades"]["kmers"]) > 0:
-    spades_kmer_list = config["params"]["assembly"]["spades"]["kmers"]
-
-
-def get_kmer_dirs(wildcards, assembler, kmer_list):
-    return expand(
-        os.path.join(config["output"]["assembly"],
-                     "scaftigs/{sample}.{assembler}.out/K{kmer}"),
-        assembler=assembler,
-        sample=wildcards.sample,
-        kmer=kmer_list)
+else:
+    rule assembly_idba_ud_all:
+        input:
 
 
 if "metaspades" in ASSEMBLERS:
@@ -189,11 +177,6 @@ if "metaspades" in ASSEMBLERS:
                    else ",".join(config["params"]["assembly"]["metaspades"]["kmers"]),
             output_dir = os.path.join(config["output"]["assembly"],
                                       "scaftigs/{sample}.metaspades.out"),
-            corrected = os.path.join(config["output"]["assembly"],
-                                     "scaftigs/{sample}.metaspades.out/corrected"),
-            kmer_dirs = lambda wildcards: get_kmer_dirs(wildcards,
-                                                        "metaspades",
-                                                        metaspades_kmer_list),
             only_assembler = "--only-assembler" \
                 if config["params"]["assembly"]["metaspades"]["only_assembler"] \
                    else "",
@@ -221,11 +204,12 @@ if "metaspades" in ASSEMBLERS:
                     > {log}
                     ''')
 
+                shell('''rm -rf {params.output_dir}/K*''')
+                shell('''rm -rf {params.output_dir}/corrected''')
+
                 shell('''sed -i 's#^>#>{params.prefix}_#g' {params.output_dir}/scaffolds.fasta''')
                 shell('''pigz -p {threads} {params.output_dir}/scaffolds.fasta''')
                 shell('''mv {params.output_dir}/scaffolds.fasta.gz {output.scaftigs}''')
-                shell('''rm -rf {params.kmer_dirs}''')
-                shell('''rm -rf {params.corrected}''')
 
                 if params.only_save_scaftigs:
                     shell(
@@ -247,6 +231,7 @@ if "metaspades" in ASSEMBLERS:
 
                 shell("rm -rf {params.output_dir}/tmp")
                 shell("rm -rf {params.output_dir}/misc")
+
             else:
                 print(
                     '''
@@ -258,13 +243,16 @@ if "metaspades" in ASSEMBLERS:
 
     rule assembly_metaspades_all:
         input:
-            scaftigs = expand(
-                os.path.join(
-                    config["output"]["assembly"],
-                    "scafitgs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.fa.gz"),
-                sample=SAMPLES.index.unique())
- 
-           
+            expand(os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.fa.gz"),
+                   sample=SAMPLES.index.unique())
+
+else:
+    rule assembly_metaquast_all:
+        input:
+
+
 if "spades" in ASSEMBLERS:
     rule assembly_spades:
         input:
@@ -280,9 +268,6 @@ if "spades" in ASSEMBLERS:
                    else ",".join(config["params"]["assembly"]["spades"]["kmers"]),
             output_dir = os.path.join(config["output"]["assembly"],
                                       "scaftigs/{sample}.spades.out"),
-            corrected = os.path.join(config["output"]["assembly"],
-                                     "scaftigs/{sample}.spades.out/corrected"),
-            kmer_dirs = lambda wildcards: get_kmer_dirs(wildcards, "spades", spades_kmer_list),
             only_assembler = "--only-assembler" \
                 if config["params"]["assembly"]["spades"]["only_assembler"] \
                    else "",
@@ -318,11 +303,12 @@ if "spades" in ASSEMBLERS:
                     > {log}
                     ''')
 
+            shell('''rm -rf {params.output_dir}/K*''')
+            shell('''rm -rf {params.output_dir}/corrected''')
+
             shell('''sed -i 's#^>#>{params.prefix}_#g' {params.output_dir}/scaffolds.fasta''')
             shell('''pigz -p {threads} {params.output_dir}/scaffolds.fasta''')
             shell('''mv {params.output_dir}/scaffolds.fasta.gz {output.scaftigs}''')
-            shell('''rm -rf {params.kmer_dirs}''')
-            shell('''rm -rf {params.corrected}''')
 
             if params.only_save_scaftigs:
                 shell(
@@ -348,73 +334,106 @@ if "spades" in ASSEMBLERS:
 
     rule assembly_spades_all:
         input:
-            scaftigs = expand(
-                os.path.join(
-                    config["output"]["assembly"],
-                    "scafitgs/{sample}.spades.out/{sample}.spades.scaftigs.fa.gz"),
-                sample=SAMPLES.index.unique())
+            expand(os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.spades.out/{sample}.spades.scaftigs.fa.gz"),
+                   sample=SAMPLES.index.unique())
+
+else:
+    rule assembly_spades_all:
+        input:
 
 
 if len(ASSEMBLERS) != 0:
-    if config["params"]["assembly"]["metaquast"]["do"]:
-        rule metaquast:
+    if config["params"]["assembly"]["metaquast"]["do"] and IS_PE:
+        rule assembly_metaquast:
             input:
-                reads = clean_reads,
-                scaftigs = os.path.join(config["results"]["assembly"], "{sample}.{assembler}_out/{sample}.{assembler}.scaftigs.fa.gz")
+                reads = assembly_input,
+                scaftigs = os.path.join(
+                    config["output"]["assembly"],
+                    "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz")
             output:
-                report = os.path.join(config["results"]["metaquast"], "{sample}.{assembler}.metaquast_out/report.html"),
-                icarus = os.path.join(config["results"]["metaquast"], "{sample}.{assembler}.metaquast_out/icarus.html"),
-                combined_reference_tsv = os.path.join(config["results"]["metaquast"],
-                                              "{sample}.{assembler}.metaquast_out/combined_reference/report.tsv"),
-                icarus_viewers = directory(os.path.join(config["results"]["metaquast"],
-                                                "{sample}.{assembler}.metaquast_out/icarus_viewers")),
-                krona_charts = directory(os.path.join(config["results"]["metaquast"],
-                                              "{sample}.{assembler}.metaquast_out/krona_charts")),
-                not_aligned = directory(os.path.join(config["results"]["metaquast"],
-                                             "{sample}.{assembler}.metaquast_out/not_aligned")),
-                runs_per_reference = directory(os.path.join(config["results"]["metaquast"],
-                                                    "{sample}.{assembler}.metaquast_out/runs_per_reference")),
-                summary = directory(os.path.join(config["results"]["metaquast"],
-                                         "{sample}.{assembler}.metaquast_out/summary"))
+                os.path.join(
+                    config["output"]["assembly"],
+                    "metaquast/{sample}.{assembler}.metaquast.out/combined_reference/report.tsv")
             log:
-                os.path.join(config["logs"]["metaquast"], "{sample}.{assembler}.metaquast.log")
+                os.path.join(config["output"]["assembly"],
+                             "logs/{sample}.{assembler}.metaquast.log")
             params:
-                output_dir = os.path.join(config["results"]["metaquast"], "{sample}.{assembler}.metaquast_out"),
                 labels = "{sample}.{assembler}",
-                metaquast_env = config["params"]["metaquast"]["env"]
-        threads:
-            config["params"]["metaquast"]["threads"]
-        shell:
-            '''
-            set +u; source activate {params.metaquast_env}; set -u;
-            metaquast.py {input.scaftigs} \
-            --pe1 {input.reads[0]} \
-            --pe2 {input.reads[1]} \
-            -o {params.output_dir} \
-            --labels {params.labels} \
-            --threads {threads} 2> {log}
-            '''
-
-
-        rule multiqc_metaquast:
-            input:
-                expand("{metaquast}/{sample}.{assembler}.metaquast_out/combined_reference/report.tsv",
-                       metaquast=config["results"]["metaquast"],
-                       assembler=config["params"]["assembler"],
-                       sample=SAMPLES.index)
-            output:
-                html = os.path.join(config["results"]["metaquast"], "metaquast_multiqc_report.html"),
-                data_dir = directory(os.path.join(config["results"]["metaquast"],
-                                          "metaquast_multiqc_report_data"))
-            log:
-                os.path.join(config["logs"]["metaquast"], "multiqc_metaquast.log")
-            params:
-                outdir = config["results"]["metaquast"]
+                output_dir = os.path.join(
+                    config["output"]["assembly"],
+                    "metaquast/{sample}.{assembler}.metaquast.out")
+            threads:
+                config["params"]["assembly"]["metaquast"]["threads"]
             shell:
                 '''
-                multiqc --outdir {params.outdir} --title metaquast --module quast {input} 2> {log}
+                metaquast.py \
+                {input.scaftigs} \
+                --pe1 {input.reads[0]} \
+                --pe2 {input.reads[1]} \
+                --output-dir {params.output_dir} \
+                --labels {params.labels} \
+                --circos \
+                --ran-finding \
+                --conserved-genes-finding \
+                --threads {threads} \
+                2> {log}
                 '''
 
+
+        rule assembly_metaquast_multiqc:
+            input:
+                expand(os.path.join(
+                    config["output"]["assembly"],
+                    "metaquast/{sample}.{assembler}.metaquast.out/combined_reference/report.tsv"),
+                       assembler=ASSEMBLERS,
+                       sample=SAMPLES.index.unique())
+            output:
+                html = os.path.join(
+                    config["output"]["assembly"],
+                    "report/{assembler}_metaquast/metaquast_multiqc_report.html"),
+                data_dir = directory(
+                    os.path.join(
+                        config["output"]["assembly"],
+                        "report/{assembler}_metaquast/metaquast_multiqc_report_data"))
+            log:
+                os.path.join(config["output"]["assembly"], "logs/multiqc_metaquast.log")
+            params:
+                output_dir = os.path.join(
+                    config["output"]["assembly"],
+                    "report/{assembler}_metaquast")
+            shell:
+                '''
+                multiqc \
+                --outdir {params.output_dir} \
+                --title metaquast \
+                --module quast \
+                {input} \
+                2> {log}
+                '''
+
+
+        rule assembly_metaquast_all:
+            input:
+                expand([
+                    os.path.join(
+                        config["output"]["assembly"],
+                        "metaquast/{sample}.{assembler}.metaquast.out/combined_reference/report.tsv"),
+                    os.path.join(
+                        config["output"]["assembly"],
+                        "report/{assembler}_metaquast/metaquast_multiqc_report.html"),
+                    os.path.join(
+                        config["output"]["assembly"],
+                        "report/{assembler}_metaquast/metaquast_multiqc_report_data")],
+                       assembler=ASSEMBLERS,
+                       sample=SAMPLES.index.unique())
+
+    else:
+        rule assembly_metaquast_all:
+            input:
+
+           
     rule assembly_report:
         input:
             scaftigs = os.path.join(
@@ -461,24 +480,26 @@ if len(ASSEMBLERS) != 0:
 
     rule assembly_report_all:
         input:
-            expand(
-                os.path.join(config["output"]["assembly"],
-                             "report/assembly_stats_{assembler}.tsv"),
-                assembler=ASSEMBLERS
-            )
-
-
-    rule assembly_all:
-        input:
-            summaries = rules.assembly_report_all.input,
-            scaftigs = expand(
-                os.path.join(
-                    config["output"]["assembly"],
-                    "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
-                assembler=ASSEMBLERS,
-                sample=SAMPLES.index.unique()
-            )
+            expand(os.path.join(
+                config["output"]["assembly"],
+                "report/assembly_stats_{assembler}.tsv"),
+                   assembler=ASSEMBLERS)
 
 else:
-    rule assembly_all:
+    rule assembly_report_all:
         input:
+
+
+    rule assembly_metaquast_all:
+        input:
+
+
+rule assembly_all:
+    input:
+        rules.assembly_megahit_all.input,
+        rules.assembly_idba_ud_all.input,
+        rules.assembly_metaspades_all.input,
+        rules.assembly_spades_all.input,
+
+        rules.assembly_report_all.input,
+        rules.assembly_metaquast_all.input

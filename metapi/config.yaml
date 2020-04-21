@@ -86,6 +86,11 @@ params:
       memory: 20
       kmers: ['21', '29', '39', '59', '79', '99']
 
+    metaquast:
+      do: False
+      threads: 8
+      min_contig: 500
+
   coassembly:
     megahit:
       do: False
@@ -96,23 +101,6 @@ params:
       rank: "genus"
       taxadb: /path/to/ncbi_taxonomy.database/
       change_seq_id: True
-
-  metaquast:
-    do: False
-    threads: 8
-    min_contig: 500
-    env: "bioenv2"
-
-  predict:
-    prodigal:
-      do: False
-      format: "gff"
-      mode: "meta"
-    prokka:
-      do: True
-      kingdom: Bacteria
-      metagenome: False
-      threads: 8
 
   alignment:
     do: True
@@ -139,6 +127,17 @@ params:
     vsearch:
       identity: 0.75
 
+  predict:
+    prodigal:
+      do: False
+      format: "gff"
+      mode: "meta"
+    prokka:
+      do: True
+      kingdom: Bacteria
+      metagenome: False
+      threads: 8
+
   checkm:
     do: True
     report: True
@@ -157,7 +156,7 @@ params:
       do: True
       threads: 8
 
-  dereplication:
+  dereplicate:
     drep:
       do: True
       threads: 8

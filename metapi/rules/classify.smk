@@ -15,8 +15,9 @@ if config["params"]["classify"]["kraken2"]["do"]:
         params:
             paired = "--paired" if IS_PE else "",
             database = config["params"]["classify"]["kraken2"]["database"],
-            report_zero_counts = \
-                config["params"]["classify"]["kraken2"]["report_zero_counts"]
+            report_zero_counts = "--report-zero-counts" \
+                if config["params"]["classify"]["kraken2"]["report_zero_counts"] \
+                   else ""
         threads:
             config["params"]["classify"]["kraken2"]["threads"]
         shell:
