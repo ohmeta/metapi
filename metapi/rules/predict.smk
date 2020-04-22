@@ -87,18 +87,22 @@ if config["params"]["predict"]["prokka"]["do"]:
             import time
             import subprocess
 
-
-            bin_list = glob.glob(input[0] + "/*bin*fa")
-            cmd_list = []
+            bin_list = glob.glob(input.bins_dir + "/*bin*fa")
+            gff_count = 0
 
             for bin_fa in bin_list:
                 bin_id = os.path.basename(os.path.splitext(bin_fa)[0])
                 output_dir = os.path.join(params.output_dir, bin_id)
+                gff_file = os.path.join(output_dir, bin_id + ".gff")
                 log_file= os.path.join(params.logs_dir, bin_id + ".prokka.log")
                 os.makedirs(params.logs_dir, exist_ok=True)
+
                 shell(
                     '''
                     prokka %s \
+                    --force \
+                    --centre X \
+                    --compliant \
                     --cpus {threads} \
                     --outdir %s \
                     --locustag %s \
@@ -111,8 +115,11 @@ if config["params"]["predict"]["prokka"]["do"]:
                            bin_id, bin_id,
                            log_file))
 
-            with open(output.done, 'w') as outh:
-                outh.write("Hello, Prokka!")
+                if os.path.exists(gff_file):
+                    gff_count += 1
+
+            if gff_count == len(bin_list):
+                shell('''touch {output.done}''')
 
 
     rule predict_bins_gene_multiqc:
