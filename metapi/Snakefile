@@ -66,28 +66,12 @@ include: "rules/binning.smk"
 include: "rules/predict.smk"
 include: "rules/checkm.smk"
 include: "rules/classify.smk"
-
-'''
-if config["params"]["begin"] == "raw":
-    include: "rules/fastqc.smk"
-    include: "rules/trimming.smk"
-    include: "rules/rmhost.smk"
-
-include: "rules/assembly.smk"
-include: "rules/coassembly.smk"
-include: "rules/metaquast.smk"
-include: "rules/prediction.smk"
-include: "rules/alignment.smk"
-include: "rules/binning.smk"
-include: "rules/cobinning.smk"
-include: "rules/checkm.smk"
-include: "rules/annotation.smk"
-include: "rules/classification.smk"
 include: "rules/profiling.smk"
-include: "rules/burst.smk"
-include: "rules/upload.smk"
-include: "rules/dereplication.smk"
-'''
+
+#include: "rules/coassembly.smk"
+#include: "rules/cobinning.smk"
+#include: "rules/upload.smk"
+#include: "rules/dereplicate.smk"
 
 rule all:
     input:
@@ -101,4 +85,5 @@ rule all:
         rules.binning_all.input,
         rules.checkm_all.input,
         rules.predict_all.input,
-        rules.classify_all.input
+        rules.classify_all.input,
+        rules.profiling_all.input

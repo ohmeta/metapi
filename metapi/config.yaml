@@ -180,12 +180,18 @@ params:
       threads: 8
       bowtie2db: "/path/to/metaphlan_databases"
       index: "latest"
+      bowtie2_presets: "very-sensitive"
       taxonomic_level: "a"
+      min_cu_len: 2000
+      avoid_disqm: True
       analysis_type: "rel_ab_w_read_stats"
+      stat_q: "0.1"
+      stat: "tavg_g"
       no_unknown_estimation: False
       input_type: "fastq"
-      min_cu_len: 2000
       read_min_len: 70
+      no_map: True
+      biom: False
     jgi:
       do: True
       fragment: 1200
@@ -199,13 +205,6 @@ params:
       regroup_method: "sum"
       map_database: ["uniref90_go", "uniref90_ko", "uniref90_eggnog", "uniref90_pfam", "uniref90_level4ec", "uniref90_infogo1000", "uniref90_rxn"]
 
-  burst:
-    do: False
-    references: "/path/to/references.edx"
-    accelerator: "/path/to/accelerator.acx"
-    identity: 0.97
-    mode: "ALLPATHS"
-    threads: 8
 
 output:
   simulate: "results/00.simulate"
@@ -227,15 +226,7 @@ output:
   checkm: "results/07.checkm"
   classify: "results/08.classify"
   dereplicate: "results/09.dereplicate"
-  profiling:
-    metaphlan2:
-      base_dir: "results/10.profiling/metaphlan2"
-      bowtie2_out: "results/10.profiling/metaphlan2/bowtie2out"
-      profile: "results/10.profiling/metaphlan2/profile"
-    jgi:
-      depth: "results/10.profiling/jgi/depth"
-      profile: "results/10.profiling/jgi/profile"
-    humann2: "results/10.profiling/humann2"
+  profiling: "results/10.profiling"
   upload: "results/11.upload"
 
 upload:

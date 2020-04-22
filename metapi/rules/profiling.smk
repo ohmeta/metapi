@@ -1,109 +1,146 @@
-if config["params"]["profiling"]["metaphlan3"]["do"]:
-    rule profiling_metaphlan3:
+if config["params"]["profiling"]["metaphlan2"]["do"]:
+    rule profiling_metaphlan2:
         input:
-            reads = assembly_input
+            assembly_input
         output:
-            bt2_out = os.path.join(config["output"]["profiling"]["metaphlan2"]["bowtie2_out"], "{sample}.bowtie2.bz2"),
-            profile = os.path.join(config["output"]["profiling"]["metaphlan2"]["profile"], "{sample}.metaphlan2.profile")
+           os.path.join(
+               config["output"]["profiling"],
+               "profile/metaphlan2/{sample}/{sample}.metaphlan2.abundance.profile.tsv")
+        log:
+            os.path.join(
+                config["output"]["profiling"],
+                         "logs/{sample}.metaphlan2.log")
         params:
+            sample_id = "{sample}",
+            input_type = config["params"]["profiling"]["metaphlan2"]["input_type"],
+            read_min_len = config["params"]["profiling"]["metaphlan2"]["read_min_len"],
             bowtie2db = config["params"]["profiling"]["metaphlan2"]["bowtie2db"],
             index = config["params"]["profiling"]["metaphlan2"]["index"],
-            input_type = config["params"]["profiling"]["metaphlan2"]["input_type"],
-            taxonomic_level = config["params"]["profiling"]["metaphlan2"]["taxonomic_level"],
-            analysis_type = config["params"]["profiling"]["metaphlan2"]["analysis_type"],
+            bowtie2_presets = config["params"]["profiling"]["metaphlan2"]["bowtie2_presets"],
             min_cu_len = config["params"]["profiling"]["metaphlan2"]["min_cu_len"],
-            read_min_len = config["params"]["profiling"]["metaphlan2"]["read_min_len"],
-            no_unknown_estimation = "--no_unknown_estimation" if config["params"]["profiling"]["metaphlan2"]["no_unknown_estimation"] else "",
-            sample_id = "{sample}"
-        log:
-            os.path.join(config["logs"]["profiling"]["metaphlan2"], "{sample}_metaphlan2.log")
+            taxonomic_level = config["params"]["profiling"]["metaphlan2"]["taxonomic_level"],
+            avoid_disqm = "--avoid_disqm" \
+                if config["params"]["profiling"]["metaphlan2"]["avoid_disqm"],
+            stat_q = config["params"]["profiling"]["metaphlan2"]["stat_q"],
+            stat = config["params"]["profiling"]["metaphlan2"]["stat"],
+            analysis_type = config["params"]["profiling"]["metaphlan2"]["analysis_type"],
+            no_unknown_estimation = "--no_unknown_estimation" \
+                if config["params"]["profiling"]["metaphlan2"]["no_unknown_estimation"] \
+                   else "",
+            no_map = config["params"]["profiling"]["metaphlan2"]["no_map"],
+            bowtie2_out = os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan2/{sample}/{sample}.metaphlan2.bowtie2.bz2"),
+            biom = config["params"]["profiling"]["metaphlan2"]["biom"],
+            biom_out = os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan2/{sample}/{sample}.metaphlan2.abundance.profile.biom")
         threads:
-            config["params"]["profiling"]["metaphlan2"]["threads"]
-        shell:
-            '''
-            metaphlan2.py \
-            {input.reads[0]},{input.reads[1]} \
-            --nproc {threads} \
-            --min_cu_len {params.min_cu_len} \
-            --bowtie2db {params.bowtie2db} \
-            --index {params.index} \
-            --input_type {params.input_type} \
-            --tax_lev {params.taxonomic_level} \
-            -t {params.analysis_type} \
-            {params.no_unknown_estimation} \
-            --sample_id {params.sample_id} \
-            --bowtie2out {output.bt2_out} \
-            > {output.profile} \
-            2> {log}
-            '''
+            config["params"]["profiling"]["threads"]
+        run:
+            shell(
+                '''
+                metaphlan2.py \
+                %s \
+                --input_type {params.input_type} \
+                --read_min_len {params.read_min_len} \
+                --nproc {threads} \
+                %s \
+                --bowtie2db {params.bowtie2db} \
+                --index {params.index} \
+                --bt2_ps {params.bowtie2_presets} \
+                --min_cu_len {params.min_cu_len} \
+                --tax_lev {params.taxonomic_level} \
+                {params.avoid_disqm} \
+                --stat_q {params.stat_q} \
+                --stat {params.stat} \
+                -t {params.analysis_type} \
+                {params.no_unknown_estimation} \
+                --output_file {output} \
+                --sample_id {params.sample_id} \
+                %s \
+                2> {log}
+                ''' % (
+                    ",".join(input),
+
+                    if params.no_map \
+                    else "--bowtie2out %s" % params.bowtie2_out,
+
+                    "--biom %s" % params.biom_out \
+                    if params.biom \
+                    else ""))
+
 
     rule profiling_metaphlan2_merge:
         input:
-            expand("{profile}/{sample}.metaphlan2.profile",
-                   profile=config["results"]["profiling"]["metaphlan2"]["profile"],
+            expand(os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan2/{sample}/{sample}.metaphlan2.abundance.profile.tsv"),
                    sample=SAMPLES.index.unique())
         output:
-            os.path.join(config["results"]["profiling"]["metaphlan2"]["base_dir"], "metaphlan2.merged.profile")
+            os.path.join(
+                config["output"]["profiling"],
+                         "profile/metaphlan2.merged.abundance.profile.tsv")
         log:
-            os.path.join(config["logs"]["profiling"]["metaphlan2"], "metaphlan2.merged.log")
+            os.path.join(
+                config["output"]["profiling"], "logs/metaphlan2.merged.log")
         shell:
             '''
-            merge_metaphlan_tables.py {input} > {output} 2> {log}
+            merge_metaphlan_tables.py \
+            {input} \
+            > {output} \
+            2> {log}
+
             sed -i 's/.metaphlan2//g' {output}
             '''
 
 
+    rule profiling_metaphlan2_all:
+        input:
+            os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan2.merged.abundance.profile.tsv")
+
+else:
+    rule profiling_metaphlan2_all:
+        input:
+           
+
 if config["params"]["profiling"]["jgi"]["do"]:
     rule jgi_profiling:
         input:
-            reads = clean_reads,
-            index_database = expand("{prefix}.{suffix}",
-                                    prefix=config["params"]["profiling"]["jgi"]["index_prefix"],
-                                    suffix=["1.bt2l", "2.bt2l", "3.bt2l", "4.bt2l", "rev.1.bt2l", "rev.2.bt2l"])
+            reads = assembly_input,
+            index_database = expand(
+                "{prefix}.{suffix}",
+                prefix=config["params"]["profiling"]["jgi"]["index_prefix"],
+                suffix=["1.bt2l", "2.bt2l", "3.bt2l", "4.bt2l",
+                        "rev.1.bt2l", "rev.2.bt2l"])
         output:
-            depth = os.path.join(config["results"]["profiling"]["jgi"]["depth"], "{sample}.jgi.depth.gz")
+            os.path.join(
+                config["output"]["profiling"],
+                         "profile/jgi/{sample}/{sample}.jgi.coverage.gz")
         log:
-            os.path.join(config["logs"]["profiling"]["jgi"], "{sample}.profiling.jgi.log")
+            os.path.join(
+                config["output"]["profiling"],
+                         "logs/{sample}.jgi.log")
         threads:
             config["params"]["profiling"]["threads"]
         params:
             index_prefix = config["params"]["profiling"]["jgi"]["index_prefix"],
             memory_limit = config["params"]["profiling"]["jgi"]["memory_limit"],
             fragment = config["params"]["profiling"]["jgi"]["fragment"],
-            temp_prefix = os.path.join(config["results"]["profiling"]["jgi"]["depth"], "temp.{sample}"),
-            depth = os.path.join(config["results"]["profiling"]["jgi"]["depth"], "{sample}.jgi.depth"),
+            temp_prefix = os.path.join(
+                config["output"]["profiling"],
+                "profile/jgi/{sample}/{sample}.temp"),
+            coverage = os.path.join(
+                config["output"]["profiling"],
+                "profile/jgi/{sample}/{sample}.jgi.coverage")
         run:
-            if IS_PE:
-                shell(
-                    '''
-                    bowtie2 \
-                    -x {params.index_prefix} \
-                    -1 {input.reads[0]} \
-                    -2 {input.reads[1]} \
-                    --end-to-end \
-                    --very-sensitive \
-                    --phred33 \
-                    --threads {threads} \
-                    --seed 0 \
-                    --time \
-                    -k 2 \
-                    --no-unal \
-                    --no-discordant \
-                    -X {params.fragment} \
-                    2> {log} | \
-                    samtools sort \
-                    -@{threads} \
-                    -m {params.memory_limit} \
-                    -T {params.temp_prefix} -O BAM - | \
-                    jgi_summarize_bam_contig_depths \
-                    --outputDepth {params.depth} -
-                    ''')
-        else:
             shell(
                 '''
                 bowtie2 \
                 -x {params.index_prefix} \
-                -U {input.reads[0]} \
+                %s \
                 --end-to-end \
                 --very-sensitive \
                 --phred33 \
@@ -120,41 +157,55 @@ if config["params"]["profiling"]["jgi"]["do"]:
                 -m {params.memory_limit} \
                 -T {params.temp_prefix} -O BAM - | \
                 jgi_summarize_bam_contig_depths \
-                --outputDepth {params.depth} -''')
+                --outputDepth {params.coverage} -
+                ''' % \
+                "-1 {input.reads[0]} -2 {input.reads[1]}" if IS_PE \
+                else "-U {input.reads[0]}")
 
-        shell('''pigz {params.depth}''')
-        shell('''rm -rf {params.temp_prefix}*.bam''')
-        shell('''echo "profiling done" >> {log}''')
+            shell('''gzip {params.coverage}''')
+            shell('''rm -rf {params.temp_prefix}*.bam''')
+            shell('''echo "Profiling done" >> {log}''')
 
 
     rule jgi_profile_merge:
         input:
-            abun_files = expand(os.path.join(config["results"]["profiling"]["jgi"]["depth"],
-                                             "{sample}.jgi.depth.gz"),
-                                sample=SAMPLES.index.unique()),
+            coverage = expand(os.path.join(
+                config["output"]["profiling"],
+                "profile/jgi/{sample}/{sample}.jgi.coverage.gz"),
+                              sample=SAMPLES.index.unique()),
             taxonomy = config["params"]["profiling"]["taxonomy"],
-            index_metadata = config["params"]["profiling"]["index_metadata"],
+            index_metadata = config["params"]["profiling"]["index_metadata"]
         output:
-            abundance_profile = os.path.join(config["results"]["profiling"]["jgi"]["profile"],
-                                             "abundance_profile.tsv"),
-            depth_profile = os.path.join(config["results"]["profiling"]["jgi"]["profile"],
-                                         "depth_profile.tsv"),
-            abundance_profile_k = os.path.join(config["results"]["profiling"]["jgi"]["profile"],
-                                               "abundance_profile_superkingdom.tsv"),
-            abundance_profile_p = os.path.join(config["results"]["profiling"]["jgi"]["profile"],
-                                               "abundance_profile_phylum.tsv"),
-            abundance_profile_o = os.path.join(config["results"]["profiling"]["jgi"]["profile"],
-                                               "abundance_profile_order.tsv"),
-            abundance_profile_c = os.path.join(config["results"]["profiling"]["jgi"]["profile"],
-                                               "abundance_profile_class.tsv"),
-            abundance_profile_f = os.path.join(config["results"]["profiling"]["jgi"]["profile"],
-                                               "abundance_profile_family.tsv"),
-            abundance_profile_g = os.path.join(config["results"]["profiling"]["jgi"]["profile"],
-                                               "abundance_profile_genus.tsv"),
-            abundance_profile_s = os.path.join(config["results"]["profiling"]["jgi"]["profile"],
-                                               "abundance_profile_species.tsv"),
-            abundance_profile_t = os.path.join(config["results"]["profiling"]["jgi"]["profile"],
-                                               "abundance_profile_strain.tsv")
+            abundance_profile = os.path.join(
+                config["output"]["profiling"],
+                "profile/jgi.merged.abundance.profile.tsv"),
+            coverage_profile = os.path.join(
+                config["output"]["profiling"],
+                "profile/jgi.merged.coverage.profile.tsv"),
+            abundance_profile_k = os.path.join(
+                config["output"]["profiling"],
+                "profile/jgi.merged.abundance.profile.superkingdom.tsv"),
+            abundance_profile_p = os.path.join(
+                config["output"]["profiling"],
+                "profile/jgi.merged.abundance.profile.phylum.tsv"),
+            abundance_profile_o = os.path.join(
+                config["output"]["profiling"],
+                "profile/jgi.merged.abundance.profile.order.tsv"),
+            abundance_profile_c = os.path.join(
+                config["output"]["profiling"],
+                "profile/jgi.merged.abundance.profile.class.tsv"),
+            abundance_profile_f = os.path.join(
+                config["output"]["profiling"],
+                "profile/jgi.merged.abundance.profile.family.tsv"),
+            abundance_profile_g = os.path.join(
+                config["output"]["profiling"],
+                "profile/jgi.merged.abundance.profile.genus.tsv"),
+            abundance_profile_s = os.path.join(
+                config["output"]["profiling"],
+                "profile/jgi.merged.abundance.profile.species.tsv"),
+            abundance_profile_t = os.path.join(
+                config["output"]["profiling"],
+                "profile/jgi.merged.abundance.profile.strain.tsv")
         threads:
             config["params"]["profiling"]["threads"]
         run:
@@ -162,151 +213,282 @@ if config["params"]["profiling"]["jgi"]["do"]:
 
             metapi.profiler_init(input.index_metadata)
 
-            depth_df, abun_df = metapi.get_all_abun_df(input.abun_files, threads, "jgi")
-            samples_list = sorted(abun_df.columns[1:].to_list())
+            coverage_df, abundance_df = metapi.get_all_abun_df(
+                input.coverage, threads, "jgi")
 
-            depth_df.to_csv(output.depth_profile, sep='\t', index=False)
-            abun_df.to_csv(output.abundance_profile, sep='\t', index=False)
+            samples_list = sorted(abundance_df.columns[1:].to_list())
 
-            abun_tax_df = abun_df.merge(taxonomy_df)
+            coverage_df.to_csv(output.coverage_profile, sep='\t', index=False)
+            abundance_df.to_csv(output.abundance_profile, sep='\t', index=False)
 
-            metapi.get_profile(abun_tax_df, samples_list,  "lineages_superkingdom_new", output.abundance_profile_k)
-            metapi.get_profile(abun_tax_df, samples_list, "lineages_phylum_new", output.abundance_profile_p)
-            metapi.get_profile(abun_tax_df, samples_list, "lineages_order_new", output.abundance_profile_o)
-            metapi.get_profile(abun_tax_df, samples_list, "lineages_class_new", output.abundance_profile_c)
-            metapi.get_profile(abun_tax_df, samples_list, "lineages_family_new", output.abundance_profile_f)
-            metapi.get_profile(abun_tax_df, samples_list, "lineages_genus_new", output.abundance_profile_g)
-            metapi.get_profile(abun_tax_df, samples_list, "lineages_species_new", output.abundance_profile_s)
-            metapi.get_profile(abun_tax_df, samples_list, "lineages_strain_new", output.abundance_profile_t)
+            abundance_taxonomy_df = abundance_df.merge(taxonomy_df)
+
+            metapi.get_profile(abundance_taxonomy_df, samples_list,
+                               "lineages_superkingdom_new", output.abundance_profile_k)
+
+            metapi.get_profile(abundance_taxonomy_df, samples_list,
+                               "lineages_phylum_new", output.abundance_profile_p)
+
+            metapi.get_profile(abundance_taxonomy_df, samples_list,
+                               "lineages_order_new", output.abundance_profile_o)
+
+            metapi.get_profile(abundance_taxonomy_df, samples_list,
+                               "lineages_class_new", output.abundance_profile_c)
+
+            metapi.get_profile(abundance_taxonomy_df, samples_list,
+                               "lineages_family_new", output.abundance_profile_f)
+
+            metapi.get_profile(abundance_taxonomy_df, samples_list,
+                               "lineages_genus_new", output.abundance_profile_g)
+
+            metapi.get_profile(abundance_taxonomy_df, samples_list,
+                               "lineages_species_new", output.abundance_profile_s)
+
+            metapi.get_profile(abundance_taxonomy_df, samples_list,
+                               "lineages_strain_new", output.abundance_profile_t)
 
 
-if config["params"]["profiling"]["jgi"]["do"]:
+    rule jgi_profiling_all:
+        input:
+             expand([
+                 os.path.join(
+                     config["output"]["profiling"],
+                     "profile/jgi.merged.{target}.profile.tsv"),
+                 os.path.join(
+                     config["output"]["profiling"],
+                     "profile/jgi.merged.abundance.profile.{level}.tsv")],
+                    target=["abundance", "coverage"],
+                    level=["superkingdom",
+                           "phylum",
+                           "order",
+                           "class",
+                           "family",
+                           "genus",
+                           "species",
+                           "strain"])
+
+else:
+    rule jgi_profiling_all:
+        input:
+
+           
+if config["params"]["profiling"]["humann2"]["do"]:
     rule humann2_profiling:
         input:
-            reads = clean_reads
+            reads = assembly_input
         output:
-            reads_merged = temp(os.path.join(config["results"]["profiling"]["humann2"],
-                                             "{sample}.humann2_out/{sample}.merged.fq.gz")),
-            genefamilies = os.path.join(config["results"]["profiling"]["humann2"],
-                                        "{sample}.humann2_out/{sample}_genefamilies.tsv"),
-            pathabundance = os.path.join(config["results"]["profiling"]["humann2"],
-                                         "{sample}.humann2_out/{sample}_pathabundance.tsv"),
-            pathcoverage = os.path.join(config["results"]["profiling"]["humann2"],
-                                        "{sample}.humann2_out/{sample}_pathcoverage.tsv")
+            reads_merged = temp(os.path.join(
+                config["output"]["profiling"],
+                "profile/humann2/{sample}/{sample}.merged.fq.gz")),
+            genefamilies = os.path.join(
+                config["output"]["profiling"],
+                "profile/humann2/{sample}/{sample}_genefamilies.tsv"),
+            pathabundance = os.path.join(
+                config["output"]["profiling"],
+                "profile/humann2/{sample}/{sample}_pathabundance.tsv"),
+            pathcoverage = os.path.join(
+                config["output"]["profiling"],
+                "profile/humann2/{sample}/{sample}_pathcoverage.tsv")
         params:
             base_name = "{sample}",
-            remove = "--remove-temp-output" if config["params"]["profiling"]["humann2"]["remove-temp-output"] else "",
-            out_dir = os.path.join(config["results"]["profiling"]["humann2"], "{sample}.humann2_out")
+            remove = "--remove-temp-output" \
+                if config["params"]["profiling"]["humann2"]["remove-temp-output"] \
+                   else "",
+            output_dir = os.path.join(
+                config["output"]["profiling"],
+                                      "profile/humann2/{sample}")
         threads:
-            8
+            config["params"]["profiling"]["threads"]
         log:
-            os.path.join(config["logs"]["profiling"]["humann2"], "{sample}_humann2.log")
+            os.path.join(
+                config["output"]["profiling"],
+                         "logs/{sample}.humann2.log")
         run:
-            reads = input.reads
             if IS_PE:
-                reads_str = " ".join(input.reads)
-                shell('''cat %s > %s''' % (reads_str, output.reads_merged))
+                shell('''cat {input.reads} > %s''' % input.reads)
                 reads = output.reads_merged
+            else:
+                reads = input.reads[0]
 
-            shell('''humann2 --input %s --output %s --output-basename %s --threads %d --o-log %s %s''' % \
-                  (reads, params.out_dir, params.base_name, threads, log, params.remove))
+            shell(
+                '''
+                humann2 \
+                --threads {threads} \
+                --input %s \
+                --output {params.output_dir} \
+                --output-basename {params.base_name} \
+                --threads {threads} \
+                {params.remove} \
+                --o-log {log} %s
+                ''' % reads)
 
 
     rule humann2_postprocess:
         input:
-            genefamilies = os.path.join(config["results"]["profiling"]["humann2"],
-                                        "{sample}.humann2_out/{sample}_genefamilies.tsv"),
-            pathabundance = os.path.join(config["results"]["profiling"]["humann2"],
-                                         "{sample}.humann2_out/{sample}_pathabundance.tsv"),
-            pathcoverage = os.path.join(config["results"]["profiling"]["humann2"],
-                                        "{sample}.humann2_out/{sample}_pathcoverage.tsv")
+            expand(os.path.join(
+                config["output"]["profiling"],
+                "profile/humann2/{{sample}}/{{sample}}_{target}.tsv"),
+                   target=["genefamilies", "pathabundance", "pathcoverage"])
         output:
-            genefamilies = expand("{humann2}/{{sample}}.humann2_out/{{sample}}_genefamilies.{norm}.tsv",
-                                  humann2=config["results"]["profiling"]["humann2"],
-                                  norm=config["params"]["profiling"]["humann2"]["normalize_method"]),
-            pathabundance = expand("{humann2}/{{sample}}.humann2_out/{{sample}}_pathabundance.{norm}.tsv",
-                                   humann2=config["results"]["profiling"]["humann2"],
-                                   norm=config["params"]["profiling"]["humann2"]["normalize_method"]),
-            pathcoverage = expand("{humann2}/{{sample}}.humann2_out/{{sample}}_pathcoverage.{norm}.tsv",
-                                  humann2=config["results"]["profiling"]["humann2"],
-                                  norm=config["params"]["profiling"]["humann2"]["normalize_method"]),
-            groupprofile = expand("{humann2}/{{sample}}.humann2_out/{{sample}}_{group}_groupped.tsv",
-                                  humann2=config["results"]["profiling"]["humann2"],
-                                  group=config["params"]["profiling"]["humann2"]["map_database"])
+            targets = expand(os.path.join(
+                config["output"]["profiling"],
+                "profile/humann2/{{sample}}/{{sample}}_{target}.{norm}.tsv"),
+                target=["genefamilies", "pathabundance", "pathcoverage"],
+                norm=config["params"]["profiling"]["humann2"]["normalize_method"]),
+            groupprofiles = expand(os.path.join(
+                config["output"]["profiling"],
+                "profile/humann2/{{sample}}/{{sample}}_{group}_groupped.tsv"),
+                group=config["params"]["profiling"]["humann2"]["map_database"])
 
         params:
             normalize_method = config["params"]["profiling"]["humann2"]["normalize_method"],
             regroup_method = config["params"]["profiling"]["humann2"]["regroup_method"],
             map_database =  config["params"]["profiling"]["humann2"]["map_database"]
         run:
-            shell("humann2_renorm_table --input {input.genefamilies} --update-snames \
-            --output {output.genefamilies} --units {params.normalize_method}")
-            shell("humann2_renorm_table --input {input.pathabundance} --update-snames \
-            --output {output.pathabundance} --units {params.normalize_method}")
-            shell("humann2_renorm_table --input {input.pathcoverage} --update-snames \
-            --output {output.pathcoverage} --units {params.normalize_method}")
+            for i in range(0, len(input)):
+                shell(
+                    '''
+                    humann2_renorm_table \
+                    --input {input[i]} \
+                    --update-snames \
+                    --output {output.targets[i]} \
+                    --units {params.normalize_method}
+                    ''')
+
             i = -1
             for db in params.map_database:
                 i += 1
-                shell("humann2_regroup_table --input {input.genefamilies} --groups %s \
-                --function {params.regroup_method} --output {output.groupprofile[i]}" % db)
+                shell(
+                    '''
+                    humann2_regroup_table \
+                    --input {input[0]} \
+                    --groups %s \
+                    --function {params.regroup_method} \
+                    --output {output.groupprofiles[i]}
+                    '''% db)
 
 
     rule humann2_join:
         input:
-            expand(["{humann2}/{sample}.humann2_out/{sample}_{target}.tsv",
-                    "{humann2}/{sample}.humann2_out/{sample}_{group}_groupped.tsv"],
-                   humann2=config["results"]["profiling"]["humann2"],
-                   sample=SAMPLES.index.unique(),
+            expand([
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann2/{sample}/{sample}_{target}.tsv"),
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann2/{sample}/{sample}_{group}_groupped.tsv")],
                    target=["genefamilies", "pathabundance", "pathcoverage"],
-                   group=config["params"]["profiling"]["humann2"]["map_database"])
+                   group=config["params"]["profiling"]["humann2"]["map_database"],
+                   sample=SAMPLES.index.unique())
         output:
-            genefamilies = os.path.join(config["results"]["profiling"]["humann2"], "gene_families_joined.tsv"),
-            pathabundance = os.path.join(config["results"]["profiling"]["humann2"], "path_abundance_joined.tsv"),
-            pathcoverage = os.path.join(config["results"]["profiling"]["humann2"], "path_coverage_joined.tsv"),
-            groupprofile = expand("{humann2}/{group}_joined.tsv",
-                                  humann2=config["results"]["profiling"]["humann2"],
-                                  group=config["params"]["profiling"]["humann2"]["map_database"])
+            targets = expand(
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann2_{target}_joined.tsv"),
+                target=["genefamilies", "pathabundance", "pathcoverage"]),
+            groupprofile = expand(
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann2_{group}_joined.tsv"),
+                group=config["params"]["profiling"]["humann2"]["map_database"])
         params:
-            outdir = config["results"]["profiling"]["humann2"],
+            input_dir = os.path.join(config["output"]["profiling"], "profile/humann2")
             map_database = config["params"]["profiling"]["humann2"]["map_database"]
         run:
-            shell("humann2_join_tables --input {params.outdir} --output {output.genefamilies} \
-            --file_name genefamilies --search-subdirectories")
-            shell("humann2_join_tables --input {params.outdir} --output {output.pathabundance} \
-            --file_name pathabundance --search-subdirectories")
-            shell("humann2_join_tables --input {params.outdir} --output {output.pathcoverage} \
-            --file_name pathcoverage --search-subdirectories")
+            targets = ["genefamilies", "pathabundance", "pathcoverage"]:
+            for i in range(0, len(targets)):
+                shell(
+                    '''
+                    humann2_join_tables \
+                    --input {params.input_dir} \
+                    --output {output.targets[i]} \
+                    --file_name %s --search-subdirectories
+                    ''' % targets[i])
+
             i = -1
             for db in params.map_database:
                 i += 1
-                shell("humann2_join_tables --input {params.humann2_outdir} --output {output.groupprofile[i]} \
-                --file_name %s_groupped --search-subdirectories" % db)
+                shell(
+                    '''
+                    humann2_join_tables \
+                    --input {params.input_dir} \
+                    --output {output.groupprofile[i]} \
+                    --file_name %s_groupped --search-subdirectories
+                    ''' % db)
 
 
     rule humann2_split_straified:
         input:
-            genefamilies = os.path.join(config["results"]["profiling"]["humann2"], "gene_families_joined.tsv"),
-            pathabundance = os.path.join(config["results"]["profiling"]["humann2"], "path_abundance_joined.tsv"),
-            pathcoverage = os.path.join(config["results"]["profiling"]["humann2"], "path_coverage_joined.tsv"),
-            groupprofile = expand("{humann2}/{group}_joined.tsv",
-                                  humann2=config["results"]["profiling"]["humann2"],
-                                  group=config["params"]["profiling"]["humann2"]["map_database"])
+            targets = expand(
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann2_{target}_joined.tsv"),
+                target=["genefamilies", "pathabundance", "pathcoverage"]),
+            groupprofile = expand(
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann2_{group}_joined.tsv"),
+                group=config["params"]["profiling"]["humann2"]["map_database"])
         output:
-            expand(["{humann2}/{target}_joined_{suffix}.tsv",
-                    "{humann2}/{group}_joined_{suffix}.tsv"],
-                   humann2=config["results"]["profiling"]["humann2"],
-                   target=["gene_families", "path_abundance", "path_coverage"],
+            expand([
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/{target}_joined_{suffix}.tsv"),
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/{group}_joined_{suffix}.tsv")],
+                   target=["genefamilies", "pathabundance", "pathcoverage"],
                    group=config["params"]["profiling"]["humann2"]["map_database"],
                    suffix=["straified", "unstraified"])
         params:
-            outdir = config["results"]["profiling"]["humann2"],
+            output_dir = os.path.join(config["output"]["profiling"], "profile")
             map_database = config["params"]["profiling"]["humann2"]["map_database"]
         run:
-            shell("humann2_split_straified_table -i {input.genefamilies} -o {params.outdir}")
-            shell("humann2_split_straified_table -i {input.pathabundance} -o {params.outdir}")
-            shell("humann2_split_straified_table -i {input.pathcoverage} -o {params.outdir}")
+            for i in input.targets:
+                shell(
+                    '''
+                    humann2_split_straified_table \
+                    -i %s \
+                    -o {params.outdir}
+                    ''' % i)
+
             i = -1
             for db in params.map_database:
                 i += 1
-                shell("humann2_split_straified_table -i {input.groupprofile[i]} -o {params.outdir}")
+                shell(
+                    '''
+                    humann2_split_straified_table \
+                    -i {input.groupprofile[i]} \
+                    -o {params.output_dir}
+                    ''')
+
+
+    rule profiling_humann2_all:
+        input:
+            expand([
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann2_{target}_joined.tsv"),
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann2_{group}_joined.tsv"),
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/{target}_joined_{suffix}.tsv"),
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/{group}_joined_{suffix}.tsv")],
+                   target=["genefamilies", "pathabundance", "pathcoverage"],
+                   group=config["params"]["profiling"]["humann2"]["map_database"],
+                   suffix=["straified", "unstraified"])
+
+else:
+    rule profiling_humann2_all:
+        input:
+
+
+rule profiling_all:
+    input:
+        rules.profiling_metaphlan2_all.input,
+        rules.profiling_jgi_all.input,
+        rules.profiling_humann2_all.input
