@@ -4,8 +4,10 @@ import numpy as np
 from metapi import tooler
 
 
-def assembler_init(contigs_length_range):
+def assembler_init(contigs_length_range, groups):
     global CONTIGS_LENGTH_RANGES__
+    global GROUP_BY_
+
     temp = sorted(list(set(contigs_length_range)))
     if (temp is None) or (temp == [0]) or (len(temp) == 0):
         CONTIGS_LENGTH_RANGES__ = [(0, 1500), (1500, 2000), (2000, 2500), 2500]
@@ -17,6 +19,8 @@ def assembler_init(contigs_length_range):
         CONTIGS_LENGTH_RANGES__ = [(i, j) for i, j in zip([0] + temp[0:-1], temp)] + [
             temp[-1]
         ]
+
+    GROUP_BY_ = groups
 
 
 def Nx(x):
@@ -51,10 +55,10 @@ def cal_len_range(x):
 
 
 def cumulative_len(x):
-    '''
+    """
     for x, y in enumerate(len_y):
         plt.plot(x, y)
-    '''
+    """
     len_y = [0]
     for l in sorted(x)[::-1]:
         len_y.append(len_y[-1] + l)
@@ -65,7 +69,7 @@ def parse_assembly(stats_file):
     df_ = tooler.parse(stats_file)
     if df_ is not None:
         df = (
-            df_.groupby(["sample_id", "assembler"])
+            df_.groupby(GROUP_BY_)
             .agg(
                 {
                     "chr": ["count"],

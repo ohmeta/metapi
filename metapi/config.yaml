@@ -61,9 +61,6 @@ params:
 
   assembly:
     threads: 8
-    report:
-      threads: 8
-      len_ranges: [0, 1000, 1500, 2000, 2500, 3000]
     megahit:
       do: False
       min_contig: 500
@@ -92,6 +89,10 @@ params:
       do: False
       threads: 8
       min_contig: 500
+
+    report:
+      threads: 8
+      len_ranges: [0, 1000, 1500, 2000, 2500, 3000]
 
   coassembly:
     megahit:
