@@ -153,6 +153,7 @@ params:
       do: True
       database: /path/to/kraken2/database
       threads: 8
+      use_mpa_style: False
       report_zero_counts: True
     gtdbtk:
       do: True
