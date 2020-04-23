@@ -235,7 +235,7 @@ A pipeline to construct a genome catalogue from metagenomics data
         "--begin",
         type=str,
         default="trimming",
-        choices=["simulate", "trimming" "rmhost", "assembly"],
+        choices=["simulate", "trimming", "rmhost", "assembly"],
         help="pipeline starting point",
     )
     parser_init._optionals.title = "arguments"

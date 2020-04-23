@@ -57,8 +57,6 @@ class metaconfig:
         "logs/04.assembly_report",
         "logs/04.assembly_report_merge",
         "logs/04.coassembly_megahit",
-        "logs/04.demultiplex_kraken2_reads",
-        "logs/04.merge_kraken2_reads",
         "logs/05.alignment_scaftigs_index",
         "logs/05.alignment_reads_scaftigs",
         "logs/05.alignment_bam_index",
@@ -130,7 +128,7 @@ metapi denovo_wf --list
 
 metapi denovo_wf --run
 
-metapi denovo_wf --debug_run
+metapi denovo_wf --debug
 
 metapi denovo_wf --dry_run
 
