@@ -70,6 +70,21 @@ def init(args):
             conf["params"]["begin"] = args.begin
             if args.begin == "simulate":
                 conf["params"]["simulate"]["do"] = True
+            elif args.begin == "trimming":
+                conf["params"]["simulate"]["do"] = False
+            elif args.begin == "rmhost":
+                conf["params"]["simulate"]["do"] = False
+                conf["params"]["trimming"]["oas1"]["do"] = False
+                conf["params"]["trimming"]["sickle"]["do"] = False
+                conf["params"]["trimming"]["fastp"]["do"] = False
+            elif args.begin == "assembly":
+                conf["params"]["simulate"]["do"] = False
+                conf["params"]["trimming"]["oas1"]["do"] = False
+                conf["params"]["trimming"]["sickle"]["do"] = False
+                conf["params"]["trimming"]["fastp"]["do"] = False
+                conf["params"]["rmhost"]["bwa"]["do"] = False
+                conf["params"]["rmhost"]["bowtie2"]["do"] = False
+
         if args.samples:
             conf["params"]["samples"] = args.samples
 
