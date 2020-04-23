@@ -1,0 +1,84 @@
+{% set name = "metapi" %}
+{% set version = "0.6.4" %}
+{% set sha256 = "859b6b046dd561496f5e82b8f901ffb76ada59d85ea333f5e33e0d0a7ec38a30" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  fn: {{ name }}-{{ version }}.tar.gz
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: {{ sha256 }}
+
+build:
+  noarch: python
+  number: 0
+  script: "{{ PYTHON }} -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv"
+  entry_points:
+    - metapi = metapi.core:main
+
+requirements:
+  build:
+    - python >=3.5
+    - setuptools
+    - pip
+
+  host:
+    - python >=3.5
+    - pip
+    - setuptools
+    - pandas
+    - ruamel.yaml
+    - snakemake >=5.4
+
+  run:
+    - python >=3.5
+    - setuptools
+    - pandas
+    - numpy
+    - biopython
+    - ruamel.yaml
+    - snakemake >=5.4
+    - ncbi-genome-download
+    - pigz
+    - fastp
+    - sickle-trim
+    - multiqc
+    - bwa
+    - bowtie2
+    - samtools
+    - spades
+    - quast
+    - idba
+    - megahit
+    - maxbin2
+    - metabat2
+    - prodigal
+    - prokka
+    - drep
+    - vsearch
+    - mash
+    - checkm-genome
+
+test:
+  imports:
+    - metapi
+
+commands:
+  - metapi --version
+  - metapi init --help
+  - metapi simulation --help
+  - metapi workflow --help
+
+about:
+  home: https://github.com/ohmeta/metapi
+  license: GNU General Public License V3 (GPLv3)
+  summary: 'metapi is a pipeline to construct a genome catalogue from metagenomics data'
+  license_family: GPL3
+
+extra:
+  identifiers:
+    - biotools:metapi
+  recipe-maintainers:
+    - alienzj
