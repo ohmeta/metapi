@@ -2,33 +2,94 @@
 
 * Install
 #+BEGIN_SRC bash
-# install dependencies
-conda install \
-    pandas ruamel.yaml \
-    snakemake pigz sra-tools \
-    insilicoseq ncbi-genome-download \
-    sickle-trim fastp \
-    bwa bowtie2 samtools \
-    spades idba megahit quast \
-    metabat2 maxbin2 checkm-genome \
-    prodigal prokka gtdbtk drep galah \
-    metaphlan2 humann2
-
-conda install -c alienzj seqtk
-
-# install metapi
-git clone -b dev https://github.com/ohmeta/metapi
-
-# configure PYTHONPATH
-echo 'export PYTHONPATH="/path/to/metapi:$PYTHONPATH"' >> ~/.bashrc
+conda install metapi
 #+END_SRC
 
 * Run
-** Help
+** help
 #+BEGIN_SRC bash
-python /path/to/metapi/metapi/core.py --help
+$ metapi --help
+
+.___  ___.  _______ .___________.    ___      .______    __
+|   \/   | |   ____||           |   /   \     |   _  \  |  |
+|  \  /  | |  |__   `---|  |----`  /  ^  \    |  |_)  | |  |
+|  |\/|  | |   __|      |  |      /  /_\  \   |   ___/  |  |
+|  |  |  | |  |____     |  |     /  _____  \  |  |      |  |
+|__|  |__| |_______|    |__|    /__/     \__\ | _|      |__|
+
+Omics for All, Open Source for All
+
+A pipeline to construct a genome catalogue from metagenomics data
+
+optional arguments:
+-h, --help     show this help message and exit
+-v, --version  print software version and exit
+
+available subcommands:
+
+init         init project
+denovo_wf    denovo_wf pipeline
 #+END_SRC
-** Input requirements
+** init
+#+BEGIN_SRC bash
+$ metapi init --help
+
+usage: metapi init [-h] [-d WORKDIR] [-s SAMPLES]
+[-b {simulate,trimmingrmhost,assembly}]
+
+arguments:
+  -h, --help            show this help message and exit
+  -d WORKDIR, --workdir WORKDIR
+                        project workdir
+  -s SAMPLES, --samples SAMPLES
+                        samples list, tsv format required if begin from
+                        trimming, rmhost, or assembly: if it is fastq: the
+                        header is [id, fq1, fq2], else it is sra: the header
+                        is [id, sra] else begin from simulate: the header is
+                        [id, genome, abundance, reads_num, model]
+-b {simulate,trimmingrmhost,assembly}, --begin {simulate,trimmingrmhost,assembly}
+                        pipeline starting point
+#+END_SRC
+** denovo_wf
+#+BEGIN_SRC bash
+$ metapi denovo_wf --help
+
+usage: metapi denovo_wf [-h] [-d WORKDIR] [--cores CORES] [--jobs JOBS]
+                        [--list] [--run] [--debug] [--dry_run] [--qsub]
+                        [--wait WAIT]
+                        [TASK]
+
+positional arguments:
+  TASK                  pipeline end point. Allowed values are simulate_all,
+                        prepare_reads_all, raw_fastqc_all, rmhost_bwa_all,
+                        rmhost_bowtie2_all, rmhost_all, assebmly_megahit_all,
+                        assembly_idba_ud_all, assembly_metaspades_all,
+                        assembly_spades_all, assembly_metaquast_all,
+                        assembly_report_all, assembly_all, alignment_all,
+                        binning_metabat2_all, binning_maxbin2_all,
+                        binning_all, predcit_scafitgs_gene_all,
+                        predict_bins_gene_all, predcit_all, checkm_link_bins,
+                        checkm_all, dereplicate_drep_all, dereplicate_all,
+                        classify_short_reads_kraken2_all,
+                        classify_hmq_bins_gtdbtk_all, classify_all,
+                        profiling_metaphlan2_all, profiling_jgi_all,
+                        profiling_humann2_all, profiling_all, all
+
+arguments:
+  -h, --help            show this help message and exit
+  -d WORKDIR, --workdir WORKDIR
+                        project workdir
+  --cores CORES         CPU cores
+  --jobs JOBS           qsub job numbers
+  --list                list pipeline rules
+  --run                 run pipeline
+  --debug               debug pipeline
+  --dry_run             dry run pipeline
+  --qsub                qsub pipeline
+  --wait WAIT           wait given seconds
+#+END_SRC
+
+** input requirements
 Please supply samples.tsv format like below:
 | id | fq1           | fq2           |
 |----+---------------+---------------|
@@ -40,61 +101,6 @@ The header must be: id fq1 fq2.
 If id is same, the fq1 and fq2 belong to one sample, and will be merged to
 process.
 
-** Init
-#+BEGIN_SRC bash
-# Assume you in a directory named hello_meta, all operation will do in this directory
-cd hello_meta
-python /path/to/metapi/metapi/core.py init -d ./ -s samples.tsv -b raw -a metaspades
-# -d ./ : work in hello_meta directory
-# -s samples.tsv: input data
-# -b raw : begin from raw data
-# -a metaspades : use MetaSPAdes assembler
-#+END_SRC
-After that, after hello_meta directory, you will see:
-assay
-results
-scripts
-sources
-study
-config.yaml
-cluster.yaml
-** List
-See what metapi can do:
-#+BEGIN_SRC bash
-snakemake --snakefile /path/to/metapi/metapi/Snakefile \
-    --configfile ./config.yaml --list
-#+END_SRC
-** Debug
-Debug a specific rule, eg checkm_lineage_wf:
-#+BEGIN_SRC bash
-snakemake --snakefile /path/to/metapi/metapi/Snakefile \
-    --configfile ./config.yaml \
-    -p -r -n --debug-dag \
-    --until checkm_lineage_wf
-#+END_SRC
-** Run on local computer
-#+BEGIN_SRC bash
-snakemake --snakefile /path/to/metapi/metapi/Snakefile \
-          --configfile ./config.yaml \
-          --until checkm_lineage_wf
-#+END_SRC
-** Submit to cluster using qsub
-#+BEGIN_SRC bash
-snakemake --snakefile /path/to/metapi/metapi/Snakefile \
-    --configfile ./config.yaml \
-    --cluster-config ./cluster.yaml \
-    --jobs 80 \
-    --cluster "qsub -S /bin/bash -cwd \
-               -q {cluster.queue} \
-               -P {cluster.project} \
-               -l vf={cluster.mem},p={cluster.cores} \
-               -binding linear:{cluster.cores} \
-               -o {cluster.output} \
-               -e {cluster.error}" \
-    --latency-wait 360 \
-    -k \
-    --until checkm_lineage_wf
-#+END_SRC
 * License
-Omics for all, Open Source for all.
-GPLv3+.
+- Omics for all, Open Source for all.
+- GPLv3+
