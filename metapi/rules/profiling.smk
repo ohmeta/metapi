@@ -20,7 +20,8 @@ if config["params"]["profiling"]["metaphlan2"]["do"]:
             min_cu_len = config["params"]["profiling"]["metaphlan2"]["min_cu_len"],
             taxonomic_level = config["params"]["profiling"]["metaphlan2"]["taxonomic_level"],
             avoid_disqm = "--avoid_disqm" \
-                if config["params"]["profiling"]["metaphlan2"]["avoid_disqm"],
+                if config["params"]["profiling"]["metaphlan2"]["avoid_disqm"] \
+                   else "",
             stat_q = config["params"]["profiling"]["metaphlan2"]["stat_q"],
             stat = config["params"]["profiling"]["metaphlan2"]["stat"],
             analysis_type = config["params"]["profiling"]["metaphlan2"]["analysis_type"],
@@ -63,6 +64,7 @@ if config["params"]["profiling"]["metaphlan2"]["do"]:
                 ''' % (
                     ",".join(input),
 
+                    "--no_map" \
                     if params.no_map \
                     else "--bowtie2out %s" % params.bowtie2_out,
 
@@ -107,7 +109,7 @@ else:
            
 
 if config["params"]["profiling"]["jgi"]["do"]:
-    rule jgi_profiling:
+    rule profiling_jgi:
         input:
             reads = assembly_input,
             index_database = expand(
@@ -167,7 +169,7 @@ if config["params"]["profiling"]["jgi"]["do"]:
             shell('''echo "Profiling done" >> {log}''')
 
 
-    rule jgi_profile_merge:
+    rule profiling_jgi_merge:
         input:
             coverage = expand(os.path.join(
                 config["output"]["profiling"],
@@ -248,7 +250,7 @@ if config["params"]["profiling"]["jgi"]["do"]:
                                "lineages_strain_new", output.abundance_profile_t)
 
 
-    rule jgi_profiling_all:
+    rule profiling_jgi_all:
         input:
              expand([
                  os.path.join(
@@ -268,12 +270,12 @@ if config["params"]["profiling"]["jgi"]["do"]:
                            "strain"])
 
 else:
-    rule jgi_profiling_all:
+    rule profiling_jgi_all:
         input:
 
            
 if config["params"]["profiling"]["humann2"]["do"]:
-    rule humann2_profiling:
+    rule profiling_humann2:
         input:
             reads = assembly_input
         output:
@@ -323,7 +325,7 @@ if config["params"]["profiling"]["humann2"]["do"]:
                 ''' % reads)
 
 
-    rule humann2_postprocess:
+    rule profiling_humann2_postprocess:
         input:
             expand(os.path.join(
                 config["output"]["profiling"],
@@ -368,7 +370,7 @@ if config["params"]["profiling"]["humann2"]["do"]:
                     '''% db)
 
 
-    rule humann2_join:
+    rule profiling_humann2_join:
         input:
             expand([
                 os.path.join(
@@ -392,10 +394,10 @@ if config["params"]["profiling"]["humann2"]["do"]:
                     "profile/humann2_{group}_joined.tsv"),
                 group=config["params"]["profiling"]["humann2"]["map_database"])
         params:
-            input_dir = os.path.join(config["output"]["profiling"], "profile/humann2")
+            input_dir = os.path.join(config["output"]["profiling"], "profile/humann2"),
             map_database = config["params"]["profiling"]["humann2"]["map_database"]
         run:
-            targets = ["genefamilies", "pathabundance", "pathcoverage"]:
+            targets = ["genefamilies", "pathabundance", "pathcoverage"]
             for i in range(0, len(targets)):
                 shell(
                     '''
@@ -417,7 +419,7 @@ if config["params"]["profiling"]["humann2"]["do"]:
                     ''' % db)
 
 
-    rule humann2_split_straified:
+    rule profiling_humann2_split_straified:
         input:
             targets = expand(
                 os.path.join(
@@ -441,7 +443,7 @@ if config["params"]["profiling"]["humann2"]["do"]:
                    group=config["params"]["profiling"]["humann2"]["map_database"],
                    suffix=["straified", "unstraified"])
         params:
-            output_dir = os.path.join(config["output"]["profiling"], "profile")
+            output_dir = os.path.join(config["output"]["profiling"], "profile"),
             map_database = config["params"]["profiling"]["humann2"]["map_database"]
         run:
             for i in input.targets:
