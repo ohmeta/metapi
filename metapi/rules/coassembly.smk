@@ -1,10 +1,11 @@
-def coassembly_inputs():
+def coassembly_inputs(wildcards):
     if RMHOST_DO:
         return get_reads_list("rmhost")
     elif TRIMMING_DO:
         return get_reads_list("trimming")
     else:
         return get_reads_list("raw")
+
 
 if config["params"]["coassembly"]["megahit"]["do"]:
     rule coassembly_megahit:
