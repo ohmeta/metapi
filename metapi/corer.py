@@ -137,7 +137,12 @@ def denovo_wf(args):
 
     env = os.environ.copy()
     proc = subprocess.Popen(
-        cmd_str, shell=True, stdout=sys.stdout, stderr=sys.stderr, env=env, encoding="utf-8"
+        cmd_str,
+        shell=True,
+        stdout=sys.stdout,
+        stderr=sys.stderr,
+        env=env,
+        encoding="utf-8",
     )
     proc.communicate()
 
@@ -145,45 +150,17 @@ def denovo_wf(args):
 def main():
     banner = """
 
-.___  ___.  _______ .___________.    ___      .______    __
-|   \/   | |   ____||           |   /   \     |   _  \  |  |
-|  \  /  | |  |__   `---|  |----`  /  ^  \    |  |_)  | |  |
-|  |\/|  | |   __|      |  |      /  /_\  \   |   ___/  |  |
-|  |  |  | |  |____     |  |     /  _____  \  |  |      |  |
-|__|  |__| |_______|    |__|    /__/     \__\ | _|      |__|
+  .___  ___.  _______ .___________.    ___      .______    __
+  |   \/   | |   ____||           |   /   \     |   _  \  |  |
+  |  \  /  | |  |__   `---|  |----`  /  ^  \    |  |_)  | |  |
+  |  |\/|  | |   __|      |  |      /  /_\  \   |   ___/  |  |
+  |  |  |  | |  |____     |  |     /  _____  \  |  |      |  |
+  |__|  |__| |_______|    |__|    /__/     \__\ | _|      |__|
 
-           Omics for All, Open Source for All
+            Omics for All, Open Source for All
 
 A pipeline to construct a genome catalogue from metagenomics data
 
-"""
-
-    banner_init = """
-
-.___  ___.  _______ .___________.    ___      .______    __
-|   \/   | |   ____||           |   /   \     |   _  \  |  |
-|  \  /  | |  |__   `---|  |----`  /  ^  \    |  |_)  | |  |
-|  |\/|  | |   __|      |  |      /  /_\  \   |   ___/  |  |
-|  |  |  | |  |____     |  |     /  _____  \  |  |      |  |
-|__|  |__| |_______|    |__|    /__/     \__\ | _|      |__|
-
-           Omics for All, Open Source for All
-
-         The metagenomics project initialization
-"""
-
-    banner_denovo_wf = """
-
-.___  ___.  _______ .___________.    ___      .______    __
-|   \/   | |   ____||           |   /   \     |   _  \  |  |
-|  \  /  | |  |__   `---|  |----`  /  ^  \    |  |_)  | |  |
-|  |\/|  | |   __|      |  |      /  /_\  \   |   ___/  |  |
-|  |  |  | |  |____     |  |     /  _____  \  |  |      |  |
-|__|  |__| |_______|    |__|    /__/     \__\ | _|      |__|
-
-           Omics for All, Open Source for All
-
-        The denovo workflow on metagenomics data
 """
 
     parser = argparse.ArgumentParser(
@@ -214,15 +191,13 @@ A pipeline to construct a genome catalogue from metagenomics data
         "init",
         parents=[parent_parser],
         prog="metapi init",
-        formatter_class=argparse.RawTextHelpFormatter,
-        description=textwrap.dedent(banner_init),
+        help="init project"
     )
     parser_denovo_wf = subparsers.add_parser(
         "denovo_wf",
         parents=[parent_parser],
         prog="metapi denovo_wf",
-        formatter_class=argparse.RawTextHelpFormatter,
-        description=textwrap.dedent(banner_denovo_wf),
+        help="denovo_wf pipeline"
     )
 
     parser_init.add_argument(
