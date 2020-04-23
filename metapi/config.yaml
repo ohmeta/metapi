@@ -1,11 +1,11 @@
 params:
   reads_layout: "pe"
   fq_encoding: "sanger"
+  begin: "trimming"
   samples: "samples.tsv"
 
   simulate:
     do: True
-    genomes: "genomes.tsv"
     threads: 8
 
   raw:

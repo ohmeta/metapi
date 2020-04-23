@@ -12,7 +12,7 @@ def parse_genomes(config):
     header = ["id", "genome", "abundance", "reads_num", "model"]
 
     genomes_df = pd.read_csv(
-        config["params"]["simulate"]["genomes"], sep="\t"
+        config["params"]["samples"], sep="\t"
     ).set_index("id", drop=False)
 
     cancel = False
