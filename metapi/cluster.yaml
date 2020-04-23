@@ -1,4 +1,36 @@
-localrules: all, genome_download, genome_merge, merge_raw_report, merge_trimming_report, merge_rmhost_report, qc_report
+localrules:
+  - simulate_all
+  - prepare_reads_all
+  - raw_fastqc_all
+  - rmhost_bwa_all
+  - rmhost_bowtie2_all
+  - rmhost_all
+  - assebmly_megahit_all
+  - assembly_idba_ud_all
+  - assembly_metaspades_all
+  - assembly_spades_all
+  - assembly_metaquast_all
+  - assembly_report_all
+  - assembly_all
+  - alignment_all
+  - binning_metabat2_all
+  - binning_maxbin2_all
+  - binning_all
+  - predcit_scafitgs_gene_all
+  - predict_bins_gene_all
+  - predcit_all
+  - checkm_link_bins
+  - checkm_all
+  - dereplicate_drep_all
+  - dereplicate_all
+  - classify_short_reads_kraken2_all
+  - classify_hmq_bins_gtdbtk_all
+  - classify_all
+  - profiling_metaphlan2_all
+  - profiling_jgi_all
+  - profiling_humann2_all
+  - profiling_all
+
 
 __default__:
   queue: "st.q"
@@ -10,364 +42,361 @@ __default__:
 simulate_short_reads:
   mem: "2G"
   cores: 8
-  output: "logs/{rule}/{rule}.{wildcards.sample}.o"
-  error: "logs/{rule}/{rule}.{wildcards.sample}.e"
+  output: "logs/00.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/00.{rule}/{rule}.{wildcards.sample}.e"
+
+prepare_reads:
+  mem: "512M"
+  cores: 1
+  output: "logs/00.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/00.{rule}/{rule}.{wildcards.sample}.e"
 
 raw_fastqc:
   mem: "512M"
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  cores: 2
+  output: "logs/00.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/00.{rule}/{rule}.{wildcards.sample}.e"
 
 raw_fastqc_multiqc:
   mem: "128M"
-  output: "assay/cluster_logs/{rule}.o"
-  error: "assay/cluster_logs/{rule}.e"
+  cores: 1
+  output: "logs/00.{rule}/{rule}.o"
+  error:  "logs/00.{rule}/{rule}.e"
 
 trimming_oas1:
   mem: "1G"
   cores: 1
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "logs/02.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/02.{rule}/{rule}.{wildcards.sample}.e"
 
 trimming_sickle:
   mem: "1G"
   cores: 1
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "logs/02.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/02.{rule}/{rule}.{wildcards.sample}.e"
 
 trimming_fastp:
   mem: "1G"
   cores: 4
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "logs/02.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/02.{rule}/{rule}.{wildcards.sample}.e"
 
 trimming_fastp_multiqc:
   mem: "128M"
-  output: "assay/cluster_logs/{rule}.o"
-  error: "assay/cluster_logs/{rule}.e"
+  cores: 1
+  output: "logs/02.{rule}/{rule}.o"
+  error:  "logs/02.{rule}/{rule}.e"
 
 rmhost_bwa_index:
   mem: "1G"
   cores: 1
-  output: "assay/cluster_logs/{rule}.o"
-  error: "assay/cluster_logs/{rule}.e"
+  output: "logs/03.{rule}/{rule}.o"
+  error:  "logs/03.{rule}/{rule}.e"
 
 rmhost_bwa:
   mem: "6G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "logs/03.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/03.{rule}/{rule}.{wildcards.sample}.e"
 
 rmhost_bowtie2_index:
   mem: "1G"
   cores: 1
-  output: "assay/cluster_logs/{rule}.o"
-  error: "assay/cluster_logs/{rule}.e"
+  output: "logs/03.{rule}/{rule}.o"
+  error:  "logs/03.{rule}/{rule}.e"
 
 rmhost_bowtie2:
   mem: "6G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "logs/03.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/03.{rule}/{rule}.{wildcards.sample}.e"
 
-qc_report:
+qcreport:
+  mem: "512M"
+  cores: 2
+  output: "logs/03.{rule}/{wildcards.step}/{rule}.{wildcards.sample}.{wildcards.step}.o"
+  error:  "logs/03.{rule}/{wildcards.step}/{rule}.{wildcards.sample}.{wildcards.step}.e"
+
+qcreport_merge:
   mem: "512M"
   cores: 4
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "logs/03.{rule}/{rule}.{wildcards.step}.o"
+  error:  "logs/03.{rule}/{rule}.{wildcards.step}.e"
 
-qc_report_merge:
+qcreport_summary:
   mem: "512M"
   cores: 4
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
-
-qc_report_summary:
-  mem: "512M"
-  cores: 4
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
-
-kraken2:
-  mem: "8G"
-  cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "logs/03.{rule}/{rule}.o"
+  error:  "logs/03.{rule}/{rule}.e"
 
 assembly_megahit:
   mem: "10G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/04.{rule}/{rule}.{wildcards.sample}.e"
 
 assembly_idba_ud:
   mem: "15G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/04.{rule}/{rule}.{wildcards.sample}.e"
 
 assembly_metaspades:
   mem: "20G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/04.{rule}/{rule}.{wildcards.sample}.e"
 
 assembly_spades:
   mem: "20G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/04.{rule}/{rule}.{wildcards.sample}.e"
 
 assembly_metaquast:
   mem: "2G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/04.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 assembly_metaquast_multiqc:
   mem: "128M"
   cores: 1
-  output: "assay/cluster_logs/{rule}.o"
-  error: "assay/cluster_logs/{rule}.e"
+  output: "logs/04.{rule}/{rule}.o"
+  error:  "logs/04.{rule}/{rule}.e"
 
 assembly_report:
   mem: "512M"
   cores: 1
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/04.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 assembly_report_merge:
   mem: "1G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.assembler}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.assembler}.o"
+  error:  "logs/04.{rule}/{rule}.{wildcards.assembler}.e"
 
 coassembly_megahit:
   mem: "20G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.o"
-  error: "assay/cluster_logs/{rule}.e"
-
-rmhost_md5:
-  mem: "128M"
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
-
-assembly_md5:
-  mem: "128M"
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
-
-generate_samples_info:
-  mem: "512M"
-  output: "assay/cluster_logs/{rule}.o"
-  error: "assay/cluster_logs/{rule}.e"
-
-generate_run_info:
-  mem: "1G"
-  cores: 8
-  output: "assay/cluster_logs/{rule}.o"
-  error: "assay/cluster_logs/{rule}.e"
-
-generate_assembly_info:
-  mem: "1G"
-  cores: 8
-  output: "assay/cluster_logs/{rule}.o"
-  error: "assay/cluster_logs/{rule}.e"
+  output: "logs/04.{rule}/{rule}.o"
+  error:  "logs/04.{rule}/{rule}.e"
 
 demultiplex_kraken2_reads:
   mem: "8G"
   cores: 1
-  otuput: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  otuput: "logs/04.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/04.{rule}/{rule}.{wildcards.sample}.e"
 
 merge_kraken2_reads:
   mem: "512M"
   cores: 1
-  output: "assay/cluster_logs/{rule}.o"
-  error: "assay/cluster_logs/{rule}.e"
-
-predict_scaftigs_gene:
-  mem: "1G"
-  cores: 1
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
-
-predict_bins_gene:
-  mem: "1G"
-  cores: 1
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/04.{rule}/{rule}.o"
+  error:  "logs/04.{rule}/{rule}.e"
 
 alignment_scaftigs_index:
   mem: "512M"
   cores: 1
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 alignment_reads_scaftigs:
   mem: "1G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 alignment_bam_index:
   mem: "512M"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 alignment_base_depth:
   mem: "512M"
   cores: 1
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 alignment_report:
   mem: "128M"
   cores: 1
-  output: "assay/cluster_logs/{rule}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.assembler}.o"
+  output: "logs/05.{rule}/{rule}.{wildcards.assembler}.o"
+  error:  "logs/05.{rule}/{rule}.{wildcards.assembler}.o"
 
 binning_metabat2_coverage:
   mem: "1G"
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 binning_metabat2:
   mem: "1G"
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 binning_maxbin2_coverage:
   mem: "2G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 binning_maxbin2:
   mem: "1G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 filter_rename_prediction:
   mem: "512M"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 vsearch_clust_cds:
   mem: "1G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 choose_cds_marker:
   mem: "128M"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 index_marker_cds:
   mem: "1G"
   cores: 1
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 get_marker_contigs_depth:
   mem: "4G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample_}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample_}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/05.{rule}/{rule}.{wildcards.sample_}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/05.{rule}/{rule}.{wildcards.sample_}.{wildcards.sample}.{wildcards.assembler}.e"
+
+predict_scaftigs_gene:
+  mem: "1G"
+  cores: 1
+  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+
+predict_bins_gene:
+  mem: "1G"
+  cores: 1
+  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 checkm_lineage_wf:
   mem: "20G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.e"
+  output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.o"
+  error:  "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.e"
 
 checkm_report:
   mem: "512M"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{assembler}.{binner}.o"
-  error: "assay/cluster_logs/{rule}.{assembler}.{binner}.e"
-
-checkm_link_bins:
-  mem: "128M"
-  cores: 1
-  output: "assay/cluster_logs/{rule}.{assembler}.{binner}.o"
-  error: "assay/cluster_logs/{rule}.{assembler}.{binner}.e"
+  output: "logs/07.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
+  error:  "logs/07.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
 
 #checkm_coverage:
 #  mem: "512M"
 #  cores: 8
-#  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-#  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+#  output: "logs/07.{rules}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+#  error:  "logs/07.{rules}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 #checkm_profile:
 #  mem: "512M"
-#  output: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-#  error: "assay/cluster_logs/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+#  output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+#  error:  "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 classify_short_reads_kraken2:
   mem: "8G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{assembler}.{binner}.o"
-  error: "assay/cluster_logs/{rule}.{assembler}.{binner}.e"
+  output: "logs/08.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/08.{rule}/{rule}.{wildcards.sample}.e"
 
 classify_hmq_bins_gtdbtk:
   mem: "130G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{assembler}.{binner}.o"
-  error: "assay/cluster_logs/{rule}.{assembler}.{binner}.e"
+  output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
+  error:  "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
 
 dereplicate_drep:
   mem: "2G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{assembler}.{binner}.o"
-  error: "assay/cluster_logs/{rule}.{assembler}.{binner}.e"
+  output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
+  error:  "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
 
-metaphlan2_profiling:
+profiling_metaphlan2:
   mem: "8G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "logs/10.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/10.{rule}/{rule}.{wildcards.sample}.e"
 
-metaphlan2_merge:
+profiling_metaphlan2_merge:
   mem: "128M"
-  output: "assay/cluster_logs/{rule}.o"
-  error: "assay/cluster_logs/{rule}.e"
+  output: "logs/10.{rule}/{rule}.o"
+  error:  "logs/10.{rule}/{rule}.e"
 
-humann2_profiling:
-  mem: "30G"
-  cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
-
-humann2_postprocess:
-  mem: "512M"
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
-
-humann2_join:
-  mem: "20G"
-  output: "assay/cluster_logs/{rule}.o"
-  error: "assay/cluster_logs/{rule}.e"
-
-humann2_split_straified:
-  mem: "512M"
-  output: "assay/cluster_logs/{rule}.o"
-  error: "assay/cluster_logs/{rule}.e"
-
-jgi_profiling:
+profiling_jgi:
   mem: "8G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.{wildcards.sample}.o"
-  error: "assay/cluster_logs/{rule}.{wildcards.sample}.e"
+  output: "logs/10.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/10.{rule}/{rule}.{wildcards.sample}.e"
 
-jgi_profile_merge:
+profiling_jgi_merge:
   mem: "1G"
   cores: 8
-  output: "assay/cluster_logs/{rule}.o"
-  error: "assay/cluster_logs/{rule}.e"
+  output: "logs/10.{rule}/{rule}.o"
+  error:  "logs/10.{rule}/{rule}.e"
+
+profiling_humann2:
+  mem: "30G"
+  cores: 8
+  output: "logs/10.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/10.{rule}/{rule}.{wildcards.sample}.e"
+
+profiling_humann2_postprocess:
+  mem: "512M"
+  output: "logs/10.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/10.{rule}/{rule}.{wildcards.sample}.e"
+
+profiling_humann2_join:
+  mem: "20G"
+  output: "logs/10.{rule}/{rule}.o"
+  error:  "logs/10.{rule}/{rule}.e"
+
+profiling_humann2_split_straified:
+  mem: "512M"
+  output: "logs/10.{rule}/{rule}.o"
+  error:  "logs/10.{rule}/{rule}.e"
+
+rmhost_md5:
+  mem: "128M"
+  output: "logs/11.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/11.{rule}/{rule}.{wildcards.sample}.e"
+
+assembly_md5:
+  mem: "128M"
+  output: "logs/11.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/11.{rule}/{rule}.{wildcards.sample}.e"
+
+generate_samples_info:
+  mem: "512M"
+  output: "logs/11.{rule}/{rule}.o"
+  error:  "logs/11.{rule}/{rule}.e"
+
+generate_run_info:
+  mem: "1G"
+  cores: 8
+  output: "logs/11.{rule}/{rule}.o"
+  error:  "logs/11.{rule}/{rule}.e"
+
+generate_assembly_info:
+  mem: "1G"
+  cores: 8
+  output: "logs/11.{rule}/{rule}.o"
+  error:  "logs/11.{rule}/{rule}.e"
