@@ -64,8 +64,6 @@ else:
 if config["params"]["cobinning"]["do"]:
     SAMPLES_ID = metapi.parse_cobin_samples_id(SAMPLES, config)
 
-pprint(SAMPLES)
-
 READS_FORMAT = "sra" \
     if "sra" in SAMPLES.columns \
        else "fastq"

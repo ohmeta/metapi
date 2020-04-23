@@ -111,8 +111,8 @@ def denovo_wf(args):
         cmd += ["--list"]
     elif args.run:
         cmd += [""]
-    elif args.debug_run:
-        cmd += ["--debug"]
+    elif args.debug:
+        cmd += ["--debug-dag", "--dry-run"]
     elif args.dry_run:
         cmd += ["--dry-run"]
     elif args.qsub:
@@ -132,11 +132,12 @@ def denovo_wf(args):
     else:
         cmd += ["--list"]
 
-    print("Running metapi denovo_wf: \n" + " \ \n\t".join(cmd))
+    cmd_str = " ".join(cmd).strip()
+    print("Running metapi denovo_wf:\n%s" % cmd_str)
 
     env = os.environ.copy()
     proc = subprocess.Popen(
-        cmd, stdout=sys.stdout, stderr=sys.stderr, env=env, encoding="utf-8"
+        cmd_str, shell=True, stdout=sys.stdout, stderr=sys.stderr, env=env, encoding="utf-8"
     )
     proc.communicate()
 
@@ -270,7 +271,7 @@ A pipeline to construct a genome catalogue from metagenomics data
         "--run", default=False, action="store_true", help="run pipeline",
     )
     parser_denovo_wf.add_argument(
-        "--debug_run", default=False, action="store_true", help="debug run pipeline",
+        "--debug", default=False, action="store_true", help="debug pipeline",
     )
     parser_denovo_wf.add_argument(
         "--dry_run", default=False, action="store_true", help="dry run pipeline",
@@ -278,9 +279,7 @@ A pipeline to construct a genome catalogue from metagenomics data
     parser_denovo_wf.add_argument(
         "--qsub", default=False, action="store_true", help="qsub pipeline",
     )
-    parser_denovo_wf.add_argument(
-        "--wait", default=60, help="wait given seconds"
-    )
+    parser_denovo_wf.add_argument("--wait", default=60, help="wait given seconds")
 
     parser_denovo_wf._optionals.title = "arguments"
     parser_denovo_wf.set_defaults(func=denovo_wf)
