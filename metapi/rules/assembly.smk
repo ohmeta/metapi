@@ -235,7 +235,7 @@ if "metaspades" in ASSEMBLERS:
             else:
                 print(
                     '''
-                    Don't support single-end reads assembly using metaspades\n,
+                    Don't support single-end reads assembly using MetaSPAdes\n,
                     you can try SPAdes or MegaHit, IDBA_UD
                     ''')
                 sys.exit(1)
@@ -249,7 +249,7 @@ if "metaspades" in ASSEMBLERS:
                    sample=SAMPLES.index.unique())
 
 else:
-    rule assembly_metaquast_all:
+    rule assembly_metaspades_all:
         input:
 
 
@@ -386,8 +386,7 @@ if len(ASSEMBLERS) != 0:
             input:
                 expand(os.path.join(
                     config["output"]["assembly"],
-                    "metaquast/{sample}.{assembler}.metaquast.out/combined_reference/report.tsv"),
-                       assembler=ASSEMBLERS,
+                    "metaquast/{sample}.{{assembler}}.metaquast.out/combined_reference/report.tsv"),
                        sample=SAMPLES.index.unique())
             output:
                 html = os.path.join(
@@ -398,7 +397,7 @@ if len(ASSEMBLERS) != 0:
                         config["output"]["assembly"],
                         "report/{assembler}_metaquast/metaquast_multiqc_report_data"))
             log:
-                os.path.join(config["output"]["assembly"], "logs/multiqc_metaquast.log")
+                os.path.join(config["output"]["assembly"], "logs/multiqc_{assembler}_metaquast.log")
             params:
                 output_dir = os.path.join(
                     config["output"]["assembly"],
