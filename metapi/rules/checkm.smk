@@ -68,18 +68,18 @@ if config["params"]["checkm"]["do"]:
             table = os.path.join(config["output"]["checkm"],
                                  "report/{assembler}.{binner}.checkm.table.tsv")
         output:
-            hq_bins_dir = directory(
+            bins_dir_hq = directory(
                 os.path.join(config["output"]["checkm"],
-                             "hq_bins/{assembler}.{binner}.links")),
-            mq_bins_dir = directory(
+                             "bins_hq/{assembler}.{binner}.links")),
+            bins_dir_mq = directory(
                 os.path.join(config["output"]["checkm"],
-                             "mq_bins/{assembler}.{binner}.links")),
-            lq_bins_dir = directory(
+                             "bins_mq/{assembler}.{binner}.links")),
+            bins_dir_lq = directory(
                 os.path.join(config["output"]["checkm"],
-                             "lq_bins/{assembler}.{binner}.links")),
-            hmq_bins_dir = directory(
+                             "bins_lq/{assembler}.{binner}.links")),
+            bins_dir_hmq = directory(
                 os.path.join(config["output"]["checkm"],
-                             "hmq_bins/{assembler}.{binner}.links"))
+                             "bins_hmq/{assembler}.{binner}.links"))
         params:
             bins_dir = os.path.join(config["output"]["binning"], "bins"),
             bin_suffix = "fa",
@@ -87,19 +87,19 @@ if config["params"]["checkm"]["do"]:
             assembler = "{assembler}",
             binner = "{binner}"
         run:
-            if os.path.exists(output.hq_bins_dir):
-                os.rmdir(output.hq_bins_dir)
-            if os.path.exists(output.mq_bins_dir):
-                os.rmdir(output.mq_bins_dir)
-            if os.path.exists(output.lq_bins_dir):
-                os.rmdir(output.lq_bins_dir)
-            if os.path.exists(output.hmq_bins_dir):
-                os.rmdir(output.hmq_bins_dir)
+            if os.path.exists(output.bins_dir_hq):
+                os.rmdir(output.bins_dir_hq)
+            if os.path.exists(output.bins_dir_mq):
+                os.rmdir(output.bins_dir_mq)
+            if os.path.exists(output.bins_dir_lq):
+                os.rmdir(output.bins_dir_lq)
+            if os.path.exists(output.bins_dir_hmq):
+                os.rmdir(output.bins_dir_hmq)
 
-            os.mkdir(output.hq_bins_dir)
-            os.mkdir(output.mq_bins_dir)
-            os.mkdir(output.lq_bins_dir)
-            os.mkdir(output.hmq_bins_dir)
+            os.mkdir(output.bins_dir_hq)
+            os.mkdir(output.bins_dir_mq)
+            os.mkdir(output.bins_dir_lq)
+            os.mkdir(output.bins_dir_hmq)
 
             df = pd.read_csv(input.table, sep='\t').set_index("Bin Id")
 
@@ -114,23 +114,23 @@ if config["params"]["checkm"]["do"]:
 
                 if df.loc[bin_id, params.standard] == "high_quality":
                     os.symlink(bin_fa_path,
-                               os.path.join(output.hq_bins_dir,
+                               os.path.join(output.bins_dir_hq,
                                             bin_id + params.bin_suffix))
                     os.symlink(bin_fa_path,
-                               os.path.join(output.hmq_bins_dir,
+                               os.path.join(output.bins_dir_hmq,
                                             bin_id + params.bin_suffix))
 
                 if df.loc[bin_id, params.standard] == "medium_quality":
                     os.symlink(bin_fa_path,
-                               os.path.join(output.mq_bins_dir,
+                               os.path.join(output.bins_dir_mq,
                                             bin_id + params.bin_suffix))
                     os.symlink(bin_fa_path,
-                               os.path.join(output.hmq_bins_dir,
+                               os.path.join(output.bins_dir_hmq,
                                             bin_id + params.bin_suffix))
 
                 if df.loc[bin_id, params.standard] == "low_quality":
                     os.symlink(bin_fa_path,
-                               os.path.join(output.lq_bins_dir,
+                               os.path.join(output.bins_dir_lq,
                                             bin_id + params.bin_suffix))
 
 
@@ -146,13 +146,13 @@ if config["params"]["checkm"]["do"]:
                 os.path.join(config["output"]["checkm"],
                              "report/{assembler}.{binner}.checkm.table.tsv"),
                 os.path.join(config["output"]["checkm"],
-                             "hq_bins/{assembler}.{binner}.links"),
+                             "bins_hq/{assembler}.{binner}.links"),
                 os.path.join(config["output"]["checkm"],
-                             "mq_bins/{assembler}.{binner}.links"),
+                             "bins_mq/{assembler}.{binner}.links"),
                 os.path.join(config["output"]["checkm"],
-                             "lq_bins/{assembler}.{binner}.links"),
+                             "bins_lq/{assembler}.{binner}.links"),
                 os.path.join(config["output"]["checkm"],
-                             "hmq_bins/{assembler}.{binner}.links")],
+                             "bins_hmq/{assembler}.{binner}.links")],
                    assembler=ASSEMBLERS,
                    binner=BINNERS,
                    sample=SAMPLES.index.unique())

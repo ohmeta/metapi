@@ -1,9 +1,9 @@
 if config["params"]["dereplicate"]["drep"]["do"]:
     rule dereplicate_drep:
         input:
-            hmq_bins = os.path.join(
+            bins_hmq = os.path.join(
                 config["output"]["checkm"],
-                "hmq_bins/{assembler}.{binner}.links"),
+                "bins_hmq/{assembler}.{binner}.links"),
             genome_info = os.path.join(
                 config["output"]["checkm"],
                 "report/{assembler}.{binner}.checkm.table.tsv")
@@ -11,6 +11,9 @@ if config["params"]["dereplicate"]["drep"]["do"]:
             directory(os.path.join(
                 config["output"]["dereplicate"],
                 "hmq.bins.{assembler}.{binner}.drep.out"))
+        log:
+            os.path.join(config["output"]["dereplicate"],
+                         "logs/hmq.bins.{assembler}.{binner}.drep.log")
         params:
             bin_suffix = "fa",
             filtering_genome_min_length = \
@@ -25,15 +28,12 @@ if config["params"]["dereplicate"]["drep"]["do"]:
                 config["params"]["dereplicate"]["drep"]["clustering_primary_ANI"],
             clustering_secondary_ANI = \
                 config["params"]["dereplicate"]["drep"]["clustering_secondary_ANI"]
-        log:
-            os.path.join(config["output"]["dereplicate"],
-                         "logs/hmq.bins.{assembler}.{binner}.drep.log")
         threads:
             config["params"]["dereplicate"]["drep"]["threads"]
         shell:
             '''
             dRep dereplicate \
-            {output.out_dir} \
+            {output} \
             --processors {threads} \
             --length {params.filtering_genome_min_length} \
             --completeness {params.filtering_completeness} \
@@ -51,8 +51,9 @@ if config["params"]["dereplicate"]["drep"]["do"]:
         input:
             expand(
                 os.path.join(config["output"]["dereplicate"],
-                "hmq.bins.{assembler}.{binner}.drep.out")
-            )
+                             "hmq.bins.{assembler}.{binner}.drep.out"),
+                assembler=ASSEMBLERS,
+                binner=BINNERS)
 
 else:
     rule dereplicate_drep_all:
