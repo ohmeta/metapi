@@ -99,11 +99,7 @@ params:
       do: False
       threads: 8
       min_contig: 500
-    demultiplex_kraken2:
-      do: False
-      rank: "genus"
-      taxadb: /path/to/ncbi_taxonomy.database/
-      change_seq_id: True
+      only_save_scaftigs: True
 
   alignment:
     do: True
@@ -173,10 +169,8 @@ params:
 
   profiling:
     threads: 8
-    index_metadata: /path/to/index_metadata
-    taxonomy: /path/to/taxonomy
     metaphlan2:
-      do: True
+      do: False
       threads: 8
       bowtie2db: "/path/to/metaphlan_databases"
       index: "latest"
@@ -193,12 +187,14 @@ params:
       no_map: True
       biom: False
     jgi:
-      do: True
+      do: False
       fragment: 1200
       memory_limit: 2G
+      taxonomy: /path/to/taxonomy
+      index_metadata: /path/to/index_metadata
       index_prefix: /path/to/bowtie2_index_prefix
     humann2:
-      do: True
+      do: False
       threads: 8
       remove-temp-output: True
       normalize_method: "relab"
@@ -213,9 +209,7 @@ output:
   rmhost: "results/02.rmhost"
   qcreport: "results/03.qcreport"
   assembly: "results/04.assembly"
-  coassembly:
-    megahit: "results/04.coassembly/megahit"
-    demultiplex_kraken2: "results/04.coassembly/demultiplex_kraken2"
+  coassembly: "results/04.coassembly"
   alignment: "results/05.alignment"
   binning: "results/05.binning"
   cobinning:

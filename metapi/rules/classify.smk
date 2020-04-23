@@ -71,11 +71,11 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
         input:
             os.path.join(
                 config["output"]["checkm"],
-                "hmq_bins/{assembler}.{binner}.links")
+                "bins_hmq/{assembler}.{binner}.links")
         output:
             directory(os.path.join(
                 config["output"]["classify"],
-                "hmq_bins/{assembler}.{binner}.gtdbtk.out"))
+                "bins_hmq/{assembler}.{binner}.gtdbtk.out"))
         log:
             os.path.join(config["output"]["classify"],
                          "logs/{assembler}.{binner}.gtdbtk.log")
@@ -99,7 +99,7 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             expand(
                 os.path.join(
                     config["output"]["classify"],
-                    "hmq_bins/{assembler}.{binner}.gtdbtk.out"),
+                    "bins_hmq/{assembler}.{binner}.gtdbtk.out"),
                 assembler=ASSEMBLERS,
                 binner=BINNERS)
 

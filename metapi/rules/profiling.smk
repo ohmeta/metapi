@@ -175,8 +175,8 @@ if config["params"]["profiling"]["jgi"]["do"]:
                 config["output"]["profiling"],
                 "profile/jgi/{sample}/{sample}.jgi.coverage.gz"),
                               sample=SAMPLES.index.unique()),
-            taxonomy = config["params"]["profiling"]["taxonomy"],
-            index_metadata = config["params"]["profiling"]["index_metadata"]
+            taxonomy = config["params"]["profiling"]["jgi"]["taxonomy"],
+            index_metadata = config["params"]["profiling"]["jgi"]["index_metadata"]
         output:
             abundance_profile = os.path.join(
                 config["output"]["profiling"],
