@@ -98,24 +98,31 @@ def denovo_wf(args):
         conf["snakefile"],
         "--configfile",
         conf["configfile"],
+        "--cores",
+        str(args.cores),
+        "--keep-going",
+        "--printshellcmds",
+        "--reason",
         "--until",
         args.task,
     ]
 
     if args.list:
         cmd += ["--list"]
-    elif args.debug:
+    elif args.run:
+        cmd += [""]
+    elif args.debug_run:
         cmd += ["--debug"]
     elif args.dry_run:
-        cmd += ["--dry_run"]
-    elif args.run:
-        cmd += ["--cores", args.cores, "--keep-going"]
+        cmd += ["--dry-run"]
     elif args.qsub:
         cmd += [
             "--cluster-config",
             conf["clusterfile"],
             "--jobs",
-            args.jobs,
+            str(args.jobs),
+            "--latency-wait",
+            str(args.wait),
             '--cluster "qsub -S /bin/bash -cwd \
                 -q {cluster.queue} -P {cluster.project} \
                 -l vf={cluster.mem},p={cluster.cores} \
@@ -125,13 +132,13 @@ def denovo_wf(args):
     else:
         cmd += ["--list"]
 
-    print("Running metapi denovo_wf: " + "\n\t".join(cmd))
+    print("Running metapi denovo_wf: \n" + " \ \n\t".join(cmd))
 
     env = os.environ.copy()
     proc = subprocess.Popen(
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, encoding="utf-8"
+        cmd, stdout=sys.stdout, stderr=sys.stderr, env=env, encoding="utf-8"
     )
-    proc.wait()
+    proc.communicate()
 
 
 def main():
@@ -257,19 +264,22 @@ A pipeline to construct a genome catalogue from metagenomics data
         "--jobs", type=int, default=80, help="qsub job numbers"
     )
     parser_denovo_wf.add_argument(
-        "--list", default=True, action="store_true", help="list pipeline rules",
+        "--list", default=False, action="store_true", help="list pipeline rules",
     )
     parser_denovo_wf.add_argument(
-        "--debug", default=False, action="store_true", help="debug pipeline",
+        "--run", default=False, action="store_true", help="run pipeline",
+    )
+    parser_denovo_wf.add_argument(
+        "--debug_run", default=False, action="store_true", help="debug run pipeline",
     )
     parser_denovo_wf.add_argument(
         "--dry_run", default=False, action="store_true", help="dry run pipeline",
     )
     parser_denovo_wf.add_argument(
-        "--run", default=False, action="store_true", help="real run pipeline",
+        "--qsub", default=False, action="store_true", help="qsub pipeline",
     )
     parser_denovo_wf.add_argument(
-        "--qsub", default=False, action="store_true", help="qsub pipeline",
+        "--wait", default=60, help="wait given seconds"
     )
 
     parser_denovo_wf._optionals.title = "arguments"

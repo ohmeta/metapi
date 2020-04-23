@@ -110,7 +110,33 @@ class metaconfig:
         self.new_cluster_file = os.path.join(self.work_dir, "cluster.yaml")
 
     def __str__(self):
-        message = "a metagenomics project has been created at {0}".format(self.work_dir)
+        message = """
+.___  ___.  _______ .___________.    ___      .______    __
+|   \/   | |   ____||           |   /   \     |   _  \  |  |
+|  \  /  | |  |__   `---|  |----`  /  ^  \    |  |_)  | |  |
+|  |\/|  | |   __|      |  |      /  /_\  \   |   ___/  |  |
+|  |  |  | |  |____     |  |     /  _____  \  |  |      |  |
+|__|  |__| |_______|    |__|    /__/     \__\ | _|      |__|
+
+           Omics for All, Open Source for All
+
+Thanks for using metapi.
+
+A metagenomics project has been created at %s
+
+Now, you can use "metapi denovo_wf":
+
+metapi denovo_wf --list
+
+metapi denovo_wf --run
+
+metapi denovo_wf --debug_run
+
+metapi denovo_wf --dry_run
+
+metapi denovo_wf --qsub
+""" % (self.work_dir)
+
         return message
 
     def create_dirs(self):
