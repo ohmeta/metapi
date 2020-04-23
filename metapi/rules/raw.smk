@@ -100,6 +100,31 @@ def get_reads(wildcards, step, have_single=False):
         sample=wildcards.sample)
 
 
+def get_reads_list(step):
+    if IS_PE:
+        return [
+            expand(
+                os.path.join(
+                    config["output"][step],
+                    "short_reads/{sample}/{sample}.{step}.1.fq.gz"),
+                step=step,
+                sample=SAMPLES.index.unique()),
+            expand(
+                os.path.join(
+                    config["output"][step],
+                    "short_reads/{sample}/{sample}.{step}.2.fq.gz"),
+                step=step,
+                sample=SAMPLES.index.unique())]
+    else:
+        return [
+            expand(
+                os.path.join(
+                    config["output"][step],
+                    "short_reads/{sample}/{sample}.{step}.fq.gz"),
+                step=step,
+                sample=SAMPLES.index.unique())]
+
+
 if config["params"]["raw"]["fastqc"]["do"]:
     rule raw_fastqc:
         input:

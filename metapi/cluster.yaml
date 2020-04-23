@@ -12,6 +12,8 @@ localrules:
   - assembly_metaquast_all
   - assembly_report_all
   - assembly_all
+  - coassembly_megahit_all
+  - coassembly_all
   - alignment_all
   - binning_metabat2_all
   - binning_maxbin2_all
@@ -178,20 +180,8 @@ assembly_report_merge:
   error:  "logs/04.{rule}/{rule}.{wildcards.assembler}.e"
 
 coassembly_megahit:
-  mem: "20G"
+  mem: "2000G"
   cores: 8
-  output: "logs/04.{rule}/{rule}.o"
-  error:  "logs/04.{rule}/{rule}.e"
-
-demultiplex_kraken2_reads:
-  mem: "8G"
-  cores: 1
-  otuput: "logs/04.{rule}/{rule}.{wildcards.sample}.o"
-  error:  "logs/04.{rule}/{rule}.{wildcards.sample}.e"
-
-merge_kraken2_reads:
-  mem: "512M"
-  cores: 1
   output: "logs/04.{rule}/{rule}.o"
   error:  "logs/04.{rule}/{rule}.e"
 

@@ -75,6 +75,7 @@ include: "rules/trimming.smk"
 include: "rules/rmhost.smk"
 include: "rules/qcreport.smk"
 include: "rules/assembly.smk"
+include: "rules/coassembly.smk"
 include: "rules/alignment.smk"
 include: "rules/binning.smk"
 include: "rules/predict.smk"
@@ -96,6 +97,7 @@ rule all:
         rules.rmhost_all.input,
         rules.qcreport_all.input,
         rules.assembly_all.input,
+        rules.coassembly_all.input,
         rules.alignment_all.input,
         rules.binning_all.input,
         rules.predict_all.input,
