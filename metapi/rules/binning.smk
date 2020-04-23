@@ -97,7 +97,7 @@ if config["params"]["binning"]["maxbin2"]["do"]:
         shell:
             '''
             pileup.sh in={input.bam} out={output.coverage_bb} 2> {log}
-            awk '{print $1 "\t" $5}' {output.coverage_bb} | grep -v '^#' > {output.coverage}
+            awk '{{print $1 "\t" $5}}' {output.coverage_bb} | grep -v '^#' > {output.coverage}
             '''
 
 
