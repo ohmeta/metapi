@@ -123,6 +123,7 @@ def denovo_wf(args):
         "--reason",
         "--until",
         args.task,
+        args.snakemakeargs,
     ]
 
     if args.list:
@@ -206,16 +207,13 @@ A pipeline to construct a genome catalogue from metagenomics data
 
     subparsers = parser.add_subparsers(title="available subcommands", metavar="")
     parser_init = subparsers.add_parser(
-        "init",
-        parents=[parent_parser],
-        prog="metapi init",
-        help="init project"
+        "init", parents=[parent_parser], prog="metapi init", help="init project"
     )
     parser_denovo_wf = subparsers.add_parser(
         "denovo_wf",
         parents=[parent_parser],
         prog="metapi denovo_wf",
-        help="denovo_wf pipeline"
+        help="denovo_wf pipeline",
     )
 
     parser_init.add_argument(
@@ -273,7 +271,13 @@ A pipeline to construct a genome catalogue from metagenomics data
         "--qsub", default=False, action="store_true", help="qsub pipeline",
     )
     parser_denovo_wf.add_argument("--wait", default=60, help="wait given seconds")
-
+    parser_denovo_wf.add_argument(
+        "snakemakeargs",
+        metavar="SNAKEMAKEARGS",
+        nargs="?",
+        type=str,
+        help="other snakemake command options",
+    )
     parser_denovo_wf._optionals.title = "arguments"
     parser_denovo_wf.set_defaults(func=denovo_wf)
 
