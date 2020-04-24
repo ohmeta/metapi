@@ -218,170 +218,170 @@ alignment_report:
 
 binning_metabat2_coverage:
   mem: "1G"
-  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error:  "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 binning_metabat2:
   mem: "1G"
-  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error:  "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 binning_maxbin2_coverage:
   mem: "2G"
   cores: 8
-  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error:  "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 binning_maxbin2:
   mem: "1G"
   cores: 8
-  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error:  "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 cobinning_vsearch_clust_cds:
   mem: "1G"
   cores: 8
-  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error:  "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 cobinning_choose_cds_marker:
   mem: "128M"
   cores: 8
-  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error:  "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 cobinning_index_cds_marker:
   mem: "1G"
   cores: 1
-  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error:  "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 cobinning_get_marker_contigs_coverage:
   mem: "4G"
   cores: 8
-  output: "logs/05.{rule}/{rule}.{wildcards.sample_}.{wildcards.sample}.{wildcards.assembler}.o"
-  error:  "logs/05.{rule}/{rule}.{wildcards.sample_}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.sample_}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/06.{rule}/{rule}.{wildcards.sample_}.{wildcards.sample}.{wildcards.assembler}.e"
 
 predict_scaftigs_gene:
   mem: "1G"
   cores: 1
-  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error:  "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 predict_bins_gene:
   mem: "1G"
   cores: 1
-  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error:  "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 checkm_lineage_wf:
   mem: "20G"
   cores: 8
-  output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.o"
-  error:  "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.e"
+  output: "logs/08.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.o"
+  error:  "logs/08.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.e"
 
 checkm_report:
   mem: "512M"
   cores: 8
-  output: "logs/07.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
-  error:  "logs/07.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
+  output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
+  error:  "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
 
 #checkm_coverage:
 #  mem: "512M"
 #  cores: 8
-#  output: "logs/07.{rules}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-#  error:  "logs/07.{rules}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+#  output: "logs/08.{rules}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+#  error:  "logs/08.{rules}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 #checkm_profile:
 #  mem: "512M"
-#  output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-#  error:  "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+#  output: "logs/08.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+#  error:  "logs/08.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 classify_short_reads_kraken2:
   mem: "8G"
   cores: 8
-  output: "logs/08.{rule}/{rule}.{wildcards.sample}.o"
-  error:  "logs/08.{rule}/{rule}.{wildcards.sample}.e"
+  output: "logs/09.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/09.{rule}/{rule}.{wildcards.sample}.e"
 
 classify_hmq_bins_gtdbtk:
   mem: "130G"
   cores: 8
-  output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
-  error:  "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
+  output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
+  error:  "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
 
 dereplicate_drep:
   mem: "2G"
   cores: 8
-  output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
-  error:  "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
+  output: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
+  error:  "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
 
 profiling_metaphlan2:
   mem: "8G"
   cores: 8
-  output: "logs/10.{rule}/{rule}.{wildcards.sample}.o"
-  error:  "logs/10.{rule}/{rule}.{wildcards.sample}.e"
+  output: "logs/11.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/11.{rule}/{rule}.{wildcards.sample}.e"
 
 profiling_metaphlan2_merge:
   mem: "128M"
-  output: "logs/10.{rule}/{rule}.o"
-  error:  "logs/10.{rule}/{rule}.e"
+  output: "logs/11.{rule}/{rule}.o"
+  error:  "logs/11.{rule}/{rule}.e"
 
 profiling_jgi:
   mem: "8G"
   cores: 8
-  output: "logs/10.{rule}/{rule}.{wildcards.sample}.o"
-  error:  "logs/10.{rule}/{rule}.{wildcards.sample}.e"
+  output: "logs/11.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/11.{rule}/{rule}.{wildcards.sample}.e"
 
 profiling_jgi_merge:
   mem: "1G"
   cores: 8
-  output: "logs/10.{rule}/{rule}.o"
-  error:  "logs/10.{rule}/{rule}.e"
+  output: "logs/11.{rule}/{rule}.o"
+  error:  "logs/11.{rule}/{rule}.e"
 
 profiling_humann2:
   mem: "30G"
   cores: 8
-  output: "logs/10.{rule}/{rule}.{wildcards.sample}.o"
-  error:  "logs/10.{rule}/{rule}.{wildcards.sample}.e"
+  output: "logs/11.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/11.{rule}/{rule}.{wildcards.sample}.e"
 
 profiling_humann2_postprocess:
   mem: "512M"
-  output: "logs/10.{rule}/{rule}.{wildcards.sample}.o"
-  error:  "logs/10.{rule}/{rule}.{wildcards.sample}.e"
+  output: "logs/11.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/11.{rule}/{rule}.{wildcards.sample}.e"
 
 profiling_humann2_join:
   mem: "20G"
-  output: "logs/10.{rule}/{rule}.o"
-  error:  "logs/10.{rule}/{rule}.e"
+  output: "logs/11.{rule}/{rule}.o"
+  error:  "logs/11.{rule}/{rule}.e"
 
 profiling_humann2_split_straified:
   mem: "512M"
-  output: "logs/10.{rule}/{rule}.o"
-  error:  "logs/10.{rule}/{rule}.e"
+  output: "logs/11.{rule}/{rule}.o"
+  error:  "logs/11.{rule}/{rule}.e"
 
 rmhost_md5:
   mem: "128M"
-  output: "logs/11.{rule}/{rule}.{wildcards.sample}.o"
-  error:  "logs/11.{rule}/{rule}.{wildcards.sample}.e"
+  output: "logs/12.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/12.{rule}/{rule}.{wildcards.sample}.e"
 
 assembly_md5:
   mem: "128M"
-  output: "logs/11.{rule}/{rule}.{wildcards.sample}.o"
-  error:  "logs/11.{rule}/{rule}.{wildcards.sample}.e"
+  output: "logs/12.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/12.{rule}/{rule}.{wildcards.sample}.e"
 
 generate_samples_info:
   mem: "512M"
-  output: "logs/11.{rule}/{rule}.o"
-  error:  "logs/11.{rule}/{rule}.e"
+  output: "logs/12.{rule}/{rule}.o"
+  error:  "logs/12.{rule}/{rule}.e"
 
 generate_run_info:
   mem: "1G"
   cores: 8
-  output: "logs/11.{rule}/{rule}.o"
-  error:  "logs/11.{rule}/{rule}.e"
+  output: "logs/12.{rule}/{rule}.o"
+  error:  "logs/12.{rule}/{rule}.e"
 
 generate_assembly_info:
   mem: "1G"
   cores: 8
-  output: "logs/11.{rule}/{rule}.o"
-  error:  "logs/11.{rule}/{rule}.e"
+  output: "logs/12.{rule}/{rule}.o"
+  error:  "logs/12.{rule}/{rule}.e"

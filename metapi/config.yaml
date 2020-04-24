@@ -208,14 +208,14 @@ output:
   assembly: "results/04.assembly"
   coassembly: "results/04.coassembly"
   alignment: "results/05.alignment"
-  binning: "results/05.binning"
-  cobinning: "results/05.cobinning"
-  predict: "results/06.predict"
-  checkm: "results/07.checkm"
-  classify: "results/08.classify"
-  dereplicate: "results/09.dereplicate"
-  profiling: "results/10.profiling"
-  upload: "results/11.upload"
+  binning: "results/06.binning"
+  cobinning: "results/06.cobinning"
+  predict: "results/07.predict"
+  checkm: "results/08.checkm"
+  classify: "results/09.classify"
+  dereplicate: "results/10.dereplicate"
+  profiling: "results/11.profiling"
+  upload: "results/12.upload"
 
 upload:
   do: False

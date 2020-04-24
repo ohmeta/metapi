@@ -18,7 +18,7 @@ if config["params"]["cobinning"]["do"]:
                               "cds/{sample}.{assembler}.vsearch.out/{sample}.{assembler}.cds.uc.gz")
         log:
             os.path.join(config["output"]["cobinning"],
-                         "logs/{sample}.{assembler}.vsearch_clust.cds.log")
+                         "logs/clust/{sample}.{assembler}.vsearch_clust.cds.log")
         params:
             uc = os.path.join(config["output"]["cobinning"],
                               "cds/{sample}.{assembler}.vsearch.out/{sample}.{assembler}.cds.uc"),
@@ -52,9 +52,9 @@ if config["params"]["cobinning"]["do"]:
                 "cds/{sample}.{assembler}.vsearch.out/{sample}.{assembler}.cds.marker.fa.gz")
         log:
             os.path.join(config["output"]["cobinning"],
-                         "logs/{sample}.{assembler}.cds.marker.log")
+                         "logs/marker/{sample}.{assembler}.cds.marker.log")
         run:
-            from Bio import SeqIO
+            from Bio import SeqIO, bgzf
             import gzip
 
             logh = open(str(log), 'w')
@@ -72,7 +72,7 @@ if config["params"]["cobinning"]["do"]:
             # understand it
             marker_cds = clust - hit
 
-            with open(input.cds, 'r') as ih, gzip.open(output.cds, 'wb') as oh:
+            with open(input.cds, 'r') as ih, bgzf.BgzfWriter(output.cds, 'wb') as oh:
                 records = [r for r in SeqIO.parse(ih, "fasta") if r.id in marker_cds]
                 cds_count = SeqIO.write(records, oh, "fasta")
                 logh.write("Saved %i marker genes to %s\n" % (cds_count, output.cds))
@@ -92,7 +92,7 @@ if config["params"]["cobinning"]["do"]:
                    suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
         log:
             os.path.join(config["output"]["cobinning"],
-                         "logs/{sample}.{assembler}.cds.marker.index.log")
+                         "logs/index/{sample}.{assembler}.cds.marker.index.log")
         params:
             prefix = os.path.join(
                 config["output"]["cobinning"],
@@ -102,7 +102,7 @@ if config["params"]["cobinning"]["do"]:
             bowtie2-build \
             {input} \
             {params.prefix} \
-            2> {log}
+            > {log}
             '''
 
 
@@ -116,14 +116,17 @@ if config["params"]["cobinning"]["do"]:
                         suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
         output:
             os.path.join(config["output"]["cobinning"],
-                         "coverage/{assembler}/{sample_}/{sample_}.{sample}.{assembler}.metabat2.coverage.gz")
+                         "coverage/{assembler}/{sample_}/{sample_}.{sample}.{assembler}.coverage.gz")
+        log:
+            os.path.join(config["output"]["cobinning"],
+                         "logs/coverage/{assembler}/{sample_}/{sample_}.{sample}.{assembler}.coverage.log")
         params:
             index = os.path.join(
                 config["output"]["cobinning"],
                 "cds/{sample}.{assembler}.vsearch.out/{sample}.{assembler}.cds.marker.fa.gz"),
             coverage = os.path.join(
                 config["output"]["cobinning"],
-                "coverage/{sample_}/{sample_}.{sample}.{assembler}.metabat2.coverage")
+                "coverage/{assembler}/{sample_}/{sample_}.{sample}.{assembler}.coverage")
         threads:
             config["params"]["cobinning"]["threads"]
         shell:
@@ -132,21 +135,23 @@ if config["params"]["cobinning"]["do"]:
             --threads {threads} \
             -x {params.index} \
             -1 {input.reads[0]} \
-            -2 {input.reads[1]} | \
+            -2 {input.reads[1]} 2> {log} | \
             samtools sort \
             -@{threads} \
             -O BAM - | \
             jgi_summarize_bam_contig_depths \
-            --outputDepth {params.coverage} -
+            --outputDepth {params.coverage} - \
+            2>> {log}
 
             pigz {params.coverage}
             '''
+
 
     rule cobinning_all:
         input:
             expand(os.path.join(
                 config["output"]["cobinning"],
-                "coverage/{assembler}/{sample_}/{sample_}.{sample}.{assembler}.metabat2.coverage.gz"),
+                "coverage/{assembler}/{sample_}/{sample_}.{sample}.{assembler}.coverage.gz"),
                    assembler=ASSEMBLERS,
                    sample_=SAMPLES.index.unique(),
                    sample=SAMPLES.index.unique())
