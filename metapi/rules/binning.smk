@@ -176,7 +176,7 @@ if len(BINNERS) != 0:
             for bin_fa in bin_list:
                 bin_id = os.path.basename(os.path.splitext(bin_fa)[0])
                 header_ = "\\t".join([params.sample_id, bin_id,
-                                     params.assembler, params.binner])
+                                      params.assembler, params.binner])
                 stats_file = os.path.join(output.report_dir,
                                           bin_id + ".seqtk.comp.tsv.gz")
 
