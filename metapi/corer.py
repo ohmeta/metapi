@@ -276,6 +276,7 @@ A pipeline to construct a genome catalogue from metagenomics data
         metavar="SNAKEMAKEARGS",
         nargs="?",
         type=str,
+        default="",
         help="other snakemake command options",
     )
     parser_denovo_wf._optionals.title = "arguments"
