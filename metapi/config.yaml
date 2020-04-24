@@ -118,9 +118,6 @@ params:
 
   cobinning:
     do: False
-    rename: False
-    renamed_id: "samples_id_renamed.tsv"
-    samples_id: "samples_id.txt"
     threads: 8
     scaftigs_length: 1000
     vsearch:
@@ -212,10 +209,7 @@ output:
   coassembly: "results/04.coassembly"
   alignment: "results/05.alignment"
   binning: "results/05.binning"
-  cobinning:
-    scaftigs: "results/05.cobinning/scaftigs"
-    cds: "results/05.cobinning/cds"
-    depth: "results/05.cobinning/depth"
+  cobinning: "results/05.cobinning"
   predict: "results/06.predict"
   checkm: "results/07.checkm"
   classify: "results/08.classify"

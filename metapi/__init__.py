@@ -8,9 +8,9 @@ from metapi.simulator import get_simulate_info
 from metapi.simulator import simulate_short_reads
 
 from metapi.sampler import parse_samples
-from metapi.sampler import parse_cobin_samples_id
 from metapi.sampler import get_reads
 from metapi.sampler import get_sample_id
+from metapi.sampler import get_sample_id_
 
 from metapi.qcer import change
 from metapi.qcer import compute_host_rate

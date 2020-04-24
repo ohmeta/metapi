@@ -88,28 +88,3 @@ def get_sample_id_(sample_df, wildcards, col):
 
 def get_bin_id(bin_df, wildcards, col):
     return bin_df.loc[wildcards.bin, [col]].dropna()[0]
-
-
-def parse_cobin_samples_id(samples_df, config):
-    samples_id = []
-    if config["params"]["cobinning"]["do"]:
-        with open(config["params"]["cobinning"]["renamed_id"], "r") as ih:
-            samples_id = [line.strip() for line in ih]
-        if config["params"]["cobinning"]["rename"]:
-            rename_dict = {
-                k: "S" + str(v + 1)
-                for k, v in zip(
-                    samples_df.index.unique(), range(len(samples_df.index.unique()))
-                )
-            }
-            samples_df = samples_df.assign(
-                id_2=samples_df.id.apply(lambda x: rename_dict[x])
-            )
-            samples_df.loc[:, ["id", "id_2"]].drop_duplicates(["id", "id_2"]).to_csv(
-                config["params"]["cobinning"]["rename_id"], sep="\t", index=False
-            )
-    return samples_id
-
-
-def renamed_id(samples_df, wildcards):
-    return samples_df.loc[[wildcards.sample], "id_2"].dropna().tolist()[0]

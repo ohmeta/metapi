@@ -100,6 +100,22 @@ def get_reads(wildcards, step, have_single=False):
         sample=wildcards.sample)
 
 
+def get_reads_(wildcards, step, have_single=False):
+    read = ""
+    if IS_PE:
+        read = [".1", ".2"]
+        if have_single:
+            read += [".single"]
+
+    return expand(
+        os.path.join(
+            config["output"][step],
+            "short_reads/{sample_}/{sample_}.{step}{read}.fq.gz"),
+        step=step,
+        read=read,
+        sample_=wildcards.sample_)
+
+
 def get_reads_list(step):
     if IS_PE:
         return [

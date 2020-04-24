@@ -61,9 +61,6 @@ if config["params"]["simulate"]["do"]:
 else:
     SAMPLES = metapi.parse_samples(config)
 
-if config["params"]["cobinning"]["do"]:
-    SAMPLES_ID = metapi.parse_cobin_samples_id(SAMPLES, config)
-
 READS_FORMAT = "sra" \
     if "sra" in SAMPLES.columns \
        else "fastq"
@@ -78,6 +75,7 @@ include: "rules/assembly.smk"
 include: "rules/coassembly.smk"
 include: "rules/alignment.smk"
 include: "rules/binning.smk"
+include: "rules/cobinning.smk"
 include: "rules/predict.smk"
 include: "rules/checkm.smk"
 include: "rules/dereplicate.smk"
@@ -100,6 +98,7 @@ rule all:
         rules.coassembly_all.input,
         rules.alignment_all.input,
         rules.binning_all.input,
+        rules.cobinning_all.input,
         rules.predict_all.input,
         rules.checkm_all.input,
         rules.dereplicate_all.input,
