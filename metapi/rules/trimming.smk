@@ -268,6 +268,10 @@ if config["params"]["trimming"]["fastp"]["do"]:
                    read=[".1", ".2"] if IS_PE else "",
                    sample=SAMPLES.index.unique())
 
+else:
+    rule trimming_fastp_all:
+        input:
+
 
 rule trimming_all:
     input:
