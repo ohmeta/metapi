@@ -120,7 +120,7 @@ if config["params"]["binning"]["maxbin2"]["do"]:
                 config["output"]["binning"],
                 "bins/{sample}.{assembler}.out/maxbin2/{sample}.{assembler}.maxbin2.bin")
         threads:
-            config["params"]["binning"]["maxbin2"]["threads"]
+            config["params"]["binning"]["threads"]
         shell:
             '''
             run_MaxBin.pl \
@@ -203,6 +203,8 @@ if len(BINNERS) != 0:
                 "report/assembly_stats_{assembler}_{binner}.tsv")
         params:
             len_ranges = config["params"]["assembly"]["report"]["len_ranges"]
+        threads:
+            config["params"]["binning"]["threads"]
         run:
             import glob
             comp_list = []

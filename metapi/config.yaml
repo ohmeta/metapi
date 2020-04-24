@@ -108,13 +108,13 @@ params:
     report: True
 
   binning:
+    threads: 8
     metabat2:
       do: True
       min_contig: 1500
       seed: 2020
     maxbin2:
       do: False
-      threads: 8
 
   cobinning:
     do: False
