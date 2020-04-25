@@ -20,7 +20,7 @@ import os
 import sys
 import subprocess
 import textwrap
-from metapi import configer
+import metapi
 
 
 WORKFLOWS = [
@@ -68,7 +68,7 @@ WORKFLOWS = [
 
 def init(args):
     if args.workdir:
-        project = configer.metaconfig(args.workdir)
+        project = metapi.metaconfig(args.workdir)
         print(project.__str__())
         project.create_dirs()
         conf, cluster = project.get_config()
@@ -95,10 +95,10 @@ def init(args):
         if args.samples:
             conf["params"]["samples"] = args.samples
 
-        configer.update_config(
+        metapi.update_config(
             project.config_file, project.new_config_file, conf, remove=False
         )
-        configer.update_config(
+        metapi.update_config(
             project.cluster_file, project.new_cluster_file, cluster, remove=False
         )
     else:
@@ -108,7 +108,7 @@ def init(args):
 
 def denovo_wf(args):
     config_file = os.path.join(args.workdir, "config.yaml")
-    conf = configer.parse_yaml(config_file)
+    conf = metapi.parse_yaml(config_file)
 
     if not os.path.exists(conf["params"]["samples"]):
         print("Please specific samples list on init step or change config.yaml manualy")
@@ -292,11 +292,11 @@ A pipeline to construct a genome catalogue from metagenomics data
     args = parser.parse_args()
     try:
         if args.version:
-            print("metapi version %s" % __version__)
+            print("metapi version %s" % metapi.__version__)
             sys.exit(0)
         args.func(args)
     except AttributeError as e:
-        # print(e)
+        print(e)
         parser.print_help()
 
 

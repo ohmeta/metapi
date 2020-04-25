@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+from metapi.configer import metaconfig
+from metapi.configer import parse_yaml
+from metapi.configer import update_config
+
 from metapi.tooler import parse
 from metapi.tooler import merge
 
@@ -31,5 +35,6 @@ from metapi.profiler import get_profile
 from metapi.uploader import gen_samples_info
 from metapi.uploader import gen_info
 
+from metapi.__about__ import __version__, __author__
+
 name = "metapi"
-__version__ = "0.7.1"

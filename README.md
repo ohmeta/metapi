@@ -179,8 +179,8 @@ species g2 is 0.5.
 The sample s3 contain 3M reads, 0.6M reads come from g1, 0.9M reads come from
 g2 and 1.5M reads come from g3, the relatative abundance of
 species g1 is 0.2, the relatative abundance of
-species g1 is 0.3, the relatative abundance of
-species g1 is 0.5.
+species g2 is 0.3, the relatative abundance of
+species g3 is 0.5.
 
 Then metapi will use [InSilicoSeq] to generate metagenomics shutgun reads.
 

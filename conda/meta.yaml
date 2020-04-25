@@ -1,13 +1,12 @@
 {% set name = "metapi" %}
-{% set version = "0.7.1" %}
-{% set sha256 = "bd5bf907cbe90d512d77f4fff75d3c16352f232aa22e7e43ba088cb7b6a6f583" %}
+{% set version = "0.7.3" %}
+{% set sha256 = "127d21dc6147a26b48723c6bfa6c61feab47baecfae76156495330de018d16fb" %}
 
 package:
   name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  fn: {{ name }}-{{ version }}.tar.gz
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
   sha256: {{ sha256 }}
 
@@ -19,11 +18,6 @@ build:
     - metapi = metapi.corer:main
 
 requirements:
-  build:
-    - python >=3.6
-    - setuptools
-    - pip
-
   host:
     - python >=3.6
     - setuptools
@@ -37,7 +31,7 @@ requirements:
     - numpy
     - pandas
     - openpyxl
-    - biopython
+    - biopython >=1.73
     - ruamel.yaml
     - snakemake >=5.10
     - insilicoseq
@@ -62,25 +56,23 @@ requirements:
     - prokka
     - checkm-genome
     - drep
-    - kraken
+    - kraken2
     - gtdbtk
-    #- metaphlan2
-    #- humann2
 
 test:
   imports:
     - metapi
 
-commands:
-  - metapi --version
-  - metapi init --help
-  - metapi denovo_wf --help
+  commands:
+    - metapi --version
+    - metapi init --help
+    - metapi denovo_wf --help
 
 about:
   home: https://github.com/ohmeta/metapi
-  license: GNU General Public License V3 (GPLv3)
   summary: 'metapi is a pipeline to construct a genome catalogue from metagenomics data'
-  license_family: GPL3
+  license: GPL3
+  license_family: GPL
 
 extra:
   identifiers:
