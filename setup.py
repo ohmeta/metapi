@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 import setuptools
 
-with open("README.md") as f:
+with open("README.org") as f:
     long_description = f.read()
 
-version = "0.7.0"
+version = "0.7.1"
 print(
     """------------------------
 Installing metapi version {}
@@ -23,7 +23,7 @@ setuptools.setup(
     author_email="zhujie@genomics.cn",
     description="a pipeline to construct a genome catalogue from metagenomics data",
     long_description=long_description,
-    long_description_content_type="text/markdown",
+    long_description_content_type="text/org",
     packages=["metapi"],
     package_data={
         "metapi": [
@@ -65,7 +65,7 @@ setuptools.setup(
     include_package_data=True,
     install_requires=["pandas", "ruamel.yaml"],
     zip_safe=False,
-    entry_points={"console_scripts": ["metapi = metapi.core:main"]},
+    entry_points={"console_scripts": ["metapi = metapi.corer:main"]},
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Environment :: Console",
@@ -77,6 +77,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
     ],
     python_requires=">=3.5",

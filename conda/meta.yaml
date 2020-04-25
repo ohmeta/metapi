@@ -1,6 +1,6 @@
 {% set name = "metapi" %}
-{% set version = "0.6.4" %}
-{% set sha256 = "859b6b046dd561496f5e82b8f901ffb76ada59d85ea333f5e33e0d0a7ec38a30" %}
+{% set version = "0.7.0" %}
+{% set sha256 = "5943b213b97f42bd13379c43c66949c543b35f1a84ff552d450021677306bf60" %}
 
 package:
   name: {{ name|lower }}
@@ -16,7 +16,7 @@ build:
   number: 0
   script: "{{ PYTHON }} -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv"
   entry_points:
-    - metapi = metapi.core:main
+    - metapi = metapi.corer:main
 
 requirements:
   build:
@@ -26,40 +26,45 @@ requirements:
 
   host:
     - python >=3.5
-    - pip
     - setuptools
+    - pip
     - pandas
     - ruamel.yaml
-    - snakemake >=5.4
+    - snakemake >=5.10
 
   run:
     - python >=3.5
-    - setuptools
-    - pandas
     - numpy
+    - pandas
+    - openpyxl
     - biopython
     - ruamel.yaml
-    - snakemake >=5.4
-    - ncbi-genome-download
+    - snakemake >=5.10
+    - insilicoseq
+    - seqtk
+    - seqkit
+    - multiqc
     - pigz
     - fastp
     - sickle-trim
-    - multiqc
     - bwa
     - bowtie2
     - samtools
+    - megahit
+    - idba
     - spades
     - quast
-    - idba
-    - megahit
-    - maxbin2
     - metabat2
+    - maxbin2
+    - vsearch
     - prodigal
     - prokka
-    - drep
-    - vsearch
-    - mash
     - checkm-genome
+    - drep
+    - kraken
+    - gtdbtk
+    #- metaphlan2
+    #- humann2
 
 test:
   imports:
@@ -68,8 +73,7 @@ test:
 commands:
   - metapi --version
   - metapi init --help
-  - metapi simulation --help
-  - metapi workflow --help
+  - metapi denovo_wf --help
 
 about:
   home: https://github.com/ohmeta/metapi
