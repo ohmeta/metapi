@@ -123,7 +123,6 @@ def denovo_wf(args):
         "--reason",
         "--until",
         args.task,
-        args.snakemakeargs,
     ]
 
     if args.list:
@@ -148,8 +147,9 @@ def denovo_wf(args):
                 -binding linear:{cluster.cores} \
                 -o {cluster.output} -e {cluster.error}"',
         ]
-    else:
-        cmd += ["--list"]
+
+    if not args.snake is None:
+        cmd += ["--" + args.snake]
 
     cmd_str = " ".join(cmd).strip()
     print("Running metapi denovo_wf:\n%s" % cmd_str)
@@ -183,7 +183,7 @@ A pipeline to construct a genome catalogue from metagenomics data
 """
 
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawTextHelpFormatter,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
         description=textwrap.dedent(banner),
         prog="metapi",
     )
@@ -202,7 +202,7 @@ A pipeline to construct a genome catalogue from metagenomics data
         metavar="WORKDIR",
         type=str,
         default="./",
-        help="project workdir",
+        help="project workdir, default: ./",
     )
 
     subparsers = parser.add_subparsers(title="available subcommands", metavar="")
@@ -222,13 +222,14 @@ A pipeline to construct a genome catalogue from metagenomics data
         type=str,
         default=None,
         help="""
-        samples list, tsv format required\n
+        samples list, tsv format required.
 
         if begin from trimming, rmhost, or assembly:
-           if it is fastq: the header is [id, fq1, fq2],
-           else it is sra: the header is [id, sra]
+            if it is fastq: the header is [id, fq1, fq2],
+            elif it is sra: the header is [id, sra];
 
-        else begin from simulate: the header is [id, genome, abundance, reads_num, model]
+        elif begin from simulate:
+            the header is [id, genome, abundance, reads_num, model]
         """,
     )
     parser_init.add_argument(
@@ -270,14 +271,16 @@ A pipeline to construct a genome catalogue from metagenomics data
     parser_denovo_wf.add_argument(
         "--qsub", default=False, action="store_true", help="qsub pipeline",
     )
-    parser_denovo_wf.add_argument("--wait", default=60, help="wait given seconds")
     parser_denovo_wf.add_argument(
-        "snakemakeargs",
+        "--wait", type=int, default=60, help="wait given seconds"
+    )
+    parser_denovo_wf.add_argument(
+        "--snake",
         metavar="SNAKEMAKEARGS",
         nargs="?",
         type=str,
-        default="",
-        help="other snakemake command options",
+        default=None,
+        help="other snakemake command options, if want --touch, just --snake touch",
     )
     parser_denovo_wf._optionals.title = "arguments"
     parser_denovo_wf.set_defaults(func=denovo_wf)
