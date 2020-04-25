@@ -82,20 +82,33 @@ rule alignment_bam_index:
         samtools index -@{threads} {input} {output} 2> {log}
         '''
 
+if config["params"]["alignment"]["cal_base_depth"]:
+    rule alignment_base_depth:
+        input:
+            os.path.join(
+                config["output"]["alignment"],
+                "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam")
+        output:
+            os.path.join(
+                config["output"]["alignment"],
+                "depth/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.depth.gz")
+        shell:
+            '''
+            samtools depth {input} | gzip -c > {output}
+            '''
 
-rule alignment_base_depth:
-    input:
-        os.path.join(
-            config["output"]["alignment"],
-            "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam")
-    output:
-        os.path.join(
-            config["output"]["alignment"],
-            "depth/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.depth.gz")
-    shell:
-        '''
-        samtools depth {input} | gzip -c > {output}
-        '''
+
+    rule alignment_base_depth_all:
+        input:
+            expand(os.path.join(
+                config["output"]["alignment"],
+                "depth/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.depth.gz"),
+                   assembler=ASSEMBLERS,
+                   sample=SAMPLES.index.unique())
+
+else:
+    rule alignment_base_depth_all:
+        input:
 
 
 rule alignment_report:
@@ -116,11 +129,9 @@ rule alignment_report:
 
 rule alignment_all:
     input:
-        expand([
-            os.path.join(config["output"]["alignment"],
-                         "report/alignment_{assembler}_flagstat.tsv"),
-            os.path.join(config["output"]["alignment"],
-                         "depth/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.depth.gz")],
+        expand(os.path.join(
+            config["output"]["alignment"],
+            "report/alignment_{assembler}_flagstat.tsv"),
                assembler=ASSEMBLERS,
-               sample=SAMPLES.index.unique()
-        )
+               sample=SAMPLES.index.unique()),
+        rules.alignment_base_depth_all.input

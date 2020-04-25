@@ -294,7 +294,7 @@ if config["params"]["profiling"]["humann2"]["do"]:
         params:
             base_name = "{sample}",
             remove = "--remove-temp-output" \
-                if config["params"]["profiling"]["humann2"]["remove-temp-output"] \
+                if config["params"]["profiling"]["humann2"]["remove_temp_output"] \
                    else "",
             output_dir = os.path.join(
                 config["output"]["profiling"],
