@@ -85,11 +85,11 @@ class metaconfig:
         "logs/11.profiling_humann2_postprocess",
         "logs/11.profiling_humann2_join",
         "logs/11.profiling_humann2_split_straified",
-        "logs/12.rmhost_md5",
-        "logs/12.assembly_md5",
-        "logs/12.generate_samples_info",
-        "logs/12.generate_run_info",
-        "logs/12.generate_assembly_info",
+        "logs/12.upload_generate_samples_info",
+        "logs/12.upload_md5_short_reads",
+        "logs/12.upload_generate_run_info",
+        "logs/12.upload_md5_scaftigs",
+        "logs/12.upload_generate_assembly_info",
     ]
 
     def __init__(self, work_dir):
@@ -132,7 +132,9 @@ metapi denovo_wf --debug
 metapi denovo_wf --dry_run
 
 metapi denovo_wf --qsub
-""" % (self.work_dir)
+""" % (
+            self.work_dir
+        )
 
         return message
 

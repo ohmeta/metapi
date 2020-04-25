@@ -215,10 +215,10 @@ output:
   classify: "results/09.classify"
   dereplicate: "results/10.dereplicate"
   profiling: "results/11.profiling"
-  upload: "results/12.upload"
+  upload: "results/99.upload"
 
 upload:
-  do: False
+  do: True
   threads: 8
   project_accession: "CNP0000000"
 

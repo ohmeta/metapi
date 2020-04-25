@@ -59,6 +59,9 @@ WORKFLOWS = [
     "profiling_jgi_all",
     "profiling_humann2_all",
     "profiling_all",
+    "upload_sequencing_all",
+    "upload_assembly_all",
+    "upload_all",
     "all",
 ]
 

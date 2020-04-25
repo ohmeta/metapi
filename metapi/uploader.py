@@ -29,6 +29,9 @@ def parse_md5(md5_file):
             df["sample_name"] = df.apply(
                 lambda x: os.path.basename(x["file_name"]).split(".")[0], axis=1
             )
+            df["file_name"] = df.apply(
+                lambda x: os.path.basename(x["file_name"]), axis=1
+            )
             if len(df) == 2:
                 df_fq1 = df.iloc[0].to_frame().T
                 df_fq2 = (

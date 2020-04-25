@@ -81,11 +81,8 @@ include: "rules/checkm.smk"
 include: "rules/dereplicate.smk"
 include: "rules/classify.smk"
 include: "rules/profiling.smk"
+include: "rules/upload.smk"
 
-#include: "rules/coassembly.smk"
-#include: "rules/cobinning.smk"
-#include: "rules/upload.smk"
-#include: "rules/dereplicate.smk"
 
 rule all:
     input:
@@ -103,4 +100,5 @@ rule all:
         rules.checkm_all.input,
         rules.dereplicate_all.input,
         rules.classify_all.input,
-        rules.profiling_all.input
+        rules.profiling_all.input,
+        rules.upload_all.input

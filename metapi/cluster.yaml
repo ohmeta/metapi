@@ -34,6 +34,9 @@ localrules:
   - profiling_jgi_all
   - profiling_humann2_all
   - profiling_all
+  - upload_sequencing_all
+  - upload_assembly_all
+  - upload_all
 
 
 __default__:
@@ -360,29 +363,29 @@ profiling_humann2_split_straified:
   output: "logs/11.{rule}/{rule}.o"
   error:  "logs/11.{rule}/{rule}.e"
 
-rmhost_md5:
-  mem: "128M"
-  output: "logs/12.{rule}/{rule}.{wildcards.sample}.o"
-  error:  "logs/12.{rule}/{rule}.{wildcards.sample}.e"
-
-assembly_md5:
-  mem: "128M"
-  output: "logs/12.{rule}/{rule}.{wildcards.sample}.o"
-  error:  "logs/12.{rule}/{rule}.{wildcards.sample}.e"
-
-generate_samples_info:
+upload_generate_samples_info:
   mem: "512M"
   output: "logs/12.{rule}/{rule}.o"
   error:  "logs/12.{rule}/{rule}.e"
 
-generate_run_info:
+upload_md5_short_reads:
+  mem: "128M"
+  output: "logs/12.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/12.{rule}/{rule}.{wildcards.sample}.e"
+
+upload_generate_run_info:
   mem: "1G"
   cores: 8
   output: "logs/12.{rule}/{rule}.o"
   error:  "logs/12.{rule}/{rule}.e"
 
-generate_assembly_info:
+upload_md5_scaftigs:
+  mem: "128M"
+  output: "logs/12.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/12.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+
+upload_generate_assembly_info:
   mem: "1G"
   cores: 8
-  output: "logs/12.{rule}/{rule}.o"
-  error:  "logs/12.{rule}/{rule}.e"
+  output: "logs/12.{rule}/{rule}.{wildcards.assembler}.o"
+  error:  "logs/12.{rule}/{rule}.{wildcards.assembler}.e"
