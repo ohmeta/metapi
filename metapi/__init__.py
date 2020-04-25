@@ -32,4 +32,4 @@ from metapi.uploader import gen_samples_info
 from metapi.uploader import gen_info
 
 name = "metapi"
-__version__ = "0.7.0"
+__version__ = "0.7.1"

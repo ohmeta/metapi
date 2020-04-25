@@ -1,5 +1,5 @@
 {% set name = "metapi" %}
-{% set version = "0.7.0" %}
+{% set version = "0.7.1" %}
 {% set sha256 = "5943b213b97f42bd13379c43c66949c543b35f1a84ff552d450021677306bf60" %}
 
 package:
