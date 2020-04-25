@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import setuptools
 
-with open("README.org") as f:
+with open("README.md") as f:
     long_description = f.read()
 
 version = "0.7.1"
@@ -23,47 +23,26 @@ setuptools.setup(
     author_email="zhujie@genomics.cn",
     description="a pipeline to construct a genome catalogue from metagenomics data",
     long_description=long_description,
-    long_description_content_type="text/org",
+    long_description_content_type="text/markdown",
     packages=["metapi"],
     package_data={
-        "metapi": [
-            "metapi/config.yaml",
-            "metapi/cluster.yaml",
-            "metapi/__init__.py",
-            "metapi/corer.py",
-            "metapi/configer.py",
-            "metapi/simulator.py",
-            "metapi/sampler.py",
-            "metapi/tooler.py",
-            "metapi/qcer.py",
-            "metapi/assembler.py",
-            "metapi/aligner.py",
-            "metapi/binner.py",
-            "metapi/checkmer.py",
-            "metapi/classifier.py",
-            "metapi/profiler.py",
-            "metapi/uploader.py",
-            "metapi/Snakefile",
-            "metapi/rules/simulate.smk",
-            "metapi/rules/raw.smk",
-            "metapi/rules/trimming.smk",
-            "metapi/rules/rmhost.smk",
-            "metapi/rules/qcreport.smk",
-            "metapi/rules/assembly.smk",
-            "metapi/rules/coassembly.smk",
-            "metapi/rules/alignment.smk",
-            "metapi/rules/binning.smk",
-            "metapi/rules/cobinning.smk",
-            "metapi/rules/predict.smk",
-            "metapi/rules/checkm.smk",
-            "metapi/rules/dereplicate.smk",
-            "metapi/rules/classify.smk",
-            "metapi/rules/porfiling.smk",
-            "metapi/rules/upload.smk",
-        ]
+        "metapi": ["metapi/*.yaml", "metapi/Snakefile", "metapi/rules/*.smk",]
     },
     include_package_data=True,
-    install_requires=["pandas", "ruamel.yaml"],
+    install_requires=[
+        "numpy",
+        "pandas",
+        "openpyxl",
+        "snakemake",
+        "ruamel.yaml",
+        "biopython",
+        "InSilicoSeq",
+        "multiqc",
+        "quast",
+        "checkm-genome",
+        "gtdbtk",
+        "drep",
+    ],
     zip_safe=False,
     entry_points={"console_scripts": ["metapi = metapi.corer:main"]},
     classifiers=[
@@ -80,7 +59,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.8",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
     ],
-    python_requires=">=3.5",
+    python_requires=">=3.6",
 )
 
 print(

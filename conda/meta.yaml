@@ -1,6 +1,6 @@
 {% set name = "metapi" %}
 {% set version = "0.7.1" %}
-{% set sha256 = "5943b213b97f42bd13379c43c66949c543b35f1a84ff552d450021677306bf60" %}
+{% set sha256 = "bd5bf907cbe90d512d77f4fff75d3c16352f232aa22e7e43ba088cb7b6a6f583" %}
 
 package:
   name: {{ name|lower }}
@@ -20,12 +20,12 @@ build:
 
 requirements:
   build:
-    - python >=3.5
+    - python >=3.6
     - setuptools
     - pip
 
   host:
-    - python >=3.5
+    - python >=3.6
     - setuptools
     - pip
     - pandas
@@ -33,7 +33,7 @@ requirements:
     - snakemake >=5.10
 
   run:
-    - python >=3.5
+    - python >=3.6
     - numpy
     - pandas
     - openpyxl
@@ -41,6 +41,7 @@ requirements:
     - ruamel.yaml
     - snakemake >=5.10
     - insilicoseq
+    - fastqc
     - seqtk
     - seqkit
     - multiqc
