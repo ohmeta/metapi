@@ -39,6 +39,7 @@ WORKFLOWS = [
     "assembly_all",
     "coassembly_megahit_all",
     "coassembly_all",
+    "alignment_base_depth_all",
     "alignment_all",
     "binning_metabat2_all",
     "binning_maxbin2_all",

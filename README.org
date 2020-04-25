@@ -35,7 +35,7 @@ denovo_wf    denovo_wf pipeline
 $ metapi init --help
 
 usage: metapi init [-h] [-d WORKDIR] [-s SAMPLES]
-[-b {simulate,trimmingrmhost,assembly}]
+                   [-b {simulate,trimmingrmhost,assembly}]
 
 arguments:
   -h, --help            show this help message and exit
@@ -50,13 +50,14 @@ arguments:
 -b {simulate,trimming,rmhost,assembly}, --begin {simulate,trimming,rmhost,assembly}
                         pipeline starting point
 #+END_SRC
+
 ** denovo_wf
 #+BEGIN_SRC bash
 $ metapi denovo_wf --help
 
 usage: metapi denovo_wf [-h] [-d WORKDIR] [--cores CORES] [--jobs JOBS]
                         [--list] [--run] [--debug] [--dry_run] [--qsub]
-                        [--wait WAIT]
+                        [--wait WAIT] [--snake [SNAKEMAKEARGS]]
                         [TASK]
 
 positional arguments:
@@ -65,7 +66,8 @@ positional arguments:
                         rmhost_bowtie2_all, rmhost_all, assebmly_megahit_all,
                         assembly_idba_ud_all, assembly_metaspades_all,
                         assembly_spades_all, assembly_metaquast_all,
-                        assembly_report_all, assembly_all, alignment_all,
+                        assembly_report_all, assembly_all,
+                        alignment_base_depth_all, alignment_all,
                         binning_metabat2_all, binning_maxbin2_all,
                         binning_all, predcit_scafitgs_gene_all,
                         predict_bins_gene_all, predcit_all, checkm_link_bins,
@@ -78,7 +80,7 @@ positional arguments:
 arguments:
   -h, --help            show this help message and exit
   -d WORKDIR, --workdir WORKDIR
-                        project workdir
+                        project workdir, default: ./
   --cores CORES         CPU cores
   --jobs JOBS           qsub job numbers
   --list                list pipeline rules
@@ -87,6 +89,9 @@ arguments:
   --dry_run             dry run pipeline
   --qsub                qsub pipeline
   --wait WAIT           wait given seconds
+  --snake [SNAKEMAKEARGS]
+                        other snakemake command options, if want --touch, just
+                        --snake touch
 #+END_SRC
 
 ** input requirements
