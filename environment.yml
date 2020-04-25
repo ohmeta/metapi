@@ -38,5 +38,3 @@ dependencies:
   - drep
   - kraken
   - gtdbtk
-  #- metaphlan2
-  #- humann2
