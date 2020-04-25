@@ -47,7 +47,7 @@ arguments:
                         header is [id, fq1, fq2], else it is sra: the header
                         is [id, sra] else begin from simulate: the header is
                         [id, genome, abundance, reads_num, model]
--b {simulate,trimmingrmhost,assembly}, --begin {simulate,trimmingrmhost,assembly}
+-b {simulate,trimming,rmhost,assembly}, --begin {simulate,trimming,rmhost,assembly}
                         pipeline starting point
 #+END_SRC
 ** denovo_wf
