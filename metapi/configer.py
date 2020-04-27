@@ -66,6 +66,8 @@ class metaconfig:
         "logs/06.binning_metabat2",
         "logs/06.binning_maxbin2_coverage",
         "logs/06.binning_maxbin2",
+        "logs/06.binning_report",
+        "logs/06.binning_report_merge",
         "logs/06.cobinning_vsearch_clust_cds",
         "logs/06.cobinning_choose_cds_marker",
         "logs/06.cobinning_index_cds_marker",

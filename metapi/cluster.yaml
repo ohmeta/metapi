@@ -18,6 +18,7 @@ localrules:
   - alignment_all
   - binning_metabat2_all
   - binning_maxbin2_all
+  - binning_report_all
   - binning_all
   - cobinning_all
   - predcit_scafitgs_gene_all
@@ -241,6 +242,16 @@ binning_maxbin2:
   cores: 8
   output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error:  "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+
+binning_report:
+  mem: "1G"
+  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.o"
+  error:  "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.e"
+
+binning_report_merge:
+   mem: "1G"
+   output: "logs/06.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
+   error:  "logs/06.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
 
 cobinning_vsearch_clust_cds:
   mem: "1G"
