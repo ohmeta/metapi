@@ -2,10 +2,10 @@ rule prepare_reads:
     input:
         unpack(raw_reads)
     output:
-        expand(
+        temp(expand(
             os.path.join(config["output"]["raw"],
                          "short_reads/{{sample}}/{{sample}}.raw{read}.fq.gz"),
-            read=[".1", ".2"] if IS_PE else "")
+            read=[".1", ".2"] if IS_PE else ""))
     params:
         output_dir = os.path.join(config["output"]["raw"],
                                   "short_reads/{sample}")

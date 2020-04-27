@@ -3,9 +3,9 @@ if config["params"]["trimming"]["oas1"]["do"]:
         input:
             lambda wildcards: get_reads(wildcards, "raw")
         output:
-            reads = expand(
+            reads = temp(expand(
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
+                             "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz")),
                 read=[".1", ".2", ".single"] if IS_PE else ""),
             stat_out = os.path.join(config["output"]["trimming"],
                                     "short_reads/{sample}/{sample}.oas1.stat_out")
@@ -58,10 +58,10 @@ if config["params"]["trimming"]["sickle"]["do"]:
         input:
             lambda wildcards: get_reads(wildcards, "raw", False)
         output:
-            expand(
+            temp(expand(
                 os.path.join(config["output"]["trimming"],
                              "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                read=[".1", ".2", ".single"] if IS_PE else "")
+                read=[".1", ".2", ".single"] if IS_PE else ""))
         log:
             os.path.join(config["output"]["trimming"], "logs/{sample}.sickle.log")
         params:
@@ -116,9 +116,9 @@ if config["params"]["trimming"]["fastp"]["do"]:
         input:
             lambda wildcards: get_reads(wildcards, "raw")
         output:
-            reads = expand(
+            reads = temp(expand(
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
+                             "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz")),
                 read=[".1", ".2"] if IS_PE else ""),
             html = os.path.join(config["output"]["trimming"],
                                 "short_reads/{sample}/{sample}.fastp.html"),
