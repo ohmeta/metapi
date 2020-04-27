@@ -19,7 +19,7 @@ rule prepare_reads:
                     os.symlink(os.path.realpath(input[1]), output[1])
                 else:
                     shell('''cat %s > %s''' % (" ".join(input[0:reads_num//2]), output[0]))
-                    shell('''cat %s > %s''' % (" ".join(input[reads_num//2:]), output[0]))
+                    shell('''cat %s > %s''' % (" ".join(input[reads_num//2:]), output[1]))
             else:
                 if reads_num == 1:
                     os.symlink(os.path.realpath(input[0]), output[0])
