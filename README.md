@@ -91,9 +91,10 @@ $ metapi denovo_wf --help
                           assembly_report_all, assembly_all,
                           alignment_base_depth_all, alignment_all,
                           binning_metabat2_all, binning_maxbin2_all,
-                          binning_all, predcit_scafitgs_gene_all,
-                          predict_bins_gene_all, predcit_all, checkm_link_bins,
-                          checkm_all, dereplicate_drep_all, dereplicate_all,
+                          binning_report_all, binning_all, cobinning_all,
+                          predcit_scafitgs_gene_all, predict_bins_gene_all,
+                          predcit_all, checkm_link_bins, checkm_all,
+                          dereplicate_drep_all, dereplicate_all,
                           classify_short_reads_kraken2_all,
                           classify_hmq_bins_gtdbtk_all, classify_all,
                           profiling_metaphlan2_all, profiling_jgi_all,
@@ -182,7 +183,7 @@ species g1 is 0.2, the relatative abundance of
 species g2 is 0.3, the relatative abundance of
 species g3 is 0.5.
 
-Then metapi will use [InSilicoSeq] to generate metagenomics shutgun reads.
+Then metapi will use [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq) to generate metagenomics shutgun reads.
 
 ## Getting help
 
@@ -193,12 +194,12 @@ This is the preferred way of getting support. Alternatively, you can [mail me](m
 
 ## Contributing
 
-Contributions welcome! Send me a pull request or get in [touch](mailto:alienchuj@gmail.com)
+Contributions welcome! Send me a pull request or get in [touch](mailto:alienchuj@gmail.com).
 
 When contributing a PR, please use the [dev](https://github.com/ohmeta/metapi/tree/dev) branch.
 For style, code will be checked using flake8,
 [black](https://github.com/psf/black), and
-[smakefmt](https://github.com/snakemake/snakefmt). These modules can be
+[snakefmt](https://github.com/snakemake/snakefmt). These modules can be
 installed via conda, `conda install black flake8 flake8-bugbear snakefmt` or via
 pip `pip install black flake8 flake8-bugbear snakefmt`.
 
