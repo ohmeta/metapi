@@ -1,3 +1,5 @@
+# Check https://circleci.com/docs/2.0/language-python/ for more details
+
 version: 2.1
 
 orbs:
@@ -7,13 +9,33 @@ jobs:
   build-and-test:
     executor: python/default
     steps:
-      - checkout
-      - python/load-cache
-      - python/install-deps
-      - python/save-cache
       - run:
-          command: ./manage.py test
-          name: Test
+          name: conda create
+          command: |
+            ls $HOME
+            if [ ! -d "/home/circleci/conda" ]; then
+                wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+                /bin/bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/conda
+                export PATH=$HOME/conda/bin:$PATH
+                conda install -y -c defaults -c conda-forge
+            else
+                echo "Miniconda is already installed, continuing to build."
+            fi
+            chmod u+x ~/repo/.circleci/*.sh
+      - save_cache:
+          paths:
+            - /home/circleci/conda
+          key: v2-dependencies
+
+      - run:
+          name: conda build
+          command: |
+            cd ~/metapi
+            /bin/bash ~/metapi/conda
+            conda build ./
+      - store_artifacts:
+          path: ~/repo/build
+          destination: singularity-containers
 
 workflows:
   main:

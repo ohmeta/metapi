@@ -1,6 +1,6 @@
 {% set name = "metapi" %}
-{% set version = "0.7.3" %}
-{% set sha256 = "127d21dc6147a26b48723c6bfa6c61feab47baecfae76156495330de018d16fb" %}
+{% set version = "0.7.5" %}
+{% set sha256 = "99ee65de9bd10738d6e65b4156dc7a218e20675907352e5eff94d82647e85a2b" %}
 
 package:
   name: {{ name|lower }}
@@ -13,18 +13,14 @@ source:
 build:
   noarch: python
   number: 0
-  script: "{{ PYTHON }} -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv"
+  script: python -m pip install . --no-deps --ignore-installed
   entry_points:
     - metapi = metapi.corer:main
 
 requirements:
   host:
     - python >=3.6
-    - setuptools
     - pip
-    - pandas
-    - ruamel.yaml
-    - snakemake >=5.10
 
   run:
     - python >=3.6
@@ -34,30 +30,30 @@ requirements:
     - biopython >=1.73
     - ruamel.yaml
     - snakemake >=5.10
-    - insilicoseq
-    - fastqc
-    - seqtk
-    - seqkit
-    - multiqc
-    - pigz
-    - fastp
-    - sickle-trim
-    - bwa
-    - bowtie2
-    - samtools
-    - megahit
-    - idba
-    - spades
-    - quast
-    - metabat2
-    - maxbin2
-    - vsearch
-    - prodigal
-    - prokka
-    - checkm-genome
-    - drep
-    - kraken2
-    - gtdbtk
+#    - insilicoseq
+#    - fastqc
+#    - seqtk
+#    - seqkit
+#    - multiqc
+#    - pigz
+#    - fastp
+#    - sickle-trim
+#    - bwa
+#    - bowtie2
+#    - samtools
+#    - megahit
+#    - idba
+#    - spades
+#    - quast
+#    - metabat2
+#    - maxbin2
+#    - vsearch
+#    - prodigal
+#    - prokka
+#    - checkm-genome
+#    - drep
+#    - kraken2
+#    - gtdbtk
 
 test:
   imports:
