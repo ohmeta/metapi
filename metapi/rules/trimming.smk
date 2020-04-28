@@ -5,8 +5,8 @@ if config["params"]["trimming"]["oas1"]["do"]:
         output:
             reads = temp(expand(
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz")),
-                read=[".1", ".2", ".single"] if IS_PE else ""),
+                             "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
+                read=[".1", ".2", ".single"] if IS_PE else "")),
             stat_out = os.path.join(config["output"]["trimming"],
                                     "short_reads/{sample}/{sample}.oas1.stat_out")
         log:
@@ -118,8 +118,8 @@ if config["params"]["trimming"]["fastp"]["do"]:
         output:
             reads = temp(expand(
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz")),
-                read=[".1", ".2"] if IS_PE else ""),
+                             "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
+                read=[".1", ".2"] if IS_PE else "")),
             html = os.path.join(config["output"]["trimming"],
                                 "short_reads/{sample}/{sample}.fastp.html"),
             json = os.path.join(config["output"]["trimming"],

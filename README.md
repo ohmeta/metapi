@@ -13,6 +13,7 @@ metapi works with Python 3.6+.
 You can install it via [bioconda](https://bioconda.github.io/):
 
 ```
+# [WIP]
 $ conda install metapi
 ```
 
