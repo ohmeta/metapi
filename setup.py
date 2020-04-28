@@ -13,24 +13,17 @@ with open("README.md") as f:
     long_description = f.read()
 
 packages = ["metapi"]
-package_data = {"metapi": ["metapi/*.yaml", "metapi/Snakefile", "metapi/rules/*.smk"]}
+package_data = {
+    "metapi": ["metapi/*.yaml", "metapi/*.py", "metapi/Snakefile", "metapi/rules/*.smk"]
+}
 data_files = [(".", ["LICENSE", "README.md"])]
 
 entry_points = {"console_scripts": ["metapi=metapi.corer:main"]}
 
 requires = [
-    "numpy",
-    "pandas",
-    "openpyxl",
-    "snakemake",
-    "ruamel.yaml",
-    "biopython>=1.73",
-    "InSilicoSeq",
-    "multiqc",
-    "quast",
-    "checkm-genome",
-    "gtdbtk",
-    "drep",
+    req.strip()
+    for req in open("requirements.txt", "rU").readlines()
+    if not req.startswith("#")
 ]
 
 classifiers = [
@@ -50,17 +43,18 @@ classifiers = [
 setup(
     name="metapi",
     version=__version__,
-    description="a pipeline to construct a genome catalogue from metagenomics data",
-    long_description_content_type="text/markdown",
-    long_description=long_description,
-    packages=packages,
-    package_data=package_data,
-    data_files=data_files,
-    entry_points=entry_points,
-    install_requires=requires,
     author=__author__,
     author_email="alienchuj@gmail.com",
     url="https://github.com/ohmeta/metapi",
-    license="GPLv3",
+    description="a pipeline to construct a genome catalogue from metagenomics data",
+    long_description_content_type="text/markdown",
+    long_description=long_description,
+    entry_points=entry_points,
+    packages=packages,
+    package_data=package_data,
+    data_files=data_files,
+    include_package_data=True,
+    install_requires=requires,
+    license="GPLv3+",
     classifiers=classifiers,
 )

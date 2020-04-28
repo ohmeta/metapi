@@ -1,1 +1,6 @@
-recursive-include metapi *
+include *.md *.txt
+include LICENSE
+recursive-include metapi/ *
+recursive-include metapi/rules *
+global-exclude metapi/ *.pyc
+global-exclude metapi/__pycache__ *.pyc
