@@ -1,0 +1,12 @@
+numpy
+pandas
+openpyxl
+snakemake
+ruamel.yaml
+biopython>=1.73
+InSilicoSeq
+multiqc
+quast
+checkm-genome
+gtdbtk
+drep
