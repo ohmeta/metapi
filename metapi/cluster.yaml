@@ -74,50 +74,50 @@ raw_fastqc_multiqc:
 trimming_oas1:
   mem: "1G"
   cores: 1
-  output: "logs/02.{rule}/{rule}.{wildcards.sample}.o"
-  error:  "logs/02.{rule}/{rule}.{wildcards.sample}.e"
+  output: "logs/01.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/01.{rule}/{rule}.{wildcards.sample}.e"
 
 trimming_sickle:
   mem: "1G"
   cores: 1
-  output: "logs/02.{rule}/{rule}.{wildcards.sample}.o"
-  error:  "logs/02.{rule}/{rule}.{wildcards.sample}.e"
+  output: "logs/01.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/01.{rule}/{rule}.{wildcards.sample}.e"
 
 trimming_fastp:
   mem: "1G"
   cores: 4
-  output: "logs/02.{rule}/{rule}.{wildcards.sample}.o"
-  error:  "logs/02.{rule}/{rule}.{wildcards.sample}.e"
+  output: "logs/01.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/01.{rule}/{rule}.{wildcards.sample}.e"
 
 trimming_fastp_multiqc:
   mem: "128M"
   cores: 1
-  output: "logs/02.{rule}/{rule}.o"
-  error:  "logs/02.{rule}/{rule}.e"
+  output: "logs/01.{rule}/{rule}.o"
+  error:  "logs/01.{rule}/{rule}.e"
 
 rmhost_bwa_index:
   mem: "1G"
   cores: 1
-  output: "logs/03.{rule}/{rule}.o"
-  error:  "logs/03.{rule}/{rule}.e"
+  output: "logs/02.{rule}/{rule}.o"
+  error:  "logs/02.{rule}/{rule}.e"
 
 rmhost_bwa:
   mem: "6G"
   cores: 8
-  output: "logs/03.{rule}/{rule}.{wildcards.sample}.o"
-  error:  "logs/03.{rule}/{rule}.{wildcards.sample}.e"
+  output: "logs/02.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/02.{rule}/{rule}.{wildcards.sample}.e"
 
 rmhost_bowtie2_index:
   mem: "1G"
   cores: 1
-  output: "logs/03.{rule}/{rule}.o"
-  error:  "logs/03.{rule}/{rule}.e"
+  output: "logs/02.{rule}/{rule}.o"
+  error:  "logs/02.{rule}/{rule}.e"
 
 rmhost_bowtie2:
   mem: "6G"
   cores: 8
-  output: "logs/03.{rule}/{rule}.{wildcards.sample}.o"
-  error:  "logs/03.{rule}/{rule}.{wildcards.sample}.e"
+  output: "logs/02.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/02.{rule}/{rule}.{wildcards.sample}.e"
 
 qcreport:
   mem: "512M"
