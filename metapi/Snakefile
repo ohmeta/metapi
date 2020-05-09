@@ -28,6 +28,8 @@ IS_PE = True \
     if config["params"]["reads_layout"] == "pe" \
        else False
 
+IS_INTERLEAVED = config["params"]["interleaved"]
+
 RMHOST_DO = True \
     if config["params"]["rmhost"]["bwa"]["do"] or \
        config["params"]["rmhost"]["bowtie2"]["do"] \

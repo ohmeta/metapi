@@ -9,17 +9,27 @@ rule prepare_reads:
     params:
         output_dir = os.path.join(config["output"]["raw"],
                                   "short_reads/{sample}")
+    threads:
+        config["params"]["raw"]["threads"]
     run:
         reads_num = len(input)
 
         if READS_FORMAT == "fastq":
             if IS_PE:
-                if reads_num == 2:
-                    os.symlink(os.path.realpath(input[0]), output[0])
-                    os.symlink(os.path.realpath(input[1]), output[1])
+                if not IS_INTERLEAVED:
+                    if reads_num == 2:
+                        os.symlink(os.path.realpath(input[0]), output[0])
+                        os.symlink(os.path.realpath(input[1]), output[1])
+                    else:
+                        shell('''cat %s > %s''' % (" ".join(input[0:reads_num//2]), output[0]))
+                        shell('''cat %s > %s''' % (" ".join(input[reads_num//2:]), output[1]))
                 else:
-                    shell('''cat %s > %s''' % (" ".join(input[0:reads_num//2]), output[0]))
-                    shell('''cat %s > %s''' % (" ".join(input[reads_num//2:]), output[1]))
+                    shell(
+                        '''
+                        cat {input} | \
+                        tee >(seqtk seq -1 - | pigz -c -p {threads} > {output[0]}) | \
+                        seqtk seq -2 - | pigz -c -p {threads} > {output[1]}
+                        ''')
             else:
                 if reads_num == 1:
                     os.symlink(os.path.realpath(input[0]), output[0])

@@ -5,8 +5,9 @@ def raw_reads(wildcards):
                     metapi.get_reads(SAMPLES, wildcards, "fq2")[0]]
         else:
             if IS_PE:
-                return [metapi.get_reads(SAMPLES, wildcards, "fq1"),
-                        metapi.get_reads(SAMPLES, wildcards, "fq2")]
+                if not IS_INTERLEAVED:
+                    return [metapi.get_reads(SAMPLES, wildcards, "fq1"),
+                            metapi.get_reads(SAMPLES, wildcards, "fq2")]
             else:
                 return [metapi.get_reads(SAMPLES, wildcards, "fq1")]
     elif READS_FORMAT == "sra":

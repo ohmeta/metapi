@@ -1,5 +1,6 @@
 params:
   reads_layout: "pe"
+  interleaved: False
   fq_encoding: "sanger"
   begin: "trimming"
   samples: "samples.tsv"
