@@ -257,9 +257,11 @@ A pipeline to construct a genome catalogue from metagenomics data
         choices=WORKFLOWS,
         help="pipeline end point. Allowed values are " + ", ".join(WORKFLOWS),
     )
-    parser_denovo_wf.add_argument("--cores", type=int, default=8, help="CPU cores")
     parser_denovo_wf.add_argument(
-        "--jobs", type=int, default=80, help="qsub job numbers"
+        "--cores", type=int, default=8, help="CPU cores, default: 8"
+    )
+    parser_denovo_wf.add_argument(
+        "--jobs", type=int, default=80, help="qsub job numbers, default: 80"
     )
     parser_denovo_wf.add_argument(
         "--list", default=False, action="store_true", help="list pipeline rules",
@@ -277,7 +279,7 @@ A pipeline to construct a genome catalogue from metagenomics data
         "--qsub", default=False, action="store_true", help="qsub pipeline",
     )
     parser_denovo_wf.add_argument(
-        "--wait", type=int, default=60, help="wait given seconds"
+        "--wait", type=int, default=60, help="wait given seconds, default: 60"
     )
     parser_denovo_wf.add_argument(
         "--snake",
@@ -285,7 +287,7 @@ A pipeline to construct a genome catalogue from metagenomics data
         nargs="?",
         type=str,
         default=None,
-        help="other snakemake command options, if want --touch, just --snake touch",
+        help="other snakemake command options(sankemake -h), if want --touch, just --snake touch",
     )
     parser_denovo_wf._optionals.title = "arguments"
     parser_denovo_wf.set_defaults(func=denovo_wf)
