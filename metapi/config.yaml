@@ -10,9 +10,9 @@ params:
     threads: 8
 
   raw:
+    threads: 8
     fastqc:
       do: True
-      threads: 8
 
   trimming:
     oas1:

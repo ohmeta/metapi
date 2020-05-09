@@ -160,7 +160,7 @@ if config["params"]["raw"]["fastqc"]["do"]:
                 config["output"]["raw"],
                 "fastqc/{sample}.fastqc.out"))
         threads:
-            config["params"]["raw"]["fastqc"]["threads"]
+            config["params"]["raw"]["threads"]
         log:
             os.path.join(config["output"]["raw"], "logs/{sample}.fastqc.log")
         shell:
