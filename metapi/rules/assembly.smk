@@ -1,10 +1,10 @@
 def assembly_input(wildcards):
     if RMHOST_DO:
-        return ancient(get_reads(wildcards, "rmhost", False))
+        return get_reads(wildcards, "rmhost", False)
     elif TRIMMING_DO:
-        return ancient(get_reads(wildcards, "trimming", False))
+        return get_reads(wildcards, "trimming", False)
     else:
-        return ancient(get_reads(wildcards, "raw", False))
+        return get_reads(wildcards, "raw", False)
 
    
 if "megahit" in ASSEMBLERS:
