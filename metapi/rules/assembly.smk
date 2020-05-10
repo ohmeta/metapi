@@ -1,16 +1,16 @@
 def assembly_input(wildcards):
     if RMHOST_DO:
-        return get_reads(wildcards, "rmhost", False)
+        return ancient(get_reads(wildcards, "rmhost", False))
     elif TRIMMING_DO:
-        return get_reads(wildcards, "trimming", False)
+        return ancient(get_reads(wildcards, "trimming", False))
     else:
-        return get_reads(wildcards, "raw", False)
+        return ancient(get_reads(wildcards, "raw", False))
 
    
 if "megahit" in ASSEMBLERS:
     rule assembly_megahit:
         input:
-            reads = ancient(assembly_input)
+            reads = assembly_input
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
@@ -85,7 +85,7 @@ else:
 if "idba_ud" in ASSEMBLERS:
     rule assembly_idba_ud:
         input:
-            reads = ancient(assembly_input)
+            reads = assembly_input
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
@@ -165,7 +165,7 @@ else:
 if "metaspades" in ASSEMBLERS:
     rule assembly_metaspades:
         input:
-            reads = ancient(assembly_input)
+            reads = assembly_input
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
@@ -256,7 +256,7 @@ else:
 if "spades" in ASSEMBLERS:
     rule assembly_spades:
         input:
-            reads = ancient(assembly_input)
+            reads = assembly_input
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
