@@ -10,7 +10,7 @@ def assembly_input(wildcards):
 if "megahit" in ASSEMBLERS:
     rule assembly_megahit:
         input:
-            reads = assembly_input
+            reads = ancient(assembly_input)
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
@@ -85,7 +85,7 @@ else:
 if "idba_ud" in ASSEMBLERS:
     rule assembly_idba_ud:
         input:
-            reads = assembly_input
+            reads = ancient(assembly_input)
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
@@ -165,7 +165,7 @@ else:
 if "metaspades" in ASSEMBLERS:
     rule assembly_metaspades:
         input:
-            reads = assembly_input
+            reads = ancient(assembly_input)
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
@@ -256,7 +256,7 @@ else:
 if "spades" in ASSEMBLERS:
     rule assembly_spades:
         input:
-            reads = assembly_input
+            reads = ancient(assembly_input)
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
