@@ -4,9 +4,14 @@ if config["params"]["trimming"]["oas1"]["do"]:
             lambda wildcards: get_reads(wildcards, "raw")
         output:
             reads = temp(expand(
-                os.path.join(config["output"]["trimming"],
-                             "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                read=[".1", ".2", ".single"] if IS_PE else "")),
+                os.path.join(
+                    config["output"]["trimming"],
+                    "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
+                read=[".1", ".2", ".single"] if IS_PE else "")) if RMHOST_DO else \
+                expand(os.path.join(
+                    config["output"]["trimming"],
+                    "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
+                       read=[".1", ".2", ".single"] if IS_PE else ""),
             stat_out = os.path.join(config["output"]["trimming"],
                                     "short_reads/{sample}/{sample}.oas1.stat_out")
         log:
