@@ -70,38 +70,39 @@ def flagstats_summary(flagstats, out_file, method):
         list_handle = flagstats
 
     for flagstat_file in list_handle:
-        info = {}
-        info["sample_id"] = os.path.basename(flagstat_file.strip()).split(".")[0]
-        stat_list = open(flagstat_file.strip(), "r").readlines()
-        info["total_num"] = stat_list[0].split(" ")[0]
-        info["read_1_num"] = stat_list[6].split(" ")[0]
-        info["read_2_num"] = stat_list[7].split(" ")[0]
+        if os.path.exists(flagstat_file.strip()):
+            info = {}
+            info["sample_id"] = os.path.basename(flagstat_file.strip()).split(".")[0]
+            stat_list = open(flagstat_file.strip(), "r").readlines()
+            info["total_num"] = stat_list[0].split(" ")[0]
+            info["read_1_num"] = stat_list[6].split(" ")[0]
+            info["read_2_num"] = stat_list[7].split(" ")[0]
 
-        mapped = re.split(r"\(|\s+", stat_list[4])
-        info["mapped_num"] = mapped[0]
-        info["mapped_rate"] = Decimal(mapped[5].rstrip("%")) / Decimal(100)
+            mapped = re.split(r"\(|\s+", stat_list[4])
+            info["mapped_num"] = mapped[0]
+            info["mapped_rate"] = Decimal(mapped[5].rstrip("%")) / Decimal(100)
 
-        paired = re.split(r"\(|\s+", stat_list[8])
-        info["paired_num"] = paired[0]
-        paired_rate = paired[6].rstrip("%")
-        if paired_rate != "N/A":
-            info["paired_rate"] = Decimal(paired_rate) / Decimal(100)
-            info["mapping_type"] = "paired-end"
-        else:
-            info["paired_rate"] = paired_rate
-            info["mapping_type"] = "single-end"
+            paired = re.split(r"\(|\s+", stat_list[8])
+            info["paired_num"] = paired[0]
+            paired_rate = paired[6].rstrip("%")
+            if paired_rate != "N/A":
+                info["paired_rate"] = Decimal(paired_rate) / Decimal(100)
+                info["mapping_type"] = "paired-end"
+            else:
+                info["paired_rate"] = paired_rate
+                info["mapping_type"] = "single-end"
 
-        singletons = re.split(r"\(|\s+", stat_list[-3])
-        info["singletons_num"] = singletons[0]
-        singletons_rate = singletons[5].rstrip("%")
-        if singletons_rate != "N/A":
-            info["singletons_rate"] = Decimal(singletons_rate) / Decimal(100)
-        else:
-            info["singletons_rate"] = singletons_rate
+            singletons = re.split(r"\(|\s+", stat_list[-3])
+            info["singletons_num"] = singletons[0]
+            singletons_rate = singletons[5].rstrip("%")
+            if singletons_rate != "N/A":
+                info["singletons_rate"] = Decimal(singletons_rate) / Decimal(100)
+            else:
+                info["singletons_rate"] = singletons_rate
 
-        info["mate_mapped_num"] = re.split(r"\(|\s+", stat_list[-2])[0]
-        info["mate_mapped_num_mapQge5"] = re.split(r"\(|\s+", stat_list[-1])[0]
-        mapping_info.append(info)
+            info["mate_mapped_num"] = re.split(r"\(|\s+", stat_list[-2])[0]
+            info["mate_mapped_num_mapQge5"] = re.split(r"\(|\s+", stat_list[-1])[0]
+            mapping_info.append(info)
 
     with open(out_file, "w") as out_handle:
         f_tsv = csv.DictWriter(out_handle, headers, delimiter="\t")
