@@ -71,8 +71,8 @@ def flagstats_summary(flagstats, out_file, method):
 
     for flagstat_file in list_handle:
         info = {}
-        info["sample_id"] = os.path.basename(flagstat_file).split(".")[0]
-        stat_list = open(flagstat_file, "r").readlines()
+        info["sample_id"] = os.path.basename(flagstat_file.strip()).split(".")[0]
+        stat_list = open(flagstat_file.strip(), "r").readlines()
         info["total_num"] = stat_list[0].split(" ")[0]
         info["read_1_num"] = stat_list[6].split(" ")[0]
         info["read_2_num"] = stat_list[7].split(" ")[0]
