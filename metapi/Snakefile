@@ -22,8 +22,6 @@ from pprint import pprint
 
 shell.executable("bash")
 
-configfile: "config.yaml"
-
 IS_PE = True \
     if config["params"]["reads_layout"] == "pe" \
        else False

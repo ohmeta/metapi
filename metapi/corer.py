@@ -120,7 +120,7 @@ def denovo_wf(args):
         "--snakefile",
         conf["snakefile"],
         "--configfile",
-        conf["configfile"],
+        args.config,
         "--cores",
         str(args.cores),
         "--keep-going",
@@ -256,6 +256,12 @@ A pipeline to construct a genome catalogue from metagenomics data
         default="all",
         choices=WORKFLOWS,
         help="pipeline end point. Allowed values are " + ", ".join(WORKFLOWS),
+    )
+    parser_denovo_wf.add_argument(
+        "--config",
+        type=str,
+        default="./config.yaml",
+        help="config.yaml, default: ./config.yaml",
     )
     parser_denovo_wf.add_argument(
         "--cores", type=int, default=8, help="CPU cores, default: 8"
