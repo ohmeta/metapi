@@ -63,10 +63,15 @@ if config["params"]["trimming"]["sickle"]["do"]:
         input:
             lambda wildcards: get_reads(wildcards, "raw", False)
         output:
-            temp(expand(
-                os.path.join(config["output"]["trimming"],
-                             "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                read=[".1", ".2", ".single"] if IS_PE else ""))
+            reads = temp(expand(
+                os.path.join(
+                    config["output"]["trimming"],
+                    "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
+                read=[".1", ".2", ".single"] if IS_PE else "")) if RMHOST_DO else \
+                expand(os.path.join(
+                    config["output"]["trimming"],
+                    "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
+                       read=[".1", ".2", ".single"] if IS_PE else "")
         log:
             os.path.join(config["output"]["trimming"], "logs/{sample}.sickle.log")
         params:
@@ -82,9 +87,9 @@ if config["params"]["trimming"]["sickle"]["do"]:
                     sickle pe \
                     --pe-file1 {input[0]} \
                     --pe-file2 {input[1]} \
-                    --output-pe1 {output[0]} \
-                    --output-pe2 {output[1]} \
-                    --output-single {output[2]} \
+                    --output-pe1 {output.reads[0]} \
+                    --output-pe2 {output.reads[1]} \
+                    --output-single {output.reads[2]} \
                     --qual-type {params.quality_type} \
                     --qual-threshold {params.quality_cutoff} \
                     --length-threshold {params.length_cutoff} \
@@ -95,7 +100,7 @@ if config["params"]["trimming"]["sickle"]["do"]:
                     '''
                     sickle se \
                     --fastq-file {input[0]} \
-                    --output-file {output[0]} \
+                    --output-file {output.reads[0]} \
                     --qual-type {params.quality_type} \
                     --qual-threshold {params.quality_cutoff} \
                     --length-threshold {params.length_cutoff} \
@@ -122,9 +127,14 @@ if config["params"]["trimming"]["fastp"]["do"]:
             lambda wildcards: get_reads(wildcards, "raw")
         output:
             reads = temp(expand(
-                os.path.join(config["output"]["trimming"],
-                             "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                read=[".1", ".2"] if IS_PE else "")),
+                os.path.join(
+                    config["output"]["trimming"],
+                    "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
+                read=[".1", ".2", ".single"] if IS_PE else "")) if RMHOST_DO else \
+                expand(os.path.join(
+                    config["output"]["trimming"],
+                    "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
+                       read=[".1", ".2", ".single"] if IS_PE else ""),
             html = os.path.join(config["output"]["trimming"],
                                 "short_reads/{sample}/{sample}.fastp.html"),
             json = os.path.join(config["output"]["trimming"],
