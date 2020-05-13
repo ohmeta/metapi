@@ -128,11 +128,11 @@ if config["params"]["trimming"]["fastp"]["do"]:
                 os.path.join(
                     config["output"]["trimming"],
                     "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                read=[".1", ".2", ".single"] if IS_PE else "")) if RMHOST_DO else \
+                read=[".1", ".2"] if IS_PE else "")) if RMHOST_DO else \
                 expand(os.path.join(
                     config["output"]["trimming"],
                     "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                       read=[".1", ".2", ".single"] if IS_PE else ""),
+                       read=[".1", ".2"] if IS_PE else ""),
             html = os.path.join(config["output"]["trimming"],
                                 "short_reads/{sample}/{sample}.fastp.html"),
             json = os.path.join(config["output"]["trimming"],
