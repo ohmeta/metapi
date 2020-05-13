@@ -45,13 +45,10 @@ if config["params"]["trimming"]["oas1"]["do"]:
 
     rule trimming_oas1_all:
         input:
-            expand([
+            expand(
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{sample}/{sample}.trimming{read}.fq.gz"),
-                os.path.join(config["output"]["trimming"],
-                             "short_reads/{sample}/{sample}.oas1.stat_out")],
-                   read=[".1", ".2", ".single"] if IS_PE else "",
-                   sample=SAMPLES.index.unique())
+                             "short_reads/{sample}/{sample}.oas1.stat_out"),
+                sample=SAMPLES.index.unique())
 
 else:
     rule trimming_oas1_all:
@@ -71,7 +68,9 @@ if config["params"]["trimming"]["sickle"]["do"]:
                 expand(os.path.join(
                     config["output"]["trimming"],
                     "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                       read=[".1", ".2", ".single"] if IS_PE else "")
+                       read=[".1", ".2", ".single"] if IS_PE else ""),
+            done = touch(os.path.join(config["output"]["trimming"],
+                                      "short_reads/{sample}/{sample}.sickle.done"))
         log:
             os.path.join(config["output"]["trimming"], "logs/{sample}.sickle.log")
         params:
@@ -112,8 +111,7 @@ if config["params"]["trimming"]["sickle"]["do"]:
         input:
             expand(
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{sample}/{sample}.trimming{read}.fq.gz"),
-                read=[".1", ".2", ".single"] if IS_PE else "",
+                             "short_reads/{sample}/{sample}.sickle.done"),
                 sample=SAMPLES.index.unique())
 
 else:
@@ -271,8 +269,6 @@ if config["params"]["trimming"]["fastp"]["do"]:
         input:
             expand([
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{sample}/{sample}.trimming{read}.fq.gz"),
-                os.path.join(config["output"]["trimming"],
                              "short_reads/{sample}/{sample}.fastp.html"),
                 os.path.join(config["output"]["trimming"],
                              "short_reads/{sample}/{sample}.fastp.json"),
@@ -280,7 +276,6 @@ if config["params"]["trimming"]["fastp"]["do"]:
                              "report/fastp_multiqc_report.html"),
                 os.path.join(config["output"]["trimming"],
                              "report/fastp_multiqc_report_data")],
-                   read=[".1", ".2"] if IS_PE else "",
                    sample=SAMPLES.index.unique())
 
 else:
