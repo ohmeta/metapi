@@ -206,7 +206,7 @@ if "metaspades" in ASSEMBLERS:
 
                 shell('''rm -rf {params.output_dir}/K*''')
                 shell('''rm -rf {params.output_dir}/corrected''')
-                shell('''rm -rf {params.output_dir}/pepeline_state''')
+                shell('''rm -rf {params.output_dir}/pipeline_state''')
 
                 shell('''sed -i 's#^>#>{params.prefix}_#g' {params.output_dir}/scaffolds.fasta''')
                 shell('''pigz -p {threads} {params.output_dir}/scaffolds.fasta''')
@@ -306,7 +306,7 @@ if "spades" in ASSEMBLERS:
 
             shell('''rm -rf {params.output_dir}/K*''')
             shell('''rm -rf {params.output_dir}/corrected''')
-            shell('''rm -rf {params.output_dir}/pepeline_state''')
+            shell('''rm -rf {params.output_dir}/pipeline_state''')
 
             shell('''sed -i 's#^>#>{params.prefix}_#g' {params.output_dir}/scaffolds.fasta''')
             shell('''pigz -p {threads} {params.output_dir}/scaffolds.fasta''')
