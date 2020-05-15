@@ -33,9 +33,15 @@ if config["params"]["rmhost"]["bwa"]["do"]:
         output:
             flagstat = os.path.join(config["output"]["rmhost"],
                                     "report/flagstat/{sample}.align2host.flagstat"),
-            reads = expand(os.path.join(config["output"]["rmhost"],
-                                        "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
-                           read=[".1", ".2"] if IS_PE else "")
+            reads = expand(os.path.join(
+                config["output"]["rmhost"],
+                "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                           read=[".1", ".2"] if IS_PE else "") \
+                           if config["params"]["rmhost"]["save_reads"] else \
+                              temp(expand(os.path.join(
+                                  config["output"]["rmhost"],
+                                  "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                                          read=[".1", ".2"] if IS_PE else ""))
         log:
             os.path.join(config["output"]["rmhost"], "logs/{sample}.bwa.log")
         params:
@@ -137,12 +143,9 @@ if config["params"]["rmhost"]["bwa"]["do"]:
 
     rule rmhost_bwa_all:
         input:
-            expand([
+            expand(
                 os.path.join(config["output"]["rmhost"],
                              "report/flagstat/{sample}.align2host.flagstat"),
-                os.path.join(config["output"]["rmhost"],
-                             "short_reads/{sample}/{sample}.rmhost{read}.fq.gz")],
-                   read=[".1", ".2"] if IS_PE else "",
                    sample=SAMPLES.index.unique())
 
 else:
@@ -177,9 +180,15 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
         output:
             flagstat = os.path.join(config["output"]["rmhost"],
                                     "report/flagstat/{sample}.align2host.flagstat"),
-            reads = expand(os.path.join(config["output"]["rmhost"],
-                                        "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
-                           read=[".1", ".2"] if IS_PE else "")
+            reads = expand(os.path.join(
+                config["output"]["rmhost"],
+                "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                           read=[".1", ".2"] if IS_PE else "") \
+                           if config["params"]["rmhost"]["save_reads"] else \
+                              temp(expand(os.path.join(
+                                  config["output"]["rmhost"],
+                                  "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                                          read=[".1", ".2"] if IS_PE else ""))
         log:
             os.path.join(config["output"]["rmhost"], "logs/{sample}.bowtie2.log")
         params:
@@ -278,12 +287,9 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
 
     rule rmhost_bowtie2_all:
         input:
-            expand([
+            expand(
                 os.path.join(config["output"]["rmhost"],
                              "report/flagstat/{sample}.align2host.flagstat"),
-                os.path.join(config["output"]["rmhost"],
-                             "short_reads/{sample}/{sample}.rmhost{read}.fq.gz")],
-                   read=[".1", ".2"] if IS_PE else "",
                    sample=SAMPLES.index.unique())
 
 else:

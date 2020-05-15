@@ -3,17 +3,18 @@ if config["params"]["trimming"]["oas1"]["do"]:
         input:
             lambda wildcards: get_reads(wildcards, "raw")
         output:
-            reads = temp(expand(
+            stat_out = os.path.join(config["output"]["trimming"],
+                                    "short_reads/{sample}/{sample}.oas1.stat_out"),
+            reads = expand(
                 os.path.join(
                     config["output"]["trimming"],
                     "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                read=[".1", ".2", ".single"] if IS_PE else "")) if RMHOST_DO else \
-                expand(os.path.join(
-                    config["output"]["trimming"],
-                    "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                       read=[".1", ".2", ".single"] if IS_PE else ""),
-            stat_out = os.path.join(config["output"]["trimming"],
-                                    "short_reads/{sample}/{sample}.oas1.stat_out")
+                read=[".1", ".2", ".single"] if IS_PE else "") \
+                if config["params"]["trimming"]["save_reads"] else \
+                   temp(expand(os.path.join(
+                       config["output"]["trimming"],
+                       "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
+                               read=[".1", ".2", ".single"] if IS_PE else ""))
         log:
             os.path.join(config["output"]["trimming"], "logs/{sample}.oas1.log")
         params:
@@ -60,17 +61,18 @@ if config["params"]["trimming"]["sickle"]["do"]:
         input:
             lambda wildcards: get_reads(wildcards, "raw", False)
         output:
-            reads = temp(expand(
+            done = touch(os.path.join(config["output"]["trimming"],
+                                      "short_reads/{sample}/{sample}.sickle.done")),
+            reads = expand(
                 os.path.join(
                     config["output"]["trimming"],
                     "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                read=[".1", ".2", ".single"] if IS_PE else "")) if RMHOST_DO else \
-                expand(os.path.join(
-                    config["output"]["trimming"],
-                    "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                       read=[".1", ".2", ".single"] if IS_PE else ""),
-            done = touch(os.path.join(config["output"]["trimming"],
-                                      "short_reads/{sample}/{sample}.sickle.done"))
+                read=[".1", ".2", ".single"] if IS_PE else "") \
+                if config["params"]["trimming"]["save_reads"] else \
+                   temp(expand(os.path.join(
+                       config["output"]["trimming"],
+                       "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
+                               read=[".1", ".2", ".single"] if IS_PE else ""))
         log:
             os.path.join(config["output"]["trimming"], "logs/{sample}.sickle.log")
         params:
@@ -124,19 +126,20 @@ if config["params"]["trimming"]["fastp"]["do"]:
         input:
             lambda wildcards: get_reads(wildcards, "raw")
         output:
-            reads = temp(expand(
-                os.path.join(
-                    config["output"]["trimming"],
-                    "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                read=[".1", ".2"] if IS_PE else "")) if RMHOST_DO else \
-                expand(os.path.join(
-                    config["output"]["trimming"],
-                    "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                       read=[".1", ".2"] if IS_PE else ""),
             html = os.path.join(config["output"]["trimming"],
                                 "short_reads/{sample}/{sample}.fastp.html"),
             json = os.path.join(config["output"]["trimming"],
-                                "short_reads/{sample}/{sample}.fastp.json")
+                                "short_reads/{sample}/{sample}.fastp.json"),
+            reads = expand(
+                os.path.join(
+                    config["output"]["trimming"],
+                    "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
+                read=[".1", ".2"] if IS_PE else "") \
+                if config["params"]["trimming"]["save_reads"] else \
+                   temp(expand(os.path.join(
+                       config["output"]["trimming"],
+                       "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
+                               read=[".1", ".2"] if IS_PE else ""))
         params:
             output_prefix = os.path.join(config["output"]["trimming"],
                                          "short_reads/{sample}/{sample}"),

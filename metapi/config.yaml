@@ -15,6 +15,7 @@ params:
       do: True
 
   trimming:
+    save_reads: False
     oas1:
       do: False
       quality_system: 33
@@ -45,6 +46,7 @@ params:
   rmhost:
     host_fasta: /home/alienzj/databases/genomepy/hg38/hg38.fa
     threads: 8
+    save_reads: True
     save_bam: False
     compression: 6
     bwa:
