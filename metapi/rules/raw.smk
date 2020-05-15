@@ -8,7 +8,8 @@ rule prepare_reads:
             read=[".1", ".2"] if IS_PE else "")
     params:
         output_dir = os.path.join(config["output"]["raw"],
-                                  "short_reads/{sample}")
+                                  "short_reads/{sample}"),
+        interleaved = config["params"]["interleaved"]
     threads:
         config["params"]["raw"]["threads"]
     run:
@@ -16,7 +17,7 @@ rule prepare_reads:
 
         if READS_FORMAT == "fastq":
             if IS_PE:
-                if not IS_INTERLEAVED:
+                if not params.interleaved:
                     if reads_num == 2:
                         os.symlink(os.path.realpath(input[0]), output[0])
                         os.symlink(os.path.realpath(input[1]), output[1])

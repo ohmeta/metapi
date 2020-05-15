@@ -4,7 +4,7 @@ def raw_reads(wildcards):
             return [metapi.get_reads(SAMPLES, wildcards, "fq1")[0],
                     metapi.get_reads(SAMPLES, wildcards, "fq2")[0]]
         else:
-            if IS_PE and (not IS_INTERLEAVED):
+            if IS_PE and (not config["params"]["interleaved"]):
                 return [metapi.get_reads(SAMPLES, wildcards, "fq1"),
                         metapi.get_reads(SAMPLES, wildcards, "fq2")]
             return [metapi.get_reads(SAMPLES, wildcards, "fq1")]
