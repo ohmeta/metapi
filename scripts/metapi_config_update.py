@@ -25,8 +25,8 @@ def update_config(
     conf["params"]["rmhost"]["bwa"]["index_prefix"] = rmhost_bwa_index
     conf["params"]["rmhost"]["bowtie2"]["index_prefix"] = rmhost_bowtie2_index
     conf["params"]["classify"]["kraken2"]["database"] = kraken2_db
-    conf["params"]["profiling"]["index_metadata"] = prof_index_metadata
-    conf["params"]["profiling"]["taxonomy"] = prof_taxonomy
+    conf["params"]["profiling"]["jgi"]["index_metadata"] = prof_index_metadata
+    conf["params"]["profiling"]["jgi"]["taxonomy"] = prof_taxonomy
     conf["params"]["profiling"]["jgi"]["index_prefix"] = prof_jgi_index
 
     configer.update_config(conf_file, conf_file_up, conf, remove=False)
