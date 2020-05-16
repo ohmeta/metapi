@@ -109,65 +109,140 @@ else:
            
 
 if config["params"]["profiling"]["jgi"]["do"]:
-    rule profiling_jgi:
-        input:
-            reads = assembly_input,
-            index_database = expand(
-                "{prefix}.{suffix}",
-                prefix=config["params"]["profiling"]["jgi"]["index_prefix"],
-                suffix=["1.bt2l", "2.bt2l", "3.bt2l", "4.bt2l",
-                        "rev.1.bt2l", "rev.2.bt2l"])
-        output:
-            os.path.join(
-                config["output"]["profiling"],
-                         "profile/jgi/{sample}/{sample}.jgi.coverage.gz")
-        log:
-            os.path.join(
-                config["output"]["profiling"],
-                         "logs/{sample}.jgi.log")
-        threads:
-            config["params"]["profiling"]["threads"]
-        params:
-            index_prefix = config["params"]["profiling"]["jgi"]["index_prefix"],
-            memory_limit = config["params"]["profiling"]["jgi"]["memory_limit"],
-            fragment = config["params"]["profiling"]["jgi"]["fragment"],
-            temp_prefix = os.path.join(
-                config["output"]["profiling"],
-                "profile/jgi/{sample}/{sample}.temp"),
-            coverage = os.path.join(
-                config["output"]["profiling"],
-                "profile/jgi/{sample}/{sample}.jgi.coverage")
-        run:
-            shell(
-                '''
-                bowtie2 \
-                -x {params.index_prefix} \
-                %s \
-                --end-to-end \
-                --very-sensitive \
-                --phred33 \
-                --threads {threads} \
-                --seed 0 \
-                --time \
-                -k 2 \
-                --no-unal \
-                --no-discordant \
-                -X {params.fragment} \
-                2> {log} | \
-                samtools sort \
-                -@{threads} \
-                -m {params.memory_limit} \
-                -T {params.temp_prefix} -O BAM - | \
-                jgi_summarize_bam_contig_depths \
-                --outputDepth {params.coverage} -
-                ''' % \
-                "-1 {input.reads[0]} -2 {input.reads[1]}" if IS_PE \
-                else "-U {input.reads[0]}")
+    if not config["params"]["profiling"]["jgi"]["oneway"]:
+        rule profiling_jgi:
+            input:
+                reads = assembly_input,
+                index_database = expand(
+                    "{prefix}.{suffix}",
+                    prefix=config["params"]["profiling"]["jgi"]["index_prefix"],
+                    suffix=["1.bt2l", "2.bt2l", "3.bt2l", "4.bt2l",
+                            "rev.1.bt2l", "rev.2.bt2l"])
+            output:
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/jgi/{sample}/{sample}.jgi.coverage.gz")
+            log:
+                os.path.join(
+                    config["output"]["profiling"],
+                    "logs/{sample}.jgi.log")
+            threads:
+                config["params"]["profiling"]["threads"]
+            params:
+                index_prefix = config["params"]["profiling"]["jgi"]["index_prefix"],
+                memory_limit = config["params"]["profiling"]["jgi"]["memory_limit"],
+                fragment = config["params"]["profiling"]["jgi"]["fragment"],
+                temp_prefix = os.path.join(
+                    config["output"]["profiling"],
+                    "profile/jgi/{sample}/{sample}.temp"),
+                coverage = os.path.join(
+                    config["output"]["profiling"],
+                    "profile/jgi/{sample}/{sample}.jgi.coverage")
+            run:
+                shell(
+                    '''
+                    bowtie2 \
+                    -x {params.index_prefix} \
+                    %s \
+                    --end-to-end \
+                    --very-sensitive \
+                    --phred33 \
+                    --threads {threads} \
+                    --seed 0 \
+                    --time \
+                    -k 2 \
+                    --no-unal \
+                    --no-discordant \
+                    -X {params.fragment} \
+                    2> {log} | \
+                    samtools sort \
+                    -@{threads} \
+                    -m {params.memory_limit} \
+                    -T {params.temp_prefix} -O BAM - | \
+                    jgi_summarize_bam_contig_depths \
+                    --outputDepth {params.coverage} -
+                    ''' % \
+                    "-1 {input.reads[0]} -2 {input.reads[1]}" if IS_PE \
+                    else "-U {input.reads[0]}")
 
-            shell('''gzip {params.coverage}''')
-            shell('''rm -rf {params.temp_prefix}*.bam''')
-            shell('''echo "Profiling done" >> {log}''')
+                shell('''gzip {params.coverage}''')
+                shell('''rm -rf {params.temp_prefix}*.bam''')
+                shell('''echo "Profiling done" >> {log}''')
 
+    else:
+        rule profiling_jgi:
+            input:
+                reads = lambda wildcards: get_reads(wildcards, "raw"),
+                index_database = expand(
+                    "{prefix}.{suffix}",
+                    prefix=config["params"]["profiling"]["jgi"]["index_prefix"],
+                    suffix=["1.bt2l", "2.bt2l", "3.bt2l", "4.bt2l",
+                            "rev.1.bt2l", "rev.2.bt2l"]),
+                index_host = expand(
+                    "{prefix}.{suffix}",
+                    prefix=config["params"]["rmhost"]["bowtie2"]["index_prefix"],
+                    suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"]) \
+                    if RMHOST_DO else ""
+            output:
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/jgi/{sample}/{sample}.jgi.coverage.gz")
+            log:
+                os.path.join(
+                    config["output"]["profiling"],
+                    "logs/{sample}.jgi.log")
+            threads:
+                config["params"]["profiling"]["threads"]
+            params:
+                index_prefix = config["params"]["profiling"]["jgi"]["index_prefix"],
+                host_prefix = config["params"]["rmhost"]["bowtie2"]["index_prefix"],
+                memory_limit = config["params"]["profiling"]["jgi"]["memory_limit"],
+                fragment = config["params"]["profiling"]["jgi"]["fragment"],
+                temp_prefix = os.path.join(
+                    config["output"]["profiling"],
+                    "profile/jgi/{sample}/{sample}.temp"),
+                coverage = os.path.join(
+                    config["output"]["profiling"],
+                    "profile/jgi/{sample}/{sample}.jgi.coverage")
+            run:
+                if TRIMMING_DO and RMHOST_DO:
+                    shell('''date > {log}''')
+                    shell(
+                        '''
+                        fastp %s --stdout --json /dev/null --html /dev/null 2>> {log} | \
+                        bowtie2 --threads {threads} -x {params.host_prefix} %s - 2>> {log} | \
+                        samtools fastq -@{threads} -N -f 12 -F 256 - |
+                        bowtie2 \
+                        -x {params.index_prefix} \
+                        %s - \
+                        --end-to-end \
+                        --very-sensitive \
+                        --phred33 \
+                        --threads {threads} \
+                        --seed 0 \
+                        --time \
+                        -k 2 \
+                        --no-unal \
+                        --no-discordant \
+                        -X {params.fragment} \
+                        2>> {log} | \
+                        samtools sort \
+                        -@{threads} \
+                        -m {params.memory_limit} \
+                        -T {params.temp_prefix} -O BAM - | \
+                        jgi_summarize_bam_contig_depths \
+                        --outputDepth {params.coverage} - \
+                        2>> {log}
+                        ''' % (
+                            "--in1 {input.reads[0]} --in2 {input.reads[1]}" if IS_PE else "--in1 {input.reads[0]}",
+                            "--interleaved" if IS_PE else "",
+                            "--interleaved" if IS_PE else ""
+                        )
+                    )
+                    shell('''gzip {params.coverage}''')
+                    shell('''rm -rf {params.temp_prefix}*.bam''')
+                    shell('''echo "jgi profiling done" >> {log}''')
+                    shell('''date >> {log}''')
 
     rule profiling_jgi_merge:
         input:

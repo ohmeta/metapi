@@ -187,6 +187,7 @@ params:
       no_map: True
       biom: False
     jgi:
+      oneway: False
       do: False
       fragment: 1200
       memory_limit: 2G
