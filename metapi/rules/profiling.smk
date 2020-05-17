@@ -194,6 +194,8 @@ if config["params"]["profiling"]["jgi"]["do"]:
             threads:
                 config["params"]["profiling"]["threads"]
             params:
+                adapter_trimming = '--disable_adapter_trimming' \
+                    if config["params"]["trimming"]["fastp"]["disable_adapter_trimming"] else "",
                 index_prefix = config["params"]["profiling"]["jgi"]["index_prefix"],
                 host_prefix = config["params"]["rmhost"]["bowtie2"]["index_prefix"],
                 memory_limit = config["params"]["profiling"]["jgi"]["memory_limit"],
@@ -209,7 +211,7 @@ if config["params"]["profiling"]["jgi"]["do"]:
                     shell('''date > {log}''')
                     shell(
                         '''
-                        fastp %s --stdout --json /dev/null --html /dev/null 2>> {log} | \
+                        fastp %s {params.adapter_trimming} --stdout --json /dev/null --html /dev/null 2>> {log} | \
                         bowtie2 --threads {threads} -x {params.host_prefix} %s - 2>> {log} | \
                         samtools fastq -@{threads} -N -f 12 -F 256 - |
                         bowtie2 \
