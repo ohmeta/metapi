@@ -2,9 +2,6 @@ rule prepare_reads:
     input:
         unpack(raw_reads)
     output:
-        done = touch(os.path.join(
-            config["output"]["raw"],
-            "short_reads/{sample}/{sample}.prepare.done")),
         reads = expand(
             os.path.join(
                 config["output"]["raw"],
@@ -98,10 +95,11 @@ rule prepare_reads:
 
 rule prepare_reads_all:
     input:
-         expand(os.path.join(
-             config["output"]["raw"],
-             "short_reads/{sample}/{sample}.prepare.done"),
-         sample=SAMPLES.index.unique())
+        expand(os.path.join(
+            config["output"]["raw"],
+            "short_reads/{sample}/{sample}.raw{read}.fq.gz"),
+               read=[".1", ".2"] if IS_PE else "",
+               sample=SAMPLES.index.unique())
 
         
 def get_reads(wildcards, step, have_single=False):
