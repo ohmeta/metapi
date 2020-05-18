@@ -2,10 +2,14 @@ rule prepare_reads:
     input:
         unpack(raw_reads)
     output:
-        expand(
-            os.path.join(config["output"]["raw"],
-                         "short_reads/{{sample}}/{{sample}}.raw{read}.fq.gz"),
-            read=[".1", ".2"] if IS_PE else "")
+        done = touch(os.path.join(
+            config["output"]["raw"],
+            "short_reads/{sample}/{sample}.prepare.done")),
+        reads = temp(expand(
+            os.path.join(
+                config["output"]["raw"],
+                "short_reads/{{sample}}/{{sample}}.raw{read}.fq.gz"),
+            read=[".1", ".2"] if IS_PE else ""))
     params:
         output_dir = os.path.join(config["output"]["raw"],
                                   "short_reads/{sample}"),
@@ -19,23 +23,23 @@ rule prepare_reads:
             if IS_PE:
                 if not params.interleaved:
                     if reads_num == 2:
-                        os.symlink(os.path.realpath(input[0]), output[0])
-                        os.symlink(os.path.realpath(input[1]), output[1])
+                        os.symlink(os.path.realpath(input[0]), output.reads[0])
+                        os.symlink(os.path.realpath(input[1]), output.reads[1])
                     else:
-                        shell('''cat %s > %s''' % (" ".join(input[0:reads_num//2]), output[0]))
-                        shell('''cat %s > %s''' % (" ".join(input[reads_num//2:]), output[1]))
+                        shell('''cat %s > %s''' % (" ".join(input[0:reads_num//2]), output.reads[0]))
+                        shell('''cat %s > %s''' % (" ".join(input[reads_num//2:]), output.reads[1]))
                 else:
                     shell(
                         '''
                         cat {input} | \
-                        tee >(seqtk seq -1 - | pigz -c -p {threads} > {output[0]}) | \
-                        seqtk seq -2 - | pigz -c -p {threads} > {output[1]}
+                        tee >(seqtk seq -1 - | pigz -c -p {threads} > {output.reads[0]}) | \
+                        seqtk seq -2 - | pigz -c -p {threads} > {output.reads[1]}
                         ''')
             else:
                 if reads_num == 1:
-                    os.symlink(os.path.realpath(input[0]), output[0])
+                    os.symlink(os.path.realpath(input[0]), output.reads[0])
                 else:
-                    shell('''cat {input} > {output}''')
+                    shell('''cat {input} > {output.reads[0]}''')
 
         elif READS_FORMAT == "sra":
             reads_direction = str("+"),
@@ -54,8 +58,8 @@ rule prepare_reads:
                     {input[0]}
                     ''' % (reads_direction, header_format))
 
-                shell('''mv {params.output_dir}/%s_1.fastq.gz {output[0]}''' % sra_id)
-                shell('''mv {params.output_dir}/%s_2.fastq.gz {output[1]}''' % sra_id)
+                shell('''mv {params.output_dir}/%s_1.fastq.gz {output.reads[0]}''' % sra_id)
+                shell('''mv {params.output_dir}/%s_2.fastq.gz {output.reads[1]}''' % sra_id)
                 shell('''rm -rf {params.output_dir}/%s.fastq.gz''' % sra_id)
             else:
                 r1_list = []
@@ -80,19 +84,18 @@ rule prepare_reads:
 
                     r1_str = " ".join(r1_list)
                     r2_str = " ".join(r2_list)
-                    shell('''cat %s > %s''' % (r1_str, output[0]))
-                    shell('''cat %s > %s''' % (r2_str, output[1]))
+                    shell('''cat %s > %s''' % (r1_str, output.reads[0]))
+                    shell('''cat %s > %s''' % (r2_str, output.reads[1]))
                     shell('''rm -rf %s''' % r1_str)
                     shell('''rm -rf %s''' % r2_str)
 
 
 rule prepare_reads_all:
     input:
-         expand(
-             os.path.join(config["output"]["raw"],
-                          "short_reads/{sample}/{sample}.raw{read}.fq.gz"),
-             read=[".1", ".2"] if IS_PE else "",
-             sample=SAMPLES.index.unique())
+         expand(os.path.join(
+             config["output"]["raw"],
+             "short_reads/{sample}/{sample}.prepare.done"),
+         sample=SAMPLES.index.unique())
 
         
 def get_reads(wildcards, step, have_single=False):
