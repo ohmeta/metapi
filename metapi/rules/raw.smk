@@ -5,11 +5,17 @@ rule prepare_reads:
         done = touch(os.path.join(
             config["output"]["raw"],
             "short_reads/{sample}/{sample}.prepare.done")),
-        reads = temp(expand(
+        reads = expand(
             os.path.join(
                 config["output"]["raw"],
                 "short_reads/{{sample}}/{{sample}}.raw{read}.fq.gz"),
-            read=[".1", ".2"] if IS_PE else ""))
+            read=[".1", ".2"] if IS_PE else "") \
+            if config["params"]["raw"]["save_reads"] else \
+               temp(expand(
+                   os.path.join(
+                       config["output"]["raw"],
+                       "short_reads/{{sample}}/{{sample}}.raw{read}.fq.gz"),
+                   read=[".1", ".2"] if IS_PE else ""))
     params:
         output_dir = os.path.join(config["output"]["raw"],
                                   "short_reads/{sample}"),

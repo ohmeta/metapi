@@ -11,6 +11,7 @@ params:
 
   raw:
     threads: 8
+    save_reads: True
     fastqc:
       do: True
 
