@@ -200,7 +200,7 @@ if config["params"]["profiling"]["jgi"]["do"]:
                 host_prefix = config["params"]["rmhost"]["bowtie2"]["index_prefix"],
                 memory_limit = config["params"]["profiling"]["jgi"]["memory_limit"],
                 fragment = config["params"]["profiling"]["jgi"]["fragment"],
-                temp_prefix = os.path.join(
+                temp_dir = os.path.join(
                     config["output"]["profiling"],
                     "profile/jgi/{sample}/{sample}.temp"),
                 coverage = os.path.join(
@@ -228,10 +228,15 @@ if config["params"]["profiling"]["jgi"]["do"]:
                         --no-discordant \
                         -X {params.fragment} \
                         2>> {log} | \
-                        samtools sort \
-                        -@{threads} \
-                        -m {params.memory_limit} \
-                        -T {params.temp_prefix} -O BAM - | \
+
+                        --format bam \
+                        --compression-level 0 \
+                        --sam-input /dev/stdin \
+                        --output-filename /dev/stdout | \
+                        sambamba sort -q --nthreads {threads} \
+                        --compression-level 0 \
+                        --tmpdir {params.temp_dir} \
+                        --out /dev/stdout | \
                         jgi_summarize_bam_contig_depths \
                         --outputDepth {params.coverage} - \
                         2>> {log}
@@ -242,7 +247,7 @@ if config["params"]["profiling"]["jgi"]["do"]:
                         )
                     )
                     shell('''gzip {params.coverage}''')
-                    shell('''rm -rf {params.temp_prefix}*.bam''')
+                    shell('''rm -rf {params.temp_dir}''')
                     shell('''echo "jgi profiling done" >> {log}''')
                     shell('''date >> {log}''')
 
