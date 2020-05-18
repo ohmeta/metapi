@@ -211,7 +211,8 @@ if config["params"]["profiling"]["jgi"]["do"]:
                     shell('''date > {log}''')
                     shell(
                         '''
-                        fastp %s {params.adapter_trimming} --stdout --json /dev/null --html /dev/null 2>> {log} | \
+                        fastp %s {params.adapter_trimming} --thread {threads} \
+                        --stdout --json /dev/null --html /dev/null 2>> {log} | \
                         bowtie2 --threads {threads} -x {params.host_prefix} %s - 2>> {log} | \
                         samtools fastq -@{threads} -N -f 12 -F 256 - |
                         bowtie2 \
@@ -228,7 +229,8 @@ if config["params"]["profiling"]["jgi"]["do"]:
                         --no-discordant \
                         -X {params.fragment} \
                         2>> {log} | \
-
+                        sambamba view -q --nthreads {threads} \
+                        --compression-level 0 \
                         --format bam \
                         --compression-level 0 \
                         --sam-input /dev/stdin \
@@ -236,7 +238,7 @@ if config["params"]["profiling"]["jgi"]["do"]:
                         sambamba sort -q --nthreads {threads} \
                         --compression-level 0 \
                         --tmpdir {params.temp_dir} \
-                        --out /dev/stdout | \
+                        --out /dev/stdout /dev/stdin | \
                         jgi_summarize_bam_contig_depths \
                         --outputDepth {params.coverage} - \
                         2>> {log}
@@ -246,7 +248,7 @@ if config["params"]["profiling"]["jgi"]["do"]:
                             "--interleaved" if IS_PE else ""
                         )
                     )
-                    shell('''gzip {params.coverage}''')
+                    shell('''pigz --processes {threads} {params.coverage}''')
                     shell('''rm -rf {params.temp_dir}''')
                     shell('''echo "jgi profiling done" >> {log}''')
                     shell('''date >> {log}''')
