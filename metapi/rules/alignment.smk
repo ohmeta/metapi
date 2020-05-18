@@ -26,17 +26,19 @@ rule alignment_scaftigs_index:
 rule alignment_reads_scaftigs:
     input:
         reads = assembly_input,
-        index = expand(
+        index = expand(os.path.join(
+            config["output"]["alignment"],
+            "index/{{sample}}.{{assembler}}.out/{{sample}}.{{assembler}}.scaftigs.fa.gz.{suffix}"),
+                       suffix=["amb", "ann", "bwt", "pac", "sa"])
+    output:
+        flagstat = protected(
             os.path.join(
                 config["output"]["alignment"],
-                "index/{{sample}}.{{assembler}}.out/{{sample}}.{{assembler}}.scaftigs.fa.gz.{suffix}"),
-            suffix=["amb", "ann", "bwt", "pac", "sa"])
-    output:
-        flagstat = os.path.join(config["output"]["alignment"],
-                                "report/flagstat/{sample}.{assembler}.align2scaftigs.flagstat"),
+                "report/flagstat/{sample}.{assembler}.align2scaftigs.flagstat")),
         bam = temp(
-            os.path.join(config["output"]["alignment"],
-                         "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam"))
+            os.path.join(
+                config["output"]["alignment"],
+                "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam"))
     log:
         os.path.join(config["output"]["alignment"],
                      "logs/alignment/{sample}.{assembler}.align.reads2scaftigs.log")
@@ -89,9 +91,9 @@ if config["params"]["alignment"]["cal_base_depth"]:
                 config["output"]["alignment"],
                 "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam")
         output:
-            os.path.join(
+            protected(os.path.join(
                 config["output"]["alignment"],
-                "depth/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.depth.gz")
+                "depth/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.depth.gz"))
         shell:
             '''
             samtools depth {input} | gzip -c > {output}

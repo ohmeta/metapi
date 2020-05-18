@@ -12,9 +12,9 @@ if "megahit" in ASSEMBLERS:
         input:
             reads = assembly_input
         output:
-            scaftigs = os.path.join(
+            scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.megahit.out/{sample}.megahit.scaftigs.fa.gz")
+                "scaftigs/{sample}.megahit.out/{sample}.megahit.scaftigs.fa.gz"))
         params:
             min_contig = config["params"]["assembly"]["megahit"]["min_contig"],
             output_prefix = "{sample}",
@@ -87,9 +87,9 @@ if "idba_ud" in ASSEMBLERS:
         input:
             reads = assembly_input
         output:
-            scaftigs = os.path.join(
+            scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.idba_ud.out/{sample}.idba_ud.scaftigs.fa.gz")
+                "scaftigs/{sample}.idba_ud.out/{sample}.idba_ud.scaftigs.fa.gz"))
         params:
             prefix = "{sample}",
             output_dir = os.path.join(config["output"]["assembly"],
@@ -167,9 +167,9 @@ if "metaspades" in ASSEMBLERS:
         input:
             reads = assembly_input
         output:
-            scaftigs = os.path.join(
+            scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.fa.gz")
+                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.fa.gz"))
         params:
             prefix = "{sample}",
             kmers = "auto" \
@@ -259,9 +259,9 @@ if "spades" in ASSEMBLERS:
         input:
             reads = assembly_input
         output:
-            scaftigs = os.path.join(
+            scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.spades.out/{sample}.spades.scaftigs.fa.gz")
+                "scaftigs/{sample}.spades.out/{sample}.spades.scaftigs.fa.gz"))
         params:
             prefix = "{sample}",
             kmers = "auto" \
@@ -355,9 +355,9 @@ if len(ASSEMBLERS) != 0:
                     config["output"]["assembly"],
                     "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz")
             output:
-                os.path.join(
+                protected(os.path.join(
                     config["output"]["assembly"],
-                    "metaquast/{sample}.{assembler}.metaquast.out/combined_reference/report.tsv")
+                    "metaquast/{sample}.{assembler}.metaquast.out/combined_reference/report.tsv"))
             log:
                 os.path.join(config["output"]["assembly"],
                              "logs/{sample}.{assembler}.metaquast.log")

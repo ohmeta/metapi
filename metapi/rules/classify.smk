@@ -3,12 +3,12 @@ if config["params"]["classify"]["kraken2"]["do"]:
         input:
             assembly_input
         output:
-            table = os.path.join(
+            table = protected(os.path.join(
                 config["output"]["classify"],
-                "short_reads/{sample}.kraken2.out/{sample}.kraken2.table.gz"),
-            report = os.path.join(
+                "short_reads/{sample}.kraken2.out/{sample}.kraken2.table.gz")),
+            report = protected(os.path.join(
                 config["output"]["classify"],
-                "short_reads/{sample}.kraken2.out/{sample}.kraken2.report.gz")
+                "short_reads/{sample}.kraken2.out/{sample}.kraken2.report.gz"))
         log:
             os.path.join(config["output"]["classify"],
                          "logs/{sample}.kraken2.log")

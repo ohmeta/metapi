@@ -3,9 +3,9 @@ if config["params"]["profiling"]["metaphlan2"]["do"]:
         input:
             assembly_input
         output:
-           os.path.join(
+           protected(os.path.join(
                config["output"]["profiling"],
-               "profile/metaphlan2/{sample}/{sample}.metaphlan2.abundance.profile.tsv")
+               "profile/metaphlan2/{sample}/{sample}.metaphlan2.abundance.profile.tsv"))
         log:
             os.path.join(
                 config["output"]["profiling"],
@@ -119,9 +119,9 @@ if config["params"]["profiling"]["jgi"]["do"]:
                     suffix=["1.bt2l", "2.bt2l", "3.bt2l", "4.bt2l",
                             "rev.1.bt2l", "rev.2.bt2l"])
             output:
-                os.path.join(
+                protected(os.path.join(
                     config["output"]["profiling"],
-                    "profile/jgi/{sample}/{sample}.jgi.coverage.gz")
+                    "profile/jgi/{sample}/{sample}.jgi.coverage.gz"))
             log:
                 os.path.join(
                     config["output"]["profiling"],
@@ -184,9 +184,9 @@ if config["params"]["profiling"]["jgi"]["do"]:
                     suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"]) \
                     if RMHOST_DO else ""
             output:
-                os.path.join(
+                protected(os.path.join(
                     config["output"]["profiling"],
-                    "profile/jgi/{sample}/{sample}.jgi.coverage.gz")
+                    "profile/jgi/{sample}/{sample}.jgi.coverage.gz"))
             log:
                 os.path.join(
                     config["output"]["profiling"],
@@ -367,15 +367,15 @@ if config["params"]["profiling"]["humann2"]["do"]:
             reads_merged = temp(os.path.join(
                 config["output"]["profiling"],
                 "profile/humann2/{sample}/{sample}.merged.fq.gz")),
-            genefamilies = os.path.join(
+            genefamilies = protected(os.path.join(
                 config["output"]["profiling"],
-                "profile/humann2/{sample}/{sample}_genefamilies.tsv"),
-            pathabundance = os.path.join(
+                "profile/humann2/{sample}/{sample}_genefamilies.tsv")),
+            pathabundance = protected(os.path.join(
                 config["output"]["profiling"],
-                "profile/humann2/{sample}/{sample}_pathabundance.tsv"),
-            pathcoverage = os.path.join(
+                "profile/humann2/{sample}/{sample}_pathabundance.tsv")),
+            pathcoverage = protected(os.path.join(
                 config["output"]["profiling"],
-                "profile/humann2/{sample}/{sample}_pathcoverage.tsv")
+                "profile/humann2/{sample}/{sample}_pathcoverage.tsv"))
         params:
             base_name = "{sample}",
             remove = "--remove-temp-output" \
