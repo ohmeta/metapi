@@ -236,6 +236,7 @@ if config["params"]["profiling"]["jgi"]["do"]:
                         --sam-input /dev/stdin \
                         --output-filename /dev/stdout | \
                         sambamba sort -q --nthreads {threads} \
+                        --memory-limit {params.memory_limit} \
                         --compression-level 0 \
                         --tmpdir {params.temp_dir} \
                         --out /dev/stdout /dev/stdin | \
