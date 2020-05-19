@@ -191,7 +191,8 @@ params:
       oneway: False
       do: False
       fragment: 1200
-      memory_limit: 2G
+      memory_limit: 8G
+      compression_level: 6
       taxonomy: /path/to/taxonomy
       index_metadata: /path/to/index_metadata
       index_prefix: /path/to/bowtie2_index_prefix

@@ -199,6 +199,7 @@ if config["params"]["profiling"]["jgi"]["do"]:
                 index_prefix = config["params"]["profiling"]["jgi"]["index_prefix"],
                 host_prefix = config["params"]["rmhost"]["bowtie2"]["index_prefix"],
                 memory_limit = config["params"]["profiling"]["jgi"]["memory_limit"],
+                compression_level = config["params"]["profiling"]["jgi"]["compression_level"],
                 fragment = config["params"]["profiling"]["jgi"]["fragment"],
                 temp_dir = os.path.join(
                     config["output"]["profiling"],
@@ -230,9 +231,9 @@ if config["params"]["profiling"]["jgi"]["do"]:
                         -X {params.fragment} \
                         2>> {log} | \
                         sambamba view -q --nthreads {threads} \
-                        --compression-level 0 \
+                        --compression-level {params.compression_level} \
                         --format bam \
-                        --compression-level 0 \
+                        --compression-level {params.compression_level} \
                         --sam-input /dev/stdin \
                         --output-filename /dev/stdout | \
                         sambamba sort -q --nthreads {threads} \
