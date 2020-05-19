@@ -211,10 +211,13 @@ if len(BINNERS) != 0:
             for i in input:
                 comp_list += glob.glob(i + "/*bin*.seqtk.comp.tsv.gz")
 
-            metapi.assembler_init(params.len_ranges,
-                                  ["sample_id", "bin_id", "assembler", "binner"])
-            metapi.merge(comp_list, metapi.parse_assembly,
-                         threads, save=True,  output=output.summary)
+            if len(comp_list) != 0:
+                metapi.assembler_init(params.len_ranges,
+                                      ["sample_id", "bin_id", "assembler", "binner"])
+                metapi.merge(comp_list, metapi.parse_assembly,
+                             threads, save=True,  output=output.summary)
+            else:
+                shell('''touch {output.summary}''')
 
 
     rule binning_report_all:
