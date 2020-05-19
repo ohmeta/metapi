@@ -164,9 +164,9 @@ if config["params"]["raw"]["fastqc"]["do"]:
         input:
             lambda wildcards: get_reads(wildcards, "raw", False)
         output:
-            directory(os.path.join(
+            protected(directory(os.path.join(
                 config["output"]["raw"],
-                "fastqc/{sample}.fastqc.out"))
+                "fastqc/{sample}.fastqc.out")))
         threads:
             config["params"]["raw"]["threads"]
         log:
@@ -232,5 +232,5 @@ else:
 
 rule raw_all:
     input:
-        rules.prepare_reads_all.input,
-        rules.raw_fastqc_all.input,
+        #rules.prepare_reads_all.input,
+        #rules.raw_fastqc_all.input,
