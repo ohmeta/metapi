@@ -85,11 +85,12 @@ $ metapi denovo_wf --help
 
   positional arguments:
     TASK                  pipeline end point. Allowed values are simulate_all,
-                          prepare_reads_all, raw_fastqc_all, rmhost_bwa_all,
-                          rmhost_bowtie2_all, rmhost_all, assebmly_megahit_all,
-                          assembly_idba_ud_all, assembly_metaspades_all,
-                          assembly_spades_all, assembly_metaquast_all,
-                          assembly_report_all, assembly_all,
+                          prepare_reads_all, raw_fastqc_all, trimming_oas1_all,
+                          trimming_sickle_all, trimming_fastp_all, trimming_all,
+                          rmhost_bwa_all, rmhost_bowtie2_all, rmhost_all, 
+                          assebmly_megahit_all, assembly_idba_ud_all,
+                          assembly_metaspades_all, assembly_spades_all,
+                          assembly_metaquast_all, assembly_report_all, assembly_all,
                           alignment_base_depth_all, alignment_all,
                           binning_metabat2_all, binning_maxbin2_all,
                           binning_report_all, binning_all, cobinning_all,
