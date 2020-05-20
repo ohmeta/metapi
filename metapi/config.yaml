@@ -128,15 +128,19 @@ params:
       identity: 0.75
 
   predict:
-    prodigal:
-      do: False
-      format: "gff"
-      mode: "meta"
-    prokka:
-      do: True
-      kingdom: Bacteria
-      metagenome: False
-      threads: 8
+    threads: 8
+    format: "gff"
+    scaftigs_to_gene:
+      prokka:
+        do: False
+      prodigal:
+        do: False
+    bins_to_gene:
+      prokka:
+        do: False
+        kingdom: Bacteria
+      prodigal:
+        do: True
 
   checkm:
     do: True
