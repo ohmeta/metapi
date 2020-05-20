@@ -3,7 +3,7 @@ if config["params"]["checkm"]["do"]:
         input:
             os.path.join(
                 config["output"]["predict"],
-                "bins_gene/{assembler}.{binner}.prodigal.out/{sample}") \
+                "bins_gene/{assembler}.{binner}.prodigal.out/{sample}/done") \
                 if config["params"]["predict"]["bins_to_gene"]["prodigal"]["do"] else \
                    os.path.join(
                        config["output"]["binning"],
@@ -19,6 +19,9 @@ if config["params"]["checkm"]["do"]:
             suffix = "faa" \
                 if config["params"]["predict"]["bins_to_gene"]["prodigal"]["do"] \
                    else "fa",
+            gene_dir = os.path.join(
+                config["output"]["predict"],
+                "bins_gene/{assembler}.{binner}.prodigal.out/{sample}"),
             table_dir = os.path.join(config["output"]["checkm"], "table/{sample}"),
             data_dir = os.path.join(config["output"]["checkm"], "data/{sample}"),
             data_dir_ = os.path.join(config["output"]["checkm"],
@@ -37,7 +40,7 @@ if config["params"]["checkm"]["do"]:
 
             count = 0
             if params.suffix == "faa":
-                count = len(glob.glob(input[0] + "/*/*.faa"))
+                count = len(glob.glob(params.gene_dir + "/*/*.faa"))
             if params.suffix == "fa":
                 count = len(glob.glob(input[0] + "/*.fa"))
 
