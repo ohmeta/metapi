@@ -1,9 +1,13 @@
 if config["params"]["checkm"]["do"]:
     rule checkm_lineage_wf:
         input:
-            bins_dir = os.path.join(
-                config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/{binner}")
+            os.path.join(
+                config["output"]["predict"],
+                "bins_gene/{assembler}.{binner}.prodigal.out/{sample}") \
+                if config["params"]["predict"]["bins_to_gene"]["prodigal"]["do"] else \
+                   os.path.join(
+                       config["output"]["binning"],
+                       "bins/{sample}.{assembler}.out/{binner}")
         output:
             table = os.path.join(
                 config["output"]["checkm"],
@@ -12,7 +16,9 @@ if config["params"]["checkm"]["do"]:
                 config["output"]["checkm"],
                 "data/{sample}/{sample}.{assembler}.{binner}.checkm.data.tar.gz")
         params:
-            bin_suffix = "fa",
+            suffix = "faa" \
+                if config["params"]["predict"]["bins_to_gene"]["prodigal"]["do"] \
+                   else "fa",
             table_dir = os.path.join(config["output"]["checkm"], "table/{sample}"),
             data_dir = os.path.join(config["output"]["checkm"], "data/{sample}"),
             data_dir_ = os.path.join(config["output"]["checkm"],
@@ -22,29 +28,36 @@ if config["params"]["checkm"]["do"]:
                          "logs/{sample}.{assembler}.{binner}.checkm.log")
         threads:
             config["params"]["checkm"]["threads"]
-        shell:
-            '''
-            mkdir -p {params.table_dir}
-            mkdir -p {params.data_dir}
+        run:
+            import os
+            import glob
 
-            num=$(find {input.bins_dir} -type f -name "*.fa" | wc -l)
+            os.makedirs(params.table_dir, exist_ok=True)
+            os.makedirs(params.data_dir, exist_ok=True)
 
-            if [[ $num > 0 ]]; then
-                checkm lineage_wf \
-                --tab_table \
-                --file {output.table} \
-                --threads {threads} \
-                --extension {params.bin_suffix} \
-                {input.bins_dir}/ \
-                {params.data_dir_}/ > {log}
-            else
-                touch {output.table}
-                mkdir -p {params.data_dir_}
-            fi
+            count = 0
+            if params.suffix == "faa":
+                count = len(glob.glob(input[0] + "/*/*.faa"))
+            if params.suffix == "fa":
+                count = len(glob.glob(input[0] + "/*.fa"))
 
-            tar -czvf {output.data} {params.data_dir_}/
-            rm -rf {params.data_dir_}
-            '''
+            if count > 0:
+                shell(
+                    '''
+                    checkm lineage_wf \
+                    --tab_table \
+                    --file {output.table} \
+                    --threads {threads} \
+                    --extension {params.suffix} \
+                    {input[0]}/ \
+                    {params.data_dir_}/ > {log}
+                    ''')
+            else:
+                shell('''touch {output.table}''')
+                shell('''mkdir -p {params.data_dir_}''')
+
+            shell('''tar -czvf {output.data} {params.data_dir_}/''')
+            shell('''rm -rf {params.data_dir_}''')
 
 
     rule checkm_report:
