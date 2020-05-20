@@ -97,10 +97,10 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
         output:
             html = os.path.join(
                 config["output"]["predict"],
-                "scaftigs_gene_report/{assembler}.multiqc.out/prokka_multiqc_report.html"),
+                "report/scaftigs_gene_{assembler}.multiqc.out/prokka_multiqc_report.html"),
             data_dir = directory(os.path.join(
                 config["output"]["predict"],
-                "scaftigs_gene_report/{assembler}.multiqc.out/prokka_multiqc_report_data"))
+                "report/scaftigs_gene_{assembler}.multiqc.out/prokka_multiqc_report_data"))
         log:
             os.path.join(
                 config["output"]["predict"],
@@ -108,7 +108,7 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
         params:
             output_dir = os.path.join(
                 config["output"]["predict"],
-                "scaftigs_gene_report/{assembler}.multiqc.out")
+                "report/scaftigs_gene_{assembler}.multiqc.out")
         shell:
             '''
             multiqc \
@@ -129,10 +129,10 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
                     "scaftigs_gene/{sample}.{assembler}.prokka.out/{sample}.{assembler}.{ext}"),
                 os.path.join(
                     config["output"]["predict"],
-                    "scaftigs_gene_report/{assembler}.multiqc.out/prokka_multiqc_report.html"),
+                    "report/scaftigs_gene_{assembler}.multiqc.out/prokka_multiqc_report.html"),
                 os.path.join(
                     config["output"]["predict"],
-                    "scaftigs_gene_report/{assembler}.multiqc.out/prokka_multiqc_report_data")],
+                    "report/scaftigs_gene_{assembler}.multiqc.out/prokka_multiqc_report_data")],
                    ext=PROKKA_SUFFIX,
                    assembler=ASSEMBLERS,
                    sample=SAMPLES.index.unique())

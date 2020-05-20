@@ -12,7 +12,7 @@ if config["params"]["cobinning"]["do"]:
         input:
             cds = os.path.join(
                 config["output"]["predict"],
-                "scaftigs_gene/{sample}.{assembler}.prodigal.out/{sample}.{assembler}.cds.ffn")
+                "scaftigs_gene/{sample}.{assembler}.prodigal.out/{sample}.{assembler}.ffn")
         output:
             uc = os.path.join(config["output"]["cobinning"],
                               "cds/{sample}.{assembler}.vsearch.out/{sample}.{assembler}.cds.uc.gz")
@@ -42,7 +42,7 @@ if config["params"]["cobinning"]["do"]:
         input:
             cds = os.path.join(
                 config["output"]["predict"],
-                "scaftigs_gene/{sample}.{assembler}.prodigal.out/{sample}.{assembler}.cds.ffn"),
+                "scaftigs_gene/{sample}.{assembler}.prodigal.out/{sample}.{assembler}.ffn"),
             uc = os.path.join(
                 config["output"]["cobinning"],
                 "cds/{sample}.{assembler}.vsearch.out/{sample}.{assembler}.cds.uc.gz")

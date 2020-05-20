@@ -122,7 +122,7 @@ rule alignment_report:
             sample=SAMPLES.index.unique())
     output:
         os.path.join(config["output"]["alignment"],
-                     "report/alignment_{assembler}_flagstat.tsv")
+                     "report/alignment_flagstat_{assembler}.tsv")
     run:
         input_list = [str(i) for i in input]
         output_str = str(output)
@@ -133,7 +133,7 @@ rule alignment_all:
     input:
         expand(os.path.join(
             config["output"]["alignment"],
-            "report/alignment_{assembler}_flagstat.tsv"),
+            "report/alignment_flagstat_{assembler}.tsv"),
                assembler=ASSEMBLERS,
                sample=SAMPLES.index.unique()),
         rules.alignment_base_depth_all.input

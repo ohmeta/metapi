@@ -264,7 +264,12 @@ if config["params"]["trimming"]["fastp"]["do"]:
             outdir = os.path.join(config["output"]["trimming"], "report")
         shell:
             '''
-            multiqc --outdir {params.outdir} --title fastp --module fastp {input} 2> {log}
+            multiqc \
+            --outdir {params.outdir} \
+            --title fastp \
+            --module fastp \
+            {input} \
+            2> {log}
             '''
 
            

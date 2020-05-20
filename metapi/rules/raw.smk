@@ -192,10 +192,10 @@ if config["params"]["raw"]["fastqc"]["do"]:
         output:
             html = os.path.join(
                 config["output"]["raw"],
-                "report_multiqc/fastqc_multiqc_report.html"),
+                "report/fastqc_multiqc_report.html"),
             data_dir = directory(os.path.join(
                 config["output"]["raw"],
-                "report_multiqc/fastqc_multiqc_report_data"))
+                "report/fastqc_multiqc_report_data"))
         params:
             output_dir = os.path.join(config["output"]["raw"],
                                       "report_multiqc")
@@ -219,10 +219,10 @@ if config["params"]["raw"]["fastqc"]["do"]:
                     "fastqc/{sample}.fastqc.out"),
                 os.path.join(
                     config["output"]["raw"],
-                    "report_multiqc/fastqc_multiqc_report.html"),
+                    "report/fastqc_multiqc_report.html"),
                 os.path.join(
                     config["output"]["raw"],
-                    "report_multiqc/fastqc_multiqc_report_data")],
+                    "report/fastqc_multiqc_report_data")],
                    sample=SAMPLES.index.unique())
 
 else:
