@@ -24,7 +24,7 @@ if config["params"]["checkm"]["do"]:
                 "bins_gene/{assembler}.{binner}.prodigal.out/{sample}"),
             table_dir = os.path.join(config["output"]["checkm"], "table/{sample}"),
             data_dir = os.path.join(config["output"]["checkm"], "data/{sample}"),
-            data_dir_ = os.path.join(config["output"]["checkm"],
+            data_dir_temp = os.path.join(config["output"]["checkm"],
                                      "data/{sample}/{sample}.{assembler}.{binner}")
         log:
             os.path.join(config["output"]["checkm"],
@@ -53,14 +53,14 @@ if config["params"]["checkm"]["do"]:
                     --threads {threads} \
                     --extension {params.suffix} \
                     {input[0]}/ \
-                    {params.data_dir_}/ > {log}
+                    {params.data_dir_temp}/ > {log}
                     ''')
             else:
                 shell('''touch {output.table}''')
-                shell('''mkdir -p {params.data_dir_}''')
+                shell('''mkdir -p {params.data_dir_temp}''')
 
-            shell('''tar -czvf {output.data} {params.data_dir_}/''')
-            shell('''rm -rf {params.data_dir_}''')
+            shell('''tar -czvf {output.data} {params.data_dir_temp}/''')
+            shell('''rm -rf {params.data_dir_temp}''')
 
 
     rule checkm_report:
@@ -72,7 +72,7 @@ if config["params"]["checkm"]["do"]:
                 sample=SAMPLES.index.unique())
         output:
             table = os.path.join(config["output"]["checkm"],
-                                 "report/{assembler}.{binner}.checkm.table.tsv")
+                                 "report/{assembler}_{binner}_checkm_table.tsv")
         threads:
             config["params"]["checkm"]["threads"]
         run:
@@ -160,7 +160,7 @@ if config["params"]["checkm"]["do"]:
                     config["output"]["checkm"],
                     "data/{sample}/{sample}.{assembler}.{binner}.checkm.data.tar.gz"),
                 os.path.join(config["output"]["checkm"],
-                             "report/{assembler}.{binner}.checkm.table.tsv"),
+                             "report/{assembler}_{binner}_checkm_table.tsv"),
                 os.path.join(config["output"]["checkm"],
                              "bins_hq/{assembler}.{binner}.links"),
                 os.path.join(config["output"]["checkm"],
