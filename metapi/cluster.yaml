@@ -313,6 +313,12 @@ checkm_report:
   output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
   error:  "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
 
+checkm_link_bins:
+  mem: "512M"
+  cores: 8
+  output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
+  error:  "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
+
 #checkm_coverage:
 #  mem: "512M"
 #  cores: 8

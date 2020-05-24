@@ -79,6 +79,7 @@ class metaconfig:
         "logs/07.predict_bins_gene_prokka",
         "logs/08.checkm_lineage_wf",
         "logs/08.checkm_report",
+        "logs/08.checkm_link_bins",
         "logs/09.classify_short_reads_kraken2",
         "logs/09.classify_hmq_bins_gtdbtk",
         "logs/10.dereplicate_drep",
