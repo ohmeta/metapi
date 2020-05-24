@@ -173,13 +173,9 @@ if config["params"]["predict"]["bins_to_gene"]["prodigal"]["do"]:
 
             for bin_fa in bin_list:
                 bin_id = os.path.basename(os.path.splitext(bin_fa)[0])
-                output_dir = os.path.join(params.output_dir, bin_id)
-                os.makedirs(output_dir, exist_ok=True)
-
-                pep_file = os.path.join(output_dir, bin_id + ".faa")
-                cds_file = os.path.join(output_dir, bin_id + ".ffn")
-                gff_file = os.path.join(output_dir, bin_id + ".gff")
-
+                pep_file = os.path.join(params.output_dir, bin_id + ".faa")
+                cds_file = os.path.join(params.output_dir, bin_id + ".ffn")
+                gff_file = os.path.join(params.output_dir, bin_id + ".gff")
                 log_file= os.path.join(params.logs_dir, bin_id + ".prodigal.log")
 
                 shell(

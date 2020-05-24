@@ -40,7 +40,7 @@ if config["params"]["checkm"]["do"]:
 
             count = 0
             if params.suffix == "faa":
-                count = len(glob.glob(params.gene_dir + "/*/*.faa"))
+                count = len(glob.glob(params.gene_dir + "/*.faa"))
             if params.suffix == "fa":
                 count = len(glob.glob(input[0] + "/*.fa"))
 
