@@ -3,6 +3,7 @@
 from metapi.configer import metaconfig
 from metapi.configer import parse_yaml
 from metapi.configer import update_config
+from metapi.configer import custom_help_formatter
 
 from metapi.tooler import parse
 from metapi.tooler import merge

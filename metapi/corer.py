@@ -220,10 +220,15 @@ A pipeline to construct a genome catalogue from metagenomics data
 
     subparsers = parser.add_subparsers(title="available subcommands", metavar="")
     parser_init = subparsers.add_parser(
-        "init", parents=[parent_parser], prog="metapi init", help="init project"
+        "init",
+        formatter_class=metapi.custom_help_formatter,
+        parents=[parent_parser],
+        prog="metapi init",
+        help="init project",
     )
     parser_denovo_wf = subparsers.add_parser(
         "denovo_wf",
+        formatter_class=metapi.custom_help_formatter,
         parents=[parent_parser],
         prog="metapi denovo_wf",
         help="denovo_wf pipeline",
@@ -234,16 +239,19 @@ A pipeline to construct a genome catalogue from metagenomics data
         "--samples",
         type=str,
         default=None,
-        help="""
-        samples list, tsv format required.
+        help="""desired input:
+samples list, tsv format required.
 
-        if begin from trimming, rmhost, or assembly:
-            if it is fastq: the header is [id, fq1, fq2],
-            elif it is sra: the header is [id, sra];
+if begin from trimming, rmhost, or assembly:
+    if it is fastq:
+        the header is: [id, fq1, fq2]
+    if it is sra:
+        the header is: [id, sra]
 
-        elif begin from simulate:
-            the header is [id, genome, abundance, reads_num, model]
-        """,
+if begin from simulate:
+        the header is: [id, genome, abundance, reads_num, model]
+
+""",
     )
     parser_init.add_argument(
         "-b",
@@ -253,7 +261,6 @@ A pipeline to construct a genome catalogue from metagenomics data
         choices=["simulate", "trimming", "rmhost", "assembly"],
         help="pipeline starting point",
     )
-    parser_init._optionals.title = "arguments"
     parser_init.set_defaults(func=init)
 
     parser_denovo_wf.add_argument(
@@ -303,7 +310,6 @@ A pipeline to construct a genome catalogue from metagenomics data
         default=None,
         help="other snakemake command options(sankemake -h), if want --touch, just --snake touch",
     )
-    parser_denovo_wf._optionals.title = "arguments"
     parser_denovo_wf.set_defaults(func=denovo_wf)
 
     args = parser.parse_args()

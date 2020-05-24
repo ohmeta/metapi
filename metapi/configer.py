@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import argparse
 import os
 from ruamel.yaml import YAML
 
@@ -162,3 +163,69 @@ metapi denovo_wf --qsub
         config["configfile"] = self.new_config_file
         config["clusterfile"] = self.new_cluster_file
         return (config, cluster)
+
+
+# https://github.com/Ecogenomics/CheckM/blob/master/checkm/customHelpFormatter.py
+class custom_help_formatter(argparse.HelpFormatter):
+    """Provide a customized format for help output.
+    http://stackoverflow.com/questions/9642692/argparse-help-without-duplicate-allcaps
+    """
+
+    def _split_lines(self, text, width):
+        return text.splitlines()
+
+    def _get_help_string(self, action):
+        h = action.help
+        if "%(default)" not in action.help:
+            if (
+                action.default != ""
+                and action.default != []
+                and action.default != None
+                and action.default != False
+            ):
+                if action.default is not argparse.SUPPRESS:
+                    defaulting_nargs = [argparse.OPTIONAL, argparse.ZERO_OR_MORE]
+
+                    if action.option_strings or action.nargs in defaulting_nargs:
+                        if "\n" in h:
+                            lines = h.splitlines()
+                            lines[0] += " (default: %(default)s)"
+                            h = "\n".join(lines)
+                        else:
+                            h += " (default: %(default)s)"
+            return h
+
+    def _fill_text(self, text, width, indent):
+        return "".join([indent + line for line in text.splitlines(True)])
+
+    def _format_action_invocation(self, action):
+        if not action.option_strings:
+            default = self._get_default_metavar_for_positional(action)
+            (metavar,) = self._metavar_formatter(action, default)(1)
+            return metavar
+
+        else:
+            parts = []
+
+            # if the Optional doesn't take a value, format is:
+            #    -s, --long
+            if action.nargs == 0:
+                parts.extend(action.option_strings)
+
+            # if the Optional takes a value, format is:
+            #    -s ARGS, --long ARGS
+            else:
+                default = self._get_default_metavar_for_optional(action)
+                args_string = self._format_args(action, default)
+                for option_string in action.option_strings:
+                    parts.append(option_string)
+
+                return "%s %s" % (", ".join(parts), args_string)
+
+            return ", ".join(parts)
+
+    def _get_default_metavar_for_optional(self, action):
+        return action.dest.upper()
+
+    def _get_default_metavar_for_positional(self, action):
+        return action.dest
