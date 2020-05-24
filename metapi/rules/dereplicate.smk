@@ -6,7 +6,7 @@ if config["params"]["dereplicate"]["drep"]["do"]:
                 "bins_hmq/{assembler}.{binner}.links"),
             genome_info = os.path.join(
                 config["output"]["checkm"],
-                "report/{assembler}.{binner}.checkm.table.tsv")
+                "report/{assembler}_{binner}_checkm_table.tsv")
         output:
             directory(os.path.join(
                 config["output"]["dereplicate"],

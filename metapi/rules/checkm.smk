@@ -52,9 +52,11 @@ if config["params"]["checkm"]["do"]:
                     --file {output.table} \
                     --threads {threads} \
                     --extension {params.suffix} \
-                    {input[0]}/ \
+                    %s/ \
                     {params.data_dir_temp}/ > {log}
-                    ''')
+                    ''' % params.gene_dir \
+                    if config["params"]["predict"]["bins_to_gene"]["prodigal"]["do"] \
+                    else input[0])
             else:
                 shell('''touch {output.table}''')
                 shell('''mkdir -p {params.data_dir_temp}''')
@@ -82,7 +84,7 @@ if config["params"]["checkm"]["do"]:
     rule checkm_link_bins:
         input:
             table = os.path.join(config["output"]["checkm"],
-                                 "report/{assembler}.{binner}.checkm.table.tsv")
+                                 "report/{assembler}_{binner}_checkm_table.tsv")
         output:
             bins_dir_hq = directory(
                 os.path.join(config["output"]["checkm"],
