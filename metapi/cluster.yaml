@@ -277,17 +277,29 @@ cobinning_get_marker_contigs_coverage:
   output: "logs/06.{rule}/{rule}.{wildcards.sample_}.{wildcards.sample}.{wildcards.assembler}.o"
   error:  "logs/06.{rule}/{rule}.{wildcards.sample_}.{wildcards.sample}.{wildcards.assembler}.e"
 
-predict_scaftigs_gene:
+predict_scaftigs_gene_prodigal:
   mem: "1G"
   cores: 1
   output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error:  "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
-predict_bins_gene:
+predict_scaftigs_gene_prokka:
   mem: "1G"
   cores: 1
   output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error:  "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+
+predict_bins_gene_prodigal:
+  mem: "1G"
+  cores: 1
+  output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.o"
+  error:  "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.e"
+
+predict_bins_gene_prokka:
+  mem: "1G"
+  cores: 1
+  output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.o"
+  error:  "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.e"
 
 checkm_lineage_wf:
   mem: "20G"
