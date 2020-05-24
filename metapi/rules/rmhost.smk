@@ -44,6 +44,8 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                                           read=[".1", ".2"] if IS_PE else ""))
         log:
             os.path.join(config["output"]["rmhost"], "logs/{sample}.bwa.log")
+        priority:
+            10
         params:
             compression = config["params"]["rmhost"]["compression"],
             minimum_seed_length = config["params"]["rmhost"]["bwa"]["minimum_seed_length"],
@@ -191,6 +193,8 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                                           read=[".1", ".2"] if IS_PE else ""))
         log:
             os.path.join(config["output"]["rmhost"], "logs/{sample}.bowtie2.log")
+        priority:
+            10
         params:
             compression = config["params"]["rmhost"]["compression"],
             index_prefix = config["params"]["rmhost"]["bowtie2"]["index_prefix"],

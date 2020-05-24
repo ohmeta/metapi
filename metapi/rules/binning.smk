@@ -11,6 +11,8 @@ if config["params"]["binning"]["metabat2"]["do"]:
             coverage = os.path.join(
                 config["output"]["binning"],
                 "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.coverage")
+        priority:
+            30
         log:
             os.path.join(config["output"]["binning"],
                          "logs/coverage/{sample}.{assembler}.metabat2.coverage.log")
@@ -37,6 +39,8 @@ if config["params"]["binning"]["metabat2"]["do"]:
         output:
             bins_dir = directory(os.path.join(config["output"]["binning"],
                                               "bins/{sample}.{assembler}.out/metabat2"))
+        priority:
+            30
         log:
             os.path.join(config["output"]["binning"],
                          "logs/binning/{sample}.{assembler}.metabat2.binning.log")
@@ -88,6 +92,8 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             coverage = os.path.join(
                 config["output"]["binning"],
                 "coverage/{sample}.{assembler}.out/{sample}.{assembler}.maxbin2.coverage")
+        priority:
+            30
         log:
             os.path.join(config["output"]["binning"],
                          "logs/coverage/{sample}.{assembler}.maxbin2.coverage.log")
@@ -112,6 +118,8 @@ if config["params"]["binning"]["maxbin2"]["do"]:
         output:
             bins_dir = directory(os.path.join(config["output"]["binning"],
                                               "bins/{sample}.{assembler}.out/maxbin2"))
+        priority:
+            30
         log:
             os.path.join(config["output"]["binning"],
                          "logs/binning/{sample}.{assembler}.maxbin2.binning.log")
@@ -157,6 +165,8 @@ if len(BINNERS) != 0:
                 os.path.join(
                     config["output"]["binning"],
                     "report/{assembler}_{binner}_stats/{sample}"))
+        priority:
+            35
         params:
             sample_id = "{sample}",
             assembler = "{assembler}",

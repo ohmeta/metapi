@@ -15,6 +15,8 @@ if "megahit" in ASSEMBLERS:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{sample}.megahit.out/{sample}.megahit.scaftigs.fa.gz"))
+        priority:
+            20
         params:
             min_contig = config["params"]["assembly"]["megahit"]["min_contig"],
             output_prefix = "{sample}",
@@ -90,6 +92,8 @@ if "idba_ud" in ASSEMBLERS:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{sample}.idba_ud.out/{sample}.idba_ud.scaftigs.fa.gz"))
+        priority:
+            20
         params:
             prefix = "{sample}",
             output_dir = os.path.join(config["output"]["assembly"],
@@ -170,6 +174,8 @@ if "metaspades" in ASSEMBLERS:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.fa.gz"))
+        priority:
+            20
         params:
             prefix = "{sample}",
             kmers = "auto" \
@@ -262,6 +268,8 @@ if "spades" in ASSEMBLERS:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{sample}.spades.out/{sample}.spades.scaftigs.fa.gz"))
+        priority:
+            20
         params:
             prefix = "{sample}",
             kmers = "auto" \
@@ -444,6 +452,8 @@ if len(ASSEMBLERS) != 0:
             report = os.path.join(
                 config["output"]["assembly"],
                 "report/{assembler}_stats/{sample}.{assembler}.scaftigs.seqtk.comp.tsv.gz")
+        priority:
+            25
         params:
             sample_id = "{sample}",
             assembler = "{assembler}"
