@@ -54,7 +54,7 @@ if config["params"]["checkm"]["do"]:
                     --extension {params.suffix} \
                     %s/ \
                     {params.data_dir_temp}/ > {log}
-                    ''' % params.gene_dir \
+                    ''' % "--genes {params.gene_dir}" \
                     if config["params"]["predict"]["bins_to_gene"]["prodigal"]["do"] \
                     else input[0])
             else:
