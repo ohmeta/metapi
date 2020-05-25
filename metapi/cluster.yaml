@@ -301,11 +301,17 @@ predict_bins_gene_prokka:
   output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.o"
   error:  "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.e"
 
+checkm_prepare:
+  mem: "512M"
+  cores: 1
+  output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
+  error:  "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
+
 checkm_lineage_wf:
   mem: "20G"
   cores: 8
-  output: "logs/08.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.o"
-  error:  "logs/08.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.e"
+  output: "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler}.{wildcards.binner}.o"
+  error:  "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler}.{wildcards.binner}.e"
 
 checkm_report:
   mem: "512M"

@@ -1,34 +1,77 @@
 if config["params"]["checkm"]["do"]:
-    rule checkm_lineage_wf:
+    checkpoint checkm_prepare:
         input:
-            os.path.join(
+            expand(os.path.join(
                 config["output"]["predict"],
-                "bins_gene/{assembler}.{binner}.prodigal.out/{sample}/done") \
+                "bins_gene/{{assembler}}.{{binner}}.prodigal.out/{sample}/done"),
+                   sample=SAMPLES.index.unique()) \
                 if config["params"]["predict"]["bins_to_gene"]["prodigal"]["do"] else \
-                   os.path.join(
+                   expand(os.path.join(
                        config["output"]["binning"],
-                       "bins/{sample}.{assembler}.out/{binner}")
+                       "bins/{sample}.{{assembler}}.out/{{binner}}"),
+                          sample=SAMPLES.index.unique())
         output:
-            table = os.path.join(
+            directory(os.path.join(
                 config["output"]["checkm"],
-                "table/{sample}/{sample}.{assembler}.{binner}.checkm.table.tsv"),
-            data = os.path.join(
-                config["output"]["checkm"],
-                "data/{sample}/{sample}.{assembler}.{binner}.checkm.data.tar.gz")
+                "bins_input/{assembler}.{binner}.links"))
         params:
             suffix = "faa" \
                 if config["params"]["predict"]["bins_to_gene"]["prodigal"]["do"] \
                    else "fa",
-            gene_dir = os.path.join(
-                config["output"]["predict"],
-                "bins_gene/{assembler}.{binner}.prodigal.out/{sample}"),
-            table_dir = os.path.join(config["output"]["checkm"], "table/{sample}"),
-            data_dir = os.path.join(config["output"]["checkm"], "data/{sample}"),
-            data_dir_temp = os.path.join(config["output"]["checkm"],
-                                     "data/{sample}/{sample}.{assembler}.{binner}")
-        log:
+             batch_num = config["params"]["checkm"]["batch_num"]
+        run:
+            import os
+            import glob
+
+            bin_list = []
+            if params.suffix == "faa":
+                for i in input[0]:
+                   bin_list += [os.path.realpath(j) \
+                                for j in glob.glob(os.path.join(os.path.dirname(i), "*.faa"))]
+            if params.suffix == "fa":
+                for i in input[0]:
+                    bin_list += [os.path.realpath(j) \
+                                 for j in glob.glob(os.path.join(i, "*.fa"))]
+
+            if len(bin_list) > 0:
+                for bactchid in range(0, len(bin_list), params.batch_num):
+                    batch_dir = os.path.join(output[0], "bins_%d" % bactchid)
+                    os.makedirs(batch_dir, exist_ok=True)
+
+                    for bin_file in bin_list[i, i + params.batch_num]:
+                        os.symlink(bin_file,
+                                   os.path.join(batch_dir,
+                                                os.path.basename(bin_file)))
+            else:
+                os.path.makedirs(output[0], "bins_0", exist_ok=True)
+
+
+    rule checkm_lineage_wf:
+        input:
             os.path.join(config["output"]["checkm"],
-                         "logs/{sample}.{assembler}.{binner}.checkm.log")
+                         "bins_input/{assembler}.{binner}.links/bins_{batchid}")
+        output:
+            table = os.path.join(
+                config["output"]["checkm"],
+                "table/bins_{batchid}/bins_{batchid}.{assembler}.{binner}.checkm.table.tsv"),
+            data = os.path.join(
+                config["output"]["checkm"],
+                "data/bins_{batchid}/bins_{batchid}.{assembler}.{binner}.checkm.data.tar.gz")
+        params:
+            suffix = "faa" \
+                if config["params"]["predict"]["bins_to_gene"]["prodigal"]["do"] \
+                   else "fa",
+            genes = "--genes" \
+                if config["params"]["predict"]["bins_to_gene"]["prodigal"]["do"] \
+                   else "",
+            table_dir = os.path.join(config["output"]["checkm"], "table/bins_{batchid}"),
+            data_dir = os.path.join(config["output"]["checkm"], "data/bins_{batchid}"),
+            data_dir_temp = os.path.join(config["output"]["checkm"],
+                                     "data/bins_{batchid}/bins_{batchid}.{assembler}.{binner}")
+        log:
+            os.path.join(
+                config["output"]["checkm"],
+                "logs/bins_{batchid}.{assembler}.{binner}.checkm.log")
         threads:
             config["params"]["checkm"]["threads"]
         run:
@@ -38,11 +81,7 @@ if config["params"]["checkm"]["do"]:
             os.makedirs(params.table_dir, exist_ok=True)
             os.makedirs(params.data_dir, exist_ok=True)
 
-            count = 0
-            if params.suffix == "faa":
-                count = len(glob.glob(params.gene_dir + "/*.faa"))
-            if params.suffix == "fa":
-                count = len(glob.glob(input[0] + "/*.fa"))
+            count = len(glob.glob(os.path.join(input[0], "*.%s" % params.suffix)))
 
             if count > 0:
                 shell(
@@ -52,11 +91,10 @@ if config["params"]["checkm"]["do"]:
                     --file {output.table} \
                     --threads {threads} \
                     --extension {params.suffix} \
-                    %s/ \
+                    {params.gens} \
+                    {input}/ \
                     {params.data_dir_temp}/ > {log}
-                    ''' % "--genes {params.gene_dir}" \
-                    if config["params"]["predict"]["bins_to_gene"]["prodigal"]["do"] \
-                    else input[0])
+                    ''')
             else:
                 shell('''touch {output.table}''')
                 shell('''mkdir -p {params.data_dir_temp}''')
@@ -65,13 +103,19 @@ if config["params"]["checkm"]["do"]:
             shell('''rm -rf {params.data_dir_temp}''')
 
 
+    def aggregate_checkm_report_input(wildcards):
+        checkpoint_output = checkpoints.checkm_prepare.get(**wildcards).output[0]
+        return expand(os.path.join(
+            config["output"]["checkm"],
+            "table/bins_{batchid}/bins_{batchid}.{assembler}.{binner}.checkm.table.tsv"),
+                      assembler=wildcards.assembler,
+                      binner=wildcards.binner,
+                      batchid=glob_wildcards(os.path.join(checkpoint_output, "bins_{batchid}")).batchid)
+
+   
     rule checkm_report:
         input:
-            expand(
-                os.path.join(
-                    config["output"]["checkm"],
-                    "table/{sample}/{sample}.{{assembler}}.{{binner}}.checkm.table.tsv"),
-                sample=SAMPLES.index.unique())
+            aggregate_checkm_report_input
         output:
             table = os.path.join(config["output"]["checkm"],
                                  "report/{assembler}_{binner}_checkm_table.tsv")
@@ -155,12 +199,6 @@ if config["params"]["checkm"]["do"]:
     rule checkm_all:
         input:
             expand([
-                os.path.join(
-                    config["output"]["checkm"],
-                    "table/{sample}/{sample}.{assembler}.{binner}.checkm.table.tsv"),
-                os.path.join(
-                    config["output"]["checkm"],
-                    "data/{sample}/{sample}.{assembler}.{binner}.checkm.data.tar.gz"),
                 os.path.join(config["output"]["checkm"],
                              "report/{assembler}_{binner}_checkm_table.tsv"),
                 os.path.join(config["output"]["checkm"],
@@ -172,8 +210,7 @@ if config["params"]["checkm"]["do"]:
                 os.path.join(config["output"]["checkm"],
                              "bins_hmq/{assembler}.{binner}.links")],
                    assembler=ASSEMBLERS,
-                   binner=BINNERS,
-                   sample=SAMPLES.index.unique())
+                   binner=BINNERS)
 
 else:
     rule checkm_all:

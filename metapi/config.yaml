@@ -149,6 +149,7 @@ params:
     completeness: 90
     contamination: 10
     standard: "MIMAG" # SGB
+    batch_num: 500
 
   classify:
     kraken2:
