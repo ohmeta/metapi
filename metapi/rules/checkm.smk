@@ -24,6 +24,9 @@ if config["params"]["checkm"]["do"]:
             import glob
             import pprint
 
+            if os.path.exists(output[0]):
+                os.rmdir(output[0])
+
             bin_list = []
             if params.suffix == "faa":
                 for i in input:
