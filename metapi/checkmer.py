@@ -44,15 +44,18 @@ def quality_score(row):
 
 
 def parse(checkm_table):
-    checkm_df = pd.read_csv(checkm_table, sep='\t')
-    return checkm_df
+    if os.path.getsize(checkm_table) > 0:
+        checkm_df = pd.read_csv(checkm_table, sep='\t')
+        return checkm_df
+    else:
+        return None
 
 
 def checkm_report(checkm_list, output, threads):
     df_list = []
     with concurrent.futures.ProcessPoolExecutor(max_workers=threads) as executor:
         for df in executor.map(parse, checkm_list):
-            if not df.empty:
+            if df is not None:
                 df_list.append(df)
 
     df_ = pd.concat(df_list)
