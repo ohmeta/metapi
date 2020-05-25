@@ -22,28 +22,29 @@ if config["params"]["checkm"]["do"]:
         run:
             import os
             import glob
+            import pprint
 
             bin_list = []
             if params.suffix == "faa":
-                for i in input[0]:
+                for i in input:
                    bin_list += [os.path.realpath(j) \
                                 for j in glob.glob(os.path.join(os.path.dirname(i), "*.faa"))]
             if params.suffix == "fa":
-                for i in input[0]:
+                for i in input:
                     bin_list += [os.path.realpath(j) \
                                  for j in glob.glob(os.path.join(i, "*.fa"))]
 
             if len(bin_list) > 0:
-                for bactchid in range(0, len(bin_list), params.batch_num):
-                    batch_dir = os.path.join(output[0], "bins_%d" % bactchid)
+                for batch_id in range(0, len(bin_list), params.batch_num):
+                    batch_dir = os.path.join(output[0], "bins_%d" % batch_id)
                     os.makedirs(batch_dir, exist_ok=True)
 
-                    for bin_file in bin_list[i, i + params.batch_num]:
+                    for bin_file in bin_list[batch_id:batch_id + params.batch_num]:
                         os.symlink(bin_file,
                                    os.path.join(batch_dir,
                                                 os.path.basename(bin_file)))
             else:
-                os.path.makedirs(output[0], "bins_0", exist_ok=True)
+                os.makedirs(os.path.join(output[0], "bins_0"), exist_ok=True)
 
 
     rule checkm_lineage_wf:
@@ -91,7 +92,7 @@ if config["params"]["checkm"]["do"]:
                     --file {output.table} \
                     --threads {threads} \
                     --extension {params.suffix} \
-                    {params.gens} \
+                    {params.genes} \
                     {input}/ \
                     {params.data_dir_temp}/ > {log}
                     ''')
