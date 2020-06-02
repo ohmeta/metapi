@@ -12,7 +12,23 @@ def parse_samples(config):
     samples_df = pd.read_csv(config["params"]["samples"], sep="\s+").set_index(
         "id", drop=False
     )
-    return samples_df
+
+    cancel = False
+    if "fq1" in samples_df.columns:
+        for sample_id in samples_df.index.unique():
+            fq1_list = samples_df.loc[[sample_id], "fq1"].dropna().tolist()
+            for fq_file in fq1_list:
+                if not fq_file.endswith(".gz"):
+                    print("%s need gzip format" % fq_file)
+                    cancel = True
+                if not os.path.exists(fq_file):
+                    print("%s not exists" % fq_file)
+                    cancel = True
+
+    if cancel:
+        sys.exit(0)
+    else:
+        return samples_df
 
 
 def parse_bins(bins_dir):
