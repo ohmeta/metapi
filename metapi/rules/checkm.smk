@@ -61,6 +61,8 @@ if config["params"]["checkm"]["do"]:
             data = os.path.join(
                 config["output"]["checkm"],
                 "data/bins_{batchid}/bins_{batchid}.{assembler}.{binner}.checkm.data.tar.gz")
+        wildcard_constraints:
+            batchid="\d+"
         params:
             suffix = "faa" \
                 if config["params"]["predict"]["bins_to_gene"]["prodigal"]["do"] \
@@ -109,12 +111,15 @@ if config["params"]["checkm"]["do"]:
 
     def aggregate_checkm_report_input(wildcards):
         checkpoint_output = checkpoints.checkm_prepare.get(**wildcards).output[0]
+
         return expand(os.path.join(
             config["output"]["checkm"],
             "table/bins_{batchid}/bins_{batchid}.{assembler}.{binner}.checkm.table.tsv"),
                       assembler=wildcards.assembler,
                       binner=wildcards.binner,
-                      batchid=glob_wildcards(os.path.join(checkpoint_output, "bins_{batchid}")).batchid)
+                      batchid=list(set([i.split("/")[0] \
+                                        for i in glob_wildcards(os.path.join(checkpoint_output,
+                                                                             "bins_{batchid}")).batchid])))
 
    
     rule checkm_report:
