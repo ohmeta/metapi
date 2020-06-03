@@ -14,7 +14,9 @@ You can install it via [bioconda](https://bioconda.github.io/):
 
 ```
 # [WIP]
-$ conda install metapi
+$ conda install -c bioconda metapi
+# or [Complete]
+$ conda install -c ohmeta metapi
 ```
 
 Or via pip:
@@ -61,15 +63,21 @@ $ metapi init --help
 
   arguments:
       -h, --help            show this help message and exit
-      -d WORKDIR, --workdir WORKDIR
-                            project workdir
-      -s SAMPLES, --samples SAMPLES
-                            samples list, tsv format required if begin from
-                            trimming, rmhost, or assembly: if it is fastq: the
-                            header is [id, fq1, fq2], else it is sra: the header
-                            is [id, sra] else begin from simulate: the header is
-                            [id, genome, abundance, reads_num, model]
-    -b {simulate,trimming,rmhost,assembly}, --begin {simulate,trimming,rmhost,assembly}
+      -d, --workdir WORKDIR
+                            project workdir, default: ./ (default: ./)
+      -s, --samples SAMPLES
+                            desired input:
+                            samples list, tsv format required.
+                                
+                            if begin from trimming, rmhost, or assembly:
+                                if it is fastq:
+                                    the header is [id, fq1, fq2]
+                                if it is sra:
+                                    the header is [id, sra]
+                            if begin from simulate:
+                                the header is [id, genome, abundance, reads_num, model]
+                                        
+    -b, --begin {simulate,trimming,rmhost,assembly}
                             pipeline starting point
 ```
 
@@ -84,14 +92,17 @@ $ metapi denovo_wf --help
                           [TASK]
 
   positional arguments:
-    TASK                  pipeline end point. Allowed values are simulate_all,
-                          prepare_reads_all, raw_fastqc_all, trimming_oas1_all,
-                          trimming_sickle_all, trimming_fastp_all, trimming_all,
-                          rmhost_bwa_all, rmhost_bowtie2_all, rmhost_all,
+    TASK                  pipeline end point. Allowed values are
+                          simulate_all, prepare_reads_all,
+                          raw_fastqc_all, raw_report_all, raw_all,
+                          trimming_oas1_all, trimming_sickle_all, trimming_fastp_all,
+                          trimming_report_all, trimming_all,
+                          rmhost_bwa_all, rmhost_bowtie2_all,
+                          rmhost_report_all, rmhost_all, qcreport_all,
                           assebmly_megahit_all, assembly_idba_ud_all,
                           assembly_metaspades_all, assembly_spades_all,
-                          assembly_metaquast_all, assembly_report_all,
-                          assembly_all, coassembly_megahit_all, coassembly_all,
+                          assembly_metaquast_all, assembly_report_all, assembly_all,
+                          coassembly_megahit_all, coassembly_all,
                           alignment_base_depth_all, alignment_all,
                           binning_metabat2_all, binning_maxbin2_all,
                           binning_report_all, binning_all, cobinning_all,
@@ -126,31 +137,69 @@ $ metapi denovo_wf --help
                           --snake touch
 ```
 
+### Example
+
+```
+# init project
+$ metapi init -d . -s samples.tsv -b trimming
+
+# run raw_fastqc
+$ metapi denovo_wf raw_fastqc_all --run
+
+# run trimming
+$ metapi denovo_wf trimming_all --run
+
+# run rmhost
+$ metapi denovo_wf rmhost_all --run
+
+# run qc report
+$ metapi denovo_wf qcreport_all --run
+
+# run assembly
+$ metapi denovo_wf assembly_all --run
+
+# run co-assembly
+$ metapi denovo_wf coassembly_all --run
+
+# run binning 
+$ metapi denovo_wf binning_all --run
+
+# run gene predict
+$ metapi denovo_wf predict_all --run
+
+# run MAGs checkm
+$ metapi denovo_wf checkm_all --run
+
+# run MAGs classify
+$ metapi denovo-wf classify_all --run
+```
+
 ## input requirements
 
 The input samples file: `samples.tsv` format:
 
 Note: If `id` col contain same id, then the reads of each sample will be merged.
+Note: The fastq need gzip compress.
 
 - begin from trimming, rmhost or assembly:
 
   - `Paired-end fastq`
 
-  | id  |   fq1   |   fq2   |
-  | :-: | :-----: | :-----: |
-  | s1  | aa.1.fq | aa.2.fq |
-  | s2  | bb.1.fq | bb.2.fq |
-  | s2  | cc.1.fq | cc.2.fq |
-  | s3  | dd.1.fq | dd.2.fq |
+  | id  | fq1        | fq2        |
+  | :-: | :-----:    | :-----:    |
+  | s1  | aa.1.fq.gz | aa.2.fq.gz |
+  | s2  | bb.1.fq.gz | bb.2.fq.gz |
+  | s2  | cc.1.fq.gz | cc.2.fq.gz |
+  | s3  | dd.1.fq.gz | dd.2.fq.gz |
 
   - `Single-end fastq`
 
-  | id  |   fq1   | fq2 |
-  | :-: | :-----: | :-: |
-  | s1  | aa.1.fq |     |
-  | s2  | bb.1.fq |     |
-  | s2  | cc.1.fq |     |
-  | s3  | dd.1.fq |     |
+  | id  | fq1        | fq2 |
+  | :-: | :-----:    | :-: |
+  | s1  | aa.1.fq.gz |     |
+  | s2  | bb.1.fq.gz |     |
+  | s2  | cc.1.fq.gz |     |
+  | s3  | dd.1.fq.gz |     |
 
   - `SRA`:
 
