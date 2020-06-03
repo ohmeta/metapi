@@ -172,7 +172,10 @@ $ metapi denovo_wf predict_all --run
 $ metapi denovo_wf checkm_all --run
 
 # run MAGs classify
-$ metapi denovo-wf classify_all --run
+$ metapi denovo_wf classify_all --run
+
+# run all
+$ metapi denovo_wf --run
 ```
 
 ## input requirements
@@ -241,6 +244,11 @@ species g2 is 0.3, the relatative abundance of
 species g3 is 0.5.
 
 Then metapi will use [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq) to generate metagenomics shutgun reads.
+
+## FAQ
+* You know what you want to do, so you know how to configure config.yaml
+* You know snakemake, so you know how to hack metapi
+
 
 ## Getting help
 
