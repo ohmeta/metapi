@@ -124,7 +124,7 @@ if "idba_ud" in ASSEMBLERS:
                     seqtk seq -A - > %s
                     ''' % reads)
             else:
-                shell('''seqtk seq -A {intput.reads[0]} > %s''' % reads)
+                shell('''seqtk seq -A {input.reads[0]} > %s''' % reads)
 
             shell(
                 '''
