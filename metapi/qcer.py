@@ -19,17 +19,19 @@ def compute_host_rate(df, **kwargs):
     host_rate = {}
     df = df.set_index("id")
     for i in df.index.unique():
-        if (not df.loc[i,].query('reads=="fq1" and step=="rmhost"').empty) and (
-            not df.loc[i,].query('reads=="fq1" and step=="trimming"').empty
-        ):
+        if not df.loc[i,].query('reads=="fq1" and step=="rmhost"').empty:
             reads_num_rmhost = df.loc[i,].query('reads=="fq1" and step=="rmhost"')[
                 "num_seqs"
             ][0]
-            reads_num_trimming = df.loc[i,].query('reads=="fq1" and step=="trimming"')[
-                "num_seqs"
-            ][0]
-
-            hostrate = (reads_num_trimming - reads_num_rmhost) / reads_num_trimming
+            if not df.loc[i,].query('reads=="fq1" and step=="trimming"').empty:
+                reads_num = df.loc[i,].query('reads=="fq1" and step=="trimming"')[
+                    "num_seqs"
+                ][0]
+            elif not df.loc[i,].query('reads=="fq1" and step=="raw"').empty:
+                reads_num = df.loc[i,].query('reads=="fq1" and step=="raw"')[
+                    "num_seqs"
+                ][0]
+            hostrate = (reads_num - reads_num_rmhost) / reads_num
             host_rate[i] = hostrate
         else:
             host_rate[i] = np.nan
