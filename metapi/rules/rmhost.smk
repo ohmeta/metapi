@@ -305,7 +305,66 @@ else:
         input:
 
 
+if RMHOST_DO and config["params"]["qcreport"]["do"]:
+    rule rmhost_report:
+        input:
+            lambda wildcards: get_reads(wildcards, "rmhost")
+        output:
+            os.path.join(config["output"]["rmhost"],
+                              "report/stats/{sample}_rmhost_stats.tsv")
+        params:
+            sample_id = "{sample}",
+            fq_encoding = config["params"]["fq_encoding"]
+        threads:
+            config["params"]["qcreport"]["seqkit"]["threads"]
+        run:
+            shell(
+                '''
+                seqkit stats \
+                --all \
+                --basename \
+                --tabular \
+                --fq-encoding {params.fq_encoding} \
+                --out-file {output} \
+                --threads {threads} \
+                {input}
+                ''')
+
+            if IS_PE:
+                metapi.change(output[0], params.sample_id, "rmhost",
+                              "pe", ["fq1", "fq2"])
+            else:
+                metapi.change(output[0], params.sample_id, "rmhost",
+                              "se", ["fq1"])
+
+
+    rule rmhost_report_merge:
+        input:
+            expand(
+                os.path.join(config["output"]["rmhost"],
+                             "report/stats/{sample}_rmhost_stats.tsv"),
+                sample=SAMPLES.index.unique())
+        output:
+            os.path.join(config["output"]["qcreport"], "rmhost_stats.tsv")
+        threads:
+            config["params"]["qcreport"]["seqkit"]["threads"]
+        run:
+            metapi.merge(input, metapi.parse, threads,
+                         save=True, output=output[0])
+
+    rule rmhost_report_all:
+        input:
+            os.path.join(config["output"]["qcreport"], "rmhost_stats.tsv")
+
+else:
+    rule rmhost_report_all:
+        input:
+
+
 rule rmhost_all:
     input:
         rules.rmhost_bwa_all.input,
-        rules.rmhost_bowtie2_all.input
+        rules.rmhost_bowtie2_all.input,
+        rules.rmhost_report_all.input,
+
+        rules.trimming_all.input

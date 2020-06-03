@@ -164,9 +164,9 @@ if config["params"]["raw"]["fastqc"]["do"]:
         input:
             lambda wildcards: get_reads(wildcards, "raw", False)
         output:
-            protected(directory(os.path.join(
+            directory(os.path.join(
                 config["output"]["raw"],
-                "fastqc/{sample}.fastqc.out")))
+                "fastqc/{sample}.fastqc.out"))
         threads:
             config["params"]["raw"]["threads"]
         log:
@@ -198,7 +198,7 @@ if config["params"]["raw"]["fastqc"]["do"]:
                 "report/fastqc_multiqc_report_data"))
         params:
             output_dir = os.path.join(config["output"]["raw"],
-                                      "report_multiqc")
+                                      "report")
         log:
             os.path.join(config["output"]["raw"], "logs/multiqc_fastqc.log")
         shell:
@@ -230,7 +230,65 @@ else:
         input:
 
 
+if config["params"]["qcreport"]["do"]:
+    rule raw_report:
+        input:
+            lambda wildcards: get_reads(wildcards, "raw")
+        output:
+            os.path.join(config["output"]["raw"],
+                         "report/stats/{sample}_raw_stats.tsv")
+        params:
+            sample_id = "{sample}",
+            fq_encoding = config["params"]["fq_encoding"]
+        threads:
+            config["params"]["qcreport"]["seqkit"]["threads"]
+        run:
+            shell(
+                '''
+                seqkit stats \
+                --all \
+                --basename \
+                --tabular \
+                --fq-encoding {params.fq_encoding} \
+                --out-file {output} \
+                --threads {threads} \
+                {input}
+                ''')
+
+            if IS_PE:
+                metapi.change(output[0], params.sample_id, "raw",
+                              "pe", ["fq1", "fq2"])
+            else:
+                metapi.change(output[0], params.sample_id, "raw",
+                              "se", ["fq1"])
+
+
+    rule raw_report_merge:
+        input:
+            expand(
+                os.path.join(config["output"]["raw"],
+                             "report/stats/{sample}_raw_stats.tsv"),
+                sample=SAMPLES.index.unique())
+        output:
+            os.path.join(config["output"]["qcreport"], "raw_stats.tsv")
+        threads:
+            config["params"]["qcreport"]["seqkit"]["threads"]
+        run:
+            metapi.merge(input, metapi.parse, threads,
+                         save=True, output=output[0])
+
+
+    rule raw_report_all:
+        input:
+            os.path.join(config["output"]["qcreport"], "raw_stats.tsv")
+
+else:
+    rule raw_report_all:
+        input:
+
+
 rule raw_all:
     input:
         #rules.prepare_reads_all.input,
-        #rules.raw_fastqc_all.input,
+        rules.raw_fastqc_all.input,
+        rules.raw_report_all.input

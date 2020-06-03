@@ -291,8 +291,67 @@ else:
         input:
 
 
+if TRIMMING_DO and config["params"]["qcreport"]["do"]:
+    rule trimming_report:
+        input:
+            lambda wildcards: get_reads(wildcards, "trimming")
+        output:
+            os.path.join(config["output"]["trimming"],
+                              "report/stats/{sample}_trimming_stats.tsv")
+        params:
+            sample_id = "{sample}",
+            fq_encoding = config["params"]["fq_encoding"]
+        threads:
+            config["params"]["qcreport"]["seqkit"]["threads"]
+        run:
+            shell(
+                '''
+                seqkit stats \
+                --all \
+                --basename \
+                --tabular \
+                --fq-encoding {params.fq_encoding} \
+                --out-file {output} \
+                --threads {threads} \
+                {input}
+                ''')
+
+            if IS_PE:
+                metapi.change(output[0], params.sample_id, "trimming",
+                              "pe", ["fq1", "fq2"])
+            else:
+                metapi.change(output[0], params.sample_id, "trimming",
+                              "se", ["fq1"])
+
+
+    rule trimming_report_merge:
+        input:
+            expand(
+                os.path.join(config["output"]["trimming"],
+                             "report/stats/{sample}_trimming_stats.tsv"),
+                sample=SAMPLES.index.unique())
+        output:
+            os.path.join(config["output"]["qcreport"], "trimming_stats.tsv")
+        threads:
+            config["params"]["qcreport"]["seqkit"]["threads"]
+        run:
+            metapi.merge(input, metapi.parse, threads,
+                         save=True, output=output[0])
+
+    rule trimming_report_all:
+        input:
+            os.path.join(config["output"]["qcreport"], "trimming_stats.tsv")
+
+else:
+    rule trimming_report_all:
+        input:
+
+
 rule trimming_all:
     input:
         rules.trimming_oas1_all.input,
         rules.trimming_sickle_all.input,
-        rules.trimming_fastp_all.input
+        rules.trimming_fastp_all.input,
+        rules.trimming_report_all.input,
+
+        rules.raw_all.input
