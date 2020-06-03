@@ -312,6 +312,8 @@ if RMHOST_DO and config["params"]["qcreport"]["do"]:
         output:
             os.path.join(config["output"]["rmhost"],
                               "report/stats/{sample}_rmhost_stats.tsv")
+        priority:
+            25
         params:
             sample_id = "{sample}",
             fq_encoding = config["params"]["fq_encoding"]

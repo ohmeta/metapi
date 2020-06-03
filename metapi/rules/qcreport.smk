@@ -12,6 +12,8 @@ if config["params"]["qcreport"]["do"]:
                    step=STEPS)
         output:
             os.path.join(config["output"]["qcreport"], "qc_stats.tsv")
+        priority:
+            30
         threads:
             config["params"]["qcreport"]["seqkit"]["threads"]
         run:
