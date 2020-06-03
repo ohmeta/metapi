@@ -115,7 +115,8 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                         tee >(samtools fastq \
                               -@{threads} \
                               -c {params.compression} \
-                              -N -f 4 -F 256 - \
+                              -N -f 4 -F 256 - | \
+                              pigz -c -p {threads} \
                               > {output.reads[0]}) | \
                         samtools sort \
                         -@{threads} \
@@ -137,7 +138,8 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                         samtools fastq \
                         -@{threads} \
                         -c {params.compression} \
-                        -N -f 4 -F 256 - \
+                        -N -f 4 -F 256 - | \
+                        pigz -c -p {threads} \
                         > {output.reads[0]} \
                         2> {log}
                         ''')
@@ -263,7 +265,8 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                         tee >(samtools fastq \
                               -@{threads} \
                               -c {params.compression} \
-                              -N -f 4 -F 256 - \
+                              -N -f 4 -F 256 - | \
+                              pigz -c -p {threads} \
                               > {output.reads[0]}) | \
                         samtools sort \
                         -@{threads} \
@@ -284,7 +287,8 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                         samtools fastq \
                         -@{threads} \
                         -c {params.compression} \
-                        -N -f 4 -F 256 - \
+                        -N -f 4 -F 256 - | \
+                        pigz -c -p {threads} \
                         > {output.reads[0]}
                         ''')
 
