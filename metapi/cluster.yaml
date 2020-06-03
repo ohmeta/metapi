@@ -2,9 +2,17 @@ localrules:
   - simulate_all
   - prepare_reads_all
   - raw_fastqc_all
+  - raw_report_all
+  - trimming_oas1_all
+  - trimming_sickle_all
+  - trimming_fastp_all
+  - trimming_report_all
+  - trimming_all
   - rmhost_bwa_all
   - rmhost_bowtie2_all
+  - rmhost_report_all
   - rmhost_all
+  - qcreport_all
   - assebmly_megahit_all
   - assembly_idba_ud_all
   - assembly_metaspades_all
@@ -71,6 +79,18 @@ raw_fastqc_multiqc:
   output: "logs/00.{rule}/{rule}.o"
   error:  "logs/00.{rule}/{rule}.e"
 
+raw_report:
+  mem: "1G"
+  cores: 2
+  output: "logs/00.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/00.{rule}/{rule}.{wildcards.sample}.e"
+
+raw_report_merge:
+  mem: "512M"
+  cores: 2
+  output: "logs/00.{rule}/{rule}.o"
+  error:  "logs/00.{rule}/{rule}.e"
+
 trimming_oas1:
   mem: "1G"
   cores: 1
@@ -92,6 +112,18 @@ trimming_fastp:
 trimming_fastp_multiqc:
   mem: "128M"
   cores: 1
+  output: "logs/01.{rule}/{rule}.o"
+  error:  "logs/01.{rule}/{rule}.e"
+
+trimming_report:
+  mem: "1G"
+  cores: 2
+  output: "logs/01.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/01.{rule}/{rule}.{wildcards.sample}.e"
+
+trimming_report_merge:
+  mem: "512M"
+  cores: 2
   output: "logs/01.{rule}/{rule}.o"
   error:  "logs/01.{rule}/{rule}.e"
 
@@ -119,17 +151,17 @@ rmhost_bowtie2:
   output: "logs/02.{rule}/{rule}.{wildcards.sample}.o"
   error:  "logs/02.{rule}/{rule}.{wildcards.sample}.e"
 
-qcreport:
+rmhost_report:
+  mem: "1G"
+  cores: 2
+  output: "logs/02.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/02.{rule}/{rule}.{wildcards.sample}.e"
+
+rmhost_report_merge:
   mem: "512M"
   cores: 2
-  output: "logs/03.{rule}/{wildcards.step}/{rule}.{wildcards.sample}.{wildcards.step}.o"
-  error:  "logs/03.{rule}/{wildcards.step}/{rule}.{wildcards.sample}.{wildcards.step}.e"
-
-qcreport_merge:
-  mem: "512M"
-  cores: 4
-  output: "logs/03.{rule}/{rule}.{wildcards.step}.o"
-  error:  "logs/03.{rule}/{rule}.{wildcards.step}.e"
+  output: "logs/02.{rule}/{rule}.o"
+  error:  "logs/02.{rule}/{rule}.e"
 
 qcreport_summary:
   mem: "512M"

@@ -219,7 +219,9 @@ if config["params"]["checkm"]["do"]:
                 os.path.join(config["output"]["checkm"],
                              "bins_hmq/{assembler}.{binner}.links")],
                    assembler=ASSEMBLERS,
-                   binner=BINNERS)
+                   binner=BINNERS),
+
+            rules.binning_all.input
 
 else:
     rule checkm_all:

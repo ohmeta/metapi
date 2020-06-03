@@ -247,4 +247,6 @@ rule binning_all:
     input:
         rules.binning_metabat2_all.input,
         rules.binning_maxbin2_all.input,
-        rules.binning_report_all.input
+        rules.binning_report_all.input,
+
+        rules.alignment_all.input

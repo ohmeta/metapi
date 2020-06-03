@@ -73,4 +73,7 @@ else:
 
 rule coassembly_all:
     input:
-        rules.coassembly_megahit_all.input
+        rules.coassembly_megahit_all.input,
+
+        rules.rmhost_all.input,
+        rules.qcreport_all.input

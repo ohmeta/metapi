@@ -154,7 +154,9 @@ if config["params"]["cobinning"]["do"]:
                 "coverage/{assembler}/{sample_}/{sample_}.{sample}.{assembler}.coverage.gz"),
                    assembler=ASSEMBLERS,
                    sample_=SAMPLES.index.unique(),
-                   sample=SAMPLES.index.unique())
+                   sample=SAMPLES.index.unique()),
+
+            rules.predict_scaftigs_gene_all.input
 
 else:
     rule cobinning_all:

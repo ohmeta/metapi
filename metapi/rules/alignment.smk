@@ -136,4 +136,6 @@ rule alignment_all:
             "report/alignment_flagstat_{assembler}.tsv"),
                assembler=ASSEMBLERS,
                sample=SAMPLES.index.unique()),
-        rules.alignment_base_depth_all.input
+        rules.alignment_base_depth_all.input,
+
+        rules.assembly_all.input

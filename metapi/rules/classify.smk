@@ -59,7 +59,10 @@ if config["params"]["classify"]["kraken2"]["do"]:
                 os.path.join(
                     config["output"]["classify"],
                     "short_reads/{sample}.kraken2.out/{sample}.kraken2.report.gz")],
-                   sample=SAMPLES.index.unique())
+                   sample=SAMPLES.index.unique()),
+
+            rules.rmhost_all.input,
+            rules.qcreport_all.input
 
 else:
     rule classify_short_reads_kraken2_all:
@@ -101,7 +104,9 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
                     config["output"]["classify"],
                     "bins_hmq/{assembler}.{binner}.gtdbtk.out"),
                 assembler=ASSEMBLERS,
-                binner=BINNERS)
+                binner=BINNERS),
+
+            rules.checkm_all.input,
 
 else:
     rule classify_hmq_bins_gtdbtk_all:

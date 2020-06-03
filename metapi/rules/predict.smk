@@ -332,13 +332,17 @@ else:
 rule predict_scaftigs_gene_all:
     input:
         rules.predict_scaftigs_gene_prodigal_all.input,
-        rules.predict_scaftigs_gene_prokka_all.input
+        rules.predict_scaftigs_gene_prokka_all.input,
+
+        rules.assembly_all.input
 
 
 rule predict_bins_gene_all:
     input:
         rules.predict_bins_gene_prodigal_all.input,
-        rules.predict_bins_gene_prokka_all.input
+        rules.predict_bins_gene_prokka_all.input,
+
+        rules.binning_all.input
 
 
 rule predict_all:

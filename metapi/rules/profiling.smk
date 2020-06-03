@@ -579,4 +579,6 @@ rule profiling_all:
     input:
         rules.profiling_metaphlan2_all.input,
         rules.profiling_jgi_all.input,
-        rules.profiling_humann2_all.input
+        rules.profiling_humann2_all.input,
+
+        rules.rmhost_all.input
