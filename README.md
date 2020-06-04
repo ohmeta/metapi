@@ -1,3 +1,5 @@
+<div align=center><img width="500" height="280" src="https://raw.githubusercontent.com/yangfangming/metapi/dev/docs/logo.svg"/></div>
+
 # metapi
 
 [![bioconda-badge](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io)
