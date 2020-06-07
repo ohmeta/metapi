@@ -22,7 +22,7 @@ if config["params"]["classify"]["kraken2"]["do"]:
                 if config["params"]["classify"]["kraken2"]["report_zero_counts"] \
                    else ""
         threads:
-            config["params"]["classify"]["kraken2"]["threads"]
+            config["params"]["classify"]["threads"]
         run:
             shell(
                 '''
@@ -85,7 +85,7 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
         params:
             bin_suffix = "fa"
         threads:
-            config["params"]["classify"]["gtdbtk"]["threads"]
+            config["params"]["classify"]["threads"]
         shell:
             '''
             gtdbtk classify_wf \

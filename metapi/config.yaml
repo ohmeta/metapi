@@ -152,15 +152,14 @@ params:
     batch_num: 500
 
   classify:
+    threads: 8
     kraken2:
       do: True
       database: /path/to/kraken2/database
-      threads: 8
       use_mpa_style: False
       report_zero_counts: True
     gtdbtk:
       do: True
-      threads: 8
 
   dereplicate:
     drep:
@@ -177,7 +176,6 @@ params:
     threads: 8
     metaphlan2:
       do: False
-      threads: 8
       bowtie2db: "/path/to/metaphlan_databases"
       index: "latest"
       bowtie2_presets: "very-sensitive"
@@ -203,7 +201,6 @@ params:
       index_prefix: /path/to/bowtie2_index_prefix
     humann2:
       do: False
-      threads: 8
       remove_temp_output: True
       normalize_method: "relab"
       regroup_method: "sum"

@@ -581,4 +581,5 @@ rule profiling_all:
         rules.profiling_jgi_all.input,
         rules.profiling_humann2_all.input,
 
-        rules.rmhost_all.input
+        rules.rmhost_all.input,
+        rules.qcreport_all.input
