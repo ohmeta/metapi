@@ -40,6 +40,7 @@ localrules:
   - classify_hmq_bins_gtdbtk_all
   - classify_all
   - profiling_metaphlan2_all
+  - profiling_metaphlan3_all
   - profiling_jgi_all
   - profiling_humann2_all
   - profiling_all
@@ -393,6 +394,17 @@ profiling_metaphlan2:
   error:  "logs/11.{rule}/{rule}.{wildcards.sample}.e"
 
 profiling_metaphlan2_merge:
+  mem: "128M"
+  output: "logs/11.{rule}/{rule}.o"
+  error:  "logs/11.{rule}/{rule}.e"
+
+profiling_metaphlan3:
+  mem: "8G"
+  cores: 8
+  output: "logs/11.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/11.{rule}/{rule}.{wildcards.sample}.e"
+
+profiling_metaphlan3_merge:
   mem: "128M"
   output: "logs/11.{rule}/{rule}.o"
   error:  "logs/11.{rule}/{rule}.e"

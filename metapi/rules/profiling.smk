@@ -1,4 +1,4 @@
-if config["params"]["profiling"]["metaphlan2"]["do"]:
+if config["params"]["profiling"]["metaphlan"]["do_v2"]:
     rule profiling_metaphlan2:
         input:
             assembly_input
@@ -12,23 +12,20 @@ if config["params"]["profiling"]["metaphlan2"]["do"]:
                          "logs/{sample}.metaphlan2.log")
         params:
             sample_id = "{sample}",
-            input_type = config["params"]["profiling"]["metaphlan2"]["input_type"],
-            read_min_len = config["params"]["profiling"]["metaphlan2"]["read_min_len"],
-            bowtie2db = config["params"]["profiling"]["metaphlan2"]["bowtie2db"],
-            index = config["params"]["profiling"]["metaphlan2"]["index"],
-            bowtie2_presets = config["params"]["profiling"]["metaphlan2"]["bowtie2_presets"],
-            min_cu_len = config["params"]["profiling"]["metaphlan2"]["min_cu_len"],
-            taxonomic_level = config["params"]["profiling"]["metaphlan2"]["taxonomic_level"],
+            input_type = config["params"]["profiling"]["metaphlan"]["input_type"],
+            read_min_len = config["params"]["profiling"]["metaphlan"]["read_min_len"],
+            bowtie2db = config["params"]["profiling"]["metaphlan"]["bowtie2db"],
+            index = config["params"]["profiling"]["metaphlan"]["index_v2"],
+            bowtie2_presets = config["params"]["profiling"]["metaphlan"]["bowtie2_presets"],
+            min_cu_len = config["params"]["profiling"]["metaphlan"]["min_cu_len"],
+            taxonomic_level = config["params"]["profiling"]["metaphlan"]["taxonomic_level"],
             avoid_disqm = "--avoid_disqm" \
-                if config["params"]["profiling"]["metaphlan2"]["avoid_disqm"] \
+                if config["params"]["profiling"]["metaphlan"]["avoid_disqm"] \
                    else "",
-            stat_q = config["params"]["profiling"]["metaphlan2"]["stat_q"],
-            stat = config["params"]["profiling"]["metaphlan2"]["stat"],
-            analysis_type = config["params"]["profiling"]["metaphlan2"]["analysis_type"],
-            no_unknown_estimation = "--no_unknown_estimation" \
-                if config["params"]["profiling"]["metaphlan2"]["no_unknown_estimation"] \
-                   else "",
-            no_map = config["params"]["profiling"]["metaphlan2"]["no_map"],
+            stat_q = config["params"]["profiling"]["metaphlan"]["stat_q"],
+            stat = config["params"]["profiling"]["metaphlan"]["stat"],
+            analysis_type = config["params"]["profiling"]["metaphlan"]["analysis_type"],
+            no_map = config["params"]["profiling"]["metaphlan"]["no_map"],
             bowtie2_out = os.path.join(
                 config["output"]["profiling"],
                 "profile/metaphlan2/{sample}/{sample}.metaphlan2.bowtie2.bz2"),
@@ -56,7 +53,6 @@ if config["params"]["profiling"]["metaphlan2"]["do"]:
                 --stat_q {params.stat_q} \
                 --stat {params.stat} \
                 -t {params.analysis_type} \
-                {params.no_unknown_estimation} \
                 --output_file {output} \
                 --sample_id {params.sample_id} \
                 %s \
@@ -106,7 +102,117 @@ if config["params"]["profiling"]["metaphlan2"]["do"]:
 else:
     rule profiling_metaphlan2_all:
         input:
-           
+
+
+if config["params"]["profiling"]["metaphlan"]["do_v3"]:
+    rule profiling_metaphlan3:
+        input:
+            assembly_input
+        output:
+           protected(os.path.join(
+               config["output"]["profiling"],
+               "profile/metaphlan3/{sample}/{sample}.metaphlan3.abundance.profile.tsv"))
+        log:
+            os.path.join(
+                config["output"]["profiling"],
+                         "logs/{sample}.metaphlan3.log")
+        params:
+            sample_id = "{sample}",
+            input_type = config["params"]["profiling"]["metaphlan"]["input_type"],
+            read_min_len = config["params"]["profiling"]["metaphlan"]["read_min_len"],
+            bowtie2db = config["params"]["profiling"]["metaphlan"]["bowtie2db"],
+            index = config["params"]["profiling"]["metaphlan"]["index_v3"],
+            bowtie2_presets = config["params"]["profiling"]["metaphlan"]["bowtie2_presets"],
+            min_cu_len = config["params"]["profiling"]["metaphlan"]["min_cu_len"],
+            taxonomic_level = config["params"]["profiling"]["metaphlan"]["taxonomic_level"],
+            avoid_disqm = "--avoid_disqm" \
+                if config["params"]["profiling"]["metaphlan"]["avoid_disqm"] \
+                   else "",
+            stat_q = config["params"]["profiling"]["metaphlan"]["stat_q"],
+            stat = config["params"]["profiling"]["metaphlan"]["stat"],
+            analysis_type = config["params"]["profiling"]["metaphlan"]["analysis_type"],
+            no_unknown_estimation = "--no_unknown_estimation" \
+                if config["params"]["profiling"]["metaphlan"]["no_unknown_estimation"] \
+                   else "",
+            no_map = config["params"]["profiling"]["metaphlan"]["no_map"],
+            bowtie2_out = os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan3/{sample}/{sample}.metaphlan3.bowtie2.bz2"),
+            biom = config["params"]["profiling"]["metaphlan3"]["biom"],
+            biom_out = os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan3/{sample}/{sample}.metaphlan3.abundance.profile.biom")
+        threads:
+            config["params"]["profiling"]["threads"]
+        run:
+            shell(
+                '''
+                metaphlan \
+                %s \
+                --input_type {params.input_type} \
+                --read_min_len {params.read_min_len} \
+                --nproc {threads} \
+                %s \
+                --bowtie2db {params.bowtie2db} \
+                --index {params.index} \
+                --bt2_ps {params.bowtie2_presets} \
+                --min_cu_len {params.min_cu_len} \
+                --tax_lev {params.taxonomic_level} \
+                {params.avoid_disqm} \
+                --stat_q {params.stat_q} \
+                --stat {params.stat} \
+                -t {params.analysis_type} \
+                {params.no_unknown_estimation} \
+                --output_file {output} \
+                --sample_id {params.sample_id} \
+                %s \
+                2> {log}
+                ''' % (
+                    ",".join(input),
+
+                    "--no_map" \
+                    if params.no_map \
+                    else "--bowtie2out %s" % params.bowtie2_out,
+
+                    "--biom %s" % params.biom_out \
+                    if params.biom \
+                    else ""))
+
+
+    rule profiling_metaphlan3_merge:
+        input:
+            expand(os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan3/{sample}/{sample}.metaphlan3.abundance.profile.tsv"),
+                   sample=SAMPLES.index.unique())
+        output:
+            os.path.join(
+                config["output"]["profiling"],
+                         "profile/metaphlan3.merged.abundance.profile.tsv")
+        log:
+            os.path.join(
+                config["output"]["profiling"], "logs/metaphlan3.merged.log")
+        shell:
+            '''
+            merge_metaphlan_tables.py \
+            {input} \
+            > {output} \
+            2> {log}
+
+            sed -i 's/.metaphlan3//g' {output}
+            '''
+
+
+    rule profiling_metaphlan3_all:
+        input:
+            os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan3.merged.abundance.profile.tsv")
+
+else:
+    rule profiling_metaphlan3_all:
+        input:
+          
 
 if config["params"]["profiling"]["jgi"]["do"]:
     if not config["params"]["profiling"]["jgi"]["oneway"]:
@@ -578,6 +684,7 @@ else:
 rule profiling_all:
     input:
         rules.profiling_metaphlan2_all.input,
+        rules.profiling_metaphlan3_all.input,
         rules.profiling_jgi_all.input,
         rules.profiling_humann2_all.input,
 

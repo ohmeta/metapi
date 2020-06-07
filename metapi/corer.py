@@ -70,6 +70,7 @@ WORKFLOWS = [
     "classify_hmq_bins_gtdbtk_all",
     "classify_all",
     "profiling_metaphlan2_all",
+    "profiling_metaphlan3_all",
     "profiling_jgi_all",
     "profiling_humann2_all",
     "profiling_all",

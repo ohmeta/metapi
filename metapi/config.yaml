@@ -173,9 +173,12 @@ params:
 
   profiling:
     threads: 8
-    metaphlan2:
+    metaphlan:
+      do_v2: False
+      do_v3: False
       bowtie2db: /ldfssz1/ST_META/share/User/zhujie/database/metaphlan
-      index: "mpa_v30_CHOCOPhlAn_201901"
+      index_v2: "mpa_v20_m200"
+      index_v3: "mpa_v30_CHOCOPhlAn_201901"
       bowtie2_presets: "very-sensitive"
       taxonomic_level: "a"
       min_cu_len: 2000

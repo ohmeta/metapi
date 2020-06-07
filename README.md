@@ -118,7 +118,8 @@ $ metapi denovo_wf --help
                           dereplicate_drep_all, dereplicate_all,
                           classify_short_reads_kraken2_all,
                           classify_hmq_bins_gtdbtk_all, classify_all,
-                          profiling_metaphlan2_all, profiling_jgi_all,
+                          profiling_metaphlan2_all, profiling_metaphlan3_all,
+                          profiling_jgi_all,
                           profiling_humann2_all, profiling_all,
                           upload_sequencing_all, upload_assembly_all,
                           upload_all, all
@@ -175,6 +176,18 @@ $ metapi denovo_wf checkm_all --run
 
 # run MAGs classify
 $ metapi denovo_wf classify_all --run
+
+# run MetaPhlAn2 profiling
+$ metapi denovo_wf profiling_metaphlan2_all --run
+
+# run MetaPhlAn3 profiling
+$ metapi denovo_wf profiling_metaphlan3_all --run
+
+# run MAGs jgi profling (using jgi_summarize_bam_contig_depths)
+$ metapi denovo_wf profiling_jgi_all --run
+
+# run HUMAnN2 profiling
+$ metapi denovo_wf profiling_humann2_all --run
 
 # run all
 $ metapi denovo_wf --run
