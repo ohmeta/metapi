@@ -45,19 +45,18 @@ params:
       n_base_limit: 5
 
   rmhost:
-    host_fasta: /home/alienzj/databases/genomepy/hg38/hg38.fa
+    host_fasta: /ldfssz1/ST_META/share/User/zhujie/database/galaxy_indexes/hg38/seq/hg38full.fa
     threads: 8
     save_reads: True
     save_bam: False
     compression: 6
     bwa:
       do: False
-      index_prefix: /home/alienzj/databases/genomepy/hg38/index/bwa/hg38.fa
+      index_prefix: /ldfssz1/ST_META/share/User/zhujie/database/galaxy_indexes/hg38/hg38full/bwa_index/hg38full.fa
       minimum_seed_length: 23
     bowtie2:
       do: True
-      index_prefix: /home/alienzj/databases/genomepy/hg38/index/bowtie2/hg38
-
+      index_prefix: /ldfssz1/ST_META/share/User/zhujie/database/galaxy_indexes/hg38/hg38full/bowtie2_index/hg38full
   qcreport:
     do: True
     seqkit:
@@ -155,7 +154,7 @@ params:
     threads: 8
     kraken2:
       do: True
-      database: /path/to/kraken2/database
+      database: /ldfssz1/ST_META/share/database/KRAKEN/minikraken2_v2_8GB_201904_UPDATE
       use_mpa_style: False
       report_zero_counts: True
     gtdbtk:
@@ -175,9 +174,8 @@ params:
   profiling:
     threads: 8
     metaphlan2:
-      do: False
-      bowtie2db: "/path/to/metaphlan_databases"
-      index: "latest"
+      bowtie2db: /ldfssz1/ST_META/share/User/zhujie/database/metaphlan
+      index: "mpa_v30_CHOCOPhlAn_201901"
       bowtie2_presets: "very-sensitive"
       taxonomic_level: "a"
       min_cu_len: 2000
@@ -196,9 +194,9 @@ params:
       fragment: 1200
       memory_limit: 8G
       compression_level: 6
-      taxonomy: /path/to/taxonomy
-      index_metadata: /path/to/index_metadata
-      index_prefix: /path/to/bowtie2_index_prefix
+      taxonomy: /hwfssz1/ST_META/P18Z10200N0127_MA/zhujie/igo/assay/profilling/oral_mgs_index_metadata.tsv
+      index_metadata: /hwfssz1/ST_META/P18Z10200N0127_MA/zhujie/igo/assay/taxonomy/lineages_gtdb/oral_mgs_gtdb_taxonomy.tsv
+      index_prefix: /ldfssz1/ST_META/share/User/zhujie/database/igo/mpa_v20_m200
     humann2:
       do: False
       remove_temp_output: True
