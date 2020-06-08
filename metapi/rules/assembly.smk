@@ -174,9 +174,12 @@ if "metaspades" in ASSEMBLERS:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.fa.gz")),
-	    contigs = protected(os.path.join(
+            scaffolds = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.contigs.fa.gz"))
+                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaffolds.fa.gz")),
+            contigs = protected(os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.contigs.fa.gz")),
         priority:
             20
         params:
@@ -191,6 +194,8 @@ if "metaspades" in ASSEMBLERS:
                    else "",
             only_save_scaftigs = \
                 config["params"]["assembly"]["metaspades"]["only_save_scaftigs"],
+            link_scaffolds = \
+                config["params"]["assembly"]["metaspades"]["link_scaffolds"],
             tar_results = os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{sample}.metaspades.out/{sample}.metaspades.tar")
@@ -219,20 +224,38 @@ if "metaspades" in ASSEMBLERS:
 
                 shell('''sed -i 's#^>#>{params.prefix}_#g' {params.output_dir}/scaffolds.fasta''')
                 shell('''pigz -p {threads} {params.output_dir}/scaffolds.fasta''')
-                shell('''mv {params.output_dir}/scaffolds.fasta.gz {output.scaftigs}''')
+                shell('''mv {params.output_dir}/scaffolds.fasta.gz {output.scaffolds}''')
 
-
-	        shell('''sed -i 's#^>#>{params.prefix}_#g' {params.output_dir}/contigs.fasta''')
+                shell('''sed -i 's#^>#>{params.prefix}_#g' {params.output_dir}/contigs.fasta''')
                 shell('''pigz -p {threads} {params.output_dir}/contigs.fasta''')
-	        shell('''mv {params.output_dir}/contigs.fasta.gz {output.contigs}''')
+                shell('''mv {params.output_dir}/contigs.fasta.gz {output.contigs}''')
+
+                if params.link_scaffolds:
+                    shell(
+                        '''
+                        pushd {params.output_dir} && \
+                        ln -s {params.prefix}.metaspades.scaffolds.fa.gz \
+                        {params.prefix}.metaspades.scaftigs.fa.gz \
+                        && popd
+                        ''')
+                else:
+                     shell(
+                        '''
+                        pushd {params.output_dir} && \
+                        ln -s {params.prefix}.metaspades.contigs.fa.gz \
+                        {params.prefix}.metaspades.scaftigs.fa.gz \
+                        && popd
+                        ''')
 
                 if params.only_save_scaftigs:
                     shell(
                         '''
-                        /ldfssz1/ST_META/share/User/juyanmei/miniconda3/bin/fd . '{params.output_dir}' \
-                        --type f \
-                        -E {output.scaftigs} \
-	                -E {output.contigs} -x rm
+                        find '{params.output_dir}' \
+                        -type f \
+                        ! -wholename {output.scaftigs} \
+                        ! -wholename {output.scaffolds} \
+                        ! -wholename {output.contigs} \
+                        -delete
                         ''')
                 else:
                     shell(
@@ -240,6 +263,8 @@ if "metaspades" in ASSEMBLERS:
                         find {params.output_dir} \
                         -type f \
                         ! -wholename "{output.scaftigs}" \
+                        ! -wholename "{output.scaffolds}" \
+                        ! -wholename "{output.contigs}" \
                         ! -wholename "{params.tar_results}" | \
                         xargs -I % sh -c 'tar -rf {params.tar_results} %; rm -rf %'
                         ''')
@@ -261,7 +286,8 @@ if "metaspades" in ASSEMBLERS:
         input:
             expand(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.fa.gz"),
+                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.{level}.fa.gz"),
+                   level=["scaftigs", "scaffolds", "contigs"],
                    sample=SAMPLES.index.unique())
 
 else:

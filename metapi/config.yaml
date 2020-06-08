@@ -80,6 +80,7 @@ params:
       do: True
       only_assembler: False
       only_save_scaftigs: True
+      link_scaffolds: True
       memory: 20
       kmers: ['21', '29', '39', '59', '79', '99']
     spades:
