@@ -173,7 +173,10 @@ if "metaspades" in ASSEMBLERS:
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.fa.gz"))
+                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.fa.gz")),
+	    contigs = protected(os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.contigs.fa.gz"))
         priority:
             20
         params:
@@ -218,12 +221,18 @@ if "metaspades" in ASSEMBLERS:
                 shell('''pigz -p {threads} {params.output_dir}/scaffolds.fasta''')
                 shell('''mv {params.output_dir}/scaffolds.fasta.gz {output.scaftigs}''')
 
+
+	        shell('''sed -i 's#^>#>{params.prefix}_#g' {params.output_dir}/contigs.fasta''')
+                shell('''pigz -p {threads} {params.output_dir}/contigs.fasta''')
+	        shell('''mv {params.output_dir}/contigs.fasta.gz {output.contigs}''')
+
                 if params.only_save_scaftigs:
                     shell(
                         '''
-                        find {params.output_dir} \
-                        -type f \
-                        ! -wholename "{output.scaftigs}" -delete
+                        /ldfssz1/ST_META/share/User/juyanmei/miniconda3/bin/fd . '{params.output_dir}' \
+                        --type f \
+                        -E {output.scaftigs} \
+	                -E {output.contigs} -x rm
                         ''')
                 else:
                     shell(
