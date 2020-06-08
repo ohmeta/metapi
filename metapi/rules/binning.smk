@@ -131,12 +131,14 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             config["params"]["binning"]["threads"]
         shell:
             '''
+            mkdir {output.bins_dir}
             run_MaxBin.pl \
             -thread {threads} \
             -contig {input.scaftigs} \
             -abund {input.coverage} \
             -out {params.bin_prefix} \
             2> {log}
+            /ldfssz1/ST_META/share/User/juyanmei/miniconda3/bin/rename 's/\.fasta$/\.fa/' {params.bin_prefix}.*.fasta
             '''
 
 
