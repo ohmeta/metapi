@@ -177,7 +177,7 @@ params:
       do_v2: False
       do_v3: False
       bowtie2db: /ldfssz1/ST_META/share/User/zhujie/database/metaphlan
-      index_v2: "mpa_v20_m200"
+      index_v2: "v20_m200"
       index_v3: "mpa_v30_CHOCOPhlAn_201901"
       bowtie2_presets: "very-sensitive"
       taxonomic_level: "a"
@@ -191,6 +191,8 @@ params:
       read_min_len: 70
       no_map: True
       biom: False
+      legacy_output: False
+      cami_format_output: False
     jgi:
       oneway: False
       do: False

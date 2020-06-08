@@ -29,7 +29,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"]:
             bowtie2_out = os.path.join(
                 config["output"]["profiling"],
                 "profile/metaphlan2/{sample}/{sample}.metaphlan2.bowtie2.bz2"),
-            biom = config["params"]["profiling"]["metaphlan2"]["biom"],
+            biom = config["params"]["profiling"]["metaphlan"]["biom"],
             biom_out = os.path.join(
                 config["output"]["profiling"],
                 "profile/metaphlan2/{sample}/{sample}.metaphlan2.abundance.profile.biom")
@@ -138,10 +138,16 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
             bowtie2_out = os.path.join(
                 config["output"]["profiling"],
                 "profile/metaphlan3/{sample}/{sample}.metaphlan3.bowtie2.bz2"),
-            biom = config["params"]["profiling"]["metaphlan3"]["biom"],
+            biom = config["params"]["profiling"]["metaphlan"]["biom"],
             biom_out = os.path.join(
                 config["output"]["profiling"],
-                "profile/metaphlan3/{sample}/{sample}.metaphlan3.abundance.profile.biom")
+                "profile/metaphlan3/{sample}/{sample}.metaphlan3.abundance.profile.biom"),
+            legacy_output = "--legacy-output" \
+                if config["params"]["profiling"]["metaphlan"]["legacy_output"] \
+                   else "",
+            cami_format_output = "--CAMI_format_output" \
+                if config["params"]["profiling"]["metaphlan"]["cami_format_output"] \
+                   else ""
         threads:
             config["params"]["profiling"]["threads"]
         run:
@@ -165,6 +171,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                 {params.no_unknown_estimation} \
                 --output_file {output} \
                 --sample_id {params.sample_id} \
+                {params.legacy_output} \
+                {params.cami_format_output} \
                 %s \
                 2> {log}
                 ''' % (
@@ -198,8 +206,6 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
             {input} \
             > {output} \
             2> {log}
-
-            sed -i 's/.metaphlan3//g' {output}
             '''
 
 
