@@ -52,6 +52,7 @@ WORKFLOWS = [
     "alignment_all",
     "binning_metabat2_all",
     "binning_maxbin2_all",
+    "binning_dastools_all",
     "binning_report_all",
     "binning_all",
     "cobinning_all",
