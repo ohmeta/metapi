@@ -79,6 +79,7 @@ params:
       do: True
       only_assembler: False
       only_save_scaftigs: True
+      link_scaffolds: True
       memory: 20
       kmers: ['21', '29', '39', '59', '79', '99']
     spades:
@@ -117,7 +118,17 @@ params:
       min_contig: 1500
       seed: 2020
     maxbin2:
-      do: False
+      do: True
+    dastools:
+      search_engine: "diamond"
+      write_bin_evals: 1
+      write_bins: 1
+      write_unbinned: 0
+      create_plots: 1
+      score_threshold: 0.5
+      duplicate_penalty: 0.6
+      megabin_penalty: 0.5
+      do: True
 
   cobinning:
     do: False
@@ -133,7 +144,7 @@ params:
       prokka:
         do: False
       prodigal:
-        do: False
+        do: True
     bins_to_gene:
       prokka:
         do: False

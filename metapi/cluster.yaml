@@ -26,6 +26,7 @@ localrules:
   - alignment_all
   - binning_metabat2_all
   - binning_maxbin2_all
+  - binning_dastools_all
   - binning_report_all
   - binning_all
   - cobinning_all
@@ -273,6 +274,12 @@ binning_maxbin2_coverage:
 binning_maxbin2:
   mem: "1G"
   cores: 8
+  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+
+binning_dastools:
+  mem: "1G"
+  cores: 4
   output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error:  "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 

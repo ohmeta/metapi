@@ -131,12 +131,14 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             config["params"]["binning"]["threads"]
         shell:
             '''
+            mkdir -p {output.bins_dir}
             run_MaxBin.pl \
             -thread {threads} \
             -contig {input.scaftigs} \
             -abund {input.coverage} \
             -out {params.bin_prefix} \
             2> {log}
+            /ldfssz1/ST_META/share/User/juyanmei/miniconda3/bin/rename 's/\.fasta$/\.fa/' {params.bin_prefix}.*.fasta
             '''
 
 
@@ -148,9 +150,125 @@ if config["params"]["binning"]["maxbin2"]["do"]:
                     "bins/{sample}.{assembler}.out/maxbin2"),
                 assembler=ASSEMBLERS,
                 sample=SAMPLES.index.unique())
-
 else:
     rule binning_maxbin2_all:
+        input:
+
+
+if config["params"]["binning"]["dastools"]["do"]:
+    rule binning_dastools:
+        input:
+            bins_dir = expand(
+                os.path.join(
+                    config["output"]["binning"],
+                    "bins/{{sample}}.{{assembler}}.out/{binner}"),
+                    binner=BINNERS[:-1]),
+            scaftigs = os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
+            pep = os.path.join(
+                config["output"]["predict"],
+                "scaftigs_gene/{sample}.{assembler}.prodigal.out/{sample}.{assembler}.faa")
+        output:
+            bins_dir = directory(os.path.join(
+                config["output"]["binning"],
+                "bins/{sample}.{assembler}.out/dastools"))
+        log:
+            os.path.join(config["output"]["binning"],
+                         "logs/binning/{sample}.{assembler}.dastools.binning.log")
+        priority:
+            30
+        params:
+            search_engine = config["params"]["binning"]["dastools"]["search_engine"],
+            write_bin_evals = config["params"]["binning"]["dastools"]["write_bin_evals"],
+            write_bins = config["params"]["binning"]["dastools"]["write_bins"],
+            write_unbinned = config["params"]["binning"]["dastools"]["write_unbinned"],
+            create_plots = config["params"]["binning"]["dastools"]["create_plots"],
+            score_threshold = config["params"]["binning"]["dastools"]["score_threshold"],
+            duplicate_penalty = config["params"]["binning"]["dastools"]["duplicate_penalty"],
+            megabin_penalty = config["params"]["binning"]["dastools"]["megabin_penalty"],
+            bin_suffix = "fa",
+            bin_prefix = os.path.join(
+                config["output"]["binning"],
+                "bins/{sample}.{assembler}.out/dastools/{sample}.{assembler}.dastools.bin")
+        threads:
+            config["params"]["binning"]["threads"]
+        run:
+            import glob
+            import os
+
+            shell('''mkdir -p {output.bins_dir}''')
+
+            binners = []
+            tsv_list = []
+
+            for bin_dir in input.bins_dir:
+                binner_id = os.path.basename(bin_dir)
+                bins_list = glob.glob(bin_dir + "/*.bin.*.fa")
+
+                if len(bins_list) > 0:
+                    binners.append(binner_id)
+                    tsv_file = "{params.bin_prefix}.%s.scaftigs2bin.tsv" % binner_id
+                    tsv_list.append(tsv_file)
+
+                    shell(
+                        '''
+                        Fasta_to_Scaffolds2Bin.sh \
+                        --input_folder %s \
+                        --extension {params.bin_suffix} \
+                        > %s
+                        ''' % (bin_dir, tsv_file))
+
+            if len(binners) > 0:
+                shell(
+                    '''
+                    pigz -p {threads} -d -c {input.scaftigs} > {output.bins_dir}/scaftigs.fasta
+                    ''')
+
+                shell(
+                    '''
+                    DAS_Tool \
+                    --bins %s \
+                    --labels %s \
+                    --contigs {output.bins_dir}/scaftigs.fasta \
+                    --proteins {input.pep} \
+                    --outputbasename {params.bin_prefix} \
+                    --search_engine {params.search_engine} \
+                    --write_bin_evals {params.write_bin_evals} \
+                    --write_bins {params.write_bins} \
+                    --write_unbinned {params.write_unbinned} \
+                    --create_plots {params.create_plots} \
+                    --score_threshold {params.score_threshold} \
+                    --duplicate_penalty {params.duplicate_penalty} \
+                    --megabin_penalty {params.megabin_penalty} \
+                    --threads {threads} --debug > {log}
+                    ''' % (",".join(tsv_list), ",".join(binners)))
+
+            shell('''rm -rf {output.bins_dir}/scaftigs.fasta''')
+
+            bins_list_dastools = glob.glob(
+                os.path.join(
+                    params.bin_prefix + "_DASTool_bins" ,
+                    "*." + params.bin_suffix))
+
+            if len(bins_list_dastools):
+                for bin_fa in bins_list_dastools:
+                    bin_id = os.path.basename(bin_fa).split(".")[2]
+                    bin_fa_ = os.path.basename(bin_fa).replace(bin_id, bin_id +"_dastools")
+                    shell('''mv %s %s''' % (bin_fa, os.path.join(output.bins_dir, bin_fa_)))
+
+
+    rule binning_dastools_all:
+        input:
+            expand(
+                os.path.join(
+                    config["output"]["binning"],
+                    "bins/{sample}.{assembler}.out/dastools"),
+                assembler=ASSEMBLERS,
+                sample=SAMPLES.index.unique())
+
+else:
+    rule binning_dastools_all:
         input:
 
 
@@ -247,6 +365,7 @@ rule binning_all:
     input:
         rules.binning_metabat2_all.input,
         rules.binning_maxbin2_all.input,
+        rules.binning_dastools_all.input,
         rules.binning_report_all.input,
 
         rules.alignment_all.input
