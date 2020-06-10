@@ -64,6 +64,7 @@ class metaconfig:
         "logs/05.alignment_bam_index",
         "logs/05.alignment_base_depth",
         "logs/05.alignment_report",
+        "logs/06.binning_dastools",
         "logs/06.binning_metabat2_coverage",
         "logs/06.binning_metabat2",
         "logs/06.binning_maxbin2_coverage",
