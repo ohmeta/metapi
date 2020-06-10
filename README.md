@@ -285,8 +285,9 @@ pip `pip install black flake8 flake8-bugbear snakefmt`.
 
 ## Contributors
 
-- Jie Zhu - @alienzj
-- Fangming Yang -@yangfangming
+- Jie Zhu - [@alienzj](https://github.com/alienzj)
+- Fangming Yang - [@yangfangming](https://github.com/yangfangming)
+- Yanmei Ju - [@juyanmei](https://github.com/juyanmei)
 
 ## License
 
