@@ -120,6 +120,8 @@ params:
       seed: 2020
     maxbin2:
       do: False
+    dastools:
+      do: False
 
   cobinning:
     do: False
