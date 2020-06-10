@@ -131,7 +131,7 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             config["params"]["binning"]["threads"]
         shell:
             '''
-            mkdir {output.bins_dir}
+            mkdir -p {output.bins_dir}
             run_MaxBin.pl \
             -thread {threads} \
             -contig {input.scaftigs} \
@@ -150,9 +150,75 @@ if config["params"]["binning"]["maxbin2"]["do"]:
                     "bins/{sample}.{assembler}.out/maxbin2"),
                 assembler=ASSEMBLERS,
                 sample=SAMPLES.index.unique())
-
 else:
     rule binning_maxbin2_all:
+        input:
+
+
+
+if config["params"]["binning"]["dastools"]["do"]:
+    rule binning_dastools:
+        input:
+            metabat2 = os.path.join(
+                config["output"]["binning"],
+                "bins/{sample}.{assembler}.out/metabat2"),
+            maxbin2 = os.path.join(
+                config["output"]["binning"], 
+                "bins/{sample}.{assembler}.out/maxbin2"),
+            scaftigs = os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz")
+        output:
+            bins_dir = directory(os.path.join(
+                config["output"]["binning"],
+                "bins/{sample}.{assembler}.out/dastools"))
+        priority:
+            30
+        params:
+            bin_prefix = os.path.join(
+                config["output"]["binning"],
+                "bins/{sample}.{assembler}.out/dastools/{sample}.{assembler}.dastools.bin")
+        threads:
+            config["params"]["binning"]["threads"]
+        shell:
+            '''
+            mkdir -p {output.bins_dir}
+            Fasta_to_Scaffolds2Bin.sh \
+            -i {input.metabat2} \
+            -e fa > {params}.metabat2.scaffolds2bin.tsv
+            Fasta_to_Scaffolds2Bin.sh \
+            -i {input.maxbin2} \
+            -e fa > {params}.maxbin2.scaffolds2bin.tsv
+
+            pigz -dcp2 {input.scaftigs} > {output.bins_dir}/scaftigs.fasta
+            DAS_Tool \
+            -i {params}.maxbin2.scaffolds2bin.tsv,{params}.metabat2.scaffolds2bin.tsv \
+            -l maxbin,metabat \
+            -c {output.bins_dir}/scaftigs.fasta \
+            -o {params.bin_prefix} \
+            --write_bins 1 \
+            --threads {threads}
+
+            import glob
+            comp_list = []
+            comp_list = glob.glob("{params.bin_prefix}_DASTools_bins/"+"*.fa")
+            if len(comp_list) != 0: 
+                cp -r {params.bin_prefix}_DASTool_bins/*.fa {output.bins_dir}
+            '''
+
+    rule binning_dastools_all:
+        input:
+            expand(
+                os.path.join(
+                    config["output"]["binning"],
+                    "bins/{sample}.{assembler}.out/dastools"),
+                assembler=ASSEMBLERS,
+                sample=SAMPLES.index.unique())
+
+
+
+else:
+    rule binning_dastools_all:
         input:
 
 
