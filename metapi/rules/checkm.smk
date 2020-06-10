@@ -153,7 +153,7 @@ if config["params"]["checkm"]["do"]:
                              "bins_hmq/{assembler}.{binner}.links"))
         params:
             bins_dir = os.path.join(config["output"]["binning"], "bins"),
-            bin_suffix = "fa",
+            bin_suffix = ".fa",
             standard = config["params"]["checkm"]["standard"] + "_quality_level",
             assembler = "{assembler}",
             binner = "{binner}"
@@ -181,7 +181,7 @@ if config["params"]["checkm"]["do"]:
                         params.bins_dir,
                         sample_id + "." + params.assembler + ".out/" + \
                         params.binner + "/" + \
-                        bin_id + "." + params.bin_suffix))
+                        bin_id + params.bin_suffix))
 
                 if df.loc[bin_id, params.standard] == "high_quality":
                     os.symlink(bin_fa_path,
