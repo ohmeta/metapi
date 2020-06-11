@@ -143,14 +143,10 @@ params:
     scaftigs_to_gene:
       prokka:
         do: False
-      prodigal:
-        do: True
     bins_to_gene:
       prokka:
         do: False
         kingdom: Bacteria
-      prodigal:
-        do: True
 
   checkm:
     do: True

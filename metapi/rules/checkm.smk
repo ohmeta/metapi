@@ -4,21 +4,14 @@ if config["params"]["checkm"]["do"]:
             expand(os.path.join(
                 config["output"]["predict"],
                 "bins_gene/{{assembler}}.{{binner}}.prodigal.out/{sample}/done"),
-                   sample=SAMPLES.index.unique()) \
-                if config["params"]["predict"]["bins_to_gene"]["prodigal"]["do"] else \
-                   expand(os.path.join(
-                       config["output"]["binning"],
-                       "bins/{sample}.{{assembler}}.out/{{binner}}"),
-                          sample=SAMPLES.index.unique())
+                   sample=SAMPLES.index.unique())
         output:
             directory(os.path.join(
                 config["output"]["checkm"],
                 "bins_input/{assembler}.{binner}.links"))
         params:
-            suffix = "faa" \
-                if config["params"]["predict"]["bins_to_gene"]["prodigal"]["do"] \
-                   else "fa",
-             batch_num = config["params"]["checkm"]["batch_num"]
+            suffix = "faa",
+            batch_num = config["params"]["checkm"]["batch_num"]
         run:
             import os
             import glob
@@ -28,14 +21,9 @@ if config["params"]["checkm"]["do"]:
                 os.rmdir(output[0])
 
             bin_list = []
-            if params.suffix == "faa":
-                for i in input:
-                   bin_list += [os.path.realpath(j) \
-                                for j in glob.glob(os.path.join(os.path.dirname(i), "*.faa"))]
-            if params.suffix == "fa":
-                for i in input:
-                    bin_list += [os.path.realpath(j) \
-                                 for j in glob.glob(os.path.join(i, "*.fa"))]
+            for i in input:
+                bin_list += [os.path.realpath(j) \
+                             for j in glob.glob(os.path.join(os.path.dirname(i), "*.faa"))]
 
             if len(bin_list) > 0:
                 for batch_id in range(0, len(bin_list), params.batch_num):
@@ -64,16 +52,12 @@ if config["params"]["checkm"]["do"]:
         wildcard_constraints:
             batchid="\d+"
         params:
-            suffix = "faa" \
-                if config["params"]["predict"]["bins_to_gene"]["prodigal"]["do"] \
-                   else "fa",
-            genes = "--genes" \
-                if config["params"]["predict"]["bins_to_gene"]["prodigal"]["do"] \
-                   else "",
+            suffix = "faa",
             table_dir = os.path.join(config["output"]["checkm"], "table/bins_{batchid}"),
             data_dir = os.path.join(config["output"]["checkm"], "data/bins_{batchid}"),
-            data_dir_temp = os.path.join(config["output"]["checkm"],
-                                     "data/bins_{batchid}/bins_{batchid}.{assembler}.{binner}")
+            data_dir_temp = os.path.join(
+                config["output"]["checkm"],
+                "data/bins_{batchid}/bins_{batchid}.{assembler}.{binner}")
         log:
             os.path.join(
                 config["output"]["checkm"],
@@ -97,7 +81,7 @@ if config["params"]["checkm"]["do"]:
                     --file {output.table} \
                     --threads {threads} \
                     --extension {params.suffix} \
-                    {params.genes} \
+                    --genes \
                     {input}/ \
                     {params.data_dir_temp}/ > {log}
                     ''')
@@ -221,7 +205,8 @@ if config["params"]["checkm"]["do"]:
                    assembler=ASSEMBLERS,
                    binner=BINNERS),
 
-            rules.binning_all.input
+            rules.predict_bins_gene_prodigal_all.input,
+            rules.binning_all.input,
 
 else:
     rule checkm_all:

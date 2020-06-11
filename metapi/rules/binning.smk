@@ -69,7 +69,9 @@ if config["params"]["binning"]["metabat2"]["do"]:
                     config["output"]["binning"],
                     "bins/{sample}.{assembler}.out/metabat2"),
                 assembler=ASSEMBLERS,
-                sample=SAMPLES.index.unique())
+                sample=SAMPLES.index.unique()),
+
+            rules.alignment_all.input
 
 else:
     rule binning_metabat2_all:
@@ -149,7 +151,10 @@ if config["params"]["binning"]["maxbin2"]["do"]:
                     config["output"]["binning"],
                     "bins/{sample}.{assembler}.out/maxbin2"),
                 assembler=ASSEMBLERS,
-                sample=SAMPLES.index.unique())
+                sample=SAMPLES.index.unique()),
+
+            rules.alignment_all.input
+
 else:
     rule binning_maxbin2_all:
         input:
@@ -265,7 +270,9 @@ if config["params"]["binning"]["dastools"]["do"]:
                     config["output"]["binning"],
                     "bins/{sample}.{assembler}.out/dastools"),
                 assembler=ASSEMBLERS,
-                sample=SAMPLES.index.unique())
+                sample=SAMPLES.index.unique()),
+
+            rules.predict_scaftigs_gene_prodigal_all.input
 
 else:
     rule binning_dastools_all:
@@ -366,6 +373,4 @@ rule binning_all:
         rules.binning_metabat2_all.input,
         rules.binning_maxbin2_all.input,
         rules.binning_dastools_all.input,
-        rules.binning_report_all.input,
-
-        rules.alignment_all.input
+        rules.binning_report_all.input

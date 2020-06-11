@@ -72,11 +72,12 @@ include: "rules/trimming.smk"
 include: "rules/rmhost.smk"
 include: "rules/qcreport.smk"
 include: "rules/assembly.smk"
+include: "rules/predict_scaftigs.smk"
 include: "rules/coassembly.smk"
 include: "rules/alignment.smk"
 include: "rules/binning.smk"
+include: "rules/predict_bins.smk"
 include: "rules/cobinning.smk"
-include: "rules/predict.smk"
 include: "rules/checkm.smk"
 include: "rules/dereplicate.smk"
 include: "rules/classify.smk"
@@ -92,11 +93,12 @@ rule all:
         rules.rmhost_all.input,
         rules.qcreport_all.input,
         rules.assembly_all.input,
+        rules.predict_scaftigs_gene_all.input,
         rules.coassembly_all.input,
         rules.alignment_all.input,
         rules.binning_all.input,
+        rules.predict_bins_gene_all.input,
         rules.cobinning_all.input,
-        rules.predict_all.input,
         rules.checkm_all.input,
         rules.dereplicate_all.input,
         rules.classify_all.input,
