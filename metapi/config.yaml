@@ -113,13 +113,34 @@ params:
 
   binning:
     threads: 8
+    bin_suffix: "fa"
     metabat2:
       do: True
+      percent_identity: 97
+      min_map_qual: 0
+      output_paired_contigs: False
+      output_gc: False
+      output_gc_window: False
       min_contig: 1500
+      maxP: 95
+      minS: 60
+      maxEdges: 200
+      pTNF: 0
+      noAdd: False
+      minCV: 1
+      minCVSum: 1
+      minClsSize: 200000
+      saveCls: False
       seed: 2020
     maxbin2:
       do: True
+      min_contig: 1500
+      max_iteration: 50
+      prob_threshold: 0.9
+      plotmarker: True
+      markerset: 107
     dastools:
+      do: True
       search_engine: "diamond"
       write_bin_evals: 1
       write_bins: 1
@@ -128,7 +149,6 @@ params:
       score_threshold: 0.5
       duplicate_penalty: 0.6
       megabin_penalty: 0.5
-      do: True
 
   cobinning:
     do: False

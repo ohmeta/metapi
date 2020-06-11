@@ -8,7 +8,7 @@
 [![star this repo](http://githubbadges.com/star.svg?user=ohmeta&repo=metapi&style=flat)](https://github.com/ohmeta/metapi)
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/metapi/badges/downloads.svg)](https://anaconda.org/bioconda/metapi)
 
-A pipeline to construct genome catalogue from metagenomcis data.
+A pipeline to construct a genome catalogue from metagenomics data.
 
 ## Installation
 

@@ -1,6 +1,9 @@
 if config["params"]["binning"]["metabat2"]["do"]:
     rule binning_metabat2_coverage:
         input:
+            scaftigs = os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
             bam = os.path.join(
                 config["output"]["alignment"],
                 "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam"),
@@ -17,12 +20,37 @@ if config["params"]["binning"]["metabat2"]["do"]:
             os.path.join(config["output"]["binning"],
                          "logs/coverage/{sample}.{assembler}.metabat2.coverage.log")
         params:
+            percent_identity = config["params"]["binning"]["metabat2"]["percent_identity"],
+            min_map_qual = config["params"]["binning"]["metabat2"]["min_map_qual"],
+            output_paired_contigs = "--pairedContigs %s" % \
+                os.path.join(
+                    config["output"]["binning"],
+                    "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.paired_contigs") \
+                    if config["params"]["binning"]["metabat2"]["output_paired_contigs"] \
+                       else "",
+            output_gc = "--outputGC %s" % \
+                os.path.join(
+                    config["output"]["binning"],
+                    "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.gc") \
+                    if config["params"]["binning"]["metabat2"]["output_gc"] \
+                       else "",
+            output_gc_window = "--gcWindow %s" % \
+                os.path.join(
+                    config["output"]["binning"],
+                    "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.gc_window") \
+                    if config["params"]["binning"]["metabat2"]["output_gc_window"] \
+                       else "",
             output_dir = os.path.join(config["output"]["binning"],
                                       "coverage/{sample}.{assembler}.out")
         shell:
             '''
             jgi_summarize_bam_contig_depths \
             --outputDepth {output.coverage} \
+            --percentIdentity {params.percent_identity} \
+            --minMapQual {params.min_map_qual} \
+            {params.output_paired_contigs} \
+            {params.output_gc} \
+            {params.output_gc_window} \
             {input.bam} \
             2> {log}
             '''
@@ -49,16 +77,37 @@ if config["params"]["binning"]["metabat2"]["do"]:
                 config["output"]["binning"],
                 "bins/{sample}.{assembler}.out/metabat2/{sample}.{assembler}.metabat2.bin"),
             min_contig = config["params"]["binning"]["metabat2"]["min_contig"],
+            max_p = config["params"]["binning"]["metabat2"]["maxP"],
+            min_s = config["params"]["binning"]["metabat2"]["minS"],
+            max_edges = config["params"]["binning"]["metabat2"]["maxEdges"],
+            p_tnf = config["params"]["binning"]["metabat2"]["pTNF"],
+            no_add = "--noAdd" if config["params"]["binning"]["metabat2"]["noAdd"] else "",
+            min_cv = config["params"]["binning"]["metabat2"]["minCV"],
+            min_cv_sum = config["params"]["binning"]["metabat2"]["minCVSum"],
+            min_cls_size = config["params"]["binning"]["metabat2"]["minClsSize"],
+            save_cls = "--saveCls" \
+                if config["params"]["binning"]["metabat2"]["saveCls"] else "",
             seed = config["params"]["binning"]["metabat2"]["seed"]
+        threads:
+            config["params"]["binning"]["threads"]
         shell:
             '''
             metabat2 \
-            -i {input.scaftigs} \
-            -a {input.coverage} \
-            -o {params.bin_prefix} \
-            -m {params.min_contig} \
-            --seed {params.seed} -v \
-            > {log}
+            --inFile {input.scaftigs} \
+            --abdFile {input.coverage} \
+            --outFile {params.bin_prefix} \
+            --minContig {params.min_contig} \
+            --maxP {params.max_p} \
+            --minS {params.min_s} \
+            --maxEdges {params.max_edges} \
+            --pTNF {params.p_tnf} \
+            {params.no_add} \
+            --minCV {params.min_cv} \
+            --minCVSum {params.min_cv_sum} \
+            {params.save_cls} \
+            --seed {params.seed} \
+            --numThreads {threads} \
+            --verbose > {log}
             '''
 
 
@@ -126,22 +175,46 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             os.path.join(config["output"]["binning"],
                          "logs/binning/{sample}.{assembler}.maxbin2.binning.log")
         params:
+            bin_suffix = config["params"]["binning"]["bin_suffix"],
             bin_prefix = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/maxbin2/{sample}.{assembler}.maxbin2.bin")
+                "bins/{sample}.{assembler}.out/maxbin2/{sample}.{assembler}.maxbin2.bin"),
+            min_contig = config["params"]["binning"]["maxbin2"]["min_contig"],
+            max_iteration = config["params"]["binning"]["maxbin2"]["max_iteration"],
+            prob_threshold = config["params"]["binning"]["maxbin2"]["prob_threshold"],
+            plotmarker = "-plotmarker" if config["params"]["binning"]["maxbin2"]["plotmarker"] \
+                else "",
+            markerset = config["params"]["binning"]["maxbin2"]["markerset"]
         threads:
             config["params"]["binning"]["threads"]
-        shell:
-            '''
-            mkdir -p {output.bins_dir}
-            run_MaxBin.pl \
-            -thread {threads} \
-            -contig {input.scaftigs} \
-            -abund {input.coverage} \
-            -out {params.bin_prefix} \
-            2> {log}
-            /ldfssz1/ST_META/share/User/juyanmei/miniconda3/bin/rename 's/\.fasta$/\.fa/' {params.bin_prefix}.*.fasta
-            '''
+        run:
+            import glob
+            import os
+
+            shell('''mkdir -p {output.bins_dir}''')
+
+            shell(
+                '''
+                run_MaxBin.pl \
+                -thread {threads} \
+                -contig {input.scaftigs} \
+                -abund {input.coverage} \
+                -min_contig_length {params.min_contig} \
+                -max_iteration {params.max_iteration} \
+                -prob_threshold {params.prob_threshold} \
+                {params.plotmarker} \
+                -markerset {params.markerset} \
+                -out {params.bin_prefix} \
+                -verbose > {log} 2>&1
+                ''')
+
+            bins_list = glob.glob(os.path.join(output.bins_dir,
+                                               params.bin_prefix + ".*.fasta"))
+            if len(bins_list) > 0:
+                for bin_fa in bins_list:
+                    bin_id, bin_suffix = os.path.splitext(bin_fa)
+                    if bin_suffix != "." + params.bin_suffix:
+                        shell("mv %s %s" % (bin_fa, bin_id + "." + params.bin_suffix))
 
 
     rule binning_maxbin2_all:
@@ -192,7 +265,7 @@ if config["params"]["binning"]["dastools"]["do"]:
             score_threshold = config["params"]["binning"]["dastools"]["score_threshold"],
             duplicate_penalty = config["params"]["binning"]["dastools"]["duplicate_penalty"],
             megabin_penalty = config["params"]["binning"]["dastools"]["megabin_penalty"],
-            bin_suffix = "fa",
+            bin_suffix = config["params"]["binning"]["bin_suffix"],
             bin_prefix = os.path.join(
                 config["output"]["binning"],
                 "bins/{sample}.{assembler}.out/dastools/{sample}.{assembler}.dastools.bin")
@@ -246,7 +319,7 @@ if config["params"]["binning"]["dastools"]["do"]:
                     --score_threshold {params.score_threshold} \
                     --duplicate_penalty {params.duplicate_penalty} \
                     --megabin_penalty {params.megabin_penalty} \
-                    --threads {threads} --debug > {log}
+                    --threads {threads} --debug > {log} 2>&1
                     ''' % (",".join(tsv_list), ",".join(binners)))
 
             shell('''rm -rf {output.bins_dir}/scaftigs.fasta''')
