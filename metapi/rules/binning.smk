@@ -1,61 +1,70 @@
-if config["params"]["binning"]["metabat2"]["do"]:
-    rule binning_metabat2_coverage:
-        input:
-            scaftigs = os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
-            bam = os.path.join(
-                config["output"]["alignment"],
-                "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam"),
-            bai = os.path.join(
-                config["output"]["alignment"],
-                "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam.bai")
-        output:
-            coverage = os.path.join(
+rule binning_metabat2_coverage:
+    input:
+        scaftigs = os.path.join(
+            config["output"]["assembly"],
+            "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
+        bam = os.path.join(
+            config["output"]["alignment"],
+            "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam"),
+        bai = os.path.join(
+            config["output"]["alignment"],
+            "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam.bai")
+    output:
+        coverage = os.path.join(
+            config["output"]["binning"],
+            "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.coverage")
+    priority:
+        30
+    log:
+        os.path.join(config["output"]["binning"],
+                     "logs/coverage/{sample}.{assembler}.metabat2.coverage.log")
+    params:
+        percent_identity = config["params"]["binning"]["metabat2"]["percent_identity"],
+        min_map_qual = config["params"]["binning"]["metabat2"]["min_map_qual"],
+        output_paired_contigs = "--pairedContigs %s" % \
+            os.path.join(
                 config["output"]["binning"],
-                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.coverage")
-        priority:
-            30
-        log:
-            os.path.join(config["output"]["binning"],
-                         "logs/coverage/{sample}.{assembler}.metabat2.coverage.log")
-        params:
-            percent_identity = config["params"]["binning"]["metabat2"]["percent_identity"],
-            min_map_qual = config["params"]["binning"]["metabat2"]["min_map_qual"],
-            output_paired_contigs = "--pairedContigs %s" % \
-                os.path.join(
-                    config["output"]["binning"],
-                    "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.paired_contigs") \
-                    if config["params"]["binning"]["metabat2"]["output_paired_contigs"] \
-                       else "",
-            output_gc = "--outputGC %s" % \
-                os.path.join(
-                    config["output"]["binning"],
-                    "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.gc") \
-                    if config["params"]["binning"]["metabat2"]["output_gc"] \
-                       else "",
-            output_gc_window = "--gcWindow %s" % \
-                os.path.join(
-                    config["output"]["binning"],
-                    "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.gc_window") \
-                    if config["params"]["binning"]["metabat2"]["output_gc_window"] \
-                       else "",
-            output_dir = os.path.join(config["output"]["binning"],
-                                      "coverage/{sample}.{assembler}.out")
-        shell:
-            '''
-            jgi_summarize_bam_contig_depths \
-            --outputDepth {output.coverage} \
-            --percentIdentity {params.percent_identity} \
-            --minMapQual {params.min_map_qual} \
-            {params.output_paired_contigs} \
-            {params.output_gc} \
-            {params.output_gc_window} \
-            {input.bam} \
-            2> {log}
-            '''
+                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.paired_contigs") \
+                if config["params"]["binning"]["metabat2"]["output_paired_contigs"] \
+                   else "",
+        output_gc = "--outputGC %s" % \
+            os.path.join(
+                config["output"]["binning"],
+                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.gc") \
+                if config["params"]["binning"]["metabat2"]["output_gc"] \
+                   else "",
+        output_gc_window = "--gcWindow %s" % \
+            os.path.join(
+                config["output"]["binning"],
+                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.gc_window") \
+                if config["params"]["binning"]["metabat2"]["output_gc_window"] \
+                   else "",
+        output_dir = os.path.join(config["output"]["binning"],
+                                  "coverage/{sample}.{assembler}.out")
+    shell:
+        '''
+        jgi_summarize_bam_contig_depths \
+        --outputDepth {output.coverage} \
+        --percentIdentity {params.percent_identity} \
+        --minMapQual {params.min_map_qual} \
+        {params.output_paired_contigs} \
+        {params.output_gc} \
+        {params.output_gc_window} \
+        {input.bam} \
+        2> {log}
+        '''
 
 
+rule binning_metabat2_coverage_all:
+    input:
+        expand(os.path.join(
+            config["output"]["binning"],
+            "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.coverage"),
+               assembler=ASSEMBLERS,
+               sample=SAMPLES.index.unique())
+
+
+if config["params"]["binning"]["metabat2"]["do"]:
     rule binning_metabat2:
         input:
             scaftigs = os.path.join(
@@ -130,16 +139,10 @@ else:
 if config["params"]["binning"]["maxbin2"]["do"]:
     rule binning_maxbin2_coverage:
         input:
-            bam = os.path.join(
-                config["output"]["alignment"],
-                "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam"),
-            bai = os.path.join(
-                config["output"]["alignment"],
-                "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam.bai")
-        output:
-            coverage_bb = os.path.join(
+            coverage = os.path.join(
                 config["output"]["binning"],
-                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.bbmap.coverage"),
+                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.coverage")
+        output:
             coverage = os.path.join(
                 config["output"]["binning"],
                 "coverage/{sample}.{assembler}.out/{sample}.{assembler}.maxbin2.coverage")
@@ -153,8 +156,7 @@ if config["params"]["binning"]["maxbin2"]["do"]:
                                       "coverage/{sample}.{assembler}.out")
         shell:
             '''
-            pileup.sh in={input.bam} out={output.coverage_bb} 2> {log}
-            awk '{{print $1 "\t" $5}}' {output.coverage_bb} | grep -v '^#' > {output.coverage}
+            cut -f1,3 {input.coverage} | tail -n +2 > {output.coverage}
             '''
 
 
@@ -188,7 +190,6 @@ if config["params"]["binning"]["maxbin2"]["do"]:
         threads:
             config["params"]["binning"]["threads"]
         run:
-            import glob
             import os
 
             shell('''mkdir -p {output.bins_dir}''')
@@ -208,13 +209,14 @@ if config["params"]["binning"]["maxbin2"]["do"]:
                 -verbose > {log} 2>&1
                 ''')
 
-            bins_list = glob.glob(os.path.join(output.bins_dir,
-                                               params.bin_prefix + ".*.fasta"))
-            if len(bins_list) > 0:
-                for bin_fa in bins_list:
-                    bin_id, bin_suffix = os.path.splitext(bin_fa)
-                    if bin_suffix != "." + params.bin_suffix:
-                        shell("mv %s %s" % (bin_fa, bin_id + "." + params.bin_suffix))
+            with os.scandir(output.bins_dir) as itr:
+                for entry in itr:
+                    bin_id, bin_suffix = os.path.splitext(entry.name)
+                    if bin_suffix == ".fasta":
+                        shell('''mv %s %s''' \
+                              % (os.path.join(output.bins_dir, entry.name),
+                                 os.path.join(output.bins_dir,
+                                              bin_id + "." + params.bin_suffix)))
 
 
     rule binning_maxbin2_all:
