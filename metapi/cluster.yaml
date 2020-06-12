@@ -43,6 +43,7 @@ localrules:
   - profiling_metaphlan2_all
   - profiling_metaphlan3_all
   - profiling_jgi_all
+  - profiling_bracken_all
   - profiling_humann2_all
   - profiling_all
   - upload_sequencing_all
@@ -425,6 +426,18 @@ profiling_jgi:
 profiling_jgi_merge:
   mem: "1G"
   cores: 8
+  output: "logs/11.{rule}/{rule}.o"
+  error:  "logs/11.{rule}/{rule}.e"
+
+profiling_bracken:
+  mem: "1G"
+  cores: 4
+  output: "logs/11.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/11.{rule}/{rule}.{wildcards.sample}.e"
+
+profiling_bracken_merge:
+  mem: "512M"
+  cores: 1
   output: "logs/11.{rule}/{rule}.o"
   error:  "logs/11.{rule}/{rule}.e"
 

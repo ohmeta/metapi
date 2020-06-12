@@ -97,7 +97,10 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"]:
         input:
             os.path.join(
                 config["output"]["profiling"],
-                "profile/metaphlan2.merged.abundance.profile.tsv")
+                "profile/metaphlan2.merged.abundance.profile.tsv"),
+
+            rules.rmhost_all.input,
+            rules.qcreport_all.input
 
 else:
     rule profiling_metaphlan2_all:
@@ -213,7 +216,10 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
         input:
             os.path.join(
                 config["output"]["profiling"],
-                "profile/metaphlan3.merged.abundance.profile.tsv")
+                "profile/metaphlan3.merged.abundance.profile.tsv"),
+
+            rules.rmhost_all.input,
+            rules.qcreport_all.input
 
 else:
     rule profiling_metaphlan3_all:
@@ -367,6 +373,7 @@ if config["params"]["profiling"]["jgi"]["do"]:
                     shell('''echo "jgi profiling done" >> {log}''')
                     shell('''date >> {log}''')
 
+
     rule profiling_jgi_merge:
         input:
             coverage = expand(os.path.join(
@@ -450,28 +457,117 @@ if config["params"]["profiling"]["jgi"]["do"]:
 
     rule profiling_jgi_all:
         input:
-             expand([
-                 os.path.join(
-                     config["output"]["profiling"],
-                     "profile/jgi.merged.{target}.profile.tsv"),
-                 os.path.join(
-                     config["output"]["profiling"],
-                     "profile/jgi.merged.abundance.profile.{level}.tsv")],
-                    target=["abundance", "coverage"],
-                    level=["superkingdom",
-                           "phylum",
-                           "order",
-                           "class",
-                           "family",
-                           "genus",
-                           "species",
-                           "strain"])
+            expand([
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/jgi.merged.{target}.profile.tsv"),
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/jgi.merged.abundance.profile.{level}.tsv")],
+                   target=["abundance", "coverage"],
+                   level=["superkingdom",
+                          "phylum",
+                          "order",
+                          "class",
+                          "family",
+                          "genus",
+                          "species",
+                          "strain"]),
+
+            rules.rmhost_all.input,
+            rules.qcreport_all.input
 
 else:
     rule profiling_jgi_all:
         input:
 
+
+if config["params"]["classify"]["kraken2"]["do"] and \
+   config["params"]["profiling"]["bracken"]["do"]:
+    rule profiling_bracken:
+        input:
+            os.path.join(
+                config["output"]["classify"],
+                "short_reads/{sample}.kraken2.out/{sample}.kraken2.report.gz")
+        output:
+            profile = protected(os.path.join(
+                config["output"]["profiling"],
+                "profile/bracken/{sample}/{sample}.bracken.profile")),
+            report = protected(os.path.join(
+                config["output"]["profiling"],
+                "profile/bracken/{sample}/{sample}.bracken.report"))
+        log:
+            os.path.join(config["output"]["profiling"],
+                         "logs/{sample}.bracken.log")
+        params:
+            database = config["params"]["classify"]["kraken2"]["database"],
+            reads_len = config["params"]["profiling"]["bracken"]["reads_len"],
+            level = config["params"]["profiling"]["bracken"]["level"]
+        threads:
+            config["params"]["profiling"]["threads"]
+        run:
+            import os
+            output_dir = os.path.dirname(output.profile)
+            report = os.path.join(output_dir, "kreport")
+
+            shell('''pigz -p {threads} -d -k -c {input} > %s''' % report)
+
+            shell(
+                '''
+                bracken \
+                -d {params.database} \
+                -i %s \
+                -o {output.profile} \
+                -w {output.report} \
+                -r {params.reads_len} \
+                -l {params.level} \
+                -t {threads} \
+                > {log} 2>&1
+                ''' % report)
+
+            shell('''rm -rf %s''' % report)
+
+
+    rule profiling_bracken_merge:
+        input:
+            expand(
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/bracken/{sample}/{sample}.bracken.profile"),
+                 sample=SAMPLES.index.unique())
+        output:
+            expand(os.path.join(
+                config["output"]["profiling"],
+                "profile/bracken.merged.abundance.profile.{level}.tsv"),
+                level=config["params"]["profiling"]["bracken"]["level"])
+        log:
+            os.path.join(config["output"]["profiling"], "logs/bracken.merged.log")
+        run:
+            shell(
+                '''
+                combine_bracken_outputs.py \
+                --files {input} \
+                --names %s \
+                --output {output} \
+                > {log} 2>&1
+                ''' % ",".join(SAMPLES.index.unique()))
+
+
+    rule profiling_bracken_all:
+        input:
+            expand(os.path.join(
+                config["output"]["profiling"],
+                "profile/bracken.merged.abundance.profile.{level}.tsv"),
+                   level=config["params"]["profiling"]["bracken"]["level"]),
            
+            rules.rmhost_all.input,
+            rules.qcreport_all.input
+
+else:
+    rule profiling_bracken_all:
+        input:
+
+
 if config["params"]["profiling"]["humann2"]["do"]:
     rule profiling_humann2:
         input:
@@ -496,13 +592,13 @@ if config["params"]["profiling"]["humann2"]["do"]:
                    else "",
             output_dir = os.path.join(
                 config["output"]["profiling"],
-                                      "profile/humann2/{sample}")
+                "profile/humann2/{sample}")
         threads:
             config["params"]["profiling"]["threads"]
         log:
             os.path.join(
                 config["output"]["profiling"],
-                         "logs/{sample}.humann2.log")
+                "logs/{sample}.humann2.log")
         run:
             if IS_PE:
                 shell('''cat {input.reads} > %s''' % input.reads)
@@ -680,7 +776,10 @@ if config["params"]["profiling"]["humann2"]["do"]:
                     "profile/{group}_joined_{suffix}.tsv")],
                    target=["genefamilies", "pathabundance", "pathcoverage"],
                    group=config["params"]["profiling"]["humann2"]["map_database"],
-                   suffix=["straified", "unstraified"])
+                   suffix=["straified", "unstraified"]),
+
+            rules.rmhost_all.input,
+            rules.qcreport_all.input
 
 else:
     rule profiling_humann2_all:
@@ -692,7 +791,5 @@ rule profiling_all:
         rules.profiling_metaphlan2_all.input,
         rules.profiling_metaphlan3_all.input,
         rules.profiling_jgi_all.input,
-        rules.profiling_humann2_all.input,
-
-        rules.rmhost_all.input,
-        rules.qcreport_all.input
+        rules.profiling_bracken_all.input,
+        rules.profiling_humann2_all.input

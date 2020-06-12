@@ -92,6 +92,8 @@ class metaconfig:
         "logs/11.profiling_metaphlan3_merge",
         "logs/11.profiling_jgi",
         "logs/11.profiling_jgi_merge",
+        "logs/11.profiling_bracken",
+        "logs/11.profiling_bracken_merge",
         "logs/11.profiling_humann2",
         "logs/11.profiling_humann2_postprocess",
         "logs/11.profiling_humann2_join",

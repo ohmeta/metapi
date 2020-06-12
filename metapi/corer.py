@@ -73,6 +73,7 @@ WORKFLOWS = [
     "profiling_metaphlan2_all",
     "profiling_metaphlan3_all",
     "profiling_jgi_all",
+    "profiling_bracken_all",
     "profiling_humann2_all",
     "profiling_all",
     "upload_sequencing_all",
