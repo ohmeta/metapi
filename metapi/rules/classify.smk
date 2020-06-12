@@ -1,7 +1,10 @@
 if config["params"]["classify"]["kraken2"]["do"]:
     rule classify_short_reads_kraken2:
         input:
-            assembly_input
+            reads = assembly_input,
+            database = expand(os.path.join(
+                config["params"]["classify"]["kraken2"]["database"], "{db}"),
+                              db = ["hash.k2d", "taxo.k2d", "opts.k2d"])
         output:
             table = protected(os.path.join(
                 config["output"]["classify"],
@@ -71,7 +74,7 @@ if config["params"]["classify"]["kraken2"]["do"]:
                 --report %s \
                 --gzip-compressed \
                 {params.paired} \
-                {input} \
+                {input.reads} \
                 2> {log}
                 ''' % (os.path.splitext(output.table)[0],
                        os.path.splitext(output.report)[0]))
