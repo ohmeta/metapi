@@ -173,6 +173,12 @@ qcreport_summary:
   output: "logs/03.{rule}/{rule}.o"
   error:  "logs/03.{rule}/{rule}.e"
 
+qcreport_plot:
+  mem: "512M"
+  cores: 4
+  output: "logs/03.{rule}/{rule}.o"
+  error:  "logs/03.{rule}/{rule}.e"
+
 assembly_megahit:
   mem: "10G"
   cores: 8

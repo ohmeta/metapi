@@ -50,6 +50,7 @@ class metaconfig:
         "logs/02.rmhost_report",
         "logs/02.rmhost_report_merge",
         "logs/03.qcreport_summary",
+        "logs/03.qcreport_plot",
         "logs/04.assembly_megahit",
         "logs/04.assembly_idba_ud",
         "logs/04.assembly_metaspades",

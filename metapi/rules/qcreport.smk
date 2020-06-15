@@ -21,10 +21,21 @@ if config["params"]["qcreport"]["do"]:
             metapi.compute_host_rate(df, output=output[0])
 
 
+    rule qcreport_plot:
+        input:
+            os.path.join(config["output"]["qcreport"], "qc_stats.tsv")
+        output:
+            os.path.join(config["output"]["qcreport"], "qc_reads_num_barplot.pdf")
+        priority:
+            30
+        run:
+            metapi.qc_bar_plot(input[0], "seaborn", output=output[0])
+
+
     rule qcreport_all:
         input:
-            os.path.join(config["output"]["qcreport"],
-                         "qc_stats.tsv"),
+            os.path.join(config["output"]["qcreport"], "qc_stats.tsv"),
+            os.path.join(config["output"]["qcreport"], "qc_reads_num_barplot.tsv")
 
             rules.rmhost_all.input
 

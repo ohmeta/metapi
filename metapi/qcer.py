@@ -3,6 +3,8 @@
 import pandas as pd
 import numpy as np
 import argparse
+import seaborn as sns
+import matplotlib.pyplot as plt
 from metapi import tooler
 
 
@@ -42,6 +44,70 @@ def compute_host_rate(df, **kwargs):
     if "output" in kwargs:
         df.to_csv(kwargs["output"], sep="\t", index=False)
     return df
+
+
+def qc_bar_plot(df, engine, stacked=False, **kwargs):
+    if engine == "seaborn":
+        # seaborn don't like stacked barplot
+        f, ax = plt.subplots(figsize=(10, 7))
+        df_ = df.reset_index().query('reads=="fq1"')
+        sns.barplot(x="id", y="num_seqs", hue="step", data=df_)
+
+    elif engine == "pandas":
+        if not stacked:
+            df_ = (
+                df.reset_index()
+                .query('reads=="fq1"')
+                .pivot(index="id", columns="step", values="num_seqs")
+                .loc[:, ["raw", "trimming", "rmhost"]]
+            )
+            df_.plot(kind="bar", figsize=(10, 7))
+
+        else:
+            dict_ = {"id": [], "clean": [], "rmhost": [], "trim": []}
+
+            for i in df.index.unique():
+                reads_total = 0
+
+                reads_trimmed = 0
+                reads_host = 0
+                reads_clean = 0
+
+                if not df.loc[i,].query('reads=="fq1" and step=="raw"').empty:
+                    reads_total = df.loc[i,].query('reads=="fq1" and step=="raw"')[
+                        "num_seqs"
+                    ][0]
+
+                if not df.loc[i,].query('reads=="fq1" and step=="trimming"').empty:
+                    reads_trim = df.loc[i,].query('reads=="fq1" and step=="trimming"')[
+                        "num_seqs"
+                    ][0]
+
+                if not df.loc[i,].query('reads=="fq1" and step=="rmhost"').empty:
+                    reads_clean = df.loc[i,].query('reads=="fq1" and step=="rmhost"')[
+                        "num_seqs"
+                    ][0]
+
+                reads_trimmed = reads_total - reads_trim
+                reads_host = reads_trim - reads_clean
+
+                dict_["id"].append(i)
+                dict_["trim"].append(reads_trimmed)
+                dict_["rmhost"].append(reads_host)
+                dict_["clean"].append(reads_clean)
+
+            df_ = pd.DataFrame(dict_).sort_values("id").set_index("id")
+
+            colors = ["#2ca02c", "#ff7f0e", "#1f77b4"]
+
+            df_.plot(kind="bar", stacked=True, color=colors, figsize=(10, 7))
+
+    plt.xlabel("Sample ID")
+    plt.ylabel("The number of reads(-pair)")
+    plt.title("Fastq quality control barplot", fontsize=11)
+
+    if "output" in kwargs:
+        plt.savefig(kwargs["output"])
 
 
 def main():
