@@ -351,8 +351,7 @@ if RMHOST_DO and config["params"]["qcreport"]["do"]:
         threads:
             config["params"]["qcreport"]["seqkit"]["threads"]
         run:
-            metapi.merge(input, metapi.parse, threads,
-                         save=True, output=output[0])
+            metapi.merge(input, metapi.parse, threads, output=output[0])
 
     rule rmhost_report_all:
         input:

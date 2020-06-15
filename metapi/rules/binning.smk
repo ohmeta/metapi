@@ -425,7 +425,7 @@ if len(BINNERS) != 0:
                 metapi.assembler_init(params.len_ranges,
                                       ["sample_id", "bin_id", "assembler", "binner"])
                 metapi.merge(comp_list, metapi.parse_assembly,
-                             threads, save=True,  output=output.summary)
+                             threads, output=output.summary)
             else:
                 shell('''touch {output.summary}''')
 

@@ -335,8 +335,7 @@ if TRIMMING_DO and config["params"]["qcreport"]["do"]:
         threads:
             config["params"]["qcreport"]["seqkit"]["threads"]
         run:
-            metapi.merge(input, metapi.parse, threads,
-                         save=True, output=output[0])
+            metapi.merge(input, metapi.parse, threads, output=output[0])
 
     rule trimming_report_all:
         input:

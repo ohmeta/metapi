@@ -397,7 +397,7 @@ dereplicate_drep:
   error:  "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
 
 profiling_metaphlan2:
-  mem: "8G"
+  mem: "3G"
   cores: 8
   output: "logs/11.{rule}/{rule}.{wildcards.sample}.o"
   error:  "logs/11.{rule}/{rule}.{wildcards.sample}.e"
@@ -408,7 +408,7 @@ profiling_metaphlan2_merge:
   error:  "logs/11.{rule}/{rule}.e"
 
 profiling_metaphlan3:
-  mem: "8G"
+  mem: "3G"
   cores: 8
   output: "logs/11.{rule}/{rule}.{wildcards.sample}.o"
   error:  "logs/11.{rule}/{rule}.{wildcards.sample}.e"

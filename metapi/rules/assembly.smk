@@ -521,7 +521,7 @@ if len(ASSEMBLERS) != 0:
         run:
             metapi.assembler_init(params.len_ranges, ["sample_id", "assembler"])
             metapi.merge(input.comp_list, metapi.parse_assembly,
-                         threads, save=True, output=output.summary)
+                         threads, output=output.summary)
 
 
     rule assembly_report_all:

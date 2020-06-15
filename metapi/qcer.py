@@ -39,12 +39,8 @@ def compute_host_rate(df, **kwargs):
     df = df.reset_index()
     df["host_rate"] = df.apply(lambda x: host_rate[x["id"]], axis=1)
 
-    if "save" in kwargs:
-        if kwargs["save"]:
-            if "output" in kwargs:
-                df.to_csv(kwargs["output"], sep="\t", index=False)
-            else:
-                print("please specific output parameter")
+    if "output" in kwargs:
+        df.to_csv(kwargs["output"], sep="\t", index=False)
     return df
 
 
@@ -69,7 +65,7 @@ def main():
         8,
     )
 
-    compute_host_rate(df, save=True, output=args.output)
+    compute_host_rate(df, output=args.output)
 
 
 if __name__ == "__main__":
