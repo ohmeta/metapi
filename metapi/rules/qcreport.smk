@@ -24,7 +24,9 @@ if config["params"]["qcreport"]["do"]:
     rule qcreport_all:
         input:
             os.path.join(config["output"]["qcreport"],
-                         "qc_stats.tsv")
+                         "qc_stats.tsv"),
+
+            rules.rmhost_all.input
 
 else:
     rule qcreport_all:
