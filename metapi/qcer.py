@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
+import argparse
+import os
 import pandas as pd
 import numpy as np
-import argparse
-import seaborn as sns
+
 import matplotlib.pyplot as plt
+import seaborn as sns
 from metapi import tooler
 
 
@@ -50,14 +52,13 @@ def qc_bar_plot(df, engine, stacked=False, **kwargs):
     if engine == "seaborn":
         # seaborn don't like stacked barplot
         f, ax = plt.subplots(figsize=(10, 7))
-        df_ = df.reset_index().query('reads=="fq1"')
+        df_ = df.query('reads=="fq1"')
         sns.barplot(x="id", y="num_seqs", hue="step", data=df_)
 
     elif engine == "pandas":
         if not stacked:
             df_ = (
-                df.reset_index()
-                .query('reads=="fq1"')
+                df.query('reads=="fq1"')
                 .pivot(index="id", columns="step", values="num_seqs")
                 .loc[:, ["raw", "trimming", "rmhost"]]
             )
@@ -65,7 +66,7 @@ def qc_bar_plot(df, engine, stacked=False, **kwargs):
 
         else:
             dict_ = {"id": [], "clean": [], "rmhost": [], "trim": []}
-
+            df = df.set_index("id")
             for i in df.index.unique():
                 reads_total = 0
 
@@ -115,7 +116,7 @@ def main():
     parser.add_argument("--raw_stats_list", help="raw stats list")
     parser.add_argument("--trimming_stats_list", help="trimming stats list")
     parser.add_argument("--rmhost_stats_list", help="rmhost stats list")
-    parser.add_argument("--output", help="quality control output")
+    parser.add_argument("--output", help="quality control output basename")
     args = parser.parse_args()
 
     raw_list = pd.read_csv(args.raw_stats_list, header=None, names=["raw"])
@@ -128,10 +129,12 @@ def main():
         raw_list["raw"].dropna().tolist()
         + trimming_list["trimming"].dropna().tolist()
         + rmhost_list["rmhost"].dropna().tolist(),
+        tooler.parse,
         8,
     )
 
-    compute_host_rate(df, output=args.output)
+    df_ = compute_host_rate(df, output=os.path.join(args.output, ".stats.tsv"))
+    qc_bar_plot(df_, "seaborn", output=os.path.join(args.output, ".plot.pdf"))
 
 
 if __name__ == "__main__":

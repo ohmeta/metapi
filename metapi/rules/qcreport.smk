@@ -29,7 +29,8 @@ if config["params"]["qcreport"]["do"]:
         priority:
             30
         run:
-            metapi.qc_bar_plot(input[0], "seaborn", output=output[0])
+            df = metapi.parse(input[0])
+            metapi.qc_bar_plot(df, "seaborn", output=output[0])
 
 
     rule qcreport_all:
