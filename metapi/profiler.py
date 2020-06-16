@@ -7,6 +7,52 @@ import sys
 import argparse
 
 
+def metaphlan_init(version):
+    global METAPHLAN_VERSION
+    METAPHLAN_VERSION = version
+
+
+def read_metaphlan_table(table):
+    sample_id = os.path.basename(table).split(".")[0]
+    if METAPHLAN_VERSION == 2:
+        dict_ = {"clade_name": [], sample_id: []}
+        with open(table, "r") as ih:
+            for line in ih:
+                if not line.startswith("#"):
+                    clade_name, abun = line.split("\t")[0:2]
+                    dict_["clade_name"].append(clade_name)
+                    dict_[sample_id].append(abun)
+        df = pd.DataFrame(dict_).set_index("clade_name")
+        return df
+
+    elif METAPHLAN_VERSION == 3:
+        dict_ = {"clade_name": [], "clade_taxid": [], sample_id: []}
+        with open(table, "r") as ih:
+            for line in ih:
+                if not line.startswith("#"):
+                    clade_name, clade_taxid, abun = line.split("\t")[0:3]
+                    dict_["clade_name"].append(clade_name)
+                    dict_["clade_taxid"].append(clade_taxid)
+                    dict_[sample_id].append(abun)
+        df = pd.DataFrame(dict_).set_index(["clade_name", "clade_taxid"])
+        return df
+    else:
+        return None
+
+
+def merge_metaphlan_tables(table_files, workers, **kwargs):
+    abun_list = []
+    with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as executor:
+        for abun_df in executor.map(read_metaphlan_table, table_files):
+            if abun_df is not None:
+                abun_list.append(abun_df)
+
+    abun_df_ = pd.concat(abun_list, axis=1).fillna(0).reset_index()
+    if "output" in kwargs:
+        abun_df_.to_csv(kwargs["output"], sep="\t", index=False)
+    return abun_df_
+
+
 def profiler_init(index_metadata):
     global INDEX_METADATA__
     INDEX_METADATA__ = pd.read_csv(index_metadata, sep="\t")

@@ -33,6 +33,8 @@ from metapi.classifier import demultiplex
 from metapi.profiler import profiler_init
 from metapi.profiler import get_all_abun_df
 from metapi.profiler import get_profile
+from metapi.profiler import metaphlan_init
+from metapi.profiler import merge_metaphlan_tables
 
 from metapi.uploader import gen_samples_info
 from metapi.uploader import gen_info

@@ -79,18 +79,11 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"]:
             os.path.join(
                 config["output"]["profiling"],
                          "profile/metaphlan2.merged.abundance.profile.tsv")
-        log:
-            os.path.join(
-                config["output"]["profiling"], "logs/metaphlan2.merged.log")
-        shell:
-            '''
-            merge_metaphlan_tables.py \
-            {input} \
-            > {output} \
-            2> {log}
-
-            sed -i 's/.metaphlan2//g' {output}
-            '''
+        threads:
+            config["params"]["profiling"]["threads"]
+        run:
+           metapi.metaphlan_init(2)
+           metapi.merge_metaphlan_tables(input, threads, output=output[0])
 
 
     rule profiling_metaphlan2_all:
@@ -200,16 +193,11 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
             os.path.join(
                 config["output"]["profiling"],
                          "profile/metaphlan3.merged.abundance.profile.tsv")
-        log:
-            os.path.join(
-                config["output"]["profiling"], "logs/metaphlan3.merged.log")
-        shell:
-            '''
-            merge_metaphlan_tables.py \
-            {input} \
-            > {output} \
-            2> {log}
-            '''
+        threads:
+            config["params"]["profiling"]["threads"]
+        run:
+           metapi.metaphlan_init(3)
+           metapi.merge_metaphlan_tables(input, threads, output=output[0])
 
 
     rule profiling_metaphlan3_all:
