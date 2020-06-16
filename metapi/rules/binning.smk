@@ -129,7 +129,8 @@ if config["params"]["binning"]["metabat2"]["do"]:
                 assembler=ASSEMBLERS,
                 sample=SAMPLES.index.unique()),
 
-            rules.alignment_all.input
+            rules.binning_metabat2_coverage_all.input,
+            rules.assembly_all.input
 
 else:
     rule binning_metabat2_all:
@@ -151,9 +152,6 @@ if config["params"]["binning"]["maxbin2"]["do"]:
         log:
             os.path.join(config["output"]["binning"],
                          "logs/coverage/{sample}.{assembler}.maxbin2.coverage.log")
-        params:
-            output_dir = os.path.join(config["output"]["binning"],
-                                      "coverage/{sample}.{assembler}.out")
         shell:
             '''
             cut -f1,3 {input.coverage} | tail -n +2 > {output.coverage}
@@ -228,10 +226,200 @@ if config["params"]["binning"]["maxbin2"]["do"]:
                 assembler=ASSEMBLERS,
                 sample=SAMPLES.index.unique()),
 
-            rules.alignment_all.input
+            rules.assembly_all.input
 
 else:
     rule binning_maxbin2_all:
+        input:
+
+
+'''
+if config["params"]["binning"]["canopy"]["do"]:
+    rule binning_canopy_coverage:
+        input:
+            coverage = os.path.join(
+                config["output"]["binning"],
+                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.coverage")
+        output:
+            coverage = os.path.join(
+                config["output"]["binning"],
+                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.canopy.coverage")
+        priority:
+            30
+        run:
+            import pandas as pd
+
+            df = pd.read_csv(input.coverage, sep='\t')
+            df.iloc[:, [0, 3]].to_csv(output.coverage, header=None, sep='\t', index=False)
+'''
+
+
+if config["params"]["binning"]["concoct"]["do"]:
+    rule binning_concoct_coverage:
+        input:
+            scaftigs = os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
+            bam = os.path.join(
+                config["output"]["alignment"],
+                "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam"),
+            bai = os.path.join(
+                config["output"]["alignment"],
+                "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam.bai")
+        output:
+            scaftigs = temp(os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa")),
+            scaftigs_cut = temp(os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.cut.fa")),
+            scaftigs_bed = temp(os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.cut.bed")),
+            coverage = os.path.join(
+                config["output"]["binning"],
+                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.concoct.coverage")
+        priority:
+            30
+        log:
+            os.path.join(config["output"]["binning"],
+                         "logs/coverage/{sample}.{assembler}.concoct.coverage.log")
+        params:
+            chunk_size = config["params"]["binning"]["concoct"]["chunk_size"],
+            overlap_size = config["params"]["binning"]["concoct"]["overlap_size"]
+        threads:
+            config["params"]["profiling"]["threads"]
+        shell:
+            '''
+            pigz -p {threads} -k -d -c {input.scaftigs} > {output.scaftigs}
+
+            cut_up_fasta.py \
+            {output.scaftigs} \
+            --chunk_size {params.chunk_size} \
+            --overlap_size {params.overlap_size} \
+            --merge_last \
+            --bedfile {output.scaftigs_bed} \
+            > {output.scaftigs_cut}
+
+            concoct_coverage_table.py \
+            {output.scaftigs_bed} \
+            {input.bam} \
+            > {output.coverage}
+            '''
+
+
+    rule binning_concoct:
+        input:
+            scaftigs = os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa"),
+            scaftigs_cut = os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.cut.fa"),
+            scaftigs_bed = os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.cut.bed"),
+            coverage = os.path.join(
+                config["output"]["binning"],
+                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.concoct.coverage")
+        output:
+            bins_dir = directory(os.path.join(config["output"]["binning"],
+                                              "bins/{sample}.{assembler}.out/concoct"))
+        priority:
+            30
+        log:
+            os.path.join(config["output"]["binning"],
+                         "logs/binning/{sample}.{assembler}.concoct.binning.log")
+        params:
+            clusters = config["params"]["binning"]["concoct"]["clusters"],
+            kmer_length = config["params"]["binning"]["concoct"]["kmer_length"],
+            length_threshold = config["params"]["binning"]["concoct"]["length_threshold"],
+            read_length = config["params"]["binning"]["concoct"]["read_length"],
+            total_percentage_pca = config["params"]["binning"]["concoct"]["total_percentage_pca"],
+            iterations = config["params"]["binning"]["concoct"]["iterations"],
+            seed = config["params"]["binning"]["concoct"]["seed"],
+            no_cov_normalization = "--no_cov_normalization" \
+                if config["params"]["binning"]["concoct"]["no_cov_normalization"] \
+                   else "",
+            no_total_coverage = "--no_total_coverage" \
+                if config["params"]["binning"]["concoct"]["no_total_coverage"] \
+                   else "",
+            no_original_data = "--no_original_data" \
+                if config["params"]["binning"]["concoct"]["no_original_data"] \
+                   else "",
+            coverage_out = "--coverage_out" \
+                if config["params"]["binning"]["concoct"]["coverage_out"] \
+                   else "",
+            bin_suffix = config["params"]["binning"]["bin_suffix"],
+            basename = os.path.join(
+                config["output"]["binning"],
+                "bins/{sample}.{assembler}.out/concoct/{sample}.{assembler}.concoct.bin"),
+        threads:
+            config["params"]["binning"]["threads"]
+        run:
+            import os
+           
+            shell('''mkdir -p {output.bins_dir}''')
+
+            shell(
+                '''
+                concoct \
+                --threads {threads} \
+                --basename {params.basename} \
+                --coverage_file {input.coverage} \
+                --composition_file {input.scaftigs_cut} \
+                --clusters {params.clusters} \
+                --kmer_length {params.kmer_length} \
+                --length_threshold {params.length_threshold} \
+                --read_length {params.read_length} \
+                --total_percentage_pca {params.total_percentage_pca} \
+                --seed {params.seed} \
+                --iterations {params.iterations} \
+                {params.no_cov_normalization} \
+                {params.no_total_coverage} \
+                {params.no_original_data} \
+                {params.coverage_out} \
+                2> {log}
+                ''')
+
+            shell(
+                '''
+                merge_cutup_clustering.py \
+                {params.basename}_clustering_gt1000.csv \
+                > {params.basename}_clustering_merged.csv
+                ''')
+
+            shell(
+                '''
+                extract_fasta_bins.py \
+                {input.scaftigs} \
+                {params.basename}_clustering_merged.csv \
+                --output_path {output.bins_dir}
+                ''')
+
+            with os.scandir(output.bins_dir) as itr:
+                for entry in itr:
+                    bin_id, bin_suffix = os.path.splitext(entry.name)
+                    if bin_suffix == ".fa":
+                        shell('''mv %s %s''' \
+                              % (os.path.join(output.bins_dir, entry.name),
+                                 os.path.join(params.basename + "." + \
+                                              os.path.basename(bin_id) + "." + \
+                                              params.bin_suffix)))
+
+
+    rule binning_concoct_all:
+        input:
+            expand(os.path.join(
+                config["output"]["binning"],
+                "bins/{sample}.{assembler}.out/concoct"),
+                   assembler=ASSEMBLERS,
+                   sample=SAMPLES.index.unique()),
+
+            rules.assembly_all.input
+
+else:
+    rule binning_concoct_all:
         input:
 
 
@@ -447,5 +635,6 @@ rule binning_all:
     input:
         rules.binning_metabat2_all.input,
         rules.binning_maxbin2_all.input,
+        rules.binning_concoct_all.input,
         rules.binning_dastools_all.input,
         rules.binning_report_all.input

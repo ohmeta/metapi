@@ -139,6 +139,21 @@ params:
       prob_threshold: 0.9
       plotmarker: True
       markerset: 107
+    concoct:
+      do: True
+      chunk_size: 10000
+      overlap_size: 0
+      clusters: 400
+      kmer_length: 4
+      length_threshold: 1000
+      read_length: 100
+      total_percentage_pca: 90
+      iterations: 500
+      seed: 2020
+      no_cov_normalization: False
+      no_total_coverage: False
+      no_original_data: False
+      coverage_out: False
     dastools:
       do: True
       search_engine: "diamond"
