@@ -9,7 +9,10 @@ def parse(stats_file):
     try:
         if os.path.exists(stats_file):
             df = pd.read_csv(stats_file, sep="\t")
-            return df
+            if not df.empty:
+                return df
+            else:
+                return None
         else:
             print("%s is not exists" % stats_file)
             return None
@@ -26,10 +29,7 @@ def merge(input_list, func, workers, **kwargs):
                 df_list.append(df)
 
     df_ = pd.concat(df_list)
-    if "save" in kwargs:
-        if kwargs["save"]:
-            if "output" in kwargs:
-                df_.to_csv(kwargs["output"], sep="\t", index=False)
-            else:
-                print("please specific output parameter")
+
+    if "output" in kwargs:
+        df_.to_csv(kwargs["output"], sep="\t", index=False)
     return df_
