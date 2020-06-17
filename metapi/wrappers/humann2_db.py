@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+
+import argparse
+import logging
+import time
+import shutil
+
+from humann2 import config
+from humann2.humann2 import timestamp_message
+from humann2.search import prescreen
+from humann2.search import nucleotide
+
+
+def build_chocophlan_pangenome_db(
+    log_file, file_basename, db_dir, presense_threshold, taxonomic_profile
+):
+    logger = logging.getLogger(__name__)
+    logging.basicConfig(
+        filename=log_file,
+        format="%(asctime)s - %(name)s - %(levelname)s: %(message)s",
+        level=getattr(logging, config.log_level),
+        filemode="w",
+        datefmt="%m/%d/%Y %I:%M:%S %p",
+    )
+    config.file_basename = file_basename
+    config.temp_dir = db_dir
+    config.presense_threshold = presense_threshold
+
+    start_time = time.time()
+    custom_database = prescreen.create_custom_database(
+        config.nucleotide_database, taxonomic_profile
+    )
+    start_time = timestamp_message(
+        "parse taxonomy profile and custom database creation", start_time
+    )
+
+    nucleotide_index_file = nucleotide.index(custom_database)
+    start_time = timestamp_message("database index", start_time)
+
+    shutil.rm(custom_database)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="HUMANn2 build chocophlan pangenome database wrapper"
+    )
+    parser.add_argument("--log", help="log file")
+    parser.add_argument("--basename", help="file basename")
+    parser.add_argument("--db_dir", help="database directory")
+    parser.add_argument("--presense_threshold", help="presense threshold")
+    parser.add_argument("--taxonomic_profile", help="MetaPhlAn2 taxonomic profile")
+
+    args = parser.parse_args()
+    build_chocophlan_pangenome_db(
+        args.log,
+        args.basename,
+        args.db_dir,
+        args.presense_threshold,
+        args.taxonomic_profile,
+    )
+
+
+if __name__ == "__main__":
+    main()

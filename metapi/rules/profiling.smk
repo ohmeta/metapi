@@ -27,48 +27,54 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"]:
             stat_q = config["params"]["profiling"]["metaphlan"]["stat_q"],
             stat = config["params"]["profiling"]["metaphlan"]["stat"],
             analysis_type = config["params"]["profiling"]["metaphlan"]["analysis_type"],
-            no_map = config["params"]["profiling"]["metaphlan"]["no_map"],
-            bowtie2_out = os.path.join(
+            no_map = "--no_map" \
+                if config["params"]["profiling"]["metaphlan"]["no_map"] \
+                else "--bowtie2out %s" % os.path.join(
+                        config["output"]["profiling"],
+                        "profile/metaphlan2/{sample}/{sample}.metaphlan2.bowtie2.bz2"),
+            biom = "--biom %s" % os.path.join(
                 config["output"]["profiling"],
-                "profile/metaphlan2/{sample}/{sample}.metaphlan2.bowtie2.bz2"),
-            biom = config["params"]["profiling"]["metaphlan"]["biom"],
-            biom_out = os.path.join(
-                config["output"]["profiling"],
-                "profile/metaphlan2/{sample}/{sample}.metaphlan2.abundance.profile.biom")
+                "profile/metaphlan2/{sample}/{sample}.metaphlan2.abundance.profile.biom") \
+                if config["params"]["profiling"]["metaphlan"]["biom"] \
+                   else ""
         threads:
             config["params"]["profiling"]["threads"]
-        run:
-            shell(
-                '''
-                metaphlan2.py \
-                %s \
-                --input_type {params.input_type} \
-                --read_min_len {params.read_min_len} \
-                --nproc {threads} \
-                %s \
-                --bowtie2db {params.bowtie2db} \
-                --index {params.index} \
-                --bt2_ps {params.bowtie2_presets} \
-                --min_cu_len {params.min_cu_len} \
-                --tax_lev {params.taxonomic_level} \
-                {params.avoid_disqm} \
-                --stat_q {params.stat_q} \
-                --stat {params.stat} \
-                -t {params.analysis_type} \
-                --output_file {output} \
-                --sample_id {params.sample_id} \
-                %s \
-                2> {log}
-                ''' % (
-                    ",".join(input),
+        shell:
+            '''
+            i=0
+            for j in {input}
+            do
+                let i=i+1
+            done
 
-                    "--no_map" \
-                    if params.no_map \
-                    else "--bowtie2out %s" % params.bowtie2_out,
+            fq=""
+            if [ $i == 2 ]
+            then
+               fq="{input[0]},{input[1]}"
+            else
+               fq="{input[0]}"
+            fi
 
-                    "--biom %s" % params.biom_out \
-                    if params.biom \
-                    else ""))
+            metaphlan2.py \
+            $fq \
+            --input_type {params.input_type} \
+            --bowtie2db {params.bowtie2db}
+            --index {params.index} \
+            --bt2_ps {params.bowtie2_presets} \
+            --read_min_len {params.read_min_len} \
+            --nproc {threads} \
+            --min_cu_len {params.min_cu_len} \
+            --tax_lev {params.taxonomic_level} \
+            --stat_q {params.stat_q} \
+            --stat {params.stat} \
+            -t {params.analysis_type} \
+            --output_file {output} \
+            --sample_id {params.sample_id} \
+            {params.no_map} \
+            {params.avoid_disqm} \
+            {params.biom} \
+            2> {log}
+            '''
 
 
     rule profiling_metaphlan2_merge:
@@ -576,37 +582,18 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             os.path.join(config["output"]["profiling"],
                          "logs/{sample}.humann2.build_pandb.log")
         params:
-            id = "{sample}",
+            basename = "{sample}",
             db_dir = os.path.join(config["output"]["profiling"], "database/humann2/{sample}"),
             presense_threshold = config["params"]["profiling"]["humann2"]["presense_threshold"]
-        run:
-            import logging
-            import time
-            from humann2 import config
-            from humann2.humann2 import timestamp_message
-            from humann2.search import prescreen
-            from humann2.search import nucleotide
-
-            logger=logging.getLogger(__name__)
-            logging.basicConfig(filename=log,
-                                format='%(asctime)s - %(name)s - %(levelname)s: %(message)s',
-                                level=getattr(logging, config.log_level),
-                                filemode='w',
-                                datefmt='%m/%d/%Y %I:%M:%S %p')
-            config.file_basename = params.id
-            config.temp_dir = params.db_dir
-            config.presense_threshold = params.presense_threshold
-
-            start_time = time.time()
-            custom_database = prescreen.create_custom_database(config.nucleotide_database,
-                                                               input.profile)
-            start_time = timestamp_message("parse taxonomy profile and custom database creation",
-                                           start_time)
-
-            nucleotide_index_file = nucleotide.index(custom_database)
-            start_time = timestamp_message("database index", start_time)
-
-            shell('''rm -rf %s''' % custom_database)
+        shell:
+            '''
+            python wrappers/humann2_db.py \
+            --log {log} \
+            --basename {params.basename} \
+            --db_dir {params.db_dir} \
+            --presense_threshold {params.presense_threshold} \
+            --taxonomic_profile {input.profile}
+            '''
 
 
     rule profiling_humann2:
@@ -651,30 +638,29 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             os.path.join(
                 config["output"]["profiling"],
                 "logs/{sample}.humann2.log")
-        run:
-            shell(
-                '''
-                zcat %s |
-                sed 's/ //g' |
-                bowtie2 \
-                --threads {threads} \
-                -x {params.index} \
-                -U - | \
-                humann2 \
-                --threads {threads} \
-                --input - \
-                --input-format sam \
-                --evalue {params.evalue} \
-                --presense-threshold {params.presense_threshold} \
-                --identity-threshold {params.identity_threshold} \
-                --translated-subject-coverage-threshold {params.translated_subject_coverage_threshold} \
-                --translated-query-coverage-threshold {params.translated_query_coverage_threshold} \
-                --memory-use {params.memory_use} \
-                --output-basename {params.basename} \
-                --output {params.output_dir} \
-                {params.remove} \
-                --o-log {log} %s
-                ''' % " ".join(input.reads))
+        shell:
+            '''
+            zcat {input} |
+            sed 's/ //g' |
+            bowtie2 \
+            --threads {threads} \
+            -x {params.index} \
+            -U - | \
+            humann2 \
+            --threads {threads} \
+            --input - \
+            --input-format sam \
+            --evalue {params.evalue} \
+            --presense-threshold {params.presense_threshold} \
+            --identity-threshold {params.identity_threshold} \
+            --translated-subject-coverage-threshold {params.translated_subject_coverage_threshold} \
+            --translated-query-coverage-threshold {params.translated_query_coverage_threshold} \
+            --memory-use {params.memory_use} \
+            --output-basename {params.basename} \
+            --output {params.output_dir} \
+            {params.remove} \
+            --o-log {log} %s
+            '''
 
 
     rule profiling_humann2_postprocess:
@@ -699,28 +685,28 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             normalize_method = config["params"]["profiling"]["humann2"]["normalize_method"],
             regroup_method = config["params"]["profiling"]["humann2"]["regroup_method"],
             map_database =  config["params"]["profiling"]["humann2"]["map_database"]
-        run:
-            for i in range(0, len(input)):
-                shell(
-                    '''
-                    humann2_renorm_table \
-                    --input {input[i]} \
-                    --update-snames \
-                    --output {output.targets[i]} \
-                    --units {params.normalize_method}
-                    ''')
+        shell:
+            '''
+            for i in {0..2}
+            do
+                humann2_renorm_table \
+                --input {input[$i]} \
+                --update-snames \
+                --output {output.targets[$i]} \
+                --units {params.normalize_method}
+            done
 
-            i = -1
-            for db in params.map_database:
-                i += 1
-                shell(
-                    '''
-                    humann2_regroup_table \
-                    --input {input[0]} \
-                    --groups %s \
-                    --function {params.regroup_method} \
-                    --output {output.groupprofiles[i]}
-                    '''% db)
+            j=-1
+            for db in {params.map_database}
+            do
+                let j=j+1
+                humann2_regroup_table \
+                --input {input[0]} \
+                --groups $db \
+                --function {params.regroup_method} \
+                --output {output.groupprofiles[$j]}
+            done
+            '''
 
 
     rule profiling_humann2_join:
@@ -751,27 +737,30 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
         params:
             input_dir = os.path.join(config["output"]["profiling"], "profile/humann2"),
             map_database = config["params"]["profiling"]["humann2"]["map_database"]
-        run:
-            targets = ["genefamilies", "pathabundance", "pathcoverage"]
-            for i in range(0, len(targets)):
-                shell(
-                    '''
-                    humann2_join_tables \
-                    --input {params.input_dir} \
-                    --output {output.targets[i]} \
-                    --file_name %s --search-subdirectories
-                    ''' % targets[i])
+        shell:
+            '''
+            i=-1
+            for target in "genefamilies" "pathabundance" "pathcoverage"
+            do
+                let i=i+1
+                humann2_join_tables \
+                --input {params.input_dir} \
+                --output {output.targets[$i]} \
+                --file_name $target \
+                --search-subdirectories
+            done
 
-            i = -1
-            for db in params.map_database:
-                i += 1
-                shell(
-                    '''
-                    humann2_join_tables \
-                    --input {params.input_dir} \
-                    --output {output.groupprofile[i]} \
-                    --file_name %s_groupped --search-subdirectories
-                    ''' % db)
+            j=-1
+            for db in {params.map_database}
+            do
+                let j=j+1
+                humann2_join_tables \
+                --input {params.input_dir} \
+                --output {output.groupprofile[$j]} \
+                --file_name $db_groupped \
+                --search-subdirectories
+            done
+            '''
 
 
     rule profiling_humann2_split_straified:
@@ -802,24 +791,24 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
         params:
             output_dir = os.path.join(config["output"]["profiling"], "profile"),
             map_database = config["params"]["profiling"]["humann2"]["map_database"]
-        run:
-            for i in input.targets:
-                shell(
-                    '''
-                    humann2_split_straified_table \
-                    -i %s \
-                    -o {params.outdir}
-                    ''' % i)
+        shell:
+            '''
+            for i in {input.targets}
+            do
+                humann2_split_straified_table \
+                -i $i \
+                -o {params.outdir}
+            done
 
-            i = -1
-            for db in params.map_database:
-                i += 1
-                shell(
-                    '''
-                    humann2_split_straified_table \
-                    -i {input.groupprofile[i]} \
-                    -o {params.output_dir}
-                    ''')
+            j=-1
+            for db in {params.map_database}
+            do
+                let j=j+1
+                humann2_split_straified_table \
+                -i {input.groupprofile[$j]} \
+                -o {params.output_dir}
+            done
+            '''
 
 
     rule profiling_humann2_all:
