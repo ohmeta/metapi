@@ -1,0 +1,8 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  #- drep=2.6.2
+  - humann2=2.8.1
+  - metaphlan2=2.8
