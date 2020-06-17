@@ -32,7 +32,6 @@ bwa mem -t 6 ref read.1.fq read.2.fq \
 
 http://www.pnas.org/content/pnas/113/42/11901.full.pdf
 Deep sequencing of 10,000 human genomes(Amalio Telenti and J.Craig Venter)
-测序深度 = reads长度 × 比对的reads数目 / 参考序列长度
 
 metabat_coverage
 concoct_coverage

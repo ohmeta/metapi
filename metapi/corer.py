@@ -184,7 +184,6 @@ def denovo_wf(args):
         stdout=sys.stdout,
         stderr=sys.stderr,
         env=env,
-        encoding="utf-8",
     )
     proc.communicate()
 
