@@ -237,7 +237,7 @@ params:
       stat_q: "0.1"
       stat: "tavg_g"
       no_unknown_estimation: False
-      input_type: "fastq"
+      input_type: "multifastq"
       read_min_len: 70
       no_map: True
       biom: False
@@ -258,7 +258,13 @@ params:
       level: "S"
     humann2:
       do: False
+      evalue: 1.0
+      presense_threshold: 0.01
+      identity_threshold: 50.0
+      translated_subject_coverage_threshold: 50.0
+      translated_query_coverage_threshold: 50.0
       remove_temp_output: True
+      memory_use: "minimum"
       normalize_method: "relab"
       regroup_method: "sum"
       map_database: ["uniref90_go", "uniref90_ko", "uniref90_eggnog", "uniref90_pfam", "uniref90_level4ec", "uniref90_infogo1000", "uniref90_rxn"]

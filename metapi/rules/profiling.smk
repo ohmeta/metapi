@@ -556,14 +556,63 @@ else:
         input:
 
 
-if config["params"]["profiling"]["humann2"]["do"]:
+if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
+   config["params"]["profiling"]["humann2"]["do"]:
+    rule profiling_humann2_build_chocophlan_pangenome_db:
+        input:
+            profile = os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan2/{sample}/{sample}.metaphlan2.abundance.profile.tsv")
+        output:
+            expand(os.path.join(
+                config["output"]["profiling"],
+                "database/humann2/{{sample}}/{{sample}}_bowtie2_index.{suffix}"),
+                   suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
+        log:
+            os.path.join(config["output"]["profiling"],
+                         "logs/{sample}.humann2.build_pandb.log")
+        params:
+            id = "{sample}",
+            db_dir = os.path.join(config["output"]["profiling"], "database/humann2/{sample}"),
+            presense_threshold = config["params"]["profiling"]["humann2"]["presense_threshold"]
+        run:
+            import logging
+            import time
+            from humann2 import config
+            from humann2.humann2 import timestamp_message
+            from humann2.search import prescreen
+            from humann2.search import nucleotide
+
+            logger=logging.getLogger(__name__)
+            logging.basicConfig(filename=log,
+                                format='%(asctime)s - %(name)s - %(levelname)s: %(message)s',
+                                level=getattr(logging, config.log_level),
+                                filemode='w',
+                                datefmt='%m/%d/%Y %I:%M:%S %p')
+            config.file_basename = params.id
+            config.temp_dir = params.db_dir
+            config.presense_threshold = params.presense_threshold
+
+            start_time = time.time()
+            custom_database = prescreen.create_custom_database(config.nucleotide_database,
+                                                               input.profile)
+            start_time = timestamp_message("parse taxonomy profile and custom database creation",
+                                           start_time)
+
+            nucleotide_index_file = nucleotide.index(custom_database)
+            start_time = timestamp_message("database index", start_time)
+
+            shell('''rm -rf %s''' % custom_database)
+
+
     rule profiling_humann2:
         input:
-            reads = assembly_input
-        output:
-            reads_merged = temp(os.path.join(
+            reads = assembly_input,
+            index = expand(os.path.join(
                 config["output"]["profiling"],
-                "profile/humann2/{sample}/{sample}.merged.fq.gz")),
+                "database/humann2/{{sample}}/{{sample}}_bowtie2_index.{suffix}"),
+                           suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
+        output:
             genefamilies = protected(os.path.join(
                 config["output"]["profiling"],
                 "profile/humann2/{sample}/{sample}_genefamilies.tsv")),
@@ -574,13 +623,22 @@ if config["params"]["profiling"]["humann2"]["do"]:
                 config["output"]["profiling"],
                 "profile/humann2/{sample}/{sample}_pathcoverage.tsv"))
         params:
-            base_name = "{sample}",
+            basename = "{sample}",
+            index = os.path.join(config["output"]["profiling"],
+                                 "database/humann2/{sample}/{sample}_bowtie2_index"),
+            evalue = config["params"]["profiling"]["humann2"]["evalue"],
+            presense_threshold = config["params"]["profiling"]["humann2"]["presense_threshold"],
+            identity_threshold = config["params"]["profiling"]["humann2"]["identity_threshold"],
+            translated_subject_coverage_threshold = \
+                config["params"]["profiling"]["humann2"]["translated_subject_coverage_threshold"],
+            translated_query_coverage_threshold = \
+                config["params"]["profiling"]["humann2"]["translated_query_coverage_threshold"],
             remove = "--remove-temp-output" \
                 if config["params"]["profiling"]["humann2"]["remove_temp_output"] \
                    else "",
-            output_dir = os.path.join(
-                config["output"]["profiling"],
-                "profile/humann2/{sample}")
+            memory_use = config["params"]["profiling"]["humann2"]["memory_use"],
+            output_dir = os.path.join(config["output"]["profiling"],
+                                      "profile/humann2/{sample}")
         threads:
             config["params"]["profiling"]["threads"]
         log:
@@ -588,23 +646,29 @@ if config["params"]["profiling"]["humann2"]["do"]:
                 config["output"]["profiling"],
                 "logs/{sample}.humann2.log")
         run:
-            if IS_PE:
-                shell('''cat {input.reads} > %s''' % input.reads)
-                reads = output.reads_merged
-            else:
-                reads = input.reads[0]
-
             shell(
                 '''
+                zcat %s |
+                sed 's/ //g' |
+                bowtie2 \
+                --threads {threads} \
+                -x {params.index} \
+                -U - | \
                 humann2 \
                 --threads {threads} \
-                --input %s \
+                --input - \
+                --input-format sam \
+                --evalue {params.evalue} \
+                --presense-threshold {params.presense_threshold} \
+                --identity-threshold {params.identity_threshold} \
+                --translated-subject-coverage-threshold {params.translated_subject_coverage_threshold} \
+                --translated-query-coverage-threshold {params.translated_query_coverage_threshold} \
+                --memory-use {params.memory_use} \
+                --output-basename {params.basename} \
                 --output {params.output_dir} \
-                --output-basename {params.base_name} \
-                --threads {threads} \
                 {params.remove} \
                 --o-log {log} %s
-                ''' % reads)
+                ''' % " ".join(input.reads))
 
 
     rule profiling_humann2_postprocess:
