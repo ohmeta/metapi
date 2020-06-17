@@ -1,3 +1,7 @@
+envs:
+  bioenv: "envs/bioenv.yaml"
+  bioenv2: "envs/bioenv2.yaml"
+
 params:
   reads_layout: "pe"
   interleaved: False
@@ -224,7 +228,7 @@ params:
   profiling:
     threads: 8
     metaphlan:
-      do_v2: False
+      do_v2: True
       do_v3: False
       bowtie2db: /ldfssz1/ST_META/share/User/zhujie/database/metaphlan
       index_v2: "v20_m200"
@@ -245,7 +249,7 @@ params:
       cami_format_output: False
     jgi:
       oneway: False
-      do: False
+      do: True
       fragment: 1200
       memory_limit: 8G
       compression_level: 6
@@ -253,11 +257,11 @@ params:
       index_metadata: /hwfssz1/ST_META/P18Z10200N0127_MA/zhujie/igo/assay/taxonomy/lineages_gtdb/oral_mgs_gtdb_taxonomy.tsv
       index_prefix: /ldfssz1/ST_META/share/User/zhujie/database/igo/mpa_v20_m200
     bracken:
-      do: False
+      do: True
       reads_len: 100
       level: "S"
     humann2:
-      do: False
+      do: True
       evalue: 1.0
       presense_threshold: 0.01
       identity_threshold: 50.0

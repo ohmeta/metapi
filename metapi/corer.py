@@ -141,35 +141,44 @@ def denovo_wf(args):
         args.config,
         "--cores",
         str(args.cores),
-        "--keep-going",
-        "--printshellcmds",
-        "--reason",
-        "--until",
-        args.task,
     ]
 
-    if args.list:
-        cmd += ["--list"]
-    elif args.run:
-        cmd += [""]
-    elif args.debug:
-        cmd += ["--debug-dag", "--dry-run"]
-    elif args.dry_run:
-        cmd += ["--dry-run"]
-    elif args.qsub:
+    if args.conda_create_envs_only:
+        cmd += ["--use-conda", "--conda-create-envs-only"]
+    else:
         cmd += [
-            "--cluster-config",
-            conf["clusterfile"],
-            "--jobs",
-            str(args.jobs),
-            "--latency-wait",
-            str(args.wait),
-            '--cluster "qsub -S /bin/bash -cwd \
+            "--keep-going",
+            "--printshellcmds",
+            "--reason",
+            "--until",
+            args.task,
+        ]
+
+        if args.use_conda:
+            cmd += ["--use-conda"]
+
+        if args.list:
+            cmd += ["--list"]
+        elif args.run:
+            cmd += [""]
+        elif args.debug:
+            cmd += ["--debug-dag", "--dry-run"]
+        elif args.dry_run:
+            cmd += ["--dry-run"]
+        elif args.qsub:
+            cmd += [
+                "--cluster-config",
+                conf["clusterfile"],
+                "--jobs",
+                str(args.jobs),
+                "--latency-wait",
+                str(args.wait),
+                '--cluster "qsub -S /bin/bash -cwd \
                 -q {cluster.queue} -P {cluster.project} \
                 -l vf={cluster.mem},p={cluster.cores} \
                 -binding linear:{cluster.cores} \
                 -o {cluster.output} -e {cluster.error}"',
-        ]
+            ]
 
     if not args.snake is None:
         cmd += ["--" + args.snake]
@@ -179,11 +188,7 @@ def denovo_wf(args):
 
     env = os.environ.copy()
     proc = subprocess.Popen(
-        cmd_str,
-        shell=True,
-        stdout=sys.stdout,
-        stderr=sys.stderr,
-        env=env,
+        cmd_str, shell=True, stdout=sys.stdout, stderr=sys.stderr, env=env,
     )
     proc.communicate()
 
@@ -310,6 +315,15 @@ if begin from simulate:
     )
     parser_denovo_wf.add_argument(
         "--wait", type=int, default=60, help="wait given seconds, default: 60"
+    )
+    parser_denovo_wf.add_argument(
+        "--use_conda", default=False, action="store_true", help="use conda environment"
+    )
+    parser_denovo_wf.add_argument(
+        "--conda_create_envs_only",
+        default=False,
+        action="store_true",
+        help="conda create environments only",
     )
     parser_denovo_wf.add_argument(
         "--snake",

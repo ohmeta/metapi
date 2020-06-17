@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import shutil
 from ruamel.yaml import YAML
 
 
@@ -27,6 +28,7 @@ class metaconfig:
 
     sub_dirs = [
         "assay",
+        "envs",
         "results",
         "scripts",
         "sources",
@@ -110,15 +112,13 @@ class metaconfig:
 
     def __init__(self, work_dir):
         self.work_dir = os.path.realpath(work_dir)
-        self.config_file = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "config.yaml"
-        )
-        self.cluster_file = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "cluster.yaml"
-        )
-        self.snake_file = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "Snakefile"
-        )
+        self.metapi_dir = os.path.dirname(os.path.abspath(__file__))
+
+        self.config_file = os.path.join(self.metapi_dir, "config.yaml")
+        self.cluster_file = os.path.join(self.metapi_dir, "cluster.yaml")
+        self.snake_file = os.path.join(self.metapi_dir, "Snakefile")
+        self.envs_dir = os.path.join(self.metapi_dir, "envs")
+
         self.new_config_file = os.path.join(self.work_dir, "config.yaml")
         self.new_cluster_file = os.path.join(self.work_dir, "cluster.yaml")
 
@@ -139,15 +139,26 @@ A metagenomics project has been created at %s
 
 Now, you can use "metapi denovo_wf":
 
-metapi denovo_wf --list
+if you want to create fresh conda environments:
 
-metapi denovo_wf --run
+        metapi denovo_wf --conda_create_envs_only
 
-metapi denovo_wf --debug
 
-metapi denovo_wf --dry_run
+if you have environments:
 
-metapi denovo_wf --qsub
+        metapi denovo_wf --list
+
+        metapi denovo_wf --run
+
+        metapi denovo_wf --run --use_conda
+
+        metapi denovo_wf --debug
+
+        metapi denovo_wf --dry_run
+
+        metapi denovo_wf --qsub
+
+        metapi denovo_wf --qsub --use_conda
 """ % (
             self.work_dir
         )
@@ -163,6 +174,11 @@ metapi denovo_wf --qsub
 
         for sub_dir in metaconfig.sub_dirs:
             os.makedirs(os.path.join(self.work_dir, sub_dir), exist_ok=True)
+
+        for i in os.listdir(self.envs_dir):
+            shutil.copyfile(os.path.join(self.envs_dir, i),
+                            os.path.join(self.work_dir,
+                                         os.path.join("envs", i)))
 
     def get_config(self):
         """

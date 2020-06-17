@@ -6,6 +6,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"]:
            protected(os.path.join(
                config["output"]["profiling"],
                "profile/metaphlan2/{sample}/{sample}.metaphlan2.abundance.profile.tsv"))
+        conda:
+            config["envs"]["bioenv2"]
         log:
             os.path.join(
                 config["output"]["profiling"],
@@ -568,6 +570,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                 config["output"]["profiling"],
                 "database/humann2/{{sample}}/{{sample}}_bowtie2_index.{suffix}"),
                    suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
+        conda:
+            config["envs"]["bioenv2"]
         log:
             os.path.join(config["output"]["profiling"],
                          "logs/{sample}.humann2.build_pandb.log")
@@ -622,6 +626,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             pathcoverage = protected(os.path.join(
                 config["output"]["profiling"],
                 "profile/humann2/{sample}/{sample}_pathcoverage.tsv"))
+        conda:
+            config["envs"]["bioenv2"]
         params:
             basename = "{sample}",
             index = os.path.join(config["output"]["profiling"],
@@ -687,7 +693,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                 config["output"]["profiling"],
                 "profile/humann2/{{sample}}/{{sample}}_{group}_groupped.tsv"),
                 group=config["params"]["profiling"]["humann2"]["map_database"])
-
+        conda:
+            config["envs"]["bioenv2"]
         params:
             normalize_method = config["params"]["profiling"]["humann2"]["normalize_method"],
             regroup_method = config["params"]["profiling"]["humann2"]["regroup_method"],
@@ -739,6 +746,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                     config["output"]["profiling"],
                     "profile/humann2_{group}_joined.tsv"),
                 group=config["params"]["profiling"]["humann2"]["map_database"])
+        conda:
+            config["envs"]["bioenv2"]
         params:
             input_dir = os.path.join(config["output"]["profiling"], "profile/humann2"),
             map_database = config["params"]["profiling"]["humann2"]["map_database"]
@@ -788,6 +797,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                    target=["genefamilies", "pathabundance", "pathcoverage"],
                    group=config["params"]["profiling"]["humann2"]["map_database"],
                    suffix=["straified", "unstraified"])
+        conda:
+            config["envs"]["bioenv2"]
         params:
             output_dir = os.path.join(config["output"]["profiling"], "profile"),
             map_database = config["params"]["profiling"]["humann2"]["map_database"]
