@@ -544,28 +544,37 @@ else:
 
 if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
    config["params"]["profiling"]["humann2"]["do"]:
-    rule profiling_humann2_config:
-        output:
-            touch(os.path.join(config["output"]["profiling"], ".humann2.config.done"))
-        log:
-            os.path.join(config["output"]["profiling"], "logs/humann2.config.log")
-        conda:
-            config["envs"]["bioenv2"]
-        params:
-            database_utility_mapping = config["params"]["profiling"]["humann2"]["database_utility_mapping"],
-            database_nucleotide = config["params"]["profiling"]["humann2"]["database_nucleotide"],
-            database_protein = config["params"]["profiling"]["humann2"]["database_protein"],
-            threads = config["params"]["profiling"]["threads"]
-        shell:
-            '''
-            humann2_config > {log}
-            humann2_config --update database_folders utility_mapping {params.database_utility_mapping}
-            humann2_config --update database_folders nucleotide {params.database_nucleotide}
-            humann2_config --update database_folders protein {params.database_protein}
-            humann2_config --update run_modes threads {params.threads}
-            echo "####" >> {log}
-            humann2_config >> {log}
-            '''
+    if config["params"]["profiling"]["humann2"]["update_config"]:
+        rule profiling_humann2_config:
+            output:
+                touch(os.path.join(config["output"]["profiling"], ".humann2.config.done"))
+            log:
+                os.path.join(config["output"]["profiling"], "logs/humann2.config.log")
+            conda:
+                config["envs"]["bioenv2"]
+            params:
+                database_utility_mapping = config["params"]["profiling"]["humann2"]["database_utility_mapping"],
+                database_nucleotide = config["params"]["profiling"]["humann2"]["database_nucleotide"],
+                database_protein = config["params"]["profiling"]["humann2"]["database_protein"],
+                threads = config["params"]["profiling"]["threads"]
+            shell:
+                '''
+                humann2_config > {log}
+                humann2_config --update database_folders utility_mapping {params.database_utility_mapping}
+                humann2_config --update database_folders nucleotide {params.database_nucleotide}
+                humann2_config --update database_folders protein {params.database_protein}
+                humann2_config --update run_modes threads {params.threads}
+                echo "####" >> {log}
+                humann2_config >> {log}
+                '''
+    else:
+        rule profiling_humann2_config:
+            output:
+                touch(os.path.join(config["output"]["profiling"], ".humann2.config.done"))
+            shell:
+                '''
+                echo "hello"
+                '''
 
 
     rule profiling_humann2_build_chocophlan_pangenome_db:
@@ -684,30 +693,35 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
         conda:
             config["envs"]["bioenv2"]
         params:
+            wrapper_dir =WRAPPER_DIR,
             normalize_method = config["params"]["profiling"]["humann2"]["normalize_method"],
             regroup_method = config["params"]["profiling"]["humann2"]["regroup_method"],
             map_database =  config["params"]["profiling"]["humann2"]["map_database"]
         shell:
             '''
-            for i in {0..2}
-            do
-                humann2_renorm_table \
-                --input {input[$i]} \
-                --update-snames \
-                --output {output.targets[$i]} \
-                --units {params.normalize_method}
-            done
+            humann2_renorm_table \
+            --input {input[0]} \
+            --update-snames \
+            --output {output.targets[0]} \
+            --units {params.normalize_method}
 
-            j=-1
-            for db in {params.map_database}
-            do
-                let j=j+1
-                humann2_regroup_table \
-                --input {input[0]} \
-                --groups $db \
-                --function {params.regroup_method} \
-                --output {output.groupprofiles[$j]}
-            done
+            humann2_renorm_table \
+            --input {input[1]} \
+            --update-snames \
+            --output {output.targets[1]} \
+            --units {params.normalize_method}
+
+            humann2_renorm_table \
+            --input {input[2]} \
+            --update-snames \
+            --output {output.targets[2]} \
+            --units {params.normalize_method}
+
+            python {params.wrapper_dir}/humann2_postprocess_wrapper.py \
+            regroup_table \
+            --input {input[0]}
+            --group {params.map_database} \
+            --output {output.groupprofiles}
             '''
 
 
@@ -737,31 +751,35 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
         conda:
             config["envs"]["bioenv2"]
         params:
+            wrapper_dir =WRAPPER_DIR,
             input_dir = os.path.join(config["output"]["profiling"], "profile/humann2"),
             map_database = config["params"]["profiling"]["humann2"]["map_database"]
         shell:
             '''
-            i=-1
-            for target in "genefamilies" "pathabundance" "pathcoverage"
-            do
-                let i=i+1
-                humann2_join_tables \
-                --input {params.input_dir} \
-                --output {output.targets[$i]} \
-                --file_name $target \
-                --search-subdirectories
-            done
+            humann2_join_tables \
+            --input {params.input_dir} \
+            --output {output.targets[0]} \
+            --file_name genefamilies \
+            --search-subdirectories
 
-            j=-1
-            for db in {params.map_database}
-            do
-                let j=j+1
-                humann2_join_tables \
-                --input {params.input_dir} \
-                --output {output.groupprofile[$j]} \
-                --file_name $db_groupped \
-                --search-subdirectories
-            done
+            humann2_join_tables \
+            --input {params.input_dir} \
+            --output {output.targets[1]} \
+            --file_name pathabundance \
+            --search-subdirectories
+
+            humann2_join_tables \
+            --input {params.input_dir} \
+            --output {output.targets[2]} \
+            --file_name pathcoverage \
+            --search-subdirectories
+
+            python {params.wrapper_dir}/humann2_postprocess_wrapper.py \
+            join_tables \
+            --input {params.input_dir} \
+            --output {output.groupprofile} \
+            --file_name {params.map_database} \
+            --search-subdirectories
             '''
 
 
@@ -791,25 +809,20 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
         conda:
             config["envs"]["bioenv2"]
         params:
+            wrapper_dir = WRAPPER_DIR,
             output_dir = os.path.join(config["output"]["profiling"], "profile"),
             map_database = config["params"]["profiling"]["humann2"]["map_database"]
         shell:
             '''
-            for i in {input.targets}
-            do
-                humann2_split_straified_table \
-                -i $i \
-                -o {params.outdir}
-            done
+            python {params.wrapper_dir}/humann2_postprocess_wrapper.py \
+            split_straified_table \
+            -i {input.targets} \
+            -o {params.outdir}
 
-            j=-1
-            for db in {params.map_database}
-            do
-                let j=j+1
-                humann2_split_straified_table \
-                -i {input.groupprofile[$j]} \
-                -o {params.output_dir}
-            done
+            python {params.wrapper_dir}/humann2_postprocess_wrapper.py \
+            split_straified_table \
+            -i {input.groupprofile} \
+            -o {params.outdir}
             '''
 
 

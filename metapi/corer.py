@@ -98,6 +98,9 @@ def init(args):
             os.path.realpath(args.workdir), "envs/bioenv2.yaml"
         )
 
+        if args.use_conda:
+            conf["params"]["profiling"]["humann2"]["update_config"] = True
+
         if args.begin:
             conf["params"]["begin"] = args.begin
             if args.begin == "simulate":

@@ -265,6 +265,7 @@ params:
       level: "S"
     humann2:
       do: True
+      update_config: True
       evalue: 1.0
       presense_threshold: 0.01
       identity_threshold: 50.0

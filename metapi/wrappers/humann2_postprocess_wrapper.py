@@ -1,0 +1,89 @@
+#!/usr/bin/env python
+
+import argparse
+import subprocess
+import sys
+
+
+def regroup_table(args):
+    for i in range(0, len(args.group)):
+        cmd = [
+            "humann2_regroup_table",
+            "--input",
+            args.input,
+            "--group",
+            args.group[i],
+            "--function",
+            args.function,
+            "--output",
+            args.output[i],
+        ]
+    subprocess.call(" ".join(cmd), shell=True, stdout=sys.stdout, stderr=sys.stderr)
+
+
+def join_tables(args):
+    for i in range(0, len(args.output)):
+        cmd = [
+            "humann2_join_tables",
+            "--input",
+            args.input,
+            "--output",
+            args.output[i],
+            "--file_name",
+            args.file_name[i] + "_groupped",
+            "--search-subdirectories",
+        ]
+        subprocess.call(" ".join(cmd), shell=True, stdout=sys.stdout, stderr=sys.stderr)
+
+
+def split_straified_table(args):
+    for i in range(0, len(args.input)):
+        cmd = [
+            "humann2_split_straified_table",
+            "-i",
+            args.input[i],
+            "-o",
+            args.output,
+        ]
+        subprocess.call(" ".join(cmd), shell=True, stdout=sys.stdout, stderr=sys.stderr)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="HUMAnN2 postprocess wrapper")
+    subparsers = parser.add_subparsers(title="available subcommands", metavar="")
+
+    parser_regroup_table = subparsers.add_parser(
+        "regroup_table", prog="human2_postprocess.py regroup_table"
+    )
+    parser_regroup_table.add_argument("--input", type=str)
+    parser_regroup_table.add_argument("--group", nargs="+")
+    parser_regroup_table.add_argument("--output", nargs="+")
+    parser_regroup_table.add_argument("--function", type=str)
+
+    parser_regroup_table.set_defaults(func=regroup_table)
+
+    parser_join_tables = subparsers.add_parser(
+        "join_tables", prog="human2_postprocess.py join_tables"
+    )
+    parser_join_tables.add_argument("--input", type=str)
+    parser_join_tables.add_argument("--output", nargs="+")
+    parser_join_tables.add_argument("--file_name", nargs="+")
+    parser_join_tables.set_defaults(func=join_tables)
+
+    parser_split_straified_table = subparsers.add_parser(
+        "split_straified_table", prog="human2_postprocess.py split_straified_table"
+    )
+    parser_split_straified_table.add_argument(
+        "--input", nargs="+",
+    )
+    parser_split_straified_table.add_argument(
+        "--output", type=str,
+    )
+    parser_split_straified_table.set_defaults(func=split_straified_table)
+
+    args = parser.parse_args()
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()
