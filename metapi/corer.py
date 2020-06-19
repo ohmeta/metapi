@@ -91,6 +91,12 @@ def init(args):
         print(project.__str__())
         project.create_dirs()
         conf, cluster = project.get_config()
+        conf["envs"]["bioenv"] = os.path.join(
+            os.path.realpath(args.workdir), "envs/bioenv.yaml"
+        )
+        conf["envs"]["bioenv2"] = os.path.join(
+            os.path.realpath(args.workdir), "envs/bioenv2.yaml"
+        )
 
         if args.begin:
             conf["params"]["begin"] = args.begin
