@@ -1,17 +1,3 @@
-def raw_reads(wildcards):
-    if READS_FORMAT == "fastq":
-        if config["params"]["simulate"]["do"]:
-            return [metapi.get_reads(SAMPLES, wildcards, "fq1")[0],
-                    metapi.get_reads(SAMPLES, wildcards, "fq2")[0]]
-        else:
-            if IS_PE and (not config["params"]["interleaved"]):
-                return [metapi.get_reads(SAMPLES, wildcards, "fq1"),
-                        metapi.get_reads(SAMPLES, wildcards, "fq2")]
-            return [metapi.get_reads(SAMPLES, wildcards, "fq1")]
-    elif READS_FORMAT == "sra":
-        return [metapi.get_reads(SAMPLES, wildcards, "sra")]
-
-
 if config["params"]["simulate"]["do"]:
     rule simulate_short_reads:
         input:
