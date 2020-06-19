@@ -461,6 +461,18 @@ profiling_bracken_merge:
   output: "logs/11.{rule}/{rule}.o"
   error:  "logs/11.{rule}/{rule}.e"
 
+profiling_humann2_config:
+  mem: "30G"
+  cores: 8
+  output: "logs/11.{rule}/{rule}.o"
+  error:  "logs/11.{rule}/{rule}.e"
+
+profiling_humann2_build_chocophlan_pangenome_db:
+  mem: "30G"
+  cores: 8
+  output: "logs/11.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/11.{rule}/{rule}.{wildcards.sample}.e"
+
 profiling_humann2:
   mem: "30G"
   cores: 8
@@ -477,7 +489,7 @@ profiling_humann2_join:
   output: "logs/11.{rule}/{rule}.o"
   error:  "logs/11.{rule}/{rule}.e"
 
-profiling_humann2_split_straified:
+profiling_humann2_split_stratified:
   mem: "512M"
   output: "logs/11.{rule}/{rule}.o"
   error:  "logs/11.{rule}/{rule}.e"

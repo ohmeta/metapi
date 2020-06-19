@@ -18,7 +18,9 @@ def regroup_table(args):
             "--output",
             args.output[i],
         ]
-    subprocess.call(" ".join(cmd), shell=True, stdout=sys.stdout, stderr=sys.stderr)
+        cmd_str = " ".join(cmd)
+        print(cmd_str + "\n")
+        subprocess.call(cmd_str, shell=True, stdout=sys.stdout, stderr=sys.stderr)
 
 
 def join_tables(args):
@@ -30,22 +32,26 @@ def join_tables(args):
             "--output",
             args.output[i],
             "--file_name",
-            args.file_name[i] + "_groupped",
+            args.file_name[i],
             "--search-subdirectories",
         ]
-        subprocess.call(" ".join(cmd), shell=True, stdout=sys.stdout, stderr=sys.stderr)
+        cmd_str = " ".join(cmd)
+        print(cmd_str + "\n")
+        subprocess.call(cmd_str, shell=True, stdout=sys.stdout, stderr=sys.stderr)
 
 
-def split_straified_table(args):
+def split_stratified_table(args):
     for i in range(0, len(args.input)):
         cmd = [
-            "humann2_split_straified_table",
+            "humann2_split_stratified_table",
             "-i",
             args.input[i],
             "-o",
             args.output,
         ]
-        subprocess.call(" ".join(cmd), shell=True, stdout=sys.stdout, stderr=sys.stderr)
+        cmd_str = " ".join(cmd)
+        print(cmd_str + "\n")
+        subprocess.call(cmd_str, shell=True, stdout=sys.stdout, stderr=sys.stderr)
 
 
 def main():
@@ -70,16 +76,16 @@ def main():
     parser_join_tables.add_argument("--file_name", nargs="+")
     parser_join_tables.set_defaults(func=join_tables)
 
-    parser_split_straified_table = subparsers.add_parser(
-        "split_straified_table", prog="human2_postprocess.py split_straified_table"
+    parser_split_stratified_table = subparsers.add_parser(
+        "split_stratified_table", prog="human2_postprocess.py split_stratified_table"
     )
-    parser_split_straified_table.add_argument(
+    parser_split_stratified_table.add_argument(
         "--input", nargs="+",
     )
-    parser_split_straified_table.add_argument(
+    parser_split_stratified_table.add_argument(
         "--output", type=str,
     )
-    parser_split_straified_table.set_defaults(func=split_straified_table)
+    parser_split_stratified_table.set_defaults(func=split_stratified_table)
 
     args = parser.parse_args()
     args.func(args)

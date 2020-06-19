@@ -692,6 +692,9 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                 config["output"]["profiling"],
                 "profile/humann2/{{sample}}/{{sample}}_{group}_groupped.tsv"),
                 group=config["params"]["profiling"]["humann2"]["map_database"])
+        log:
+            os.path.join(config["output"]["profiling"],
+                         "logs/{sample}.humann2_postprocess.log")
         conda:
             config["envs"]["bioenv2"]
         params:
@@ -705,25 +708,30 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             --input {input[0]} \
             --update-snames \
             --output {output.targets[0]} \
-            --units {params.normalize_method}
+            --units {params.normalize_method} \
+            > {log} 2>&1
 
             humann2_renorm_table \
             --input {input[1]} \
             --update-snames \
             --output {output.targets[1]} \
-            --units {params.normalize_method}
+            --units {params.normalize_method} \
+            >> {log} 2>&1
 
             humann2_renorm_table \
             --input {input[2]} \
             --update-snames \
             --output {output.targets[2]} \
-            --units {params.normalize_method}
+            --units {params.normalize_method} \
+            >> {log} 2>&1
 
             python {params.wrapper_dir}/humann2_postprocess_wrapper.py \
             regroup_table \
-            --input {input[0]}
+            --input {input[0]} \
             --group {params.map_database} \
-            --output {output.groupprofiles}
+            --function {params.regroup_method} \
+            --output {output.groupprofiles} \
+            >> {log} 2>&1
             '''
 
 
@@ -748,8 +756,11 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             groupprofile = expand(
                 os.path.join(
                     config["output"]["profiling"],
-                    "profile/humann2_{group}_joined.tsv"),
+                    "profile/humann2.{group}.joined.tsv"),
                 group=config["params"]["profiling"]["humann2"]["map_database"])
+        log:
+            os.path.join(config["output"]["profiling"],
+                         "logs/humann2_join.log")
         conda:
             config["envs"]["bioenv2"]
         params:
@@ -758,34 +769,23 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             map_database = config["params"]["profiling"]["humann2"]["map_database"]
         shell:
             '''
-            humann2_join_tables \
+            python {params.wrapper_dir}/humann2_postprocess_wrapper.py \
+            join_tables \
             --input {params.input_dir} \
-            --output {output.targets[0]} \
-            --file_name genefamilies \
-            --search-subdirectories
-
-            humann2_join_tables \
-            --input {params.input_dir} \
-            --output {output.targets[1]} \
-            --file_name pathabundance \
-            --search-subdirectories
-
-            humann2_join_tables \
-            --input {params.input_dir} \
-            --output {output.targets[2]} \
-            --file_name pathcoverage \
-            --search-subdirectories
+            --output {output.targets} \
+            --file_name genefamilies.tsv pathabundance.tsv pathcoverage.tsv \
+            > {log} 2>&1
 
             python {params.wrapper_dir}/humann2_postprocess_wrapper.py \
             join_tables \
             --input {params.input_dir} \
             --output {output.groupprofile} \
             --file_name {params.map_database} \
-            --search-subdirectories
+            >> {log} 2>&1
             '''
 
 
-    rule profiling_humann2_split_straified:
+    rule profiling_humann2_split_stratified:
         input:
             targets = expand(
                 os.path.join(
@@ -795,19 +795,22 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             groupprofile = expand(
                 os.path.join(
                     config["output"]["profiling"],
-                    "profile/humann2_{group}_joined.tsv"),
+                    "profile/humann2.{group}.joined.tsv"),
                 group=config["params"]["profiling"]["humann2"]["map_database"])
         output:
             expand([
                 os.path.join(
                     config["output"]["profiling"],
-                    "profile/{target}_joined_{suffix}.tsv"),
+                    "profile/humann2_{target}_joined_{suffix}.tsv"),
                 os.path.join(
                     config["output"]["profiling"],
-                    "profile/{group}_joined_{suffix}.tsv")],
+                    "profile/humann2.{group}.joined_{suffix}.tsv")],
                    target=["genefamilies", "pathabundance", "pathcoverage"],
                    group=config["params"]["profiling"]["humann2"]["map_database"],
-                   suffix=["straified", "unstraified"])
+                   suffix=["stratified", "unstratified"])
+        log:
+            os.path.join(config["output"]["profiling"],
+                         "logs/humann2_split_stratified.log")
         conda:
             config["envs"]["bioenv2"]
         params:
@@ -817,14 +820,16 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
         shell:
             '''
             python {params.wrapper_dir}/humann2_postprocess_wrapper.py \
-            split_straified_table \
-            -i {input.targets} \
-            -o {params.output_dir}
+            split_stratified_table \
+            --input {input.targets} \
+            --output {params.output_dir} \
+            > {log} 2>&1
 
             python {params.wrapper_dir}/humann2_postprocess_wrapper.py \
-            split_straified_table \
-            -i {input.groupprofile} \
-            -o {params.output_dir}
+            split_stratified_table \
+            --input {input.groupprofile} \
+            --output {params.output_dir} \
+            >> {log} 2>&1
             '''
 
 
@@ -836,16 +841,16 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                     "profile/humann2_{target}_joined.tsv"),
                 os.path.join(
                     config["output"]["profiling"],
-                    "profile/humann2_{group}_joined.tsv"),
+                    "profile/humann2.{group}.joined.tsv"),
                 os.path.join(
                     config["output"]["profiling"],
-                    "profile/{target}_joined_{suffix}.tsv"),
+                    "profile/humann2_{target}_joined_{suffix}.tsv"),
                 os.path.join(
                     config["output"]["profiling"],
-                    "profile/{group}_joined_{suffix}.tsv")],
+                    "profile/humann2.{group}.joined_{suffix}.tsv")],
                    target=["genefamilies", "pathabundance", "pathcoverage"],
                    group=config["params"]["profiling"]["humann2"]["map_database"],
-                   suffix=["straified", "unstraified"]),
+                   suffix=["stratified", "unstratified"]),
 
             rules.rmhost_all.input,
             rules.qcreport_all.input
