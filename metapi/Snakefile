@@ -22,6 +22,9 @@ from pprint import pprint
 
 shell.executable("bash")
 
+METAPI_DIR = metapi.__path__[0]
+WRAPPER_DIR = os.path.join(METAPI_DIR, "wrappers")
+
 IS_PE = True \
     if config["params"]["reads_layout"] == "pe" \
        else False

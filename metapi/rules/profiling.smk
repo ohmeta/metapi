@@ -3,7 +3,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"]:
         input:
             assembly_input
         output:
-           protected(os.path.join(
+           profile = protected(os.path.join(
                config["output"]["profiling"],
                "profile/metaphlan2/{sample}/{sample}.metaphlan2.abundance.profile.tsv"))
         conda:
@@ -14,7 +14,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"]:
                          "logs/{sample}.metaphlan2.log")
         params:
             sample_id = "{sample}",
-            input_type = config["params"]["profiling"]["metaphlan"]["input_type"],
+            wrapper_dir = WRAPPER_DIR,
+            input_str = lambda wildcards: ",".join(assembly_input(wildcards)),
             read_min_len = config["params"]["profiling"]["metaphlan"]["read_min_len"],
             bowtie2db = config["params"]["profiling"]["metaphlan"]["bowtie2db"],
             index = config["params"]["profiling"]["metaphlan"]["index_v2"],
@@ -27,53 +28,30 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"]:
             stat_q = config["params"]["profiling"]["metaphlan"]["stat_q"],
             stat = config["params"]["profiling"]["metaphlan"]["stat"],
             analysis_type = config["params"]["profiling"]["metaphlan"]["analysis_type"],
-            no_map = "--no_map" \
-                if config["params"]["profiling"]["metaphlan"]["no_map"] \
-                else "--bowtie2out %s" % os.path.join(
-                        config["output"]["profiling"],
-                        "profile/metaphlan2/{sample}/{sample}.metaphlan2.bowtie2.bz2"),
-            biom = "--biom %s" % os.path.join(
-                config["output"]["profiling"],
-                "profile/metaphlan2/{sample}/{sample}.metaphlan2.abundance.profile.biom") \
-                if config["params"]["profiling"]["metaphlan"]["biom"] \
-                   else ""
+            bowtie2out = os.path.join(
+               config["output"]["profiling"],
+               "profile/metaphlan2/{sample}/{sample}.metaphlan2.bowtie2.bz2"),
+            save_bowtie2out = config["params"]["profiling"]["metaphlan"]["save_bowtie2out"]
         threads:
             config["params"]["profiling"]["threads"]
         shell:
             '''
-            i=0
-            for j in {input}
-            do
-                let i=i+1
-            done
-
-            fq=""
-            if [ $i == 2 ]
-            then
-               fq="{input[0]},{input[1]}"
-            else
-               fq="{input[0]}"
-            fi
-
-            metaphlan2.py \
-            $fq \
-            --input_type {params.input_type} \
-            --bowtie2db {params.bowtie2db}
+            python {params.wrapper_dir}/metaphlan2_wrapper.py \
+            --input {input} \
+            --analysis_type {params.analysis_type} \
+            --input_type multifastq \
+            --bowtie2db {params.bowtie2db} \
             --index {params.index} \
             --bt2_ps {params.bowtie2_presets} \
-            --read_min_len {params.read_min_len} \
-            --nproc {threads} \
-            --min_cu_len {params.min_cu_len} \
+            --bowtie2out {params.bowtie2out} \
             --tax_lev {params.taxonomic_level} \
+            --min_cu_len {params.min_cu_len} \
             --stat_q {params.stat_q} \
-            --stat {params.stat} \
-            -t {params.analysis_type} \
-            --output_file {output} \
+            --output_file {output.profile} \
             --sample_id {params.sample_id} \
-            {params.no_map} \
-            {params.avoid_disqm} \
-            {params.biom} \
-            2> {log}
+            --nproc {threads} \
+            --read_min_len {params.read_min_len} \
+            >{log} 2>&1
             '''
 
 
@@ -583,11 +561,12 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                          "logs/{sample}.humann2.build_pandb.log")
         params:
             basename = "{sample}",
+            wrapper_dir = WRAPPER_DIR,
             db_dir = os.path.join(config["output"]["profiling"], "database/humann2/{sample}"),
             presense_threshold = config["params"]["profiling"]["humann2"]["presense_threshold"]
         shell:
             '''
-            python wrappers/humann2_db.py \
+            python {params.wrapper_dir}/humann2_db_wrapper.py \
             --log {log} \
             --basename {params.basename} \
             --db_dir {params.db_dir} \
@@ -626,7 +605,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                 config["params"]["profiling"]["humann2"]["translated_subject_coverage_threshold"],
             translated_query_coverage_threshold = \
                 config["params"]["profiling"]["humann2"]["translated_query_coverage_threshold"],
-            remove = "--remove-temp-output" \
+            remove_temp_output = "--remove-temp-output" \
                 if config["params"]["profiling"]["humann2"]["remove_temp_output"] \
                    else "",
             memory_use = config["params"]["profiling"]["humann2"]["memory_use"],
@@ -640,8 +619,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                 "logs/{sample}.humann2.log")
         shell:
             '''
-            zcat {input} |
-            sed 's/ //g' |
+            zcat {input.reads} | \
             bowtie2 \
             --threads {threads} \
             -x {params.index} \
@@ -658,8 +636,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             --memory-use {params.memory_use} \
             --output-basename {params.basename} \
             --output {params.output_dir} \
-            {params.remove} \
-            --o-log {log} %s
+            {params.remove_temp_output} \
+            --o-log {log}
             '''
 
 

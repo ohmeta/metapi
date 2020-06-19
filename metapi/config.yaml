@@ -1,7 +1,3 @@
-envs:
-  bioenv: "envs/bioenv.yaml"
-  bioenv2: "envs/bioenv2.yaml"
-
 params:
   reads_layout: "pe"
   interleaved: False
@@ -85,13 +81,13 @@ params:
       only_save_scaftigs: True
       link_scaffolds: True
       memory: 20
-      kmers: ['21', '29', '39', '59', '79', '99']
+      kmers: ["21", "29", "39", "59", "79", "99"]
     spades:
       do: False
       only_assembler: False
       only_save_scaftigs: True
       memory: 20
-      kmers: ['21', '29', '39', '59', '79', '99']
+      kmers: ["21", "29", "39", "59", "79", "99"]
 
     metaquast:
       do: False
@@ -237,14 +233,21 @@ params:
       taxonomic_level: "a"
       min_cu_len: 2000
       avoid_disqm: True
-      analysis_type: "rel_ab_w_read_stats"
+      analysis_type:
+        [
+          "rel_ab",
+          "rel_ab_w_read_stats",
+          "reads_map",
+          "clade_profiles",
+          "marker_ab_table",
+          "marker_counts",
+          "marker_pres_table",
+        ]
       stat_q: "0.1"
       stat: "tavg_g"
       no_unknown_estimation: False
-      input_type: "multifastq"
       read_min_len: 70
-      no_map: True
-      biom: False
+      save_bowtie2out: False
       legacy_output: False
       cami_format_output: False
     jgi:
@@ -271,8 +274,16 @@ params:
       memory_use: "minimum"
       normalize_method: "relab"
       regroup_method: "sum"
-      map_database: ["uniref90_go", "uniref90_ko", "uniref90_eggnog", "uniref90_pfam", "uniref90_level4ec", "uniref90_infogo1000", "uniref90_rxn"]
-
+      map_database:
+        [
+          "uniref90_go",
+          "uniref90_ko",
+          "uniref90_eggnog",
+          "uniref90_pfam",
+          "uniref90_level4ec",
+          "uniref90_infogo1000",
+          "uniref90_rxn",
+        ]
 
 output:
   simulate: "results/00.simulate"
@@ -341,3 +352,7 @@ upload:
     assembly_min_gap_length: ""
     assembly_mol_type: "genomic DNA"
     reference_genome: ""
+
+envs:
+  bioenv: "envs/bioenv.yaml"
+  bioenv2: "envs/bioenv2.yaml"
