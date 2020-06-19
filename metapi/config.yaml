@@ -265,7 +265,6 @@ params:
       level: "S"
     humann2:
       do: True
-      update_config: True
       evalue: 1.0
       presense_threshold: 0.01
       identity_threshold: 50.0
@@ -285,6 +284,7 @@ params:
           "uniref90_infogo1000",
           "uniref90_rxn",
         ]
+      update_config: True
       database_utility_mapping: /ldfssz1/ST_META/share/User/zhujie/database/humann/utility_mapping
       database_protein: /ldfssz1/ST_META/share/User/zhujie/database/humann/uniref90_diamond
       database_nucleotide: /ldfssz1/ST_META/share/User/zhujie/database/humann/chocophlan_full
