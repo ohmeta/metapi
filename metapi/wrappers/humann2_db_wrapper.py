@@ -3,7 +3,7 @@
 import argparse
 import logging
 import time
-import shutil
+import os
 
 from humann2 import config
 from humann2.humann2 import timestamp_message
@@ -12,7 +12,7 @@ from humann2.search import nucleotide
 
 
 def build_chocophlan_pangenome_db(
-    log_file, file_basename, db_dir, presense_threshold, taxonomic_profile
+    log_file, file_basename, db_dir, prescreen_threshold, taxonomic_profile
 ):
     logger = logging.getLogger(__name__)
     logging.basicConfig(
@@ -24,7 +24,8 @@ def build_chocophlan_pangenome_db(
     )
     config.file_basename = file_basename
     config.temp_dir = db_dir
-    config.presense_threshold = presense_threshold
+    config.unnamed_temp_dir = db_dir
+    config.prescreen_threshold = prescreen_threshold
 
     start_time = time.time()
     custom_database = prescreen.create_custom_database(
@@ -37,7 +38,7 @@ def build_chocophlan_pangenome_db(
     nucleotide_index_file = nucleotide.index(custom_database)
     start_time = timestamp_message("database index", start_time)
 
-    shutil.rm(custom_database)
+    os.remove(custom_database)
 
 
 def main():
@@ -47,7 +48,7 @@ def main():
     parser.add_argument("--log", help="log file")
     parser.add_argument("--basename", help="file basename")
     parser.add_argument("--db_dir", help="database directory")
-    parser.add_argument("--presense_threshold", help="presense threshold")
+    parser.add_argument("--prescreen_threshold", help="prescreen threshold")
     parser.add_argument("--taxonomic_profile", help="MetaPhlAn2 taxonomic profile")
 
     args = parser.parse_args()
@@ -55,7 +56,7 @@ def main():
         args.log,
         args.basename,
         args.db_dir,
-        args.presense_threshold,
+        args.prescreen_threshold,
         args.taxonomic_profile,
     )
 

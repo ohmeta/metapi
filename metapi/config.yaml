@@ -266,7 +266,7 @@ params:
     humann2:
       do: True
       evalue: 1.0
-      presense_threshold: 0.01
+      prescreen_threshold: 0.01
       identity_threshold: 50.0
       translated_subject_coverage_threshold: 50.0
       translated_query_coverage_threshold: 50.0

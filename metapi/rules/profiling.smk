@@ -579,6 +579,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
 
     rule profiling_humann2_build_chocophlan_pangenome_db:
         input:
+            tag = os.path.join(config["output"]["profiling"], ".humann2.config.done"),
             profile = os.path.join(
                 config["output"]["profiling"],
                 "profile/metaphlan2/{sample}/{sample}.metaphlan2.abundance.profile.tsv")
@@ -596,20 +597,21 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             basename = "{sample}",
             wrapper_dir = WRAPPER_DIR,
             db_dir = os.path.join(config["output"]["profiling"], "database/humann2/{sample}"),
-            presense_threshold = config["params"]["profiling"]["humann2"]["presense_threshold"]
+            prescreen_threshold = config["params"]["profiling"]["humann2"]["prescreen_threshold"]
         shell:
             '''
             python {params.wrapper_dir}/humann2_db_wrapper.py \
             --log {log} \
             --basename {params.basename} \
             --db_dir {params.db_dir} \
-            --presense_threshold {params.presense_threshold} \
+            --prescreen_threshold {params.prescreen_threshold} \
             --taxonomic_profile {input.profile}
             '''
 
 
     rule profiling_humann2:
         input:
+            tag = os.path.join(config["output"]["profiling"], ".humann2.config.done"),
             reads = assembly_input,
             index = expand(os.path.join(
                 config["output"]["profiling"],
@@ -632,7 +634,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             index = os.path.join(config["output"]["profiling"],
                                  "database/humann2/{sample}/{sample}_bowtie2_index"),
             evalue = config["params"]["profiling"]["humann2"]["evalue"],
-            presense_threshold = config["params"]["profiling"]["humann2"]["presense_threshold"],
+            prescreen_threshold = config["params"]["profiling"]["humann2"]["prescreen_threshold"],
             identity_threshold = config["params"]["profiling"]["humann2"]["identity_threshold"],
             translated_subject_coverage_threshold = \
                 config["params"]["profiling"]["humann2"]["translated_subject_coverage_threshold"],
@@ -656,13 +658,13 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             bowtie2 \
             --threads {threads} \
             -x {params.index} \
-            -U - | \
+            -U - 2>> {log} | \
             humann2 \
             --threads {threads} \
             --input - \
             --input-format sam \
             --evalue {params.evalue} \
-            --presense-threshold {params.presense_threshold} \
+            --prescreen-threshold {params.prescreen_threshold} \
             --identity-threshold {params.identity_threshold} \
             --translated-subject-coverage-threshold {params.translated_subject_coverage_threshold} \
             --translated-query-coverage-threshold {params.translated_query_coverage_threshold} \
@@ -817,12 +819,12 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             python {params.wrapper_dir}/humann2_postprocess_wrapper.py \
             split_straified_table \
             -i {input.targets} \
-            -o {params.outdir}
+            -o {params.output_dir}
 
             python {params.wrapper_dir}/humann2_postprocess_wrapper.py \
             split_straified_table \
             -i {input.groupprofile} \
-            -o {params.outdir}
+            -o {params.output_dir}
             '''
 
 
