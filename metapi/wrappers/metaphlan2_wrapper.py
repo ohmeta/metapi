@@ -12,14 +12,8 @@ def run_metaphlan2(args):
 
     cmd = [
         "metaphlan2.py",
-        "--index",
-        args.index,
-        "--bowtie2db",
-        args.bowtie2db,
         "--tax_lev",
         args.tax_lev,
-        "--bt2_ps",
-        args.bt2_ps,
         "--min_cu_len",
         str(args.min_cu_len),
         "--stat_q",
@@ -30,15 +24,21 @@ def run_metaphlan2(args):
         str(args.sample_id),
         "--nproc",
         str(args.nproc),
-        "--read_min_len",
-        str(args.read_min_len),
     ]
     if args.avoid_disqm:
         cmd += ["--avoid_disqm"]
 
     cmd_rel_ab = cmd + [
+        "--index",
+        args.index,
+        "--bowtie2db",
+        args.bowtie2db,
+        "--bt2_ps",
+        args.bt2_ps,
         "-t",
         "rel_ab",
+        "--read_min_len",
+        str(args.read_min_len),
         "--bowtie2out",
         args.bowtie2out,
         "--output_file",
@@ -49,29 +49,32 @@ def run_metaphlan2(args):
     ]
     cmd_rel_ab_str = " ".join(cmd_rel_ab)
     print(cmd_rel_ab_str + "\n")
-    env = os.environ.copy()
-    proc = subprocess.Popen(
-        cmd_rel_ab_str, shell=True, stdout=sys.stdout, stderr=sys.stderr, env=env
-    )
-    proc.communicate()
 
-    analysis_type = set(args.analysis_type) ^ set(["rel_ab"])
-    for t in analysis_type:
-        cmd_t = cmd + [
-            "-t",
-            t,
-            "--output_file",
-            args.output_file.replace("abundance.profile.tsv", t + ".tsv"),
-            "--input_type",
-            "bowtie2out",
-            args.bowtie2out,
-        ]
-        cmd_t_str = " ".join(cmd_t)
-        print(cmd_t_str + "\n")
-        proc = subprocess.Popen(
-            cmd_t, shell=True, stdout=sys.stdout, stderr=sys.stderr, env=env
-        )
-        proc.communicate()
+    call_code = subprocess.call(
+        cmd_rel_ab_str, shell=True, stdout=sys.stdout, stderr=sys.stderr
+    )
+
+    if call_code == 0:
+        analysis_type = set(args.analysis_type) ^ set(["rel_ab"])
+        for anat in analysis_type:
+            cmd_t = cmd + [
+                "-t",
+                anat,
+                "--output_file",
+                args.output_file.replace("abundance.profile.tsv", anat + ".tsv"),
+                "--input_type",
+                "bowtie2out",
+                args.bowtie2out,
+            ]
+            cmd_t_str = " ".join(cmd_t)
+            print(cmd_t_str + "\n")
+            call_code = subprocess.call(
+                cmd_t, shell=True, stdout=sys.stdout, stderr=sys.stderr
+            )
+            if call_code != 0:
+                print("Error: MetaPhlAn2 analysis type: %s run failed\n" % anat)
+    else:
+        print("Error: MetaPhlAn2 analysis type: rel_ab run failed\n")
 
 
 def main():
@@ -86,7 +89,7 @@ def main():
         nargs="+",
         default="rel_ab",
     )
-    parser.add_argument("--input_type", type=str, choices=["multifastq", "bowtie2out"])
+    parser.add_argument("--input_type", type=str, choices=["multifastq", "fastq"])
     parser.add_argument("--bowtie2db", metavar="METAPHLAN_BOWTIE2_DB", type=str)
     parser.add_argument("--index", type=str, default="v20_m200")
     parser.add_argument(
