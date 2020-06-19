@@ -544,6 +544,30 @@ else:
 
 if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
    config["params"]["profiling"]["humann2"]["do"]:
+    rule profiling_humann2_config:
+        output:
+            touch(os.path.join(config["output"]["profiling"], ".humann2.config.done"))
+        log:
+            os.path.join(config["output"]["profiling"], "logs/humann2.config.log")
+        conda:
+            config["envs"]["bioenv2"]
+        params:
+            database_utility_mapping = config["params"]["profiling"]["humann2"]["database_utility_mapping"],
+            database_nucleotide = config["params"]["profiling"]["humann2"]["database_nucleotide"],
+            database_protein = config["params"]["profiling"]["humann2"]["database_protein"],
+            threads = config["params"]["profiling"]["threads"]
+        shell:
+            '''
+            humann2_config > {log}
+            humann2_config --update database_folders utility_mapping {params.database_utility_mapping}
+            humann2_config --update database_folders nucleotide {params.database_nucleotide}
+            humann2_config --update database_folders protein {params.database_protein}
+            humann2_config --update run_modes threads {params.threads}
+            echo "####" >> {log}
+            humann2_config >> {log}
+            '''
+
+
     rule profiling_humann2_build_chocophlan_pangenome_db:
         input:
             profile = os.path.join(
