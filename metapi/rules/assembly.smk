@@ -173,13 +173,7 @@ if "metaspades" in ASSEMBLERS:
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.fa.gz")),
-            scaffolds = protected(os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaffolds.fa.gz")),
-            contigs = protected(os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.contigs.fa.gz")),
+                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.fa.gz")
         priority:
             20
         params:
@@ -286,8 +280,7 @@ if "metaspades" in ASSEMBLERS:
         input:
             expand(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.{level}.fa.gz"),
-                   level=["scaftigs", "scaffolds", "contigs"],
+                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.fa.gz"),
                    sample=SAMPLES.index.unique())
 
 else:
