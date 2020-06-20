@@ -173,7 +173,7 @@ if "metaspades" in ASSEMBLERS:
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.fa.gz")
+                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.fa.gz"))
         priority:
             20
         params:
