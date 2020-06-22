@@ -14,7 +14,14 @@ with open("README.md") as f:
 
 packages = ["metapi"]
 package_data = {
-    "metapi": ["metapi/*.yaml", "metapi/*.py", "metapi/Snakefile", "metapi/rules/*.smk"]
+    "metapi": [
+        "metapi/*.yaml",
+        "metapi/*.py",
+        "metapi/Snakefile",
+        "metapi/rules/*.smk",
+        "metapi/envs/*.yaml",
+        "metapi/wrappers/*.py",
+    ]
 }
 data_files = [(".", ["LICENSE", "README.md"])]
 

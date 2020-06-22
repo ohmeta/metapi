@@ -81,7 +81,7 @@ $ metapi init --help
                                 the header is [id, genome, abundance, reads_num, model]
                                         
     -b, --begin {simulate,trimming,rmhost,assembly}
-                            pipeline starting point
+                            pipeline starting point (default: trimming)
 ```
 
 ### denovo_wf
@@ -89,9 +89,10 @@ $ metapi init --help
 ```
 $ metapi denovo_wf --help
 
-  usage: metapi denovo_wf [-h] [-d WORKDIR] [--cores CORES] [--jobs JOBS]
-                          [--list] [--run] [--debug] [--dry_run] [--qsub]
-                          [--wait WAIT] [--snake [SNAKEMAKEARGS]]
+  usage: metapi denovo_wf [-h] [-d WORKDIR] [--config CONFIG] [--cores CORES]
+                          [--jobs JOBS] [--list] [--run] [--debug] [--dry_run]
+                          [--qsub] [--wait WAIT] [--use_conda]
+                          [--conda_crate_envs_only] [--snake [SNAKEMAKEARGS]]
                           [TASK]
 
   positional arguments:
@@ -121,7 +122,7 @@ $ metapi denovo_wf --help
                           classify_short_reads_kraken2_all,
                           classify_hmq_bins_gtdbtk_all, classify_all,
                           profiling_metaphlan2_all, profiling_metaphlan3_all,
-                          profiling_jgi_all,
+                          profiling_jgi_all, profiling_bracken_all,
                           profiling_humann2_all, profiling_all,
                           upload_sequencing_all, upload_assembly_all,
                           upload_all, all
@@ -130,14 +131,18 @@ $ metapi denovo_wf --help
     -h, --help            show this help message and exit
     -d WORKDIR, --workdir WORKDIR
                           project workdir, default: ./
-    --cores CORES         CPU cores
-    --jobs JOBS           qsub job numbers
+    --config CONFIG       config.yaml, default: ./config.yaml
+    --cores CORES         CPU cores, default: 8
+    --jobs JOBS           qsub job numbers, default: 80
     --list                list pipeline rules
     --run                 run pipeline
     --debug               debug pipeline
     --dry_run             dry run pipeline
     --qsub                qsub pipeline
     --wait WAIT           wait given seconds
+    --use_conda           use conda environment
+    --conda_create_envs_only
+                          conda create environments only
     --snake [SNAKEMAKEARGS]
                           other snakemake command options, if want --touch, just
                           --snake touch
@@ -149,6 +154,12 @@ $ metapi denovo_wf --help
 # init project
 $ metapi init -d . -s samples.tsv -b trimming
 
+# crate conda environments (need connect to internet)
+$ metapi denovo_wf --conda_create_envs_only
+
+# run pipeline with conda
+# metapi denovo_wf all --use_conda
+
 # run raw_fastqc
 $ metapi denovo_wf raw_fastqc_all --run
 
@@ -156,7 +167,7 @@ $ metapi denovo_wf raw_fastqc_all --run
 $ metapi denovo_wf trimming_all --run
 
 # run rmhost
-$ metapi denovo_wf rmhost_all --run
+$ metapi denovo_wf rmhost_all --run 
 
 # run qc report
 $ metapi denovo_wf qcreport_all --run
@@ -180,7 +191,7 @@ $ metapi denovo_wf checkm_all --run
 $ metapi denovo_wf classify_all --run
 
 # run MetaPhlAn2 profiling
-$ metapi denovo_wf profiling_metaphlan2_all --run
+$ metapi denovo_wf profiling_metaphlan2_all --run --use_conda
 
 # run MetaPhlAn3 profiling
 $ metapi denovo_wf profiling_metaphlan3_all --run
@@ -189,7 +200,7 @@ $ metapi denovo_wf profiling_metaphlan3_all --run
 $ metapi denovo_wf profiling_jgi_all --run
 
 # run HUMAnN2 profiling
-$ metapi denovo_wf profiling_humann2_all --run
+$ metapi denovo_wf profiling_humann2_all --run --use_conda
 
 # run all
 $ metapi denovo_wf --run
