@@ -19,6 +19,7 @@ rule predict_bins_gene_prodigal:
         import os
         import time
         import subprocess
+        from Bio import SeqIO
 
         bin_list = glob.glob(input.bins_dir + "/*bin*fa")
         gff_count = 0
@@ -33,6 +34,14 @@ rule predict_bins_gene_prodigal:
             gff_file = os.path.join(params.output_dir, bin_id + ".gff")
             log_file= os.path.join(params.logs_dir, bin_id + ".prodigal.log")
 
+            total_bases = 0
+            for seq in SeqIO.parse(bin_fa, "fasta"):
+                total_bases += len(seq)
+            if total_bases < 100000:
+                mode = "meta"
+            else:
+                mode = "single"
+
             shell(
                 '''
                 prodigal \
@@ -42,9 +51,9 @@ rule predict_bins_gene_prodigal:
                 -d %s \
                 -o %s \
                 -f {params.format} \
-                -p single \
+                -p %s \
                 2> %s
-                ''' % (bin_fa, pep_file, cds_file, gff_file, log_file))
+                ''' % (bin_fa, pep_file, cds_file, gff_file, mode, log_file))
 
             if os.path.exists(gff_file):
                 gff_count += 1
