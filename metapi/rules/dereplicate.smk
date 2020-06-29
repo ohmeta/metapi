@@ -29,11 +29,14 @@ if config["params"]["dereplicate"]["drep"]["do"]:
                 ("length", "N50")
             ]]
             bins_report.columns = ["sample_id", "bin_id", "assembler", "binner", "length", "N50"]
-            bins_report = bins_report.set_index("bin_id")
+            bins_report = bins_report.sort_values(by=["bin_id"]).set_index("bin_id")
 
-            checkm_table = pd.read_csv(input.checkm_table, sep='\t').set_index("bin_id")
+            checkm_table = pd.read_csv(input.checkm_table, sep='\t')\
+                             .sort_values(by=["bin_id"]).set_index("bin_id")
 
-            genome_info = pd.concat([bins_report, checkm_table], axis=1).reset_index()
+            genome_info = pd.concat([bins_report, checkm_table], axis=1)\
+                            .reset_index()\
+                            .rename(columns={"index": "bin_id"})
             genome_info["genome"] = genome_info["bin_id"] + ".fa"
             genome_info.to_csv(output.genome_info, index=False)
 
@@ -44,8 +47,8 @@ if config["params"]["dereplicate"]["drep"]["do"]:
                 config["output"]["checkm"],
                 "bins_hmq/{assembler}.{binner}.links"),
             genome_info = os.path.join(
-                config["output"]["checkm"],
-                "report/{assembler}_{binner}_checkm_table.tsv")
+                config["output"]["dereplicate"],
+                "genomes_info/genomes_info_{assembler}_{binner}_checkm.csv")
         output:
             directory(os.path.join(
                 config["output"]["dereplicate"],
@@ -88,12 +91,12 @@ if config["params"]["dereplicate"]["drep"]["do"]:
 
     rule dereplicate_drep_all:
         input:
-            expand(
+            expand([
                 os.path.join(
                     config["output"]["dereplicate"],
                     "genomes_info/genomes_info_{assembler}_{binner}_checkm.csv"),
                 os.path.join(config["output"]["dereplicate"],
-                             "hmq.bins.{assembler}.{binner}.drep.out"),
+                             "hmq.bins.{assembler}.{binner}.drep.out")],
                 assembler=ASSEMBLERS,
                 binner=BINNERS)
 
