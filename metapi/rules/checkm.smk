@@ -156,7 +156,7 @@ if config["params"]["checkm"]["do"]:
             os.mkdir(output.bins_dir_lq)
             os.mkdir(output.bins_dir_hmq)
 
-            df = pd.read_csv(input.table, sep='\t').set_index("Bin Id")
+            df = pd.read_csv(input.table, sep='\t').set_index("bin_id")
 
             for bin_id in df.index:
                 sample_id = bin_id.split(".")[0]

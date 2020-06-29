@@ -409,6 +409,12 @@ classify_hmq_bins_gtdbtk:
   output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
   error:  "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
 
+dereplicate_prepare_genomes_info:
+  mem: "2G"
+  cores: 8
+  output: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
+  error:  "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
+
 dereplicate_drep:
   mem: "2G"
   cores: 8

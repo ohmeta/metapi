@@ -90,6 +90,7 @@ class metaconfig:
         "logs/08.checkm_link_bins",
         "logs/09.classify_short_reads_kraken2",
         "logs/09.classify_hmq_bins_gtdbtk",
+        "logs/10.dereplicate_prepare_genomes_info",
         "logs/10.dereplicate_drep",
         "logs/11.profiling_metaphlan2",
         "logs/11.profiling_metaphlan2_merge",
