@@ -358,5 +358,6 @@ upload:
     reference_genome: ""
 
 envs:
-  bioenv: "envs/bioenv.yaml"
+  bioenv3.7: "envs/bioenv3.7.yaml"
+  bioenv3.6: "envs/bioenv3.6.yaml"
   bioenv2: "envs/bioenv2.yaml"

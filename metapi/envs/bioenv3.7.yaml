@@ -7,7 +7,7 @@ dependencies:
   - bowtie2>=2.3.5.1
   - bracken>=2.6.0
   - bwa>=0.7.17
-  #- checkm-genome>=1.1.2
+  - checkm-genome>=1.1.2
   - concoct>=1.1.0
   - das_tool>=1.1.2
   - diamond>=0.9.32

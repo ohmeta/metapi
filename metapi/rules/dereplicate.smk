@@ -56,6 +56,8 @@ if config["params"]["dereplicate"]["drep"]["do"]:
         log:
             os.path.join(config["output"]["dereplicate"],
                          "logs/hmq.bins.{assembler}.{binner}.drep.log")
+        conda:
+            config["envs"]["bioenv3.6"]
         params:
             bin_suffix = "fa",
             filtering_genome_min_length = \
