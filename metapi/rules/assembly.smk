@@ -178,6 +178,7 @@ if "metaspades" in ASSEMBLERS:
             20
         params:
             prefix = "{sample}",
+            continue = config["params"]["assembly"]["metaspades"]["continue"],
             kmers = "auto" \
                 if len(config["params"]["assembly"]["metaspades"]["kmers"]) == 0 \
                    else ",".join(config["params"]["assembly"]["metaspades"]["kmers"]),
@@ -200,17 +201,28 @@ if "metaspades" in ASSEMBLERS:
                          "logs/{sample}.metaspades.log")
         run:
             if IS_PE:
-                shell(
-                    '''
-                    metaspades.py \
-                    -1 {input.reads[0]} \
-                    -2 {input.reads[1]} \
-                    -k {params.kmers} \
-                    {params.only_assembler} \
-                    --threads {threads} \
-                    -o {params.output_dir} \
-                    > {log}
-                    ''')
+                if params.continue:
+                    shell(
+                        '''
+                        metaspades.py \
+                        --continue \
+                        -o {params.output_dir} \
+                        > {log}
+                        ''')
+                else:
+                    shell('''rm -rf {params.output_dir}''')
+
+                    shell(
+                        '''
+                        metaspades.py \
+                        -1 {input.reads[0]} \
+                        -2 {input.reads[1]} \
+                        -k {params.kmers} \
+                        {params.only_assembler} \
+                        --threads {threads} \
+                        -o {params.output_dir} \
+                        > {log}
+                        ''')
 
                 shell('''rm -rf {params.output_dir}/K*''')
                 shell('''rm -rf {params.output_dir}/corrected''')
@@ -300,6 +312,7 @@ if "spades" in ASSEMBLERS:
             20
         params:
             prefix = "{sample}",
+            continue = config["params"]["assembly"]["metaspades"]["continue"],
             kmers = "auto" \
                 if len(config["params"]["assembly"]["spades"]["kmers"]) == 0 \
                    else ",".join(config["params"]["assembly"]["spades"]["kmers"]),
@@ -316,29 +329,40 @@ if "spades" in ASSEMBLERS:
         log:
             os.path.join(config["output"]["assembly"], "logs/{sample}.spades.log")
         run:
-            if IS_PE:
+            if params.continue:
                 shell(
                     '''
                     spades.py \
-                    -1 {input.reads[0]} \
-                    -2 {input.reads[1]} \
-                    -k {params.kmers} \
-                    {params.only_assembler} \
-                    --threads {threads} \
+                    --contiune \
                     -o {params.output_dir} \
                     > {log}
                     ''')
             else:
-                shell(
-                    '''
-                    spades.py \
-                    -s {input.reads[0]} \
-                    -k {params.kmers} \
-                    {params.only_assembler} \
-                    --threads {threads} \
-                    -o {params.output_dir} \
-                    > {log}
-                    ''')
+                shell('''rm -rf {params.output_dir}''')
+
+                if IS_PE:
+                    shell(
+                        '''
+                        spades.py \
+                        -1 {input.reads[0]} \
+                        -2 {input.reads[1]} \
+                        -k {params.kmers} \
+                        {params.only_assembler} \
+                        --threads {threads} \
+                        -o {params.output_dir} \
+                        > {log}
+                        ''')
+                else:
+                    shell(
+                        '''
+                        spades.py \
+                        -s {input.reads[0]} \
+                        -k {params.kmers} \
+                        {params.only_assembler} \
+                        --threads {threads} \
+                        -o {params.output_dir} \
+                        > {log}
+                        ''')
 
             shell('''rm -rf {params.output_dir}/K*''')
             shell('''rm -rf {params.output_dir}/corrected''')
