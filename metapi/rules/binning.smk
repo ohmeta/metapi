@@ -194,6 +194,8 @@ if config["params"]["binning"]["maxbin2"]["do"]:
 
             shell(
                 '''
+                set +e
+
                 run_MaxBin.pl \
                 -thread {threads} \
                 -contig {input.scaftigs} \
@@ -205,6 +207,19 @@ if config["params"]["binning"]["maxbin2"]["do"]:
                 -markerset {params.markerset} \
                 -out {params.bin_prefix} \
                 -verbose > {log} 2>&1
+
+                exitcode=$?
+                if [ $exitcode -eq 1 ]
+                then
+                    grep -oEi 'Program stop' {log}
+                    grepcode=$?
+                    if [ $grepcode -eq 0 ]
+                    then
+                        exit 0
+                    else
+                        exit $exitcode
+                    fi
+                fi
                 ''')
 
             with os.scandir(output.bins_dir) as itr:
