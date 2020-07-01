@@ -178,7 +178,7 @@ if "metaspades" in ASSEMBLERS:
             20
         params:
             prefix = "{sample}",
-            continue = config["params"]["assembly"]["metaspades"]["continue"],
+            continue_assembly = config["params"]["assembly"]["metaspades"]["continue"],
             kmers = "auto" \
                 if len(config["params"]["assembly"]["metaspades"]["kmers"]) == 0 \
                    else ",".join(config["params"]["assembly"]["metaspades"]["kmers"]),
@@ -201,7 +201,7 @@ if "metaspades" in ASSEMBLERS:
                          "logs/{sample}.metaspades.log")
         run:
             if IS_PE:
-                if params.continue:
+                if params.continue_assembly:
                     shell(
                         '''
                         metaspades.py \
@@ -312,7 +312,7 @@ if "spades" in ASSEMBLERS:
             20
         params:
             prefix = "{sample}",
-            continue = config["params"]["assembly"]["metaspades"]["continue"],
+            continue_assembly = config["params"]["assembly"]["metaspades"]["continue"],
             kmers = "auto" \
                 if len(config["params"]["assembly"]["spades"]["kmers"]) == 0 \
                    else ",".join(config["params"]["assembly"]["spades"]["kmers"]),
@@ -329,7 +329,7 @@ if "spades" in ASSEMBLERS:
         log:
             os.path.join(config["output"]["assembly"], "logs/{sample}.spades.log")
         run:
-            if params.continue:
+            if params.continue_assembly:
                 shell(
                     '''
                     spades.py \
