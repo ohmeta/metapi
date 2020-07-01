@@ -510,6 +510,8 @@ if config["params"]["binning"]["dastools"]["do"]:
 
                 shell(
                     '''
+                    set +e
+
                     DAS_Tool \
                     --bins %s \
                     --labels %s \
@@ -525,20 +527,33 @@ if config["params"]["binning"]["dastools"]["do"]:
                     --duplicate_penalty {params.duplicate_penalty} \
                     --megabin_penalty {params.megabin_penalty} \
                     --threads {threads} --debug > {log} 2>&1
+
+                    exitcode=$?
+                    if [ $exitcode -eq 1 ]
+                    then
+                        grep -oEi 'no single copy genes found' {log}
+                        grepcode=$?
+                        if [ $grepcode -eq 0 ]
+                        then
+                            exit 0
+                        else
+                            exit $exitcode
+                        fi
+                    fi
                     ''' % (",".join(tsv_list), ",".join(binners)))
 
-            shell('''rm -rf {output.bins_dir}/scaftigs.fasta''')
+                shell('''rm -rf {output.bins_dir}/scaftigs.fasta''')
 
-            bins_list_dastools = glob.glob(
-                os.path.join(
-                    params.bin_prefix + "_DASTool_bins" ,
-                    "*." + params.bin_suffix))
+                bins_list_dastools = glob.glob(
+                    os.path.join(
+                        params.bin_prefix + "_DASTool_bins" ,
+                        "*." + params.bin_suffix))
 
-            if len(bins_list_dastools):
-                for bin_fa in bins_list_dastools:
-                    bin_id = os.path.basename(bin_fa).split(".")[2]
-                    bin_fa_ = os.path.basename(bin_fa).replace(bin_id, bin_id +"_dastools")
-                    shell('''mv %s %s''' % (bin_fa, os.path.join(output.bins_dir, bin_fa_)))
+                if len(bins_list_dastools):
+                    for bin_fa in bins_list_dastools:
+                        bin_id = os.path.basename(bin_fa).split(".")[2]
+                        bin_fa_ = os.path.basename(bin_fa).replace(bin_id, bin_id +"_dastools")
+                        shell('''mv %s %s''' % (bin_fa, os.path.join(output.bins_dir, bin_fa_)))
 
 
     rule binning_dastools_all:
