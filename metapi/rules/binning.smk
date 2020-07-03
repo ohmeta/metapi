@@ -531,7 +531,7 @@ if config["params"]["binning"]["dastools"]["do"]:
                     exitcode=$?
                     if [ $exitcode -eq 1 ]
                     then
-                        grep -oEi 'no single copy genes found' {log}
+                        grep -oEi 'Aborting' {log}
                         grepcode=$?
                         if [ $grepcode -eq 0 ]
                         then
