@@ -230,11 +230,20 @@ if "metaspades" in ASSEMBLERS:
 
                 shell('''sed -i 's#^>#>{params.prefix}_#g' {params.output_dir}/scaffolds.fasta''')
                 shell('''pigz -p {threads} {params.output_dir}/scaffolds.fasta''')
-                shell('''mv {params.output_dir}/scaffolds.fasta.gz {output.scaffolds}''')
+                shell(
+                    '''
+                    mv {params.output_dir}/scaffolds.fasta.gz \
+                    {params.output_dir}/{params.prefix}.metaspades.scaffolds.fa.gz
+                    ''')
 
                 shell('''sed -i 's#^>#>{params.prefix}_#g' {params.output_dir}/contigs.fasta''')
                 shell('''pigz -p {threads} {params.output_dir}/contigs.fasta''')
                 shell('''mv {params.output_dir}/contigs.fasta.gz {output.contigs}''')
+                shell(
+                    '''
+                    mv {params.output_dir}/contigs.fasta.gz \
+                    {params.output_dir}/{params.prefix}.metaspades.contigs.fa.gz
+                    ''')
 
                 if params.link_scaffolds:
                     shell(
@@ -256,11 +265,11 @@ if "metaspades" in ASSEMBLERS:
                 if params.only_save_scaftigs:
                     shell(
                         '''
-                        find '{params.output_dir}' \
+                        find {params.output_dir} \
                         -type f \
                         ! -wholename {output.scaftigs} \
-                        ! -wholename {output.scaffolds} \
-                        ! -wholename {output.contigs} \
+                        ! -wholename {params.output_dir}/{params.prefix}.metaspades.scaffolds.fa.gz \
+                        ! -wholename {params.output_dir}/{params.prefix}.metaspades.contigs.fa.gz \
                         -delete
                         ''')
                 else:
@@ -268,10 +277,10 @@ if "metaspades" in ASSEMBLERS:
                         '''
                         find {params.output_dir} \
                         -type f \
-                        ! -wholename "{output.scaftigs}" \
-                        ! -wholename "{output.scaffolds}" \
-                        ! -wholename "{output.contigs}" \
-                        ! -wholename "{params.tar_results}" | \
+                        ! -wholename {output.scaftigs} \
+                        ! -wholename {params.output_dir}/{params.prefix}.metaspades.scaffolds.fa.gz \
+                        ! -wholename {params.output_dir}/{params.prefix}.metaspades.contigs.fa.gz \
+                        ! -wholename {params.tar_results} | \
                         xargs -I % sh -c 'tar -rf {params.tar_results} %; rm -rf %'
                         ''')
                     shell('''pigz -p {threads} {params.tar_results}''')
