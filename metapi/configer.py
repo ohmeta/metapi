@@ -117,9 +117,9 @@ class metaconfig:
         self.work_dir = os.path.realpath(work_dir)
         self.metapi_dir = os.path.dirname(os.path.abspath(__file__))
 
-        self.config_file = os.path.join(self.metapi_dir, "config.yaml")
-        self.cluster_file = os.path.join(self.metapi_dir, "cluster.yaml")
-        self.snake_file = os.path.join(self.metapi_dir, "Snakefile")
+        self.config_file = os.path.join(self.metapi_dir, "config", "config.yaml")
+        self.cluster_file = os.path.join(self.metapi_dir, "config", "cluster.yaml")
+        self.snake_file = os.path.join(self.metapi_dir, "snakefiles", "mag_wf.smk")
         self.envs_dir = os.path.join(self.metapi_dir, "envs")
 
         self.new_config_file = os.path.join(self.work_dir, "config.yaml")

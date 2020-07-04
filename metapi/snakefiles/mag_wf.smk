@@ -20,6 +20,9 @@ import metapi
 import pandas as pd
 from pprint import pprint
 
+#pprint(sys.path)
+#pprint(metapi.__file__)
+
 shell.executable("bash")
 
 METAPI_DIR = metapi.__path__[0]
@@ -71,23 +74,23 @@ READS_FORMAT = "sra" \
        else "fastq"
 
 
-include: "rules/simulate.smk"
-include: "rules/raw.smk"
-include: "rules/trimming.smk"
-include: "rules/rmhost.smk"
-include: "rules/qcreport.smk"
-include: "rules/assembly.smk"
-include: "rules/coassembly.smk"
-include: "rules/predict_scaftigs.smk"
-include: "rules/alignment.smk"
-include: "rules/binning.smk"
-include: "rules/cobinning.smk"
-include: "rules/predict_bins.smk"
-include: "rules/checkm.smk"
-include: "rules/dereplicate.smk"
-include: "rules/classify.smk"
-include: "rules/profiling.smk"
-include: "rules/upload.smk"
+include: "../rules/simulate.smk"
+include: "../rules/raw.smk"
+include: "../rules/trimming.smk"
+include: "../rules/rmhost.smk"
+include: "../rules/qcreport.smk"
+include: "../rules/assembly.smk"
+include: "../rules/coassembly.smk"
+include: "../rules/predict_scaftigs.smk"
+include: "../rules/alignment.smk"
+include: "../rules/binning.smk"
+include: "../rules/cobinning.smk"
+include: "../rules/predict_bins.smk"
+include: "../rules/checkm.smk"
+include: "../rules/dereplicate.smk"
+include: "../rules/classify.smk"
+include: "../rules/profiling.smk"
+include: "../rules/upload.smk"
 
 
 rule all:

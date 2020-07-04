@@ -17,6 +17,7 @@ def parse_samples(config):
     if "fq1" in samples_df.columns:
         for sample_id in samples_df.index.unique():
             fq1_list = samples_df.loc[[sample_id], "fq1"].dropna().tolist()
+            fq2_list = samples_df.loc[[sample_id], "fq2"].dropna().tolist()
             for fq_file in fq1_list:
                 if not fq_file.endswith(".gz"):
                     print("%s need gzip format" % fq_file)
@@ -24,9 +25,26 @@ def parse_samples(config):
                 if not os.path.exists(fq_file):
                     print("%s not exists" % fq_file)
                     cancel = True
+                if (config["params"]["reads_layout"] == "pe") and (
+                    not config["params"]["interleaved"]
+                ):
+                    print(len(fq2_list))
+                    if len(fq2_list) == 0:
+                        print("%s fq2 not exists" % sample_id)
+                        cancel = True
+    elif "sra" in samples_df.columns:
+        for sample_id in samples_df.index.unique():
+            sra_list = samples_df.loc[[sample_id], "sra"].dropna().tolist()
+            for sra_file in sra_list:
+                if not os.path.exists(sra_file):
+                    print("%s not exists" % sra_file)
+                    cancel = True
+    else:
+        print("wrong header: %s" % samples_df.columns)
+        cancel = True
 
     if cancel:
-        sys.exit(0)
+        sys.exit(-1)
     else:
         return samples_df
 

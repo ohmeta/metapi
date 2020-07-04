@@ -1,9 +1,14 @@
 include *.md *.txt
 include LICENSE
+
 recursive-include metapi/ *
-recursive-include metapi/rules *
-recursive-include metapi/envs *
 recursive-include metapi/wrappers *
+recursive-include metapi/rules *
+recursive-include metapi/snakefiles *
+recursive-include metapi/envs *
+recursive-include metapi/config *
+
 global-exclude metapi/ *.pyc
 global-exclude metapi/__pycache__ *.pyc
+global-exclude metapi/wrappers/ *.pyc
 global-exclude metapi/wrappers/__pycache__ *.pyc
