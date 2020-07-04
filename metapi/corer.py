@@ -157,6 +157,7 @@ def denovo_wf(args):
         cmd += ["--use-conda", "--conda-create-envs-only"]
     else:
         cmd += [
+            "--rerun-incomplete",
             "--keep-going",
             "--printshellcmds",
             "--reason",
