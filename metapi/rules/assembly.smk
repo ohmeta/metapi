@@ -238,7 +238,6 @@ if "metaspades" in ASSEMBLERS:
 
                 shell('''sed -i 's#^>#>{params.prefix}_#g' {params.output_dir}/contigs.fasta''')
                 shell('''pigz -p {threads} {params.output_dir}/contigs.fasta''')
-                shell('''mv {params.output_dir}/contigs.fasta.gz {output.contigs}''')
                 shell(
                     '''
                     mv {params.output_dir}/contigs.fasta.gz \
