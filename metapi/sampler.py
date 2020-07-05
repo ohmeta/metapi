@@ -28,7 +28,6 @@ def parse_samples(config):
                 if (config["params"]["reads_layout"] == "pe") and (
                     not config["params"]["interleaved"]
                 ):
-                    print(len(fq2_list))
                     if len(fq2_list) == 0:
                         print("%s fq2 not exists" % sample_id)
                         cancel = True
