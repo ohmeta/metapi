@@ -91,7 +91,7 @@ $ metapi init --help
 # init project
 $ metapi init -d . -s samples.tsv -b trimming
 
-# crate conda environments (need connect to internet)
+# create conda environments (need connect to internet)
 $ metapi mag_wf --conda_create_envs_only
 
 # run pipeline with conda
