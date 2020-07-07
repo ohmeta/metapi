@@ -8,7 +8,7 @@ import textwrap
 import metapi
 
 
-WORKFLOWS = [
+WORKFLOWS_MAG = [
     "simulate_all",
     "prepare_reads_all",
     "raw_fastqc_all",
@@ -63,6 +63,41 @@ WORKFLOWS = [
     "profiling_bracken_all",
     "profiling_humann2_all",
     "profiling_all",
+    "upload_sequencing_all",
+    "upload_assembly_all",
+    "upload_all",
+    "all",
+]
+
+WORKFLOWS_GENE = [
+    "simulate_all",
+    "prepare_reads_all",
+    "raw_fastqc_all",
+    "raw_report_all",
+    "raw_all",
+    "trimming_oas1_all",
+    "trimming_sickle_all",
+    "trimming_fastp_all",
+    "trimming_report_all",
+    "trimming_all",
+    "rmhost_bwa_all",
+    "rmhost_bowtie2_all",
+    "rmhost_report_all",
+    "rmhost_all",
+    "qcreport_all",
+    "assebmly_megahit_all",
+    "assembly_idba_ud_all",
+    "assembly_metaspades_all",
+    "assembly_spades_all",
+    "assembly_metaquast_all",
+    "assembly_report_all",
+    "assembly_all",
+    "coassembly_megahit_all",
+    "coassembly_all",
+    "predict_scaftigs_gene_prodigal_all",
+    "predict_scaftigs_gene_prokka_all",
+    "predict_scafitgs_gene_all",
+    "predict_all",
     "upload_sequencing_all",
     "upload_assembly_all",
     "upload_all",
@@ -138,7 +173,7 @@ def run_snakemake(args, snakefile):
     )
     proc.communicate()
 
-   
+
 def init(args):
     if args.workdir:
         project = metapi.metaconfig(args.workdir)
@@ -194,6 +229,11 @@ def mag_wf(args):
     run_snakemake(args, snakefile)
 
 
+def gene_wf(args):
+    snakefile = os.path.join(os.path.dirname(__file__), "snakefiles/gene_wf.smk")
+    run_snakemake(args, snakefile)
+
+
 def main():
     banner = """
 
@@ -234,15 +274,6 @@ A pipeline to construct a genome catalogue from metagenomics data
     )
 
     run_parser = argparse.ArgumentParser(add_help=False)
-    run_parser.add_argument(
-        "task",
-        metavar="TASK",
-        nargs="?",
-        type=str,
-        default="all",
-        choices=WORKFLOWS,
-        help="pipeline end point. Allowed values are " + ", ".join(WORKFLOWS),
-    )
     run_parser.add_argument(
         "--config",
         type=str,
@@ -304,7 +335,14 @@ A pipeline to construct a genome catalogue from metagenomics data
         formatter_class=metapi.custom_help_formatter,
         parents=[common_parser, run_parser],
         prog="metapi mag_wf",
-        help="mag_wf pipeline",
+        help="metagenome-assembly-genome pipeline",
+    )
+    parser_gene_wf = subparsers.add_parser(
+        "gene_wf",
+        formatter_class=metapi.custom_help_formatter,
+        parents=[common_parser, run_parser],
+        prog="metapi gene_wf",
+        help="metagenome-assembly-gene pipeline",
     )
 
     parser_init.add_argument(
@@ -336,7 +374,27 @@ if begin from simulate:
     )
     parser_init.set_defaults(func=init)
 
+    parser_mag_wf.add_argument(
+        "task",
+        metavar="TASK",
+        nargs="?",
+        type=str,
+        default="all",
+        choices=WORKFLOWS_MAG,
+        help="pipeline end point. Allowed values are " + ", ".join(WORKFLOWS_MAG),
+    )
     parser_mag_wf.set_defaults(func=mag_wf)
+
+    parser_gene_wf.add_argument(
+        "task",
+        metavar="TASK",
+        nargs="?",
+        type=str,
+        default="all",
+        choices=WORKFLOWS_GENE,
+        help="pipeline end point. Allowed values are " + ", ".join(WORKFLOWS_GENE),
+    )
+    parser_gene_wf.set_defaults(func=gene_wf)
 
     args = parser.parse_args()
     try:

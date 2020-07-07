@@ -1,27 +1,8 @@
 #!/usr/bin/env snakemake
 
-"""
-
-.___  ___.  _______ .___________.    ___      .______    __
-|   \/   | |   ____||           |   /   \     |   _  \  |  |
-|  \  /  | |  |__   `---|  |----`  /  ^  \    |  |_)  | |  |
-|  |\/|  | |   __|      |  |      /  /_\  \   |   ___/  |  |
-|  |  |  | |  |____     |  |     /  _____  \  |  |      |  |
-|__|  |__| |_______|    |__|    /__/     \__\ | _|      |__|
-
-           Omics for All, Open Source for All
-
-A pipeline to construct a genome catalogue from metagenomics data
-
-"""
-
 import sys
 import metapi
 import pandas as pd
-from pprint import pprint
-
-#pprint(sys.path)
-#pprint(metapi.__file__)
 
 shell.executable("bash")
 
