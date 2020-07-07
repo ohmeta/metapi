@@ -4,11 +4,8 @@ import os
 import sys
 from site import addsitedir
 
-from metapi import corer
+sys.path.append(os.path.dirname(__file__))
 
-addsitedir(os.path.dirname(os.path.dirname(corer.__file__)))
+from metapi.corer import main
 print(sys.path)
-
-if __name__ == '__main__':
-    print(corer.__file__)
-    corer.main()
+main()
