@@ -227,6 +227,18 @@ params:
       genome_comparison_algorithm: "ANImf"
       clustering_primary_ANI: 0.9
       clustering_secondary_ANI: 0.99
+    cdhit:
+      do_gene: True
+      do_protenis: False
+      threads: 32
+      identity: 0.95
+      overlap: 0.9
+      wordlen: 8
+      global: True
+      memory: 0
+      clstrlen: 0
+      default_algorithm: False
+      both_alignment: True
 
   profiling:
     threads: 8

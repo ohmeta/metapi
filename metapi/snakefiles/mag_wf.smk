@@ -68,7 +68,7 @@ include: "../rules/binning.smk"
 include: "../rules/cobinning.smk"
 include: "../rules/predict_bins.smk"
 include: "../rules/checkm.smk"
-include: "../rules/dereplicate.smk"
+include: "../rules/dereplicate_mags.smk"
 include: "../rules/classify.smk"
 include: "../rules/profiling.smk"
 include: "../rules/upload.smk"
@@ -89,7 +89,7 @@ rule all:
         rules.cobinning_all.input,
         rules.predict_bins_gene_all.input,
         rules.checkm_all.input,
-        rules.dereplicate_all.input,
+        rules.dereplicate_mags_all.input,
         rules.classify_all.input,
         rules.profiling_all.input,
         rules.upload_all.input

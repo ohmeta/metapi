@@ -8,7 +8,7 @@
 [![star this repo](http://githubbadges.com/star.svg?user=ohmeta&repo=metapi&style=flat)](https://github.com/ohmeta/metapi)
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/metapi/badges/downloads.svg)](https://anaconda.org/bioconda/metapi)
 
-A pipeline to construct a genome catalogue from metagenomics data.
+A general metagenomics data mining system focus on robust microbiome research.
 
 ## Installation
 
@@ -44,7 +44,7 @@ $ metapi --help
 
             Omics for All, Open Source for All
 
-  A pipeline to construct a genome catalogue from metagenomics data
+ A general metagenomics data mining system focus on robust microbiome research.
 
     optional arguments:
     -h, --help     show this help message and exit
@@ -53,7 +53,8 @@ $ metapi --help
     available subcommands:
 
     init         init project
-    denovo_wf    denovo_wf pipeline
+    mag_wf       metagenome-assembly-genome pipeline
+    gene_wf      metagenome-assembly-gene pipeline
 ```
 
 ### init
@@ -84,70 +85,6 @@ $ metapi init --help
                             pipeline starting point (default: trimming)
 ```
 
-### denovo_wf
-
-```
-$ metapi denovo_wf --help
-
-  usage: metapi denovo_wf [-h] [-d WORKDIR] [--config CONFIG] [--cores CORES]
-                          [--jobs JOBS] [--list] [--run] [--debug] [--dry_run]
-                          [--qsub] [--wait WAIT] [--use_conda]
-                          [--conda_crate_envs_only] [--snake [SNAKEMAKEARGS]]
-                          [TASK]
-
-  positional arguments:
-    TASK                  pipeline end point. Allowed values are
-                          simulate_all, prepare_reads_all,
-                          raw_fastqc_all, raw_report_all, raw_all,
-                          trimming_oas1_all, trimming_sickle_all, trimming_fastp_all,
-                          trimming_report_all, trimming_all,
-                          rmhost_bwa_all, rmhost_bowtie2_all,
-                          rmhost_report_all, rmhost_all, qcreport_all,
-                          assebmly_megahit_all, assembly_idba_ud_all,
-                          assembly_metaspades_all, assembly_spades_all,
-                          assembly_metaquast_all, assembly_report_all, assembly_all,
-                          coassembly_megahit_all, coassembly_all,
-                          alignment_base_depth_all, alignment_all,
-                          binning_metabat2_coverage_all,
-                          binning_metabat2_all, binning_maxbin2_all,
-                          binning_concoct_all, binning_dastools_all,
-                          binning_report_all, binning_all, cobinning_all,
-                          predict_scaftigs_gene_prodigal_all,
-                          predict_scaftigs_gene_prokka_all,
-                          predict_bins_gene_prodigal_all,
-                          predict_bins_gene_prokka_all,
-                          predict_scafitgs_gene_all, predict_bins_gene_all,
-                          predict_all, checkm_link_bins, checkm_all,
-                          dereplicate_drep_all, dereplicate_all,
-                          classify_short_reads_kraken2_all,
-                          classify_hmq_bins_gtdbtk_all, classify_all,
-                          profiling_metaphlan2_all, profiling_metaphlan3_all,
-                          profiling_jgi_all, profiling_bracken_all,
-                          profiling_humann2_all, profiling_all,
-                          upload_sequencing_all, upload_assembly_all,
-                          upload_all, all
-
-  arguments:
-    -h, --help            show this help message and exit
-    -d WORKDIR, --workdir WORKDIR
-                          project workdir, default: ./
-    --config CONFIG       config.yaml, default: ./config.yaml
-    --cores CORES         CPU cores, default: 8
-    --jobs JOBS           qsub job numbers, default: 80
-    --list                list pipeline rules
-    --run                 run pipeline
-    --debug               debug pipeline
-    --dry_run             dry run pipeline
-    --qsub                qsub pipeline
-    --wait WAIT           wait given seconds
-    --use_conda           use conda environment
-    --conda_create_envs_only
-                          conda create environments only
-    --snake [SNAKEMAKEARGS]
-                          other snakemake command options, if want --touch, just
-                          --snake touch
-```
-
 ### Example
 
 ```
@@ -155,55 +92,55 @@ $ metapi denovo_wf --help
 $ metapi init -d . -s samples.tsv -b trimming
 
 # crate conda environments (need connect to internet)
-$ metapi denovo_wf --conda_create_envs_only
+$ metapi mag_wf --conda_create_envs_only
 
 # run pipeline with conda
-# metapi denovo_wf all --use_conda
+# metapi mag_wf all --use_conda
 
 # run raw_fastqc
-$ metapi denovo_wf raw_fastqc_all --run
+$ metapi mag_wf raw_fastqc_all --run
 
 # run trimming
-$ metapi denovo_wf trimming_all --run
+$ metapi mag_wf trimming_all --run
 
 # run rmhost
-$ metapi denovo_wf rmhost_all --run 
+$ metapi mag_wf rmhost_all --run 
 
 # run qc report
-$ metapi denovo_wf qcreport_all --run
+$ metapi mag_wf qcreport_all --run
 
 # run assembly
-$ metapi denovo_wf assembly_all --run
-
-# run co-assembly
-$ metapi denovo_wf coassembly_all --run
+$ metapi mag_wf assembly_all --run
 
 # run binning 
-$ metapi denovo_wf binning_all --run
+$ metapi mag_wf binning_all --run
 
 # run gene predict
-$ metapi denovo_wf predict_all --run
+$ metapi mag_wf predict_all --run
 
 # run MAGs checkm
-$ metapi denovo_wf checkm_all --run
+$ metapi mag_wf checkm_all --run
 
 # run MAGs classify
-$ metapi denovo_wf classify_all --run
+$ metapi mag_wf classify_all --run
 
 # run MetaPhlAn2 profiling
-$ metapi denovo_wf profiling_metaphlan2_all --run --use_conda
+$ metapi mag_wf profiling_metaphlan2_all --run --use_conda
 
 # run MetaPhlAn3 profiling
-$ metapi denovo_wf profiling_metaphlan3_all --run
+$ metapi mag_wf profiling_metaphlan3_all --run
 
 # run MAGs jgi profling (using jgi_summarize_bam_contig_depths)
-$ metapi denovo_wf profiling_jgi_all --run
+$ metapi mag_wf profiling_jgi_all --run
 
 # run HUMAnN2 profiling
-$ metapi denovo_wf profiling_humann2_all --run --use_conda
+$ metapi mag_wf profiling_humann2_all --run --use_conda
 
-# run all
-$ metapi denovo_wf --run
+# run mag_wf all
+$ metapi mag_wf --run
+
+# run gene_wf all
+$ metapi gene_wf --run
 ```
 
 ## input requirements

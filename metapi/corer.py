@@ -52,8 +52,8 @@ WORKFLOWS_MAG = [
     "predict_all",
     "checkm_link_bins",
     "checkm_all",
-    "dereplicate_drep_all",
-    "dereplicate_all",
+    "dereplicate_mags_drep_all",
+    "dereplicate_mags_all",
     "classify_short_reads_kraken2_all",
     "classify_hmq_bins_gtdbtk_all",
     "classify_all",
@@ -98,6 +98,8 @@ WORKFLOWS_GENE = [
     "predict_scaftigs_gene_prokka_all",
     "predict_scafitgs_gene_all",
     "predict_all",
+    "dereplicate_gene_cdhit_all",
+    "dereplicate_gene_all",
     "upload_sequencing_all",
     "upload_assembly_all",
     "upload_all",
@@ -246,7 +248,7 @@ def main():
 
             Omics for All, Open Source for All
 
-A pipeline to construct a genome catalogue from metagenomics data
+ A general metagenomics data mining system focus on robust microbiome research
 
 """
 

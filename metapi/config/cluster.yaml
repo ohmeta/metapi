@@ -37,7 +37,10 @@ localrules:
   - predcit_all
   - checkm_link_bins
   - checkm_all
-  - dereplicate_drep_all
+  - dereplicate_mags_drep_all
+  - dereplicate_mags_all
+  - dereplicate_gene_cdhit_all
+  - dereplicate_gene_all
   - dereplicate_all
   - classify_short_reads_kraken2_all
   - classify_hmq_bins_gtdbtk_all
@@ -409,17 +412,29 @@ classify_hmq_bins_gtdbtk:
   output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
   error:  "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
 
-dereplicate_prepare_genomes_info:
+dereplicate_mags_drep_prepare:
   mem: "512M"
   cores: 1
   output: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
   error:  "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
 
-dereplicate_drep:
+dereplicate_mags_drep:
   mem: "2G"
   cores: 8
   output: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
   error:  "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
+
+dereplicate_gene_preprae:
+  mem: "512M"
+  cores: 1
+  output: "logs/10.{rule}/{rule}.{wildcards.assembler}.o"
+  error:  "logs/10.{rule}/{rule}.{wildcards.assembler}.e"
+
+dereplicate_gene_cdhit:
+  mem: "2G"
+  cores: 8
+  output: "logs/10.{rule}/{rule}.{wildcards.assembler}.o"
+  error:  "logs/10.{rule}/{rule}.{wildcards.assembler}.e"
 
 profiling_metaphlan2:
   mem: "3G"

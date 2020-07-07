@@ -90,8 +90,10 @@ class metaconfig:
         "logs/08.checkm_link_bins",
         "logs/09.classify_short_reads_kraken2",
         "logs/09.classify_hmq_bins_gtdbtk",
-        "logs/10.dereplicate_prepare_genomes_info",
-        "logs/10.dereplicate_drep",
+        "logs/10.dereplicate_mags_drep_prepare",
+        "logs/10.dereplicate_mags_drep",
+        "logs/10.dereplicate_gene_prepare",
+        "logs/10.dereplicate_gene_cdhit",
         "logs/11.profiling_metaphlan2",
         "logs/11.profiling_metaphlan2_merge",
         "logs/11.profiling_metaphlan3",
@@ -136,32 +138,21 @@ class metaconfig:
 
            Omics for All, Open Source for All
 
+A general metagenomics data mining system focus on robust microbiome research.
+
 Thanks for using metapi.
 
 A metagenomics project has been created at %s
 
-Now, you can use "metapi denovo_wf":
 
 if you want to create fresh conda environments:
 
         metapi denovo_wf --conda_create_envs_only
 
-
 if you have environments:
 
-        metapi denovo_wf --list
-
-        metapi denovo_wf --run
-
-        metapi denovo_wf --run --use_conda
-
-        metapi denovo_wf --debug
-
-        metapi denovo_wf --dry_run
-
-        metapi denovo_wf --qsub
-
-        metapi denovo_wf --qsub --use_conda
+        metapi denovo_wf --help
+        metapi gene_wf --help
 """ % (
             self.work_dir
         )

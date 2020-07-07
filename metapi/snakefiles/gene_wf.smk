@@ -52,6 +52,7 @@ include: "../rules/qcreport.smk"
 include: "../rules/assembly.smk"
 include: "../rules/coassembly.smk"
 include: "../rules/predict_scaftigs.smk"
+include: "../rules/dereplicate_cds.smk"
 include: "../rules/upload.smk"
 
 
@@ -65,4 +66,5 @@ rule all:
         rules.assembly_all.input,
         rules.coassembly_all.input,
         rules.predict_scaftigs_gene_all.input,
+        rules.dereplicate_gene_all.input,
         rules.upload_all.input
