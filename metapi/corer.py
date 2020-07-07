@@ -1,20 +1,5 @@
 #!/usr/bin/env python
 
-"""
-
-.___  ___.  _______ .___________.    ___      .______    __
-|   \/   | |   ____||           |   /   \     |   _  \  |  |
-|  \  /  | |  |__   `---|  |----`  /  ^  \    |  |_)  | |  |
-|  |\/|  | |   __|      |  |      /  /_\  \   |   ___/  |  |
-|  |  |  | |  |____     |  |     /  _____  \  |  |      |  |
-|__|  |__| |_______|    |__|    /__/     \__\ | _|      |__|
-
-           Omics for All, Open Source for All
-
-A pipeline to construct a genome catalogue from metagenomics data
-
-"""
-
 import argparse
 import os
 import sys
@@ -85,57 +70,7 @@ WORKFLOWS = [
 ]
 
 
-def init(args):
-    if args.workdir:
-        project = metapi.metaconfig(args.workdir)
-        print(project.__str__())
-        project.create_dirs()
-        conf, cluster = project.get_config()
-
-        conf["envs"]["bioenv3.7"] = os.path.join(
-            os.path.realpath(args.workdir), "envs/bioenv3.7.yaml"
-        )
-        conf["envs"]["bioenv3.6"] = os.path.join(
-            os.path.realpath(args.workdir), "envs/bioenv3.6.yaml"
-        )
-        conf["envs"]["bioenv2"] = os.path.join(
-            os.path.realpath(args.workdir), "envs/bioenv2.yaml"
-        )
-
-        if args.begin:
-            conf["params"]["begin"] = args.begin
-            if args.begin == "simulate":
-                conf["params"]["simulate"]["do"] = True
-            elif args.begin == "trimming":
-                conf["params"]["simulate"]["do"] = False
-            elif args.begin == "rmhost":
-                conf["params"]["simulate"]["do"] = False
-                conf["params"]["trimming"]["oas1"]["do"] = False
-                conf["params"]["trimming"]["sickle"]["do"] = False
-                conf["params"]["trimming"]["fastp"]["do"] = False
-            elif args.begin == "assembly":
-                conf["params"]["simulate"]["do"] = False
-                conf["params"]["trimming"]["oas1"]["do"] = False
-                conf["params"]["trimming"]["sickle"]["do"] = False
-                conf["params"]["trimming"]["fastp"]["do"] = False
-                conf["params"]["rmhost"]["bwa"]["do"] = False
-                conf["params"]["rmhost"]["bowtie2"]["do"] = False
-
-        if args.samples:
-            conf["params"]["samples"] = args.samples
-
-        metapi.update_config(
-            project.config_file, project.new_config_file, conf, remove=False
-        )
-        metapi.update_config(
-            project.cluster_file, project.new_cluster_file, cluster, remove=False
-        )
-    else:
-        print("Please supply a workdir!")
-        sys.exit(1)
-
-
-def denovo_wf(args):
+def run_snakemake(args):
     config_file = os.path.join(args.workdir, "config.yaml")
     conf = metapi.parse_yaml(config_file)
 
@@ -203,6 +138,60 @@ def denovo_wf(args):
     )
     proc.communicate()
 
+   
+def init(args):
+    if args.workdir:
+        project = metapi.metaconfig(args.workdir)
+        print(project.__str__())
+        project.create_dirs()
+        conf, cluster = project.get_config()
+
+        conf["envs"]["bioenv3.7"] = os.path.join(
+            os.path.realpath(args.workdir), "envs/bioenv3.7.yaml"
+        )
+        conf["envs"]["bioenv3.6"] = os.path.join(
+            os.path.realpath(args.workdir), "envs/bioenv3.6.yaml"
+        )
+        conf["envs"]["bioenv2"] = os.path.join(
+            os.path.realpath(args.workdir), "envs/bioenv2.yaml"
+        )
+
+        if args.begin:
+            conf["params"]["begin"] = args.begin
+            if args.begin == "simulate":
+                conf["params"]["simulate"]["do"] = True
+            elif args.begin == "trimming":
+                conf["params"]["simulate"]["do"] = False
+            elif args.begin == "rmhost":
+                conf["params"]["simulate"]["do"] = False
+                conf["params"]["trimming"]["oas1"]["do"] = False
+                conf["params"]["trimming"]["sickle"]["do"] = False
+                conf["params"]["trimming"]["fastp"]["do"] = False
+            elif args.begin == "assembly":
+                conf["params"]["simulate"]["do"] = False
+                conf["params"]["trimming"]["oas1"]["do"] = False
+                conf["params"]["trimming"]["sickle"]["do"] = False
+                conf["params"]["trimming"]["fastp"]["do"] = False
+                conf["params"]["rmhost"]["bwa"]["do"] = False
+                conf["params"]["rmhost"]["bowtie2"]["do"] = False
+
+        if args.samples:
+            conf["params"]["samples"] = args.samples
+
+        metapi.update_config(
+            project.config_file, project.new_config_file, conf, remove=False
+        )
+        metapi.update_config(
+            project.cluster_file, project.new_cluster_file, cluster, remove=False
+        )
+    else:
+        print("Please supply a workdir!")
+        sys.exit(1)
+
+
+def mag_wf(args):
+    run_snakemake(args)
+
 
 def main():
     banner = """
@@ -233,8 +222,8 @@ A pipeline to construct a genome catalogue from metagenomics data
         help="print software version and exit",
     )
 
-    parent_parser = argparse.ArgumentParser(add_help=False)
-    parent_parser.add_argument(
+    common_parser = argparse.ArgumentParser(add_help=False)
+    common_parser.add_argument(
         "-d",
         "--workdir",
         metavar="WORKDIR",
@@ -243,20 +232,78 @@ A pipeline to construct a genome catalogue from metagenomics data
         help="project workdir, default: ./",
     )
 
+    run_parser = argparse.ArgumentParser(add_help=False)
+    run_parser.add_argument(
+        "task",
+        metavar="TASK",
+        nargs="?",
+        type=str,
+        default="all",
+        choices=WORKFLOWS,
+        help="pipeline end point. Allowed values are " + ", ".join(WORKFLOWS),
+    )
+    run_parser.add_argument(
+        "--config",
+        type=str,
+        default="./config.yaml",
+        help="config.yaml, default: ./config.yaml",
+    )
+    run_parser.add_argument(
+        "--cores", type=int, default=8, help="CPU cores, default: 8"
+    )
+    run_parser.add_argument(
+        "--jobs", type=int, default=80, help="qsub job numbers, default: 80"
+    )
+    run_parser.add_argument(
+        "--list", default=False, action="store_true", help="list pipeline rules",
+    )
+    run_parser.add_argument(
+        "--run", default=False, action="store_true", help="run pipeline",
+    )
+    run_parser.add_argument(
+        "--debug", default=False, action="store_true", help="debug pipeline",
+    )
+    run_parser.add_argument(
+        "--dry_run", default=False, action="store_true", help="dry run pipeline",
+    )
+    run_parser.add_argument(
+        "--qsub", default=False, action="store_true", help="qsub pipeline",
+    )
+    run_parser.add_argument(
+        "--wait", type=int, default=60, help="wait given seconds, default: 60"
+    )
+    run_parser.add_argument(
+        "--use_conda", default=False, action="store_true", help="use conda environment"
+    )
+    run_parser.add_argument(
+        "--conda_create_envs_only",
+        default=False,
+        action="store_true",
+        help="conda create environments only",
+    )
+    run_parser.add_argument(
+        "--snake",
+        metavar="SNAKEMAKEARGS",
+        nargs="?",
+        type=str,
+        default=None,
+        help="other snakemake command options(sankemake -h), if want --touch, just --snake touch",
+    )
+
     subparsers = parser.add_subparsers(title="available subcommands", metavar="")
     parser_init = subparsers.add_parser(
         "init",
         formatter_class=metapi.custom_help_formatter,
-        parents=[parent_parser],
+        parents=[common_parser],
         prog="metapi init",
         help="init project",
     )
-    parser_denovo_wf = subparsers.add_parser(
-        "denovo_wf",
+    parser_mag_wf = subparsers.add_parser(
+        "mag_wf",
         formatter_class=metapi.custom_help_formatter,
-        parents=[parent_parser],
-        prog="metapi denovo_wf",
-        help="denovo_wf pipeline",
+        parents=[common_parser, run_parser],
+        prog="metapi mag_wf",
+        help="mag_wf pipeline",
     )
 
     parser_init.add_argument(
@@ -288,63 +335,7 @@ if begin from simulate:
     )
     parser_init.set_defaults(func=init)
 
-    parser_denovo_wf.add_argument(
-        "task",
-        metavar="TASK",
-        nargs="?",
-        type=str,
-        default="all",
-        choices=WORKFLOWS,
-        help="pipeline end point. Allowed values are " + ", ".join(WORKFLOWS),
-    )
-    parser_denovo_wf.add_argument(
-        "--config",
-        type=str,
-        default="./config.yaml",
-        help="config.yaml, default: ./config.yaml",
-    )
-    parser_denovo_wf.add_argument(
-        "--cores", type=int, default=8, help="CPU cores, default: 8"
-    )
-    parser_denovo_wf.add_argument(
-        "--jobs", type=int, default=80, help="qsub job numbers, default: 80"
-    )
-    parser_denovo_wf.add_argument(
-        "--list", default=False, action="store_true", help="list pipeline rules",
-    )
-    parser_denovo_wf.add_argument(
-        "--run", default=False, action="store_true", help="run pipeline",
-    )
-    parser_denovo_wf.add_argument(
-        "--debug", default=False, action="store_true", help="debug pipeline",
-    )
-    parser_denovo_wf.add_argument(
-        "--dry_run", default=False, action="store_true", help="dry run pipeline",
-    )
-    parser_denovo_wf.add_argument(
-        "--qsub", default=False, action="store_true", help="qsub pipeline",
-    )
-    parser_denovo_wf.add_argument(
-        "--wait", type=int, default=60, help="wait given seconds, default: 60"
-    )
-    parser_denovo_wf.add_argument(
-        "--use_conda", default=False, action="store_true", help="use conda environment"
-    )
-    parser_denovo_wf.add_argument(
-        "--conda_create_envs_only",
-        default=False,
-        action="store_true",
-        help="conda create environments only",
-    )
-    parser_denovo_wf.add_argument(
-        "--snake",
-        metavar="SNAKEMAKEARGS",
-        nargs="?",
-        type=str,
-        default=None,
-        help="other snakemake command options(sankemake -h), if want --touch, just --snake touch",
-    )
-    parser_denovo_wf.set_defaults(func=denovo_wf)
+    parser_mag_wf.set_defaults(func=mag_wf)
 
     args = parser.parse_args()
     try:
