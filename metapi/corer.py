@@ -70,7 +70,7 @@ WORKFLOWS = [
 ]
 
 
-def run_snakemake(args):
+def run_snakemake(args, snakefile):
     config_file = os.path.join(args.workdir, "config.yaml")
     conf = metapi.parse_yaml(config_file)
 
@@ -81,7 +81,7 @@ def run_snakemake(args):
     cmd = [
         "snakemake",
         "--snakefile",
-        conf["snakefile"],
+        snakefile,
         "--configfile",
         args.config,
         "--cores",
@@ -186,11 +186,12 @@ def init(args):
         )
     else:
         print("Please supply a workdir!")
-        sys.exit(1)
+        sys.exit(-1)
 
 
 def mag_wf(args):
-    run_snakemake(args)
+    snakefile = os.path.join(os.path.dirname(__file__), "snakefiles/mag_wf.smk")
+    run_snakemake(args, snakefile)
 
 
 def main():
