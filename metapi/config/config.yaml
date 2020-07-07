@@ -95,6 +95,12 @@ params:
       only_save_scaftigs: True
       memory: 20
       kmers: ["21", "33", "55", "77"]
+    plass:
+      do: False
+      min_seq_id:
+      min_length: 45
+      evalue:
+      filter_protiens: 1
 
     metaquast:
       do: False

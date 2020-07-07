@@ -17,6 +17,7 @@ localrules:
   - assembly_idba_ud_all
   - assembly_metaspades_all
   - assembly_spades_all
+  - assembly_plass_all
   - assembly_metaquast_all
   - assembly_report_all
   - assembly_all
@@ -202,6 +203,12 @@ assembly_metaspades:
   error:  "logs/04.{rule}/{rule}.{wildcards.sample}.e"
 
 assembly_spades:
+  mem: "20G"
+  cores: 8
+  output: "logs/04.{rule}/{rule}.{wildcards.sample}.o"
+  error:  "logs/04.{rule}/{rule}.{wildcards.sample}.e"
+
+assembly_plass:
   mem: "20G"
   cores: 8
   output: "logs/04.{rule}/{rule}.{wildcards.sample}.o"

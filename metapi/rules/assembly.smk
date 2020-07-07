@@ -414,6 +414,53 @@ else:
         input:
 
 
+if "plass" in ASSEMBLERS:
+    rule assembly_plass:
+        input:
+            reads = assembly_input
+        output:
+            proteins = os.path.join(
+                config["output"]["assembly"],
+                "proteins/{sample}.plass.out/{sample}.plass.proteins.fa.gz"),
+            tmp = directory(temp(os.path.join(
+                config["output"]["assembly"],
+                "proteins/{sample}.plass.out.tmp")))
+        log:
+            os.path.join(config["output"]["assembly"],
+                         "logs/{sample}.plass.log")
+        threads:
+            config["params"]["assembly"]["threads"]
+        params:
+            min_seq_id = config["params"]["assembly"]["plass"]["min_seq_id"],
+            min_length = config["params"]["assembly"]["plass"]["min_length"],
+            evalue = config["params"]["assembly"]["plass"]["evalue"],
+            filter_proteins = config["params"]["assembly"]["plass"]["filter_proteins"]
+        shell:
+            '''
+            plass assemble \
+            {input} \
+            --threads {threads} \
+            --compressed 1 \
+            --min-seq-id {params.min_seq_id} \
+            --min-length {params.min_length} \
+            -e {params.evalue} \
+            --filter-proteins {params.filter_proteins} \
+            {output.tmp}
+            '''
+
+
+    rule assembly_nucleotides_plass_all:
+        input:
+            expand(os.path.join(
+                config["output"]["assembly"],
+                "proteins/{sample}.plass.out/{sample}.plass.proteins.fa.gz"),
+                   sample=SAMPLES.index.unique())
+
+else:
+    rule assembly_plass_all:
+        input:
+
+
 if len(ASSEMBLERS) != 0:
     if config["params"]["assembly"]["metaquast"]["do"] and IS_PE:
         rule assembly_metaquast:
@@ -571,6 +618,7 @@ rule assembly_all:
         rules.assembly_idba_ud_all.input,
         rules.assembly_metaspades_all.input,
         rules.assembly_spades_all.input,
+        rules.assembly_plass_all.input,
 
         rules.assembly_report_all.input,
         rules.assembly_metaquast_all.input,

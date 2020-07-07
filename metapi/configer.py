@@ -57,6 +57,7 @@ class metaconfig:
         "logs/04.assembly_idba_ud",
         "logs/04.assembly_metaspades",
         "logs/04.assembly_spades",
+        "logs/04.assembly_plass",
         "logs/04.assembly_metaquast",
         "logs/04.assembly_metaquast_multiqc",
         "logs/04.assembly_report",
@@ -147,11 +148,12 @@ A metagenomics project has been created at %s
 
 if you want to create fresh conda environments:
 
-        metapi denovo_wf --conda_create_envs_only
+        metapi mag_wf --conda_create_envs_only
+        metapi gene_wf --conda_create_envs_only
 
 if you have environments:
 
-        metapi denovo_wf --help
+        metapi mag_wf --help
         metapi gene_wf --help
 """ % (
             self.work_dir
