@@ -540,8 +540,8 @@ if config["params"]["binning"]["dastools"]["do"]:
             bins_dir = expand(
                 os.path.join(
                     config["output"]["binning"],
-                    "bins/{{sample}}.{{assembler}}.out/{binner_dastool}"),
-                    binner_dastool=BINNERS_DASTOOLS),
+                    "bins/{{sample}}.{{assembler}}.out/{binner_dastools}"),
+                    binner_dastools=BINNERS_DASTOOLS),
             scaftigs = os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),

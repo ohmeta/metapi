@@ -97,8 +97,9 @@ if config["params"]["dereplicate"]["drep"]["do"]:
                 os.path.join(
                     config["output"]["dereplicate"],
                     "mags/genomes_info_{assembler}_{binner_checkm}_checkm.csv"),
-                os.path.join(config["output"]["dereplicate"],
-                             "hmq.bins.{assembler}.{binner_checkm}.drep.out")],
+                os.path.join(
+                    config["output"]["dereplicate"],
+                    "mags/hmq.bins.{assembler}.{binner_checkm}.drep.out")],
                    assembler=ASSEMBLERS,
                    binner_checkm=BINNERS_CHECKM)
 

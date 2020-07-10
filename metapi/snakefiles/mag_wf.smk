@@ -9,20 +9,24 @@ shell.executable("bash")
 METAPI_DIR = metapi.__path__[0]
 WRAPPER_DIR = os.path.join(METAPI_DIR, "wrappers")
 
+
 IS_PE = True \
     if config["params"]["reads_layout"] == "pe" \
        else False
+
 
 RMHOST_DO = True \
     if config["params"]["rmhost"]["bwa"]["do"] or \
        config["params"]["rmhost"]["bowtie2"]["do"] \
        else False
 
+
 TRIMMING_DO = True \
     if config["params"]["trimming"]["oas1"]["do"] or \
        config["params"]["trimming"]["sickle"]["do"] or \
        config["params"]["trimming"]["fastp"]["do"] \
        else False
+
 
 ASSEMBLERS = []
 if config["params"]["assembly"]["megahit"]["do"]:
@@ -33,6 +37,7 @@ if config["params"]["assembly"]["metaspades"]["do"]:
     ASSEMBLERS += ["metaspades"]
 if config["params"]["assembly"]["spades"]["do"]:
     ASSEMBLERS += ["spades"]
+
 
 BINNERS_TOTAL = []
 BINNERS_GRAPHBIN = []
@@ -46,17 +51,18 @@ if config["params"]["binning"]["concoct"]["do"]:
     BINNERS_TOTAL += ["concoct"]
 
 if config["params"]["binning"]["graphbin"]["do"]:
-    BINNERS_GRAPHBIN = BINNERS_TOTAL
+    BINNERS_GRAPHBIN = BINNERS_TOTAL.copy()
     for i in BINNERS_GRAPHBIN:
         BINNERS_TOTAL.append(i + "_graphbin")
         BINNERS_DASTOOLS.append(i + "_graphbin")
 else:
-    BINNERS_DASTOOLS = BINNERS_TOTAL
+    BINNERS_DASTOOLS = BINNERS_TOTAL.copy()
 
 if config["params"]["binning"]["dastools"]["do"]:
     BINNERS_TOTAL.append("dastools")
 
 BINNERS_CHECKM = config["params"]["checkm"]["check_binners"]
+
 
 if config["params"]["simulate"]["do"]:
     SAMPLES = metapi.parse_genomes(config)
