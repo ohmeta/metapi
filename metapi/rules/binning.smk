@@ -437,7 +437,7 @@ if config["params"]["binning"]["graphbin"]["do"]:
     rule binning_graphbin_prepare:
         input:
             bins_dir = os.path.join(config["output"]["binning"],
-                         "bins/{sample}.{assembler}.out/{binner_graphbin}"))
+                         "bins/{sample}.{assembler}.out/{binner_graphbin}")
         output:
             binned = os.path.join(
                 config["output"]["binning"],
