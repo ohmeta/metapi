@@ -167,6 +167,9 @@ params:
       no_total_coverage: False
       no_original_data: False
       coverage_out: False
+    graphbin:
+      do: True
+
     dastools:
       do: True
       search_engine: "diamond"

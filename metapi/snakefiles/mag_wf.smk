@@ -34,13 +34,31 @@ if config["params"]["assembly"]["metaspades"]["do"]:
 if config["params"]["assembly"]["spades"]["do"]:
     ASSEMBLERS += ["spades"]
 
-BINNERS = []
-if config["params"]["binning"]["metabat2"]["do"]:
-    BINNERS += ["metabat2"]
-if config["params"]["binning"]["maxbin2"]["do"]:
-    BINNERS += ["maxbin2"]
-if config["params"]["binning"]["concoct"]["do"]:
-    BINNERS += ["concoct"]
+BINNERS_TOTAL = []
+BINNERS_GRAPHBIN = []
+BINNERS_DASTOOLS = []
+BINNERS_CHECKM = []
+if config["params"]["binning"]["graphbin"]["do"]:
+    if config["params"]["binning"]["metabat2"]["do"]:
+        BINNERS_TOTAL += ["metabat2", "metabat2_graphbin"]
+        BINNERS_GRAPHBIN += ["metabat2"]
+        if config[""]
+    if config["params"]["binning"]["maxbin2"]["do"]:
+        BINNERS_TOTAL += ["maxbin2", "maxbin2_graphbin"]
+        BINNERS_GRAPHBIN += ["maxbin2"]
+    if config["params"]["binning"]["concoct"]["do"]:
+        BINNERS_TOTAL += ["concoct", "concoct_graphbin"]
+        BINNERS_GRAPHBIN += ["concoct"]
+else:
+    if config["params"]["binning"]["metabat2"]["do"]:
+        BINNERS_TOTAL += ["metabat2"]
+    if config["params"]["binning"]["maxbin2"]["do"]:
+        BINNERS_TOTAL += ["maxbin2"]
+    if config["params"]["binning"]["concoct"]["do"]:
+        BINNERS_TOTAL += ["concoct"]
+
+    if config["params"]["binning"]["graphbin"]["do"]:
+        BINNERS += ["graphbin"]
 if config["params"]["binning"]["dastools"]["do"]:
     BINNERS += ["dastools"]
 
