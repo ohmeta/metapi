@@ -68,7 +68,7 @@ rule predict_bins_gene_prodigal_all:
             config["output"]["predict"],
             "bins_gene/{assembler}.{binner}.prodigal.out/{sample}/done"),
                assembler=ASSEMBLERS,
-               binner=BINNERS,
+               binner=BINNERS_TOTAL,
                sample=SAMPLES.index.unique()),
 
         rules.binning_all.input
@@ -183,7 +183,7 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
                     config["output"]["predict"],
                     "report/bins_gene_{assembler}.{binner}.multiqc.out/prokka_multiqc_report_data")],
                    assembler=ASSEMBLERS,
-                   binner=BINNERS,
+                   binner=BINNERS_CHECKM,
                    sample=SAMPLES.index.unique()),
 
             rules.binning_all.input

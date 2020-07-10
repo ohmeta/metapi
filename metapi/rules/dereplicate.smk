@@ -100,7 +100,7 @@ if config["params"]["dereplicate"]["drep"]["do"]:
                 os.path.join(config["output"]["dereplicate"],
                              "hmq.bins.{assembler}.{binner}.drep.out")],
                 assembler=ASSEMBLERS,
-                binner=BINNERS)
+                   binner=BINNERS_CHECKM)
 
 else:
     rule dereplicate_mags_drep_all:

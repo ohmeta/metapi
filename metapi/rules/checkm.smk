@@ -203,7 +203,7 @@ if config["params"]["checkm"]["do"]:
                 os.path.join(config["output"]["checkm"],
                              "bins_hmq/{assembler}.{binner}.links")],
                    assembler=ASSEMBLERS,
-                   binner=BINNERS),
+                   binner=BINNERS_CHECKM),
 
             rules.predict_bins_gene_prodigal_all.input,
             rules.binning_all.input,

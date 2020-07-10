@@ -99,8 +99,8 @@ if config["params"]["dereplicate"]["drep"]["do"]:
                     "mags/genomes_info_{assembler}_{binner}_checkm.csv"),
                 os.path.join(config["output"]["dereplicate"],
                              "hmq.bins.{assembler}.{binner}.drep.out")],
-                assembler=ASSEMBLERS,
-                binner=BINNERS)
+                   assembler=ASSEMBLERS,
+                   binner=BINNERS_CHECKM)
 
 else:
     rule dereplicate_mags_drep_all:

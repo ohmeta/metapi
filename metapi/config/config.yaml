@@ -169,7 +169,8 @@ params:
       coverage_out: False
     graphbin:
       do: True
-
+      max_iteration: 100
+      diff_threshold: 0.1
     dastools:
       do: True
       search_engine: "diamond"
@@ -201,6 +202,7 @@ params:
 
   checkm:
     do: True
+    check_binners: ["metabat2", "dastools"]
     report: True
     threads: 8
     completeness: 90

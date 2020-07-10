@@ -64,78 +64,73 @@ rule binning_metabat2_coverage_all:
                sample=SAMPLES.index.unique())
 
 
-if config["params"]["binning"]["metabat2"]["do"]:
-    rule binning_metabat2:
-        input:
-            scaftigs = os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
-            coverage = os.path.join(
+rule binning_metabat2:
+    input:
+        scaftigs = os.path.join(
+            config["output"]["assembly"],
+            "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
+        coverage = os.path.join(
+            config["output"]["binning"],
+            "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.coverage")
+    output:
+        bins_dir = directory(os.path.join(config["output"]["binning"],
+                                          "bins/{sample}.{assembler}.out/metabat2"))
+    priority:
+        30
+    log:
+        os.path.join(config["output"]["binning"],
+                     "logs/binning/{sample}.{assembler}.metabat2.binning.log")
+    params:
+        bin_prefix = os.path.join(
+            config["output"]["binning"],
+            "bins/{sample}.{assembler}.out/metabat2/{sample}.{assembler}.metabat2.bin"),
+        min_contig = config["params"]["binning"]["metabat2"]["min_contig"],
+        max_p = config["params"]["binning"]["metabat2"]["maxP"],
+        min_s = config["params"]["binning"]["metabat2"]["minS"],
+        max_edges = config["params"]["binning"]["metabat2"]["maxEdges"],
+        p_tnf = config["params"]["binning"]["metabat2"]["pTNF"],
+        no_add = "--noAdd" if config["params"]["binning"]["metabat2"]["noAdd"] else "",
+        min_cv = config["params"]["binning"]["metabat2"]["minCV"],
+        min_cv_sum = config["params"]["binning"]["metabat2"]["minCVSum"],
+        min_cls_size = config["params"]["binning"]["metabat2"]["minClsSize"],
+        save_cls = "--saveCls" \
+            if config["params"]["binning"]["metabat2"]["saveCls"] else "",
+        seed = config["params"]["binning"]["metabat2"]["seed"]
+    threads:
+        config["params"]["binning"]["threads"]
+    shell:
+        '''
+        metabat2 \
+        --inFile {input.scaftigs} \
+        --abdFile {input.coverage} \
+        --outFile {params.bin_prefix} \
+        --minContig {params.min_contig} \
+        --maxP {params.max_p} \
+        --minS {params.min_s} \
+        --maxEdges {params.max_edges} \
+        --pTNF {params.p_tnf} \
+        {params.no_add} \
+        --minCV {params.min_cv} \
+        --minCVSum {params.min_cv_sum} \
+        {params.save_cls} \
+        --seed {params.seed} \
+        --numThreads {threads} \
+        --verbose > {log}
+        '''
+
+
+rule binning_metabat2_all:
+    input:
+        expand(
+            os.path.join(
                 config["output"]["binning"],
-                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.coverage")
-        output:
-            bins_dir = directory(os.path.join(config["output"]["binning"],
-                                              "bins/{sample}.{assembler}.out/metabat2"))
-        priority:
-            30
-        log:
-            os.path.join(config["output"]["binning"],
-                         "logs/binning/{sample}.{assembler}.metabat2.binning.log")
-        params:
-            bin_prefix = os.path.join(
-                config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/metabat2/{sample}.{assembler}.metabat2.bin"),
-            min_contig = config["params"]["binning"]["metabat2"]["min_contig"],
-            max_p = config["params"]["binning"]["metabat2"]["maxP"],
-            min_s = config["params"]["binning"]["metabat2"]["minS"],
-            max_edges = config["params"]["binning"]["metabat2"]["maxEdges"],
-            p_tnf = config["params"]["binning"]["metabat2"]["pTNF"],
-            no_add = "--noAdd" if config["params"]["binning"]["metabat2"]["noAdd"] else "",
-            min_cv = config["params"]["binning"]["metabat2"]["minCV"],
-            min_cv_sum = config["params"]["binning"]["metabat2"]["minCVSum"],
-            min_cls_size = config["params"]["binning"]["metabat2"]["minClsSize"],
-            save_cls = "--saveCls" \
-                if config["params"]["binning"]["metabat2"]["saveCls"] else "",
-            seed = config["params"]["binning"]["metabat2"]["seed"]
-        threads:
-            config["params"]["binning"]["threads"]
-        shell:
-            '''
-            metabat2 \
-            --inFile {input.scaftigs} \
-            --abdFile {input.coverage} \
-            --outFile {params.bin_prefix} \
-            --minContig {params.min_contig} \
-            --maxP {params.max_p} \
-            --minS {params.min_s} \
-            --maxEdges {params.max_edges} \
-            --pTNF {params.p_tnf} \
-            {params.no_add} \
-            --minCV {params.min_cv} \
-            --minCVSum {params.min_cv_sum} \
-            {params.save_cls} \
-            --seed {params.seed} \
-            --numThreads {threads} \
-            --verbose > {log}
-            '''
+                "bins/{sample}.{assembler}.out/metabat2"),
+            assembler=ASSEMBLERS,
+            sample=SAMPLES.index.unique()),
 
-
-    rule binning_metabat2_all:
-        input:
-            expand(
-                os.path.join(
-                    config["output"]["binning"],
-                    "bins/{sample}.{assembler}.out/metabat2"),
-                assembler=ASSEMBLERS,
-                sample=SAMPLES.index.unique()),
-
-            rules.binning_metabat2_coverage_all.input,
-            rules.assembly_all.input
-
-else:
-    rule binning_metabat2_all:
-        input:
-
+        rules.binning_metabat2_coverage_all.input,
+        rules.assembly_all.input
+       
 
 if config["params"]["binning"]["maxbin2"]["do"]:
     rule binning_maxbin2_coverage:
@@ -476,7 +471,9 @@ if config["params"]["binning"]["graphbin"]["do"]:
                 "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.paths.gz"),
             gfa = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.gfa.gz")
+                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.gfa.gz"),
+            max_iteration = config["params"]["binning"]["graphbin"]["max_iteration"],
+            diff_threshold = config["params"]["binning"]["graphbin"]["diff_threshold"]
         run:
             import pandas as pd
             import os
@@ -496,7 +493,7 @@ if config["params"]["binning"]["graphbin"]["do"]:
                         --binned {input.binned} \
                         --paths {output}/scaftigs.paths \
                         --max_iteration {params.max_iteration} \
-                        --diff_threshold {params.threshold} \
+                        --diff_threshold {params.diff_threshold} \
                         --output {output} > {log}
                         ''')
                     shell('''rm -rf {output}/scaftigs.paths''')
@@ -504,11 +501,11 @@ if config["params"]["binning"]["graphbin"]["do"]:
                     shell(
                         '''
                         graphbin \
-                        --assembler spades \
+                        --assembler {params.assembler} \
                         --graph {output}/scaftigs.gfa \
                         --binned {input.binned} \
                         --max_iteration {params.max_iteration} \
-                        --diff_threshold {params.threshold} \
+                        --diff_threshold {params.diff_threshold} \
                         --output {output} > {log}
                         ''')
                 shell('''rm -rf {output}/scaftigs.gfa''')
@@ -526,9 +523,11 @@ if config["params"]["binning"]["graphbin"]["do"]:
             expand(os.path.join(
                 config["output"]["binning"],
                 "bins/{sample}.{assembler}.out/{binner}_graphbin"),
-                   binner=list(set(BINNERS) - set(["graphbin", "dastools"])),
+                   binner=BINNERS_GRAPHBIN,
                    assembler=ASSEMBLERS,
-                   sample=SAMPLES.index.unique())
+                   sample=SAMPLES.index.unique()),
+
+            rules.assembly_all.input
 
 else:
     rule binning_graphbin_all:
@@ -542,12 +541,7 @@ if config["params"]["binning"]["dastools"]["do"]:
                 os.path.join(
                     config["output"]["binning"],
                     "bins/{{sample}}.{{assembler}}.out/{binner}"),
-                    binner=BINNERS[:-1]) \
-                    if not config["params"]["binning"]["graphbin"]["do"] else \
-                       expand(os.path.join(
-                           config["output"]["binning"],
-                           "bins/{{sample}}.{{assembler}}.out/{binner}_graphbin"),
-                              binner=list(set(BINNERS) - set(["dastools", "graphbin"]))),
+                    binner=BINNERS_DASTOOLS),
             scaftigs = os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
@@ -674,7 +668,7 @@ else:
         input:
 
 
-if len(BINNERS) != 0:
+if len(BINNERS_TOTAL) != 0:
     rule binning_report:
         input:
             bins_dir = os.path.join(
@@ -756,7 +750,7 @@ if len(BINNERS) != 0:
                 config["output"]["binning"],
                 "report/assembly_stats_{assembler}_{binner}.tsv"),
                    assembler=ASSEMBLERS,
-                   binner=BINNERS)
+                   binner=BINNERS_CHECKM)
 
 else:
     rule binning_report_all:

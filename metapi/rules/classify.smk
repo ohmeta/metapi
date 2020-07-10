@@ -141,7 +141,7 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
                     config["output"]["classify"],
                     "bins_hmq/{assembler}.{binner}.gtdbtk.out"),
                 assembler=ASSEMBLERS,
-                binner=BINNERS),
+                binner=BINNERS_CHECKM),
 
             rules.checkm_all.input,
 

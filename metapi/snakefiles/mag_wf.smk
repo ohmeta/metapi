@@ -37,31 +37,26 @@ if config["params"]["assembly"]["spades"]["do"]:
 BINNERS_TOTAL = []
 BINNERS_GRAPHBIN = []
 BINNERS_DASTOOLS = []
-BINNERS_CHECKM = []
+
+if config["params"]["binning"]["metabat2"]["do"]:
+    BINNERS_TOTAL += ["metabat2"]
+if config["params"]["binning"]["maxbin2"]["do"]:
+    BINNERS_TOTAL += ["maxbin2"]
+if config["params"]["binning"]["concoct"]["do"]:
+    BINNERS_TOTAL += ["concoct"]
+
 if config["params"]["binning"]["graphbin"]["do"]:
-    if config["params"]["binning"]["metabat2"]["do"]:
-        BINNERS_TOTAL += ["metabat2", "metabat2_graphbin"]
-        BINNERS_GRAPHBIN += ["metabat2"]
-        if config[""]
-    if config["params"]["binning"]["maxbin2"]["do"]:
-        BINNERS_TOTAL += ["maxbin2", "maxbin2_graphbin"]
-        BINNERS_GRAPHBIN += ["maxbin2"]
-    if config["params"]["binning"]["concoct"]["do"]:
-        BINNERS_TOTAL += ["concoct", "concoct_graphbin"]
-        BINNERS_GRAPHBIN += ["concoct"]
+    BINNERS_GRAPHBIN = BINNERS_TOTAL
+    for i in BINNERS_GRAPHBIN:
+        BINNERS_TOTAL.append(i + "_graphbin")
+        BINNERS_DASTOOLS.append(i + "_graphbin")
 else:
-    if config["params"]["binning"]["metabat2"]["do"]:
-        BINNERS_TOTAL += ["metabat2"]
-    if config["params"]["binning"]["maxbin2"]["do"]:
-        BINNERS_TOTAL += ["maxbin2"]
-    if config["params"]["binning"]["concoct"]["do"]:
-        BINNERS_TOTAL += ["concoct"]
+    BINNERS_DASTOOLS = BINNERS_TOTAL
 
-    if config["params"]["binning"]["graphbin"]["do"]:
-        BINNERS += ["graphbin"]
 if config["params"]["binning"]["dastools"]["do"]:
-    BINNERS += ["dastools"]
+    BINNERS_TOTAL.append("dastools")
 
+BINNERS_CHECKM = config["params"]["checkm"]["check_binners"]
 
 if config["params"]["simulate"]["do"]:
     SAMPLES = metapi.parse_genomes(config)
