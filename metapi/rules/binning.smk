@@ -464,7 +464,7 @@ if config["params"]["binning"]["graphbin"]["do"]:
             assembler = "{assembler}",
             prefix = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.{binner}_graphbin/{sample}.{assembler}.{binner_graphbin}_graphbin.bin"),
+                "bins/{sample}.{assembler}.out/{binner_graphbin}_graphbin/{sample}.{assembler}.{binner_graphbin}_graphbin.bin"),
             suffix = config["params"]["binning"]["bin_suffix"],
             paths = os.path.join(
                 config["output"]["assembly"],
