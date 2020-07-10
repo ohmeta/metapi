@@ -531,7 +531,7 @@ if config["params"]["binning"]["graphbin"]["do"]:
 
 else:
     rule binning_graphbin_all:
-        input
+        input:
 
 
 if config["params"]["binning"]["dastools"]["do"]:
