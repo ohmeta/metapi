@@ -3,7 +3,7 @@ if config["params"]["dereplicate"]["drep"]["do"]:
         input:
             bins_report = os.path.join(
                 config["output"]["binning"],
-                "report/assembly_stats_{assembler}_{binner_cehckm}.tsv"),
+                "report/assembly_stats_{assembler}_{binner_checkm}.tsv"),
             checkm_table = os.path.join(
                 config["output"]["checkm"],
                 "report/{assembler}_{binner_checkm}_checkm_table.tsv")
