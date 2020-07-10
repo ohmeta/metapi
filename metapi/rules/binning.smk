@@ -437,11 +437,11 @@ if config["params"]["binning"]["graphbin"]["do"]:
     rule binning_graphbin_prepare:
         input:
             bins_dir = os.path.join(config["output"]["binning"],
-                         "bins/{sample}.{assembler}.out/{binner}"))
+                         "bins/{sample}.{assembler}.out/{binner_graphbin}"))
         output:
             binned = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/graphbin/{sample}.{assembler}.{binner}.graphbin.csv")
+                "bins/{sample}.{assembler}.out/graphbin/{sample}.{assembler}.{binner_graphbin}.graphbin.csv")
         run:
             metapi.get_binning_info(input.bins_dir, output.binned)
 
@@ -453,18 +453,18 @@ if config["params"]["binning"]["graphbin"]["do"]:
                 "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.fa.gz"),
             binned = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/graphbin/{sample}.{assembler}.{binner}.graphbin.csv")
+                "bins/{sample}.{assembler}.out/graphbin/{sample}.{assembler}.{binner_graphbin}.graphbin.csv")
         output:
             directory(os.path.join(config["output"]["binning"],
-                                   "bins/{sample}.{assembler}.out/{binner}_graphbin"))
+                                   "bins/{sample}.{assembler}.out/{binner_graphbin}_graphbin"))
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/binning/{sample}.{assembler}.{binner}.graphbin.refine.log")
+                         "logs/binning/{sample}.{assembler}.{binner_graphbin}.graphbin.refine.log")
         params:
             assembler = "{assembler}",
             prefix = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.{binner}_graphbin/{sample}.{assembler}.{binner}_graphbin.bin"),
+                "bins/{sample}.{assembler}.{binner}_graphbin/{sample}.{assembler}.{binner_graphbin}_graphbin.bin"),
             suffix = config["params"]["binning"]["bin_suffix"],
             paths = os.path.join(
                 config["output"]["assembly"],
@@ -522,8 +522,8 @@ if config["params"]["binning"]["graphbin"]["do"]:
         input:
             expand(os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/{binner}_graphbin"),
-                   binner=BINNERS_GRAPHBIN,
+                "bins/{sample}.{assembler}.out/{binner_graphbin}_graphbin"),
+                   binner_graphbin=BINNERS_GRAPHBIN,
                    assembler=ASSEMBLERS,
                    sample=SAMPLES.index.unique()),
 
@@ -540,8 +540,8 @@ if config["params"]["binning"]["dastools"]["do"]:
             bins_dir = expand(
                 os.path.join(
                     config["output"]["binning"],
-                    "bins/{{sample}}.{{assembler}}.out/{binner}"),
-                    binner=BINNERS_DASTOOLS),
+                    "bins/{{sample}}.{{assembler}}.out/{binner_dastool}"),
+                    binner_dastool=BINNERS_DASTOOLS),
             scaftigs = os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
@@ -668,23 +668,23 @@ else:
         input:
 
 
-if len(BINNERS_TOTAL) != 0:
+if len(BINNERS_CHECKM) != 0:
     rule binning_report:
         input:
             bins_dir = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/{binner}")
+                "bins/{sample}.{assembler}.out/{binner_checkm}")
         output:
             report_dir = directory(
                 os.path.join(
                     config["output"]["binning"],
-                    "report/{assembler}_{binner}_stats/{sample}"))
+                    "report/{assembler}_{binner_checkm}_stats/{sample}"))
         priority:
             35
         params:
             sample_id = "{sample}",
             assembler = "{assembler}",
-            binner = "{binner}"
+            binner = "{binner_checkm}"
         run:
             import glob
 
@@ -719,12 +719,12 @@ if len(BINNERS_TOTAL) != 0:
         input:
             expand(os.path.join(
                 config["output"]["binning"],
-                "report/{{assembler}}_{{binner}}_stats/{sample}"),
+                "report/{{assembler}}_{{binner_checkm}}_stats/{sample}"),
                    sample=SAMPLES.index.unique())
         output:
             summary = os.path.join(
                 config["output"]["binning"],
-                "report/assembly_stats_{assembler}_{binner}.tsv")
+                "report/assembly_stats_{assembler}_{binner_checkm}.tsv")
         params:
             len_ranges = config["params"]["assembly"]["report"]["len_ranges"]
         threads:
@@ -748,9 +748,9 @@ if len(BINNERS_TOTAL) != 0:
         input:
             expand(os.path.join(
                 config["output"]["binning"],
-                "report/assembly_stats_{assembler}_{binner}.tsv"),
+                "report/assembly_stats_{assembler}_{binner_checkm}.tsv"),
                    assembler=ASSEMBLERS,
-                   binner=BINNERS_CHECKM)
+                   binner_checkm=BINNERS_CHECKM)
 
 else:
     rule binning_report_all:

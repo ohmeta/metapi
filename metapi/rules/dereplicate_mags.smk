@@ -3,14 +3,14 @@ if config["params"]["dereplicate"]["drep"]["do"]:
         input:
             bins_report = os.path.join(
                 config["output"]["binning"],
-                "report/assembly_stats_{assembler}_{binner}.tsv"),
+                "report/assembly_stats_{assembler}_{binner_cehckm}.tsv"),
             checkm_table = os.path.join(
                 config["output"]["checkm"],
-                "report/{assembler}_{binner}_checkm_table.tsv")
+                "report/{assembler}_{binner_checkm}_checkm_table.tsv")
         output:
             genome_info = os.path.join(
                 config["output"]["dereplicate"],
-                "mags/genomes_info_{assembler}_{binner}_checkm.csv")
+                "mags/genomes_info_{assembler}_{binner_checkm}_checkm.csv")
         run:
             import pandas as pd
             bins_report = pd.read_csv(input.bins_report, sep='\t', header=[0, 1])\
@@ -45,17 +45,17 @@ if config["params"]["dereplicate"]["drep"]["do"]:
         input:
             bins_hmq = os.path.join(
                 config["output"]["checkm"],
-                "bins_hmq/{assembler}.{binner}.links"),
+                "bins_hmq/{assembler}.{binner_checkm}.links"),
             genome_info = os.path.join(
                 config["output"]["dereplicate"],
-                "mags/genomes_info_{assembler}_{binner}_checkm.csv")
+                "mags/genomes_info_{assembler}_{binner_checkm}_checkm.csv")
         output:
             directory(os.path.join(
                 config["output"]["dereplicate"],
-                "mags/hmq.bins.{assembler}.{binner}.drep.out"))
+                "mags/hmq.bins.{assembler}.{binner_checkm}.drep.out"))
         log:
             os.path.join(config["output"]["dereplicate"],
-                         "logs/hmq.bins.{assembler}.{binner}.drep.log")
+                         "logs/hmq.bins.{assembler}.{binner_checkm}.drep.log")
         conda:
             config["envs"]["bioenv3.6"]
         params:
@@ -96,11 +96,11 @@ if config["params"]["dereplicate"]["drep"]["do"]:
             expand([
                 os.path.join(
                     config["output"]["dereplicate"],
-                    "mags/genomes_info_{assembler}_{binner}_checkm.csv"),
+                    "mags/genomes_info_{assembler}_{binner_checkm}_checkm.csv"),
                 os.path.join(config["output"]["dereplicate"],
-                             "hmq.bins.{assembler}.{binner}.drep.out")],
+                             "hmq.bins.{assembler}.{binner_checkm}.drep.out")],
                    assembler=ASSEMBLERS,
-                   binner=BINNERS_CHECKM)
+                   binner_checkm=BINNERS_CHECKM)
 
 else:
     rule dereplicate_mags_drep_all:

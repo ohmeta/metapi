@@ -111,14 +111,14 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
         input:
             os.path.join(
                 config["output"]["checkm"],
-                "bins_hmq/{assembler}.{binner}.links")
+                "bins_hmq/{assembler}.{binner_checkm}.links")
         output:
             directory(os.path.join(
                 config["output"]["classify"],
-                "bins_hmq/{assembler}.{binner}.gtdbtk.out"))
+                "bins_hmq/{assembler}.{binner_checkm}.gtdbtk.out"))
         log:
             os.path.join(config["output"]["classify"],
-                         "logs/{assembler}.{binner}.gtdbtk.log")
+                         "logs/{assembler}.{binner_checkm}.gtdbtk.log")
         params:
             bin_suffix = "fa"
         threads:
@@ -139,9 +139,9 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             expand(
                 os.path.join(
                     config["output"]["classify"],
-                    "bins_hmq/{assembler}.{binner}.gtdbtk.out"),
+                    "bins_hmq/{assembler}.{binner_checkm}.gtdbtk.out"),
                 assembler=ASSEMBLERS,
-                binner=BINNERS_CHECKM),
+                binner_checkm=BINNERS_CHECKM),
 
             rules.checkm_all.input,
 

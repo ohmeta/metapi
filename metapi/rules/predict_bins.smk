@@ -2,15 +2,15 @@ rule predict_bins_gene_prodigal:
     input:
         bins_dir = os.path.join(
             config["output"]["binning"],
-            "bins/{sample}.{assembler}.out/{binner}")
+            "bins/{sample}.{assembler}.out/{binner_checkm}")
     output:
         done = os.path.join(
             config["output"]["predict"],
-            "bins_gene/{assembler}.{binner}.prodigal.out/{sample}/done")
+            "bins_gene/{assembler}.{binner_checkm}.prodigal.out/{sample}/done")
     params:
         output_dir = os.path.join(
             config["output"]["predict"],
-            "bins_gene/{assembler}.{binner}.prodigal.out/{sample}"),
+            "bins_gene/{assembler}.{binner_checkm}.prodigal.out/{sample}"),
         logs_dir = os.path.join(config["output"]["predict"],
                                 "logs/bins_gene/{sample}.prodigal"),
         format = config["params"]["predict"]["format"]
@@ -66,7 +66,7 @@ rule predict_bins_gene_prodigal_all:
     input:
         expand(os.path.join(
             config["output"]["predict"],
-            "bins_gene/{assembler}.{binner}.prodigal.out/{sample}/done"),
+            "bins_gene/{assembler}.{binner_checkm}.prodigal.out/{sample}/done"),
                assembler=ASSEMBLERS,
                binner=BINNERS_TOTAL,
                sample=SAMPLES.index.unique()),
@@ -79,15 +79,15 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
         input:
             bins_dir = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/{binner}")
+                "bins/{sample}.{assembler}.out/{binner_checkm}")
         output:
             done = os.path.join(
                 config["output"]["predict"],
-                "bins_gene/{assembler}.{binner}.prokka.out/{sample}/done")
+                "bins_gene/{assembler}.{binner_checkm}.prokka.out/{sample}/done")
         params:
             output_dir = os.path.join(
                 config["output"]["predict"],
-                "bins_gene/{assembler}.{binner}.prokka.out/{sample}"),
+                "bins_gene/{assembler}.{binner_checkm}.prokka.out/{sample}"),
             logs_dir = os.path.join(config["output"]["predict"],
                                     "logs/bins_gene/{sample}.prodigal"),
             kingdom = config["params"]["predict"]["bins_to_gene"]["prokka"]["kingdom"]
@@ -138,26 +138,26 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
             expand(
                 os.path.join(
                     config["output"]["predict"],
-                    "bins_gene/{{assembler}}.{{binner}}.prokka.out/{sample}/done"),
+                    "bins_gene/{{assembler}}.{{binner_checkm}}.prokka.out/{sample}/done"),
                 sample=SAMPLES.index.unique())
         output:
             html = os.path.join(
                 config["output"]["predict"],
-                "report/bins_gene_{assembler}.{binner}.multiqc.out/prokka_multiqc_report.html"),
+                "report/bins_gene_{assembler}.{binner_checkm}.multiqc.out/prokka_multiqc_report.html"),
             data_dir = directory(os.path.join(
                 config["output"]["predict"],
-                "report/bins_gene_{assembler}.{binner}.multiqc.out/prokka_multiqc_report_data"))
+                "report/bins_gene_{assembler}.{binner_checkm}.multiqc.out/prokka_multiqc_report_data"))
         log:
             os.path.join(
                 config["output"]["predict"],
-                "logs/report/bins_gene_{assembler}.{binner}.multiqc.prokka.log")
+                "logs/report/bins_gene_{assembler}.{binner_checkm}.multiqc.prokka.log")
         params:
             input_dir = os.path.join(
                 config["output"]["predict"],
-                "bins_gene/{assembler}.{binner}.prokka.out/"),
+                "bins_gene/{assembler}.{binner_checkm}.prokka.out/"),
             output_dir = os.path.join(
                 config["output"]["predict"],
-                "report/bins_gene_{assembler}.{binner}.multiqc.out")
+                "report/bins_gene_{assembler}.{binner_checkm}.multiqc.out")
         shell:
             '''
             multiqc \
@@ -175,15 +175,15 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
             expand([
                 os.path.join(
                     config["output"]["predict"],
-                    "bins_gene/{assembler}.{binner}.prokka.out/{sample}/done"),
+                    "bins_gene/{assembler}.{binner_checkm}.prokka.out/{sample}/done"),
                 os.path.join(
                     config["output"]["predict"],
-                    "report/bins_gene_{assembler}.{binner}.multiqc.out/prokka_multiqc_report.html"),
+                    "report/bins_gene_{assembler}.{binner_checkm}.multiqc.out/prokka_multiqc_report.html"),
                 os.path.join(
                     config["output"]["predict"],
-                    "report/bins_gene_{assembler}.{binner}.multiqc.out/prokka_multiqc_report_data")],
+                    "report/bins_gene_{assembler}.{binner_checkm}.multiqc.out/prokka_multiqc_report_data")],
                    assembler=ASSEMBLERS,
-                   binner=BINNERS_CHECKM,
+                   binner_checkm=BINNERS_CHECKM,
                    sample=SAMPLES.index.unique()),
 
             rules.binning_all.input
