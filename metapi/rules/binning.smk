@@ -442,8 +442,10 @@ if config["params"]["binning"]["graphbin"]["do"]:
             binned = os.path.join(
                 config["output"]["binning"],
                 "bins/{sample}.{assembler}.out/graphbin/{sample}.{assembler}.{binner_graphbin}.graphbin.csv")
+        params:
+            suffix = config["params"]["binning"]["bin_suffix"]
         run:
-            metapi.get_binning_info(input.bins_dir, output.binned)
+            metapi.get_binning_info(input.bins_dir, output.binned, params.suffix)
 
 
     rule binning_graphbin:
