@@ -109,7 +109,7 @@ WORKFLOWS_GENE = [
 ]
 
 
-def run_snakemake(args, snakefile):
+def run_snakemake(args, snakefile, workflow):
     config_file = os.path.join(args.workdir, "config.yaml")
     conf = metapi.parse_yaml(config_file)
 
@@ -169,7 +169,7 @@ def run_snakemake(args, snakefile):
         cmd += ["--" + args.snake]
 
     cmd_str = " ".join(cmd).strip()
-    print("Running metapi denovo_wf:\n%s" % cmd_str)
+    print("Running metapi %s:\n%s" % (workflow, cmd_str))
 
     env = os.environ.copy()
     proc = subprocess.Popen(
@@ -230,12 +230,12 @@ def init(args):
 
 def mag_wf(args):
     snakefile = os.path.join(os.path.dirname(__file__), "snakefiles/mag_wf.smk")
-    run_snakemake(args, snakefile)
+    run_snakemake(args, snakefile, "mag_wf")
 
 
 def gene_wf(args):
     snakefile = os.path.join(os.path.dirname(__file__), "snakefiles/gene_wf.smk")
-    run_snakemake(args, snakefile)
+    run_snakemake(args, snakefile, "gene_wf")
 
 
 def main():
