@@ -173,7 +173,10 @@ if "metaspades" in ASSEMBLERS:
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.fa.gz"))
+                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.fa.gz")),
+            gfa = protected(os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.gfa.gz"))
         priority:
             20
         params:
@@ -228,7 +231,7 @@ if "metaspades" in ASSEMBLERS:
                 shell('''rm -rf {params.output_dir}/corrected''')
                 shell('''rm -rf {params.output_dir}/pipeline_state''')
 
-                shell('''sed -i 's#^>NODE#>{params.prefix}_NODE#g' {params.output_dir}/scaffolds.fasta''')
+                #shell('''sed -i 's#^>NODE#>{params.prefix}_NODE#g' {params.output_dir}/scaffolds.fasta''')
                 shell('''pigz -p {threads} {params.output_dir}/scaffolds.fasta''')
                 shell(
                     '''
@@ -236,7 +239,7 @@ if "metaspades" in ASSEMBLERS:
                     {params.output_dir}/{params.prefix}.metaspades.scaffolds.fa.gz
                     ''')
 
-                shell('''sed -i 's#^>NODE#>{params.prefix}_NODE#g' {params.output_dir}/contigs.fasta''')
+                #shell('''sed -i 's#^>NODE#>{params.prefix}_NODE#g' {params.output_dir}/contigs.fasta''')
                 shell('''pigz -p {threads} {params.output_dir}/contigs.fasta''')
                 shell(
                     '''
@@ -244,7 +247,7 @@ if "metaspades" in ASSEMBLERS:
                     {params.output_dir}/{params.prefix}.metaspades.contigs.fa.gz
                     ''')
 
-                shell('''sed -i 's#NODE#{params.prefix}_NODE#g' {params.output_dir}/contigs.paths''')
+                #shell('''sed -i 's#NODE#{params.prefix}_NODE#g' {params.output_dir}/contigs.paths''')
                 shell('''pigz -p {threads} {params.output_dir}/contigs.paths''')
                 shell(
                     '''
@@ -252,7 +255,7 @@ if "metaspades" in ASSEMBLERS:
                     {params.output_dir}/{params.prefix}.metaspades.contigs.paths.gz
                     ''')
 
-                shell('''sed -i 's#NODE#{params.prefix}_NODE#g' {params.output_dir}/scaffolds.paths''')
+                #shell('''sed -i 's#NODE#{params.prefix}_NODE#g' {params.output_dir}/scaffolds.paths''')
                 shell('''pigz -p {threads} {params.output_dir}/scaffolds.paths''')
                 shell(
                     '''
@@ -260,18 +263,13 @@ if "metaspades" in ASSEMBLERS:
                     {params.output_dir}/{params.prefix}.metaspades.scaffolds.paths.gz
                     ''')
 
-                shell(
-                    '''
-                    sed -i 's#NODE#{params.prefix}_NODE#g' \
-                    {params.output_dir}/assembly_graph_with_scaffolds.gfa
-                    ''')
-                shell('''pigz -p {threads} {params.output_dir}/assembly_graph_with_scafoolds.gfa''')
-                shell(
-                    '''
-                    mv {params.output_dir}/assembly_graph_with_scaffolds.gfa \
-                    {params.output_dir}/{params.prefix}.metaspades.scaftigs.gfa.gz
-                    '''
-                )
+                #shell(
+                #    '''
+                #    sed -i 's#NODE#{params.prefix}_NODE#g' \
+                #    {params.output_dir}/assembly_graph_with_scaffolds.gfa
+                #    ''')
+                shell('''pigz -p {threads} {params.output_dir}/assembly_graph_with_scaffolds.gfa''')
+                shell('''mv {params.output_dir}/assembly_graph_with_scaffolds.gfa.gz {output.gfa}''')
 
                 if params.link_scaffolds:
                     shell(
@@ -280,8 +278,8 @@ if "metaspades" in ASSEMBLERS:
                         ln -s {params.prefix}.metaspades.scaffolds.fa.gz \
                         {params.prefix}.metaspades.scaftigs.fa.gz && \
                         ln -s {params.prefix}.metaspades.scaffolds.paths.gz \
-                        {params.prefix}.metaspades.scaftigs.paths.gz
-                        && popd
+                        {params.prefix}.metaspades.scaftigs.paths.gz && \
+                        popd
                         ''')
                 else:
                      shell(
@@ -290,8 +288,8 @@ if "metaspades" in ASSEMBLERS:
                         ln -s {params.prefix}.metaspades.contigs.fa.gz \
                         {params.prefix}.metaspades.scaftigs.fa.gz && \
                         ln -s {params.prefix}.metaspades.contigs.paths.gz \
-                        {params.prefix}.metaspades.scaftigs.paths.gz
-                        && popd
+                        {params.prefix}.metaspades.scaftigs.paths.gz && \
+                        popd
                         ''')
 
                 if params.only_save_scaftigs:
@@ -300,11 +298,11 @@ if "metaspades" in ASSEMBLERS:
                         find {params.output_dir} \
                         -type f \
                         ! -wholename {output.scaftigs} \
+                        ! -wholename {output.gfa} \
                         ! -wholename {params.output_dir}/{params.prefix}.metaspades.scaffolds.fa.gz \
                         ! -wholename {params.output_dir}/{params.prefix}.metaspades.contigs.fa.gz \
                         ! -wholename {params.output_dir}/{params.prefix}.metaspades.scaffolds.paths.gz \
                         ! -wholename {params.output_dir}/{params.prefix}.metaspades.contigs.paths.gz \
-                        ! -wholename {params.output_dir}/{params.prefix}.metaspades.scaftigs.gfa.gz \
                         -delete
                         ''')
                 else:
@@ -313,11 +311,11 @@ if "metaspades" in ASSEMBLERS:
                         find {params.output_dir} \
                         -type f \
                         ! -wholename {output.scaftigs} \
+                        ! -wholename {output.gfa} \
                         ! -wholename {params.output_dir}/{params.prefix}.metaspades.scaffolds.fa.gz \
                         ! -wholename {params.output_dir}/{params.prefix}.metaspades.contigs.fa.gz \
                         ! -wholename {params.output_dir}/{params.prefix}.metaspades.scaffolds.paths.gz \
                         ! -wholename {params.output_dir}/{params.prefix}.metaspades.contigs.paths.gz \
-                        ! -wholename {params.output_dir}/{params.prefix}.metaspades.scaftigs.gfa.gz \
                         ! -wholename {params.tar_results} | \
                         xargs -I % sh -c 'tar -rf {params.tar_results} %; rm -rf %'
                         ''')

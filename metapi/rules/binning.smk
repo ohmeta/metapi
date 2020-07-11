@@ -220,11 +220,13 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             with os.scandir(output.bins_dir) as itr:
                 for entry in itr:
                     bin_id, bin_suffix = os.path.splitext(entry.name)
+                    bin_name, cluster_num = bin_id.rsplit(".", maxsplit=1)
+                    bin_id = bin_name + "." + cluster_num.lstrip("0")
                     if bin_suffix == ".fasta":
                         shell('''mv %s %s''' \
                               % (os.path.join(output.bins_dir, entry.name),
                                  os.path.join(output.bins_dir,
-                                              bin_id.lstrip("0") + "." + params.bin_suffix)))
+                                              bin_id + "." + params.bin_suffix)))
 
 
     rule binning_maxbin2_all:
@@ -452,13 +454,17 @@ if config["params"]["binning"]["graphbin"]["do"]:
         input:
             scaftigs = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.fa.gz"),
+                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
+            gfa = os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.gfa.gz"),
             binned = os.path.join(
                 config["output"]["binning"],
                 "bins/{sample}.{assembler}.out/graphbin/{sample}.{assembler}.{binner_graphbin}.graphbin.csv")
         output:
-            directory(os.path.join(config["output"]["binning"],
-                                   "bins/{sample}.{assembler}.out/{binner_graphbin}_graphbin"))
+            directory(os.path.join(
+                config["output"]["binning"],
+                "bins/{sample}.{assembler}.out/{binner_graphbin}_graphbin"))
         log:
             os.path.join(config["output"]["binning"],
                          "logs/binning/{sample}.{assembler}.{binner_graphbin}.graphbin.refine.log")
@@ -471,9 +477,6 @@ if config["params"]["binning"]["graphbin"]["do"]:
             paths = os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.paths.gz"),
-            gfa = os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.gfa.gz"),
             max_iteration = config["params"]["binning"]["graphbin"]["max_iteration"],
             diff_threshold = config["params"]["binning"]["graphbin"]["diff_threshold"]
         run:
@@ -481,10 +484,12 @@ if config["params"]["binning"]["graphbin"]["do"]:
             import os
 
             shell('''mkdir -p {output}''')
+
             df = pd.read_csv(input.binned, names=["scaftigs_id", "bin_id"])
+
             if not df.empty:
                 shell('''pigz -p {threads} -dc {input.scaftigs} > {output}/scaftigs.fa''')
-                shell('''pigz -p {threads} -dc {params.gfa} > {output}/scaftigs.gfa''')
+                shell('''pigz -p {threads} -dc {input.gfa} > {output}/scaftigs.gfa''')
                 if params.assembler == "metaspades" or params.assembler == "spades":
                     shell('''pigz -p {threads} -dc {params.paths} > {output}/scaftigs.paths''')
                     shell(
@@ -496,7 +501,7 @@ if config["params"]["binning"]["graphbin"]["do"]:
                         --paths {output}/scaftigs.paths \
                         --max_iteration {params.max_iteration} \
                         --diff_threshold {params.diff_threshold} \
-                        --output {output} > {log}
+                        --output {output} > {log} 2>&1
                         ''')
                     shell('''rm -rf {output}/scaftigs.paths''')
                 else:
@@ -508,7 +513,7 @@ if config["params"]["binning"]["graphbin"]["do"]:
                         --binned {input.binned} \
                         --max_iteration {params.max_iteration} \
                         --diff_threshold {params.diff_threshold} \
-                        --output {output} > {log}
+                        --output {output} > {log} 2>&1
                         ''')
                 shell('''rm -rf {output}/scaftigs.gfa''')
 
