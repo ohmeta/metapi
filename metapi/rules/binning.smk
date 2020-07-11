@@ -410,13 +410,15 @@ if config["params"]["binning"]["concoct"]["do"]:
                 ''')
 
             with os.scandir(output.bins_dir) as itr:
+                i = 0
                 for entry in itr:
-                    bin_id, bin_suffix = os.path.splitext(entry.name)
-                    if bin_suffix == ".fa":
+                    bin_id, suffix = os.path.splitext(entry.name)
+                    if suffix == "." + params.bin_suffix:
+                        i += 1
                         shell('''mv %s %s''' \
                               % (os.path.join(output.bins_dir, entry.name),
                                  os.path.join(params.basename + "." + \
-                                              os.path.basename(bin_id) + "." + \
+                                              str(i) + "." + \
                                               params.bin_suffix)))
 
 
@@ -436,21 +438,7 @@ else:
 
 
 if config["params"]["binning"]["graphbin"]["do"]:
-    rule binning_graphbin_prepare:
-        input:
-            bins_dir = os.path.join(config["output"]["binning"],
-                         "bins/{sample}.{assembler}.out/{binner_graphbin}")
-        output:
-            binned = os.path.join(
-                config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/graphbin/{sample}.{assembler}.{binner_graphbin}.graphbin.csv")
-        params:
-            suffix = config["params"]["binning"]["bin_suffix"]
-        run:
-            metapi.get_binning_info(input.bins_dir, output.binned, params.suffix)
-
-
-    rule binning_graphbin:
+    rule binning_graphbin_prepare_assembly:
         input:
             scaftigs = os.path.join(
                 config["output"]["assembly"],
@@ -458,6 +446,47 @@ if config["params"]["binning"]["graphbin"]["do"]:
             gfa = os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.gfa.gz"),
+        output:
+             scaftigs = temp(os.path.join(
+                config["output"]["binning"],
+                "bins/{sample}.{assembler}.out/graphbin/scaftigs.fa")),
+             gfa = temp(os.path.join(
+                 config["output"]["binning"],
+                 "bins/{sample}.{assembler}.out/graphbin/scaftigs.gfa"))
+        shell:
+            '''
+            pigz -dc {input.scaftigs} > {output.scaftigs}
+            pigz -dc {input.gfa} > {output.gfa}
+            '''
+
+           
+    rule binning_graphbin_prepare_binned:
+        input:
+            bins_dir = os.path.join(
+                config["output"]["binning"],
+                "bins/{sample}.{assembler}.out/{binner_graphbin}")
+        output:
+            binned = os.path.join(
+                config["output"]["binning"],
+                "bins/{sample}.{assembler}.out/graphbin/{sample}.{assembler}.{binner_graphbin}.graphbin.csv")
+        params:
+            suffix = config["params"]["binning"]["bin_suffix"],
+            assembler = "{assembler}"
+        run:
+            metapi.get_binning_info(input.bins_dir,
+                                    output.binned,
+                                    params.suffix,
+                                    params.assembler)
+
+
+    rule binning_graphbin:
+        input:
+            scaftigs = os.path.join(
+                config["output"]["binning"],
+                "bins/{sample}.{assembler}.out/graphbin/scaftigs.fa"),
+            gfa = os.path.join(
+                config["output"]["binning"],
+                "bins/{sample}.{assembler}.out/graphbin/scaftigs.gfa"),
             binned = os.path.join(
                 config["output"]["binning"],
                 "bins/{sample}.{assembler}.out/graphbin/{sample}.{assembler}.{binner_graphbin}.graphbin.csv")
@@ -488,15 +517,13 @@ if config["params"]["binning"]["graphbin"]["do"]:
             df = pd.read_csv(input.binned, names=["scaftigs_id", "bin_id"])
 
             if not df.empty:
-                shell('''pigz -p {threads} -dc {input.scaftigs} > {output}/scaftigs.fa''')
-                shell('''pigz -p {threads} -dc {input.gfa} > {output}/scaftigs.gfa''')
                 if params.assembler == "metaspades" or params.assembler == "spades":
                     shell('''pigz -p {threads} -dc {params.paths} > {output}/scaftigs.paths''')
                     shell(
                         '''
                         graphbin \
                         --assembler spades \
-                        --graph {output}/scaftigs.gfa \
+                        --graph {input.gfa} \
                         --binned {input.binned} \
                         --paths {output}/scaftigs.paths \
                         --max_iteration {params.max_iteration} \
@@ -509,20 +536,17 @@ if config["params"]["binning"]["graphbin"]["do"]:
                         '''
                         graphbin \
                         --assembler {params.assembler} \
-                        --graph {output}/scaftigs.gfa \
+                        --graph {input.gfa} \
                         --binned {input.binned} \
                         --max_iteration {params.max_iteration} \
                         --diff_threshold {params.diff_threshold} \
                         --output {output} > {log} 2>&1
                         ''')
-                shell('''rm -rf {output}/scaftigs.gfa''')
 
-                metapi.generate_bins("{output}/graphbin_output.csv",
-                                     "{output}/scaftigs.fa",
+                metapi.generate_bins("%s/graphbin_output.csv" % output[0],
+                                     input.scaftigs,
                                      params.prefix,
                                      params.suffix)
-
-                shell('''rm -rf {output}/scaftigs.fa''')
 
 
     rule binning_graphbin_all:
