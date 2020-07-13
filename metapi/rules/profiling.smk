@@ -100,7 +100,6 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                          "logs/{sample}.metaphlan3.log")
         params:
             sample_id = "{sample}",
-            input_type = config["params"]["profiling"]["metaphlan"]["input_type"],
             read_min_len = config["params"]["profiling"]["metaphlan"]["read_min_len"],
             bowtie2db = config["params"]["profiling"]["metaphlan"]["bowtie2db"],
             index = config["params"]["profiling"]["metaphlan"]["index_v3"],
@@ -137,7 +136,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                 '''
                 metaphlan \
                 %s \
-                --input_type {params.input_type} \
+                --input_type multifastq \
                 --read_min_len {params.read_min_len} \
                 --nproc {threads} \
                 %s \
