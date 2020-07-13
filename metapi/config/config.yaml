@@ -280,6 +280,8 @@ params:
       save_bowtie2out: False
       legacy_output: False
       cami_format_output: False
+      no_map: True
+      biom: False
     jgi:
       oneway: False
       do: True
