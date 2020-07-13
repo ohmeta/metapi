@@ -181,6 +181,7 @@ if "metaspades" in ASSEMBLERS:
             20
         params:
             prefix = "{sample}",
+            memory = config["params"]["assembly"]["metaspades"]["memory"],
             continue_assembly = config["params"]["assembly"]["metaspades"]["continue"],
             kmers = "auto" \
                 if len(config["params"]["assembly"]["metaspades"]["kmers"]) == 0 \
@@ -222,6 +223,7 @@ if "metaspades" in ASSEMBLERS:
                         -2 {input.reads[1]} \
                         -k {params.kmers} \
                         {params.only_assembler} \
+                        --memory {params.memory} \
                         --threads {threads} \
                         -o {params.output_dir} \
                         > {log}

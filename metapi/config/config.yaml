@@ -93,7 +93,7 @@ params:
       do: False
       only_assembler: False
       only_save_scaftigs: True
-      memory: 20
+      memory: 50
       kmers: ["21", "33", "55", "77"]
     plass:
       do: False
