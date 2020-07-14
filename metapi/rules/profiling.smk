@@ -136,7 +136,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                 '''
                 metaphlan \
                 %s \
-                --input_type multifastq \
+                --input_type fastq \
                 --read_min_len {params.read_min_len} \
                 --nproc {threads} \
                 %s \
