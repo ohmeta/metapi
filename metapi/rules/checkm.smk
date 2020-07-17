@@ -3,12 +3,12 @@ if config["params"]["checkm"]["do"]:
         input:
             expand(os.path.join(
                 config["output"]["predict"],
-                "bins_gene/{{assembler}}.{{binner}}.prodigal.out/{sample}/done"),
+                "bins_gene/{{assembler}}.{{binner_checkm}}.prodigal.out/{sample}/done"),
                    sample=SAMPLES.index.unique())
         output:
             directory(os.path.join(
                 config["output"]["checkm"],
-                "bins_input/{assembler}.{binner}.links"))
+                "bins_input/{assembler}.{binner_checkm}.links"))
         params:
             suffix = "faa",
             batch_num = config["params"]["checkm"]["batch_num"]
@@ -41,14 +41,14 @@ if config["params"]["checkm"]["do"]:
     rule checkm_lineage_wf:
         input:
             os.path.join(config["output"]["checkm"],
-                         "bins_input/{assembler}.{binner}.links/bins_{batchid}")
+                         "bins_input/{assembler}.{binner_checkm}.links/bins_{batchid}")
         output:
             table = os.path.join(
                 config["output"]["checkm"],
-                "table/bins_{batchid}/bins_{batchid}.{assembler}.{binner}.checkm.table.tsv"),
+                "table/bins_{batchid}/bins_{batchid}.{assembler}.{binner_checkm}.checkm.table.tsv"),
             data = os.path.join(
                 config["output"]["checkm"],
-                "data/bins_{batchid}/bins_{batchid}.{assembler}.{binner}.checkm.data.tar.gz")
+                "data/bins_{batchid}/bins_{batchid}.{assembler}.{binner_checkm}.checkm.data.tar.gz")
         wildcard_constraints:
             batchid="\d+"
         params:
@@ -57,11 +57,11 @@ if config["params"]["checkm"]["do"]:
             data_dir = os.path.join(config["output"]["checkm"], "data/bins_{batchid}"),
             data_dir_temp = os.path.join(
                 config["output"]["checkm"],
-                "data/bins_{batchid}/bins_{batchid}.{assembler}.{binner}")
+                "data/bins_{batchid}/bins_{batchid}.{assembler}.{binner_checkm}")
         log:
             os.path.join(
                 config["output"]["checkm"],
-                "logs/bins_{batchid}.{assembler}.{binner}.checkm.log")
+                "logs/bins_{batchid}.{assembler}.{binner_checkm}.checkm.log")
         threads:
             config["params"]["checkm"]["threads"]
         run:
@@ -98,7 +98,7 @@ if config["params"]["checkm"]["do"]:
 
         return expand(os.path.join(
             config["output"]["checkm"],
-            "table/bins_{batchid}/bins_{batchid}.{assembler}.{binner}.checkm.table.tsv"),
+            "table/bins_{batchid}/bins_{batchid}.{assembler}.{binner_checkm}.checkm.table.tsv"),
                       assembler=wildcards.assembler,
                       binner=wildcards.binner,
                       batchid=list(set([i.split("/")[0] \
@@ -111,7 +111,7 @@ if config["params"]["checkm"]["do"]:
             aggregate_checkm_report_input
         output:
             table = os.path.join(config["output"]["checkm"],
-                                 "report/{assembler}_{binner}_checkm_table.tsv")
+                                 "report/{assembler}_{binner_checkm}_checkm_table.tsv")
         threads:
             config["params"]["checkm"]["threads"]
         run:
@@ -121,26 +121,26 @@ if config["params"]["checkm"]["do"]:
     rule checkm_link_bins:
         input:
             table = os.path.join(config["output"]["checkm"],
-                                 "report/{assembler}_{binner}_checkm_table.tsv")
+                                 "report/{assembler}_{binner_checkm}_checkm_table.tsv")
         output:
             bins_dir_hq = directory(
                 os.path.join(config["output"]["checkm"],
-                             "bins_hq/{assembler}.{binner}.links")),
+                             "bins_hq/{assembler}.{binner_checkm}.links")),
             bins_dir_mq = directory(
                 os.path.join(config["output"]["checkm"],
-                             "bins_mq/{assembler}.{binner}.links")),
+                             "bins_mq/{assembler}.{binner_checkm}.links")),
             bins_dir_lq = directory(
                 os.path.join(config["output"]["checkm"],
-                             "bins_lq/{assembler}.{binner}.links")),
+                             "bins_lq/{assembler}.{binner_checkm}.links")),
             bins_dir_hmq = directory(
                 os.path.join(config["output"]["checkm"],
-                             "bins_hmq/{assembler}.{binner}.links"))
+                             "bins_hmq/{assembler}.{binner_checkm}.links"))
         params:
             bins_dir = os.path.join(config["output"]["binning"], "bins"),
             bin_suffix = ".fa",
             standard = config["params"]["checkm"]["standard"] + "_quality_level",
             assembler = "{assembler}",
-            binner = "{binner}"
+            binner = "{binner_checkm}"
         run:
             if os.path.exists(output.bins_dir_hq):
                 os.rmdir(output.bins_dir_hq)
@@ -193,17 +193,17 @@ if config["params"]["checkm"]["do"]:
         input:
             expand([
                 os.path.join(config["output"]["checkm"],
-                             "report/{assembler}_{binner}_checkm_table.tsv"),
+                             "report/{assembler}_{binner_checkm}_checkm_table.tsv"),
                 os.path.join(config["output"]["checkm"],
-                             "bins_hq/{assembler}.{binner}.links"),
+                             "bins_hq/{assembler}.{binner_checkm}.links"),
                 os.path.join(config["output"]["checkm"],
-                             "bins_mq/{assembler}.{binner}.links"),
+                             "bins_mq/{assembler}.{binner_checkm}.links"),
                 os.path.join(config["output"]["checkm"],
-                             "bins_lq/{assembler}.{binner}.links"),
+                             "bins_lq/{assembler}.{binner_checkm}.links"),
                 os.path.join(config["output"]["checkm"],
-                             "bins_hmq/{assembler}.{binner}.links")],
+                             "bins_hmq/{assembler}.{binner_checkm}.links")],
                    assembler=ASSEMBLERS,
-                   binner=BINNERS_CHECKM),
+                   binner_checkm=BINNERS_CHECKM),
 
             rules.predict_bins_gene_prodigal_all.input,
             rules.binning_all.input,

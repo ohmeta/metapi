@@ -29,6 +29,7 @@ localrules:
   - binning_metabat2_all
   - binning_maxbin2_all
   - binning_concoct_all
+  - binning_graphbin_all
   - binning_dastools_all
   - binning_report_all
   - binning_all
@@ -308,6 +309,24 @@ binning_concoct:
   output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error:  "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
+binning_graphbin_prepare_assembly:
+  mem: "512M"
+  cores: 1
+  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+
+binning_graphbin_prepare_binned:
+  mem: "512M"
+  cores: 1
+  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_graphbin}.o"
+  error:  "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_graphbin}.e"
+
+binning_graphbin:
+  mem: "512M"
+  cores: 8
+  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error:  "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+
 binning_dastools:
   mem: "1G"
   cores: 4
@@ -316,13 +335,13 @@ binning_dastools:
 
 binning_report:
   mem: "1G"
-  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.o"
-  error:  "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
+  error:  "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
 
 binning_report_merge:
    mem: "1G"
-   output: "logs/06.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
-   error:  "logs/06.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
+   output: "logs/06.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
+   error:  "logs/06.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
 
 cobinning_vsearch_clust_cds:
   mem: "1G"
@@ -363,38 +382,38 @@ predict_scaftigs_gene_prokka:
 predict_bins_gene_prodigal:
   mem: "1G"
   cores: 1
-  output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.o"
-  error:  "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.e"
+  output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
+  error:  "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
 
 predict_bins_gene_prokka:
   mem: "1G"
   cores: 1
-  output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.o"
-  error:  "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner}.e"
+  output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
+  error:  "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
 
 checkm_prepare:
   mem: "512M"
   cores: 1
-  output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
-  error:  "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
+  output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
+  error:  "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
 
 checkm_lineage_wf:
   mem: "20G"
   cores: 8
-  output: "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler}.{wildcards.binner}.o"
-  error:  "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler}.{wildcards.binner}.e"
+  output: "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
+  error:  "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
 
 checkm_report:
   mem: "512M"
   cores: 8
-  output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
-  error:  "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
+  output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
+  error:  "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
 
 checkm_link_bins:
   mem: "512M"
   cores: 8
-  output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
-  error:  "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
+  output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
+  error:  "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
 
 #checkm_coverage:
 #  mem: "512M"
@@ -416,20 +435,20 @@ classify_short_reads_kraken2:
 classify_hmq_bins_gtdbtk:
   mem: "130G"
   cores: 8
-  output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
-  error:  "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
+  output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
+  error:  "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
 
 dereplicate_mags_drep_prepare:
   mem: "512M"
   cores: 1
-  output: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
-  error:  "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
+  output: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
+  error:  "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
 
 dereplicate_mags_drep:
   mem: "2G"
   cores: 8
-  output: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.o"
-  error:  "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner}.e"
+  output: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
+  error:  "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
 
 dereplicate_gene_preprae:
   mem: "512M"
