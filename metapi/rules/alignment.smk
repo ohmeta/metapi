@@ -4,11 +4,11 @@ rule alignment_scaftigs_index:
             config["output"]["assembly"],
             "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz")
     output:
-        expand(
-            temp(os.path.join(
+        temp(expand(
+            os.path.join(
                 config["output"]["alignment"],
-                "index/{{sample}}.{{assembler}}.out/{{sample}}.{{assembler}}.scaftigs.fa.gz.{suffix}")),
-            suffix=["amb", "ann", "bwt", "pac", "sa"])
+                "index/{{sample}}.{{assembler}}.out/{{sample}}.{{assembler}}.scaftigs.fa.gz.{suffix}"),
+            suffix=["amb", "ann", "bwt", "pac", "sa"]))
     log:
         os.path.join(
             config["output"]["alignment"],
