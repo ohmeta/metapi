@@ -68,7 +68,7 @@ rule predict_bins_gene_prodigal_all:
             config["output"]["predict"],
             "bins_gene/{assembler}.{binner_checkm}.prodigal.out/{sample}/done"),
                assembler=ASSEMBLERS,
-               binner_checkm=BINNERS_TOTAL,
+               binner_checkm=BINNERS_CHECKM,
                sample=SAMPLES.index.unique()),
 
         rules.binning_all.input
