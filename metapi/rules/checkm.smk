@@ -100,7 +100,7 @@ if config["params"]["checkm"]["do"]:
             config["output"]["checkm"],
             "table/bins_{batchid}/bins_{batchid}.{assembler}.{binner_checkm}.checkm.table.tsv"),
                       assembler=wildcards.assembler,
-                      binner=wildcards.binner,
+                      binner_checkm=wildcards.binner_checkm,
                       batchid=list(set([i.split("/")[0] \
                                         for i in glob_wildcards(os.path.join(checkpoint_output,
                                                                              "bins_{batchid}")).batchid])))

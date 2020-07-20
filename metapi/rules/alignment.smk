@@ -4,11 +4,11 @@ rule alignment_scaftigs_index:
             config["output"]["assembly"],
             "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz")
     output:
-        expand(
+        temp(expand(
             os.path.join(
                 config["output"]["alignment"],
                 "index/{{sample}}.{{assembler}}.out/{{sample}}.{{assembler}}.scaftigs.fa.gz.{suffix}"),
-            suffix=["amb", "ann", "bwt", "pac", "sa"])
+            suffix=["amb", "ann", "bwt", "pac", "sa"]))
     log:
         os.path.join(
             config["output"]["alignment"],
@@ -31,10 +31,9 @@ rule alignment_reads_scaftigs:
             "index/{{sample}}.{{assembler}}.out/{{sample}}.{{assembler}}.scaftigs.fa.gz.{suffix}"),
                        suffix=["amb", "ann", "bwt", "pac", "sa"])
     output:
-        flagstat = protected(
-            os.path.join(
-                config["output"]["alignment"],
-                "report/flagstat/{sample}.{assembler}.align2scaftigs.flagstat")),
+        flagstat = os.path.join(
+            config["output"]["alignment"],
+            "report/flagstat/{sample}.{assembler}.align2scaftigs.flagstat"),
         bam = temp(
             os.path.join(
                 config["output"]["alignment"],
@@ -93,9 +92,9 @@ if config["params"]["alignment"]["cal_base_depth"]:
                 config["output"]["alignment"],
                 "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam")
         output:
-            protected(os.path.join(
+            os.path.join(
                 config["output"]["alignment"],
-                "depth/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.depth.gz"))
+                "depth/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.depth.gz")
         shell:
             '''
             samtools depth {input} | gzip -c > {output}
