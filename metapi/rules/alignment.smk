@@ -50,6 +50,8 @@ rule alignment_reads_scaftigs:
         config["params"]["alignment"]["threads"]
     shell:
         '''
+        rm -rf {output.bam}*
+
         bwa mem \
         -t {threads} \
         {params.index_prefix} \
