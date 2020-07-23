@@ -14,12 +14,13 @@ def metaphlan_init(version):
 
 def read_metaphlan_table(table):
     sample_id = os.path.basename(table).split(".")[0]
+
     if METAPHLAN_VERSION == 2:
         dict_ = {"clade_name": [], sample_id: []}
         with open(table, "r") as ih:
             for line in ih:
                 if not line.startswith("#"):
-                    clade_name, abun = line.split("\t")[0:2]
+                    clade_name, abun = line.strip().split("\t")[0:2]
                     dict_["clade_name"].append(clade_name)
                     dict_[sample_id].append(abun)
         df = pd.DataFrame(dict_).set_index("clade_name")
@@ -30,7 +31,7 @@ def read_metaphlan_table(table):
         with open(table, "r") as ih:
             for line in ih:
                 if not line.startswith("#"):
-                    clade_name, clade_taxid, abun = line.split("\t")[0:3]
+                    clade_name, clade_taxid, abun = line.strip().split("\t")[0:3]
                     dict_["clade_name"].append(clade_name)
                     dict_["clade_taxid"].append(clade_taxid)
                     dict_[sample_id].append(abun)
