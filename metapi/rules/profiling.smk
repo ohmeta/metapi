@@ -427,8 +427,7 @@ if config["params"]["profiling"]["jgi"]["do"]:
             metapi.get_profile(abundance_taxonomy_df, samples_list,
                                "lineages_strain_new", output.abundance_profile_t)
 
-
-    rule profiling_jgi_all:
+    rule profiling_jgi_all_:
         input:
             expand([
                 os.path.join(
@@ -445,10 +444,19 @@ if config["params"]["profiling"]["jgi"]["do"]:
                           "family",
                           "genus",
                           "species",
-                          "strain"]),
+                          "strain"])
 
-            rules.rmhost_all.input,
-            rules.qcreport_all.input
+
+    if not config["params"]["profiling"]["jgi"]["oneway"]:
+        rule profiling_jgi_all:
+            input:
+                rules.profiling_jgi_all_.input,
+                rules.rmhost_all.input,
+                rules.qcreport_all.input
+    else:
+        rule profiling_jgi_all:
+            input:
+                rules.profiling_jgi_all_.input
 
 else:
     rule profiling_jgi_all:
