@@ -27,7 +27,10 @@ def main():
     parser = argparse.ArgumentParser("checkm link")
     parser.add_argument("--link_dir", help="a dir contains checkm input link")
     parser.add_argument(
-        "--batch_num", default=500, help="how many bins each cehckm run, default: 500"
+        "--batch_num",
+        type=int,
+        default=500,
+        help="how many bins each cehckm run, default: 500",
     )
     parser.add_argument("--bin_list", help="a file contains all bin path")
     args = parser.parse_args()
