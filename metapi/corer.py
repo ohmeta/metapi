@@ -110,7 +110,7 @@ WORKFLOWS_GENE = [
 ]
 
 
-def run_snakemake(args, snakefile, workflow):
+def run_snakemake(args, unknown, snakefile, workflow):
     config_file = os.path.join(args.workdir, "config.yaml")
     conf = metapi.parse_yaml(config_file)
 
@@ -126,7 +126,7 @@ def run_snakemake(args, snakefile, workflow):
         args.config,
         "--cores",
         str(args.cores),
-    ]
+    ] + unknown
 
     if args.conda_create_envs_only:
         cmd += ["--use-conda", "--conda-create-envs-only"]
@@ -166,9 +166,6 @@ def run_snakemake(args, snakefile, workflow):
                 -o {cluster.output} -e {cluster.error}"',
             ]
 
-    if not args.snake is None:
-        cmd += ["--" + args.snake]
-
     cmd_str = " ".join(cmd).strip()
     print("Running metapi %s:\n%s" % (workflow, cmd_str))
 
@@ -179,7 +176,7 @@ def run_snakemake(args, snakefile, workflow):
     proc.communicate()
 
 
-def init(args):
+def init(args, unknown):
     if args.workdir:
         project = metapi.metaconfig(args.workdir)
         print(project.__str__())
@@ -229,14 +226,14 @@ def init(args):
         sys.exit(-1)
 
 
-def mag_wf(args):
+def mag_wf(args, unknown):
     snakefile = os.path.join(os.path.dirname(__file__), "snakefiles/mag_wf.smk")
-    run_snakemake(args, snakefile, "mag_wf")
+    run_snakemake(args, unknown, snakefile, "mag_wf")
 
 
-def gene_wf(args):
+def gene_wf(args, unknown):
     snakefile = os.path.join(os.path.dirname(__file__), "snakefiles/gene_wf.smk")
-    run_snakemake(args, snakefile, "gene_wf")
+    run_snakemake(args, unknown, snakefile, "gene_wf")
 
 
 def main():
@@ -318,14 +315,6 @@ def main():
         action="store_true",
         help="conda create environments only",
     )
-    run_parser.add_argument(
-        "--snake",
-        metavar="SNAKEMAKEARGS",
-        nargs="?",
-        type=str,
-        default=None,
-        help="other snakemake command options(sankemake -h), if want --touch, just --snake touch",
-    )
 
     subparsers = parser.add_subparsers(title="available subcommands", metavar="")
     parser_init = subparsers.add_parser(
@@ -401,12 +390,13 @@ if begin from simulate:
     )
     parser_gene_wf.set_defaults(func=gene_wf)
 
-    args = parser.parse_args()
+    args, unknown = parser.parse_known_args()
+
     try:
         if args.version:
             print("metapi version %s" % metapi.__version__)
             sys.exit(0)
-        args.func(args)
+        args.func(args, unknown)
     except AttributeError as e:
         print(e)
         parser.print_help()
