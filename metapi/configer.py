@@ -175,9 +175,10 @@ if you have environments:
             os.makedirs(os.path.join(self.work_dir, sub_dir), exist_ok=True)
 
         for i in os.listdir(self.envs_dir):
-            shutil.copyfile(os.path.join(self.envs_dir, i),
-                            os.path.join(self.work_dir,
-                                         os.path.join("envs", i)))
+            shutil.copyfile(
+                os.path.join(self.envs_dir, i),
+                os.path.join(self.work_dir, os.path.join("envs", i)),
+            )
 
     def get_config(self):
         """
@@ -185,9 +186,6 @@ if you have environments:
         """
         config = parse_yaml(self.config_file)
         cluster = parse_yaml(self.cluster_file)
-        config["snakefile"] = self.snake_file
-        config["configfile"] = self.new_config_file
-        config["clusterfile"] = self.new_cluster_file
         return (config, cluster)
 
 

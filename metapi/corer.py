@@ -111,8 +111,7 @@ WORKFLOWS_GENE = [
 
 
 def run_snakemake(args, unknown, snakefile, workflow):
-    config_file = os.path.join(args.workdir, "config.yaml")
-    conf = metapi.parse_yaml(config_file)
+    conf = metapi.parse_yaml(args.config)
 
     if not os.path.exists(conf["params"]["samples"]):
         print("Please specific samples list on init step or change config.yaml manualy")
@@ -211,6 +210,8 @@ def init(args, unknown):
                 conf["params"]["trimming"]["fastp"]["do"] = False
                 conf["params"]["rmhost"]["bwa"]["do"] = False
                 conf["params"]["rmhost"]["bowtie2"]["do"] = False
+
+                conf["params"]["raw"]["save_reads"] = True
 
         if args.samples:
             conf["params"]["samples"] = args.samples
