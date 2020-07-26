@@ -153,7 +153,7 @@ def run_snakemake(args, unknown, snakefile, workflow):
         elif args.qsub:
             cmd += [
                 "--cluster-config",
-                conf["clusterfile"],
+                args.cluster,
                 "--jobs",
                 str(args.jobs),
                 "--latency-wait",
@@ -282,6 +282,12 @@ def main():
         type=str,
         default="./config.yaml",
         help="config.yaml, default: ./config.yaml",
+    )
+    run_parser.add_argument(
+        "--cluster",
+        type=str,
+        default="./cluster.yaml",
+        help="cluster.yaml, default: ./cluster.yaml",
     )
     run_parser.add_argument(
         "--cores", type=int, default=8, help="CPU cores, default: 8"
