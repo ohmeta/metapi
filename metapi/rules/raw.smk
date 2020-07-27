@@ -95,7 +95,7 @@ rule prepare_reads:
                         --defline-qual '%s' \
                         --defline-seq '%s' \
                         --outdir {params.output_dir} %s
-                        ''' % reads_direction, header_format, sra_file)
+                        ''' % (reads_direction, header_format, sra_file))
 
                     shell('''rm -rf {params.output_dir}/%s.fastq.gz''' % sra_id)
 
