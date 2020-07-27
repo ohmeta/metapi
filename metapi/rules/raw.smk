@@ -59,7 +59,7 @@ rule prepare_reads:
                     shell('''cat {input} > {output.reads[0]}''')
 
         elif READS_FORMAT == "sra":
-            reads_direction = str("+"),
+            reads_direction = str("+")
             header_format = str("@$ac-$si/$ri")
 
             if reads_num == 1:
