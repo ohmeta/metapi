@@ -323,8 +323,11 @@ if "metaspades" in ASSEMBLERS:
                         ''')
                     shell('''pigz -p {threads} {params.tar_results}''')
 
-                shell("rm -rf {params.output_dir}/tmp")
-                shell("rm -rf {params.output_dir}/misc")
+                shell("sleep 60")
+                if os.path.exists(os.path.join(params.output_dir, "tmp")):
+                    shell("rm -rf {params.output_dir}/tmp")
+                if os.path.exists(os.path.join(params.output_dir, "misc")):
+                    shell("rm -rf {params.output_dir}/misc")
 
             else:
                 print(
