@@ -99,12 +99,12 @@ rule prepare_reads:
 
                     shell('''rm -rf {params.output_dir}/%s.fastq.gz''' % sra_id)
 
-                    r1_str = " ".join(r1_list)
-                    r2_str = " ".join(r2_list)
-                    shell('''cat %s > %s''' % (r1_str, output.reads[0]))
-                    shell('''cat %s > %s''' % (r2_str, output.reads[1]))
-                    shell('''rm -rf %s''' % r1_str)
-                    shell('''rm -rf %s''' % r2_str)
+                r1_str = " ".join(r1_list)
+                r2_str = " ".join(r2_list)
+                shell('''cat %s > %s''' % (r1_str, output.reads[0]))
+                shell('''cat %s > %s''' % (r2_str, output.reads[1]))
+                shell('''rm -rf %s''' % r1_str)
+                shell('''rm -rf %s''' % r2_str)
 
 
 rule prepare_reads_all:
