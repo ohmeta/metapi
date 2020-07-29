@@ -80,7 +80,6 @@ params:
       only_assembler: False
       only_save_scaftigs: True
       link_scaffolds: True
-      continue: False
       memory: 20
       kmers: ["21", "33", "55", "77"]
       # K_MERS_RNA = [33, 49]
@@ -93,6 +92,7 @@ params:
       do: False
       only_assembler: False
       only_save_scaftigs: True
+      link_scaffolds: True
       memory: 50
       kmers: ["21", "33", "55", "77"]
     plass:

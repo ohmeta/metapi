@@ -182,7 +182,6 @@ if "metaspades" in ASSEMBLERS:
         params:
             prefix = "{sample}",
             memory = config["params"]["assembly"]["metaspades"]["memory"],
-            continue_assembly = config["params"]["assembly"]["metaspades"]["continue"],
             kmers = "auto" \
                 if len(config["params"]["assembly"]["metaspades"]["kmers"]) == 0 \
                    else ",".join(config["params"]["assembly"]["metaspades"]["kmers"]),
@@ -205,7 +204,7 @@ if "metaspades" in ASSEMBLERS:
                          "logs/{sample}.metaspades.log")
         run:
             if IS_PE:
-                if params.continue_assembly:
+                if os.path.exists(os.path.join(params.output_dir, "params.txt")):
                     shell(
                         '''
                         metaspades.py \
@@ -215,7 +214,6 @@ if "metaspades" in ASSEMBLERS:
                         ''')
                 else:
                     shell('''rm -rf {params.output_dir}''')
-
                     shell(
                         '''
                         metaspades.py \
@@ -225,53 +223,40 @@ if "metaspades" in ASSEMBLERS:
                         {params.only_assembler} \
                         --memory {params.memory} \
                         --threads {threads} \
+                        --checkpoints last \
                         -o {params.output_dir} \
                         > {log}
                         ''')
 
-                shell('''rm -rf {params.output_dir}/K*''')
-                shell('''rm -rf {params.output_dir}/corrected''')
-                shell('''rm -rf {params.output_dir}/pipeline_state''')
-
-                #shell('''sed -i 's#^>NODE#>{params.prefix}_NODE#g' {params.output_dir}/scaffolds.fasta''')
-                shell('''pigz -p {threads} {params.output_dir}/scaffolds.fasta''')
                 shell(
                     '''
+                    pigz -p {threads} {params.output_dir}/scaffolds.fasta
                     mv {params.output_dir}/scaffolds.fasta.gz \
                     {params.output_dir}/{params.prefix}.metaspades.scaffolds.fa.gz
                     ''')
-
-                #shell('''sed -i 's#^>NODE#>{params.prefix}_NODE#g' {params.output_dir}/contigs.fasta''')
-                shell('''pigz -p {threads} {params.output_dir}/contigs.fasta''')
                 shell(
                     '''
+                    pigz -p {threads} {params.output_dir}/contigs.fasta
                     mv {params.output_dir}/contigs.fasta.gz \
                     {params.output_dir}/{params.prefix}.metaspades.contigs.fa.gz
                     ''')
-
-                #shell('''sed -i 's#NODE#{params.prefix}_NODE#g' {params.output_dir}/contigs.paths''')
-                shell('''pigz -p {threads} {params.output_dir}/contigs.paths''')
                 shell(
                     '''
+                    pigz -p {threads} {params.output_dir}/contigs.paths
                     mv {params.output_dir}/contigs.paths.gz \
                     {params.output_dir}/{params.prefix}.metaspades.contigs.paths.gz
                     ''')
-
-                #shell('''sed -i 's#NODE#{params.prefix}_NODE#g' {params.output_dir}/scaffolds.paths''')
-                shell('''pigz -p {threads} {params.output_dir}/scaffolds.paths''')
                 shell(
                     '''
+                    pigz -p {threads} {params.output_dir}/scaffolds.paths
                     mv {params.output_dir}/scaffolds.paths.gz \
                     {params.output_dir}/{params.prefix}.metaspades.scaffolds.paths.gz
                     ''')
-
-                #shell(
-                #    '''
-                #    sed -i 's#NODE#{params.prefix}_NODE#g' \
-                #    {params.output_dir}/assembly_graph_with_scaffolds.gfa
-                #    ''')
-                shell('''pigz -p {threads} {params.output_dir}/assembly_graph_with_scaffolds.gfa''')
-                shell('''mv {params.output_dir}/assembly_graph_with_scaffolds.gfa.gz {output.gfa}''')
+                shell(
+                    '''
+                    pigz -p {threads} {params.output_dir}/assembly_graph_with_scaffolds.gfa
+                    mv {params.output_dir}/assembly_graph_with_scaffolds.gfa.gz {output.gfa}
+                    ''')
 
                 if params.link_scaffolds:
                     shell(
@@ -295,40 +280,13 @@ if "metaspades" in ASSEMBLERS:
                         ''')
 
                 if params.only_save_scaftigs:
-                    shell(
-                        '''
-                        find {params.output_dir} \
-                        -type f \
-                        ! -wholename {output.scaftigs} \
-                        ! -wholename {output.gfa} \
-                        ! -wholename {params.output_dir}/{params.prefix}.metaspades.scaffolds.fa.gz \
-                        ! -wholename {params.output_dir}/{params.prefix}.metaspades.contigs.fa.gz \
-                        ! -wholename {params.output_dir}/{params.prefix}.metaspades.scaffolds.paths.gz \
-                        ! -wholename {params.output_dir}/{params.prefix}.metaspades.contigs.paths.gz \
-                        -delete
-                        ''')
+                    shell('''fd -d 1 -E "*.gz" . {params.output_dir} -x rm -rf {}''')
                 else:
                     shell(
                         '''
-                        find {params.output_dir} \
-                        -type f \
-                        ! -wholename {output.scaftigs} \
-                        ! -wholename {output.gfa} \
-                        ! -wholename {params.output_dir}/{params.prefix}.metaspades.scaffolds.fa.gz \
-                        ! -wholename {params.output_dir}/{params.prefix}.metaspades.contigs.fa.gz \
-                        ! -wholename {params.output_dir}/{params.prefix}.metaspades.scaffolds.paths.gz \
-                        ! -wholename {params.output_dir}/{params.prefix}.metaspades.contigs.paths.gz \
-                        ! -wholename {params.tar_results} | \
-                        xargs -I % sh -c 'tar -rf {params.tar_results} %; rm -rf %'
+                        rm -rf {params.output_dir}/{corrected, misc, pipeline_state, tmp}
+                        tar -czvf {params.tar_results}.gz {params.output_dir}/K*
                         ''')
-                    shell('''pigz -p {threads} {params.tar_results}''')
-
-                shell("sleep 60")
-                if os.path.exists(os.path.join(params.output_dir, "tmp")):
-                    shell("rm -rf {params.output_dir}/tmp")
-                if os.path.exists(os.path.join(params.output_dir, "misc")):
-                    shell("rm -rf {params.output_dir}/misc")
-
             else:
                 print(
                     '''
@@ -362,7 +320,6 @@ if "spades" in ASSEMBLERS:
             20
         params:
             prefix = "{sample}",
-            continue_assembly = config["params"]["assembly"]["metaspades"]["continue"],
             kmers = "auto" \
                 if len(config["params"]["assembly"]["spades"]["kmers"]) == 0 \
                    else ",".join(config["params"]["assembly"]["spades"]["kmers"]),
@@ -372,6 +329,7 @@ if "spades" in ASSEMBLERS:
                 if config["params"]["assembly"]["spades"]["only_assembler"] \
                    else "",
             only_save_scaftigs = config["params"]["assembly"]["spades"]["only_save_scaftigs"],
+            link_scaffolds = config["params"]["assembly"]["spades"]["link_scaffolds"],
             tar_results = os.path.join(config["output"]["assembly"],
                                    "scaftigs/{sample}.spades.out/{sample}.spades.tar")
         threads:
@@ -379,69 +337,89 @@ if "spades" in ASSEMBLERS:
         log:
             os.path.join(config["output"]["assembly"], "logs/{sample}.spades.log")
         run:
-            if params.continue_assembly:
+            if os.path.exists(os.path.join(params.output_dir, "params.txt")):
                 shell(
                     '''
                     spades.py \
-                    --contiune \
+                    --continue \
                     -o {params.output_dir} \
                     > {log}
                     ''')
             else:
                 shell('''rm -rf {params.output_dir}''')
-
-                if IS_PE:
-                    shell(
-                        '''
-                        spades.py \
-                        -1 {input.reads[0]} \
-                        -2 {input.reads[1]} \
-                        -k {params.kmers} \
-                        {params.only_assembler} \
-                        --threads {threads} \
-                        -o {params.output_dir} \
-                        > {log}
-                        ''')
-                else:
-                    shell(
-                        '''
-                        spades.py \
-                        -s {input.reads[0]} \
-                        -k {params.kmers} \
-                        {params.only_assembler} \
-                        --threads {threads} \
-                        -o {params.output_dir} \
-                        > {log}
-                        ''')
-
-            shell('''rm -rf {params.output_dir}/K*''')
-            shell('''rm -rf {params.output_dir}/corrected''')
-            shell('''rm -rf {params.output_dir}/pipeline_state''')
-
-            shell('''sed -i 's#^>#>{params.prefix}_#g' {params.output_dir}/scaffolds.fasta''')
-            shell('''pigz -p {threads} {params.output_dir}/scaffolds.fasta''')
-            shell('''mv {params.output_dir}/scaffolds.fasta.gz {output.scaftigs}''')
-
-            if params.only_save_scaftigs:
                 shell(
                     '''
-                    find {params.output_dir} \
-                    -type f \
-                    ! -wholename "{output.scaftigs}" -delete
+                    spades.py \
+                    %s \
+                    -k {params.kmers} \
+                    {params.only_assembler} \
+                    --memory {params.memory} \
+                    --threads {threads} \
+                    --checkpoints last \
+                    -o {params.output_dir} \
+                    > {log}
+                    ''' % "-1 {input.reads[0]} -2 {input.reads[1]}" if IS_PE \
+                    else "-s {input.reads[0]}")
+
+            shell(
+                '''
+                pigz -p {threads} {params.output_dir}/scaffolds.fasta
+                mv {params.output_dir}/scaffolds.fasta.gz \
+                {params.output_dir}/{params.prefix}.spades.scaffolds.fa.gz
+                ''')
+            shell(
+                '''
+                pigz -p {threads} {params.output_dir}/contigs.fasta
+                mv {params.output_dir}/contigs.fasta.gz \
+                {params.output_dir}/{params.prefix}.spades.contigs.fa.gz
+                ''')
+            shell(
+                '''
+                pigz -p {threads} {params.output_dir}/contigs.paths
+                mv {params.output_dir}/contigs.paths.gz \
+                {params.output_dir}/{params.prefix}.spades.contigs.paths.gz
+                ''')
+            shell(
+                '''
+                pigz -p {threads} {params.output_dir}/scaffolds.paths
+                mv {params.output_dir}/scaffolds.paths.gz \
+                {params.output_dir}/{params.prefix}.spades.scaffolds.paths.gz
+                ''')
+            shell(
+                '''
+                pigz -p {threads} {params.output_dir}/assembly_graph_with_scaffolds.gfa
+                mv {params.output_dir}/assembly_graph_with_scaffolds.gfa.gz {output.gfa}
+                ''')
+
+            if params.link_scaffolds:
+                shell(
+                    '''
+                    pushd {params.output_dir} && \
+                    ln -s {params.prefix}.spades.scaffolds.fa.gz \
+                    {params.prefix}.spades.scaftigs.fa.gz && \
+                    ln -s {params.prefix}.spades.scaffolds.paths.gz \
+                    {params.prefix}.spades.scaftigs.paths.gz && \
+                    popd
                     ''')
             else:
                 shell(
                     '''
-                    find {params.output_dir} \
-                    -type f \
-                    ! -wholename "{output.scaftigs}" \
-                    ! -wholename "{params.tar_results}" | \
-                    xargs -I % sh -c 'tar -rf {params.tar_results} %; rm -rf %'
+                    pushd {params.output_dir} && \
+                    ln -s {params.prefix}.spades.contigs.fa.gz \
+                    {params.prefix}.spades.scaftigs.fa.gz && \
+                    ln -s {params.prefix}.spades.contigs.paths.gz \
+                    {params.prefix}.spades.scaftigs.paths.gz && \
+                    popd
                     ''')
-                shell('''pigz -p {threads} {params.tar_results}''')
 
-            shell('''rm -rf {params.output_dir}/tmp''')
-            shell('''rm -rf {params.output_dir}/misc''')
+            if params.only_save_scaftigs:
+                shell('''fd -d 1 -E "*.gz" . {params.output_dir} -x rm -rf {}''')
+            else:
+                shell(
+                    '''
+                    rm -rf {params.output_dir}/{corrected, misc, pipeline_state, tmp}
+                    tar -czvf {params.tar_results}.gz {params.output_dir}/K*
+                    ''')
 
 
     rule assembly_spades_all:
