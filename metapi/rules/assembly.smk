@@ -280,7 +280,7 @@ if "metaspades" in ASSEMBLERS:
                         ''')
 
                 if params.only_save_scaftigs:
-                    shell('''fd -d 1 -E "*.gz" . {params.output_dir} -x rm -rf {}''')
+                    shell('''fd -d 1 -E "*.gz" . {params.output_dir} -x rm -rf {{}}''')
                 else:
                     shell(
                         '''
