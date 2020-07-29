@@ -298,9 +298,13 @@ if "metaspades" in ASSEMBLERS:
 
     rule assembly_metaspades_all:
         input:
-            expand(os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.fa.gz"),
+            expand([
+                os.path.join(
+                    config["output"]["assembly"],
+                    "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.fa.gz"),
+                os.path.join(
+                    config["output"]["assembly"],
+                    "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.gfa.gz")],
                    sample=SAMPLES.index.unique())
 
 else:
@@ -315,7 +319,10 @@ if "spades" in ASSEMBLERS:
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.spades.out/{sample}.spades.scaftigs.fa.gz"))
+                "scaftigs/{sample}.spades.out/{sample}.spades.scaftigs.fa.gz")),
+            gfa = protected(os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.spades.out/{sample}.spades.scaftigs.gfa.gz"))
         priority:
             20
         params:
@@ -424,9 +431,13 @@ if "spades" in ASSEMBLERS:
 
     rule assembly_spades_all:
         input:
-            expand(os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{sample}.spades.out/{sample}.spades.scaftigs.fa.gz"),
+            expand([
+                os.path.join(
+                    config["output"]["assembly"],
+                    "scaftigs/{sample}.spades.out/{sample}.spades.scaftigs.fa.gz"),
+                os.path.join(
+                    config["output"]["assembly"],
+                    "scaftigs/{sample}.spades.out/{sample}.spades.scaftigs.gfa.gz")],
                    sample=SAMPLES.index.unique())
 
 else:
