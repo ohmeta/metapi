@@ -327,6 +327,7 @@ if "spades" in ASSEMBLERS:
             20
         params:
             prefix = "{sample}",
+            memory = config["params"]["assembly"]["spades"]["memory"],
             kmers = "auto" \
                 if len(config["params"]["assembly"]["spades"]["kmers"]) == 0 \
                    else ",".join(config["params"]["assembly"]["spades"]["kmers"]),
