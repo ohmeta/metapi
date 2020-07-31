@@ -62,21 +62,74 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"]:
                 "profile/metaphlan2/{sample}/{sample}.metaphlan2.abundance.profile.tsv"),
                    sample=SAMPLES.index.unique())
         output:
-            os.path.join(
+            abundance_profile = os.path.join(
                 config["output"]["profiling"],
-                         "profile/metaphlan2.merged.abundance.profile.tsv")
+                "profile/metaphlan2.merged.abundance.profile.all.tsv"),
+            abundance_profile_k = os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan2.merged.abundance.profile.superkingdom.tsv"),
+            abundance_profile_p = os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan2.merged.abundance.profile.phylum.tsv"),
+            abundance_profile_c = os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan2.merged.abundance.profile.class.tsv"),
+            abundance_profile_o = os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan2.merged.abundance.profile.order.tsv"),
+            abundance_profile_f = os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan2.merged.abundance.profile.family.tsv"),
+            abundance_profile_g = os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan2.merged.abundance.profile.genus.tsv"),
+            abundance_profile_s = os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan2.merged.abundance.profile.species.tsv"),
+            abundance_profile_t = os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan2.merged.abundance.profile.strain.tsv")
         threads:
             config["params"]["profiling"]["threads"]
         run:
            metapi.metaphlan_init(2)
-           metapi.merge_metaphlan_tables(input, threads, output=output[0])
+           profile_df = metapi.merge_metaphlan_tables(input, threads,
+                                                      output=output.abundance_profile)\
+                              .set_index("clade_name")
+
+           profile_df.filter(regex='t__\w*$', axis=0).reset_index()\
+                     .to_csv(output.abundance_profile_t, sep="\t", index=False)
+
+           profile_df.filter(regex='s__\w*$', axis=0).reset_index()\
+                     .to_csv(output.abundance_profile_s, sep="\t", index=False)
+
+           profile_df.filter(regex='g__\w*$', axis=0).reset_index()\
+                     .to_csv(output.abundance_profile_g, sep="\t", index=False)
+
+           profile_df.filter(regex='f__\w*$', axis=0).reset_index()\
+                     .to_csv(output.abundance_profile_f, sep="\t", index=False)
+
+           profile_df.filter(regex='o__\w*$', axis=0).reset_index()\
+                     .to_csv(output.abundance_profile_o, sep="\t", index=False)
+
+           profile_df.filter(regex='c__\w*$', axis=0).reset_index()\
+                     .to_csv(output.abundance_profile_c, sep="\t", index=False)
+
+           profile_df.filter(regex='p__\w*$', axis=0).reset_index()\
+                     .to_csv(output.abundance_profile_p, sep="\t", index=False)
+
+           profile_df.filter(regex='k__\w*$', axis=0).reset_index()\
+                     .to_csv(output.abundance_profile_k, sep="\t", index=False)
 
 
     rule profiling_metaphlan2_all:
         input:
-            os.path.join(
-                config["output"]["profiling"],
-                "profile/metaphlan2.merged.abundance.profile.tsv"),
+            expand(
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/metaphlan2.merged.abundance.profile.{level}.tsv"),
+                level=["all", "superkingdom", "phylum", "class",
+                       "order", "family", "genus", "species", "strain"])
 
             rules.rmhost_all.input,
             rules.qcreport_all.input
@@ -175,21 +228,74 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                 "profile/metaphlan3/{sample}/{sample}.metaphlan3.abundance.profile.tsv"),
                    sample=SAMPLES.index.unique())
         output:
-            os.path.join(
+            abundance_profile = os.path.join(
                 config["output"]["profiling"],
-                         "profile/metaphlan3.merged.abundance.profile.tsv")
+                "profile/metaphlan3.merged.abundance.profile.all.tsv"),
+            abundance_profile_k = os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan3.merged.abundance.profile.superkingdom.tsv"),
+            abundance_profile_p = os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan3.merged.abundance.profile.phylum.tsv"),
+            abundance_profile_c = os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan3.merged.abundance.profile.class.tsv"),
+            abundance_profile_o = os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan3.merged.abundance.profile.order.tsv"),
+            abundance_profile_f = os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan3.merged.abundance.profile.family.tsv"),
+            abundance_profile_g = os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan3.merged.abundance.profile.genus.tsv"),
+            abundance_profile_s = os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan3.merged.abundance.profile.species.tsv"),
+            abundance_profile_t = os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan3.merged.abundance.profile.strain.tsv")
         threads:
             config["params"]["profiling"]["threads"]
         run:
            metapi.metaphlan_init(3)
-           metapi.merge_metaphlan_tables(input, threads, output=output[0])
+           profile_df = metapi.merge_metaphlan_tables(input, threads,
+                                                      output=output.abundance_profile)\
+                              .set_index("clade_name")
+
+           profile_df.filter(regex='t__\w*$', axis=0).reset_index()\
+                     .to_csv(output.abundance_profile_t, sep="\t", index=False)
+
+           profile_df.filter(regex='s__\w*$', axis=0).reset_index()\
+                     .to_csv(output.abundance_profile_s, sep="\t", index=False)
+
+           profile_df.filter(regex='g__\w*$', axis=0).reset_index()\
+                     .to_csv(output.abundance_profile_g, sep="\t", index=False)
+
+           profile_df.filter(regex='f__\w*$', axis=0).reset_index()\
+                     .to_csv(output.abundance_profile_f, sep="\t", index=False)
+
+           profile_df.filter(regex='o__\w*$', axis=0).reset_index()\
+                     .to_csv(output.abundance_profile_o, sep="\t", index=False)
+
+           profile_df.filter(regex='c__\w*$', axis=0).reset_index()\
+                     .to_csv(output.abundance_profile_c, sep="\t", index=False)
+
+           profile_df.filter(regex='p__\w*$', axis=0).reset_index()\
+                     .to_csv(output.abundance_profile_p, sep="\t", index=False)
+
+           profile_df.filter(regex='k__\w*$', axis=0).reset_index()\
+                     .to_csv(output.abundance_profile_k, sep="\t", index=False)
 
 
     rule profiling_metaphlan3_all:
         input:
-            os.path.join(
-                config["output"]["profiling"],
-                "profile/metaphlan3.merged.abundance.profile.tsv"),
+            expand(
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/metaphlan3.merged.abundance.profile.{level}.tsv"),
+                level=["all", "superkingdom", "phylum", "class",
+                       "order", "family", "genus", "species", "strain"])
 
             rules.rmhost_all.input,
             rules.qcreport_all.input
