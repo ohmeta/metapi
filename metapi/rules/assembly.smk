@@ -18,8 +18,10 @@ if "megahit" in ASSEMBLERS:
         priority:
             20
         params:
-            min_contig = config["params"]["assembly"]["megahit"]["min_contig"],
             output_prefix = "{sample}",
+            min_contig = config["params"]["assembly"]["megahit"]["min_contig"],
+            k_list = ",".join(config["params"]["assembly"]["megahit"]["k_list"]),
+            presets = config["params"]["assembly"]["megahit"]["presets"],
             output_dir = os.path.join(config["output"]["assembly"],
                                       "scaftigs/{sample}.megahit.out"),
             contigs = os.path.join(
@@ -33,42 +35,31 @@ if "megahit" in ASSEMBLERS:
             os.path.join(config["output"]["assembly"],
                          "logs/{sample}.megahit.log")
         run:
-            shell("rm -rf {params.output_dir}")
-            if IS_PE:
-                shell(
-                    '''
-                    megahit \
-                    -1 {input.reads[0]} \
-                    -2 {input.reads[1]} \
-                    -t {threads} \
-                    --min-contig-len {params.min_contig} \
-                    --out-dir {params.output_dir} \
-                    --out-prefix {params.output_prefix} \
-                    2> {log}
-                    ''')
+            if os.path.exists(params.output_dir):
+                shell('''megahit --continue --out-dir {params.output_dir}''')
             else:
+                shell("rm -rf {params.output_dir}")
                 shell(
                     '''
                     megahit \
-                    -r {input.reads[0]} \
+                    %s \
                     -t {threads} \
+                    %s \
                     --min-contig-len {params.min_contig} \
                     --out-dir {params.output_dir} \
                     --out-prefix {params.output_prefix} \
                     2> {log}
-                    ''')
+                    ''' % ("-1 {input.reads[0]} -2 {input.reads[1]}" if IS_PE \
+                           else "-r {input.reads[0]}",
+                           "--presets %s" % params.presets \
+                           if params.presets != "" \
+                           else "--k-list {params.k_list}"))
 
-            shell('''sed -i 's#^>#>{params.output_prefix}_#g' {params.contigs}''')
-            shell('''gzip {params.contigs}''')
+            shell('''pigz -p {threads} {params.contigs}''')
             shell('''mv {params.contigs}.gz {output.scaftigs}''')
 
             if params.only_save_scaftigs:
-                shell(
-                    '''
-                    find {params.output_dir} \
-                    -type f \
-                    ! -wholename "{output.scaftigs}" -delete
-                    ''')
+                shell('''fd -t f -E "*.gz" {params.output_dir} -x rm -rf {{}}''')
                 shell('''rm -rf {params.output_dir}/intermediate_contigs''')
 
 
