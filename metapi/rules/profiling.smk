@@ -129,7 +129,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"]:
                     config["output"]["profiling"],
                     "profile/metaphlan2.merged.abundance.profile.{level}.tsv"),
                 level=["all", "superkingdom", "phylum", "class",
-                       "order", "family", "genus", "species", "strain"])
+                       "order", "family", "genus", "species", "strain"]),
 
             rules.rmhost_all.input,
             rules.qcreport_all.input
@@ -295,7 +295,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                     config["output"]["profiling"],
                     "profile/metaphlan3.merged.abundance.profile.{level}.tsv"),
                 level=["all", "superkingdom", "phylum", "class",
-                       "order", "family", "genus", "species", "strain"])
+                       "order", "family", "genus", "species", "strain"]),
 
             rules.rmhost_all.input,
             rules.qcreport_all.input

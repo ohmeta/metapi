@@ -35,7 +35,7 @@ if "megahit" in ASSEMBLERS:
             os.path.join(config["output"]["assembly"],
                          "logs/{sample}.megahit.log")
         run:
-            if os.path.exists(params.output_dir):
+            if os.path.exists(os.path.join(params.output_dir, "options.json")):
                 shell('''megahit --continue --out-dir {params.output_dir}''')
             else:
                 shell("rm -rf {params.output_dir}")
@@ -59,7 +59,7 @@ if "megahit" in ASSEMBLERS:
             shell('''mv {params.contigs}.gz {output.scaftigs}''')
 
             if params.only_save_scaftigs:
-                shell('''fd -t f -E "*.gz" {params.output_dir} -x rm -rf {{}}''')
+                shell('''fd -t f -E "*.gz" . {params.output_dir} -x rm -rf {{}}''')
                 shell('''rm -rf {params.output_dir}/intermediate_contigs''')
 
 

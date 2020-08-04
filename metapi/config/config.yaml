@@ -66,14 +66,14 @@ params:
     threads: 8
     megahit:
       do: False
-      min_contig: 500
+      min_contig: 100
       only_save_scaftigs: True
       k_list: ["21", "33", "55", "77"]
       presets: "" # choose from "meta-sensitive" or "meta-large"
       # 15-255, increment <= 28
-      # k_min: 21
-      # k_max: 141
-      # k_step: 12
+      # k_min: 21, default
+      # k_max: 141, default
+      # k_step: 12, default
     idba_ud:
       do: False
       mink: 27
