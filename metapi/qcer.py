@@ -54,6 +54,7 @@ def qc_bar_plot(df, engine, stacked=False, **kwargs):
         f, ax = plt.subplots(figsize=(10, 7))
         df_ = df.query('reads=="fq1"')
         sns.barplot(x="id", y="num_seqs", hue="step", data=df_)
+        ax.set_xticklabels(ax.get_xticklabels(), rotation=-90)
 
     elif engine == "pandas":
         if not stacked:
