@@ -6,15 +6,85 @@ import concurrent.futures
 
 
 def gen_samples_info(samples, output, config):
-    samples_df = pd.DataFrame(
-        columns=["project_accession", "sample_name"]
-        + list(config["upload"]["samples"].keys())
-    )
-    samples_df["sample_name"] = samples.index.unique()
-    samples_df["project_accession"] = config["upload"]["project_accession"]
+    """
+    GSC MIxS environmental sample template
+    * fileds are mandatory
+    """
+
+    header = [
+        "*sample_name",
+        "sample_title",
+        "*tax_id",
+        "*organism",
+        "*investigation_type",
+        "*collection_date",
+        "*env_biome",
+        "*env_feature",
+        "*env_material",
+        "*geo_loc_name",
+        "*host",
+        "*lat_lon",
+        "*strain",
+        "*estimated_size",
+        "*isol_growth_condt",
+        "*num_replicons",
+        "*ref_biomaterial",
+        "*ploidy",
+        "*propagation",
+        "biotic_relationship",
+        "hem_administration" "encoded_traits",
+        "ethnicity",
+        "extrachrom_elements",
+        "health_state",
+        "host_age",
+        "host_body_mass_index",
+        "host_body_product",
+        "host_body_temp",
+        "host_diet",
+        "host_disease",
+        "host_family_relationship",
+        "host_genotype",
+        "host_height",
+        "host_last_meal",
+        "host_occupation",
+        "host_phenotype",
+        "host_pulse",
+        "host_sex",
+        "host_subject_id",
+        "host_taxid",
+        "host_tissue_sampled",
+        "host_tot_mass",
+        "ihmc_medication_code",
+        "isolation_source",
+        "medic_hist_perform",
+        "misc_param",
+        "nose_mouth_teeth_throat_disord",
+        "organism_count",
+        "oxy_stat_samp",
+        "pathogenicity",
+        "perturbation",
+        "rel_to_oxygen",
+        "samp_collect_device",
+        "samp_mat_process",
+        "samp_salinity",
+        "samp_size",
+        "samp_store_dur",
+        "samp_store_loc",
+        "samp_store_temp",
+        "samp_vol_we_dna_ext",
+        "source_material_id",
+        "subspecf_gen_lin",
+        "temp",
+        "time_last_toothbrush",
+        "trophic_level",
+        "description",
+    ]
+
+    samples_df = pd.DataFrame(header)
+    samples_df["*sample_name"] = samples.index.unique()
     for key in config["upload"]["samples"]:
-        samples_df[key] = config["upload"]["samples"][key]
-    samples_df.to_excel(output, index=False)
+        samples_df["*" + key] = config["upload"]["samples"][key]
+    samples_df.to_excel(output, index=False, startrow=12)
 
 
 def parse_md5(md5_file):

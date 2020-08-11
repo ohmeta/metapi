@@ -351,10 +351,8 @@ upload:
   project_accession: "CNP0000000"
 
   samples:
-    sample_title: ""
     tax_id: "447426"
     organism: "human oral metagenome"
-    common_name: ""
     investigation_type: "metagenome"
     collection_date: "2018-11-19"
     env_biom: "saliva"
