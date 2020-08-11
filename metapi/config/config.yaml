@@ -121,8 +121,10 @@ params:
     megahit:
       do: False
       threads: 8
-      min_contig: 500
+      min_contig: 100
       only_save_scaftigs: True
+      k_list: ["21", "33", "55", "77"]
+      presets: "" # choose from "meta-sensitive" or "meta-large"
 
   alignment:
     do: True
