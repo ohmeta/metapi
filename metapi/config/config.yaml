@@ -355,7 +355,7 @@ upload:
     organism: "human oral metagenome"
     investigation_type: "metagenome"
     collection_date: "2018-11-19"
-    env_biom: "saliva"
+    env_biome: "saliva"
     env_feature: "saliva"
     env_material: "saliva material"
     geo_loc_name: "China: Shenzhen"
