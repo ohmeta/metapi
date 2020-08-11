@@ -146,6 +146,25 @@ def gen_info(input_list, output, config, workers, group):
             + list(config["upload"][group].keys())
             + ["file_name", "file_md5", "file2_name", "file2_md5"],
         ]
+        run_df = run_df.rename(
+            columns={
+                "project_accession": "*project_accession",
+                "sample_name": "*sample_name",
+                "experiment_title": "*experiment_title",
+                "library_name": "*library_name",
+                "library_strategy": "*library_strategy",
+                "library_selection": "*library_selection",
+                "library_layout": "*library_layout",
+                "platform": "*platform",
+                "instrument_model": "*instrument_model",
+                "spot_layout": "*spot_layout",
+                "file_type": "*file_type",
+                "file_name": "*file_name",
+                "file_md5": "*file_md5",
+                "file2_name": "*file2_name",
+                "file2_md5": "*file2_md5",
+            }
+        )
         run_df.to_excel(output, sheet_name="Metadata", index=False)
 
     if group == "assembly":

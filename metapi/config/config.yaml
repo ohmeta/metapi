@@ -380,6 +380,7 @@ upload:
     instrument_model: "BGISEQ-500"
     design_description: "human oral metagenome"
     library_construction_protocol: "RANDOM"
+    spot_layout: ""
     nominal_size: "350"
     file_type: "fastq"
 
