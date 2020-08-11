@@ -39,6 +39,11 @@ if config["params"]["assembly"]["spades"]["do"]:
     ASSEMBLERS += ["spades"]
 
 
+ASSEMBLERS_CO = []
+if config["params"]["coassembly"]["megahit"]["do"]:
+    ASSEMBLERS_CO += ["megahit"]
+
+
 BINNERS_TOTAL = []
 BINNERS_GRAPHBIN = []
 BINNERS_DASTOOLS = []
@@ -83,6 +88,7 @@ include: "../rules/assembly.smk"
 include: "../rules/coassembly.smk"
 include: "../rules/predict_scaftigs.smk"
 include: "../rules/alignment.smk"
+include: "../rules/coalignment.smk"
 include: "../rules/binning.smk"
 include: "../rules/cobinning.smk"
 include: "../rules/predict_bins.smk"
