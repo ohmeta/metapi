@@ -80,7 +80,7 @@ def gen_samples_info(samples, output, config):
         "description",
     ]
 
-    samples_df = pd.DataFrame(header)
+    samples_df = pd.DataFrame(columns=header)
     samples_df["*sample_name"] = samples.index.unique()
     for key in config["upload"]["samples"]:
         samples_df["*" + key] = config["upload"]["samples"][key]
