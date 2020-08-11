@@ -430,7 +430,6 @@ if config["params"]["profiling"]["jgi"]["do"]:
                         sambamba view -q --nthreads {threads} \
                         --compression-level {params.compression_level} \
                         --format bam \
-                        --compression-level {params.compression_level} \
                         --sam-input /dev/stdin \
                         --output-filename /dev/stdout | \
                         sambamba sort -q --nthreads {threads} \
