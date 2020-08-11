@@ -146,6 +146,14 @@ def gen_info(input_list, output, config, workers, group):
             + list(config["upload"][group].keys())
             + ["file_name", "file_md5", "file2_name", "file2_md5"],
         ]
+        if config["params"]["reads_layout"] == "pe":
+            run_df["library_layout"] = "paired"
+        else:
+            run_df["library_layout"] = "fragment/single"
+            run_df["nominal_size"] = ""
+
+        run_df["library_name"] = run_df["sample_name"]
+
         run_df = run_df.rename(
             columns={
                 "project_accession": "*project_accession",
