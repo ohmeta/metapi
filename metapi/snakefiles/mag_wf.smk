@@ -87,11 +87,13 @@ include: "../rules/qcreport.smk"
 include: "../rules/assembly.smk"
 include: "../rules/coassembly.smk"
 include: "../rules/predict_scaftigs.smk"
+include: "../rules/copredict_scaftigs.smk"
 include: "../rules/alignment.smk"
 include: "../rules/coalignment.smk"
 include: "../rules/binning.smk"
 include: "../rules/cobinning.smk"
 include: "../rules/predict_bins.smk"
+include: "../rules/copredict_bins.smk"
 include: "../rules/checkm.smk"
 include: "../rules/dereplicate_mags.smk"
 include: "../rules/classify.smk"
@@ -109,10 +111,13 @@ rule all:
         rules.assembly_all.input,
         rules.coassembly_all.input,
         rules.predict_scaftigs_gene_all.input,
+        rules.copredict_scaftigs_gene_all.input,
         rules.alignment_all.input,
+        rules.coalignment_all.input,
         rules.binning_all.input,
         rules.cobinning_all.input,
         rules.predict_bins_gene_all.input,
+        rules.copredict_bins_gene_all.input,
         rules.checkm_all.input,
         rules.dereplicate_mags_all.input,
         rules.classify_all.input,

@@ -35,10 +35,20 @@ localrules:
   - binning_dastools_all
   - binning_report_all
   - binning_all
+  - cobinning_metabat2_coverage_all
+  - cobinning_metabat2_all
+  - cobinning_maxbin2_all
+  - cobinning_concoct_all
+  - cobinning_graphbin_all
+  - cobinning_dastools_all
+  - cobinning_report_all
   - cobinning_all
   - predcit_scafitgs_gene_all
   - predict_bins_gene_all
   - predcit_all
+  - copredcit_scafitgs_gene_all
+  - copredict_bins_gene_all
+  - copredcit_all
   - checkm_link_bins
   - checkm_all
   - dereplicate_mags_drep_all
@@ -255,8 +265,8 @@ alignment_scaftigs_index:
 coalignment_scaftigs_index:
   mem: "512M"
   cores: 1
-  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler_co}.o"
-  error: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler_co}.e"
+  output: "logs/05.{rule}/{rule}.{wildcards.assembler_co}.o"
+  error: "logs/05.{rule}/{rule}.{wildcards.assembler_co}.e"
 
 alignment_reads_scaftigs:
   mem: "1G"
@@ -374,29 +384,73 @@ binning_report_merge:
   output: "logs/06.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
 
-cobinning_vsearch_clust_cds:
+cobinning_metabat2_coverage:
+  mem: "1G"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.e"
+
+cobinning_metabat2:
+  mem: "1G"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.e"
+
+cobinning_maxbin2_coverage:
+  mem: "2G"
+  cores: 8
+  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.e"
+
+cobinning_maxbin2:
   mem: "1G"
   cores: 8
-  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.e"
 
-cobinning_choose_cds_marker:
-  mem: "128M"
+cobinning_concoct_coverage:
+  mem: "2G"
   cores: 8
-  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.e"
 
-cobinning_index_cds_marker:
+cobinning_concoct:
   mem: "1G"
+  cores: 8
+  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.e"
+
+cobinning_graphbin_prepare_assembly:
+  mem: "512M"
   cores: 1
-  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.e"
 
-cobinning_get_marker_contigs_coverage:
-  mem: "4G"
+cobinning_graphbin_prepare_binned:
+  mem: "512M"
+  cores: 1
+  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_graphbin}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_graphbin}.e"
+
+cobinning_graphbin:
+  mem: "512M"
   cores: 8
-  output: "logs/06.{rule}/{rule}.{wildcards.sample_}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.sample_}.{wildcards.sample}.{wildcards.assembler}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.e"
+
+cobinning_dastools:
+  mem: "1G"
+  cores: 4
+  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.e"
+
+cobinning_report:
+  mem: "1G"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.e"
+
+cobinning_report_merge:
+  mem: "1G"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.e"
 
 predict_scaftigs_gene_prodigal:
   mem: "1G"
@@ -404,11 +458,23 @@ predict_scaftigs_gene_prodigal:
   output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
+copredict_scaftigs_gene_prodigal:
+  mem: "1G"
+  cores: 1
+  output: "logs/07.{rule}/{rule}.{wildcards.assembler_co}.o"
+  error: "logs/07.{rule}/{rule}.{wildcards.assembler_co}.e"
+
 predict_scaftigs_gene_prokka:
   mem: "1G"
   cores: 1
   output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+
+copredict_scaftigs_gene_prokka:
+  mem: "1G"
+  cores: 1
+  output: "logs/07.{rule}/{rule}.{wildcards.assembler_co}.o"
+  error: "logs/07.{rule}/{rule}.{wildcards.assembler_co}.e"
 
 predict_bins_gene_prodigal:
   mem: "1G"
@@ -416,11 +482,23 @@ predict_bins_gene_prodigal:
   output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
   error: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
 
+copredict_bins_gene_prodigal:
+  mem: "1G"
+  cores: 1
+  output: "logs/07.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.o"
+  error: "logs/07.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.e"
+
 predict_bins_gene_prokka:
   mem: "1G"
   cores: 1
   output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
   error: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
+
+copredict_bins_gene_prokka:
+  mem: "1G"
+  cores: 1
+  output: "logs/07.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.o"
+  error: "logs/07.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.e"
 
 checkm_prepare:
   mem: "512M"

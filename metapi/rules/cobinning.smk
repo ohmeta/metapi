@@ -439,21 +439,21 @@ else:
 
 
 if config["params"]["binning"]["graphbin"]["do"]:
-    rule binning_graphbin_prepare_assembly:
+    rule cobinning_graphbin_prepare_assembly:
         input:
             scaftigs = os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
+                config["output"]["coassembly"],
+                "scaftigs/all.{assembler_co}.out/all.{assembler_co}.scaftigs.fa.gz"),
             gfa = os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.gfa.gz"),
+                config["output"]["coassembly"],
+                "scaftigs/all.{assembler_co}.out/all.{assembler_co}.scaftigs.gfa.gz"),
         output:
              scaftigs = temp(os.path.join(
-                config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/graphbin/scaftigs.fa")),
+                config["output"]["cobinning"],
+                "bins/all.{assembler_co}.out/graphbin/scaftigs.fa")),
              gfa = temp(os.path.join(
-                 config["output"]["binning"],
-                 "bins/{sample}.{assembler}.out/graphbin/scaftigs.gfa"))
+                 config["output"]["cobinning"],
+                 "bins/all.{assembler_co}.out/graphbin/scaftigs.gfa"))
         shell:
             '''
             pigz -dc {input.scaftigs} > {output.scaftigs}
@@ -461,52 +461,52 @@ if config["params"]["binning"]["graphbin"]["do"]:
             '''
 
 
-    rule binning_graphbin_prepare_binned:
+    rule cobinning_graphbin_prepare_binned:
         input:
             bins_dir = os.path.join(
-                config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/{binner_graphbin}")
+                config["output"]["cobinning"],
+                "bins/all.{assembler_co}.out/{binner_graphbin}")
         output:
             binned = os.path.join(
-                config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/graphbin/{sample}.{assembler}.{binner_graphbin}.graphbin.csv")
+                config["output"]["cobinning"],
+                "bins/all.{assembler_co}.out/graphbin/all.{assembler_co}.{binner_graphbin}.graphbin.csv")
         params:
             suffix = config["params"]["binning"]["bin_suffix"],
-            assembler = "{assembler}"
+            assembler_co = "{assembler_co}"
         run:
             metapi.get_binning_info(input.bins_dir,
                                     output.binned,
                                     params.suffix,
-                                    params.assembler)
+                                    params.assembler_co)
 
 
-    rule binning_graphbin:
+    rule cobinning_graphbin:
         input:
             scaftigs = os.path.join(
-                config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/graphbin/scaftigs.fa"),
+                config["output"]["cobinning"],
+                "bins/all.{assembler_co}.out/graphbin/scaftigs.fa"),
             gfa = os.path.join(
-                config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/graphbin/scaftigs.gfa"),
+                config["output"]["cobinning"],
+                "bins/all.{assembler_co}.out/graphbin/scaftigs.gfa"),
             binned = os.path.join(
-                config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/graphbin/{sample}.{assembler}.{binner_graphbin}.graphbin.csv")
+                config["output"]["cobinning"],
+                "bins/all.{assembler_co}.out/graphbin/all.{assembler_co}.{binner_graphbin}.graphbin.csv")
         output:
             directory(os.path.join(
-                config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/{binner_graphbin}_graphbin"))
+                config["output"]["cobinning"],
+                "bins/all.{assembler_co}.out/{binner_graphbin}_graphbin"))
         log:
-            os.path.join(config["output"]["binning"],
-                         "logs/binning/{sample}.{assembler}.{binner_graphbin}.graphbin.refine.log")
+            os.path.join(config["output"]["cobinning"],
+                         "logs/binning/all.{assembler_co}.{binner_graphbin}.graphbin.refine.log")
         params:
-            assembler = "{assembler}",
+            assembler_co = "{assembler_co}",
             prefix = os.path.join(
-                config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/{binner_graphbin}_graphbin/{sample}.{assembler}.{binner_graphbin}_graphbin.bin"),
+                config["output"]["cobinning"],
+                "bins/all.{assembler_co}.out/{binner_graphbin}_graphbin/all.{assembler_co}.{binner_graphbin}_graphbin.bin"),
             suffix = config["params"]["binning"]["bin_suffix"],
             paths = os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.paths.gz"),
+                config["output"]["coassembly"],
+                "scaftigs/all.{assembler_co}.out/all.{assembler_co}.scaftigs.paths.gz"),
             max_iteration = config["params"]["binning"]["graphbin"]["max_iteration"],
             diff_threshold = config["params"]["binning"]["graphbin"]["diff_threshold"]
         run:
@@ -550,43 +550,42 @@ if config["params"]["binning"]["graphbin"]["do"]:
                                      params.suffix)
 
 
-    rule binning_graphbin_all:
+    rule cobinning_graphbin_all:
         input:
             expand(os.path.join(
-                config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/{binner_graphbin}_graphbin"),
+                config["output"]["cobinning"],
+                "bins/all.{assembler_co}.out/{binner_graphbin}_graphbin"),
                    binner_graphbin=BINNERS_GRAPHBIN,
-                   assembler=ASSEMBLERS,
-                   sample=SAMPLES.index.unique()),
+                   assembler_co=ASSEMBLERS_CO),
 
-            rules.assembly_all.input
+            rules.coassembly_all.input
 
 else:
-    rule binning_graphbin_all:
+    rule cobinning_graphbin_all:
         input:
 
 
 if config["params"]["binning"]["dastools"]["do"]:
-    rule binning_dastools:
+    rule cobinning_dastools:
         input:
             bins_dir = expand(
                 os.path.join(
-                    config["output"]["binning"],
-                    "bins/{{sample}}.{{assembler}}.out/{binner_dastools}"),
+                    config["output"]["cobinning"],
+                    "bins/all.{{assembler_co}}.out/{binner_dastools}"),
                     binner_dastools=BINNERS_DASTOOLS),
             scaftigs = os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
+                config["output"]["coassembly"],
+                "scaftigs/all.{assembler_co}.out/all.{assembler_co}.scaftigs.fa.gz"),
             pep = os.path.join(
-                config["output"]["predict"],
-                "scaftigs_gene/{sample}.{assembler}.prodigal.out/{sample}.{assembler}.faa")
+                config["output"]["copredict"],
+                "scaftigs_gene/all.{assembler_co}.prodigal.out/all.{assembler_co}.faa")
         output:
             bins_dir = directory(os.path.join(
-                config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/dastools"))
+                config["output"]["cobinning"],
+                "bins/all.{assembler_co}.out/dastools"))
         log:
-            os.path.join(config["output"]["binning"],
-                         "logs/binning/{sample}.{assembler}.dastools.binning.log")
+            os.path.join(config["output"]["cobinning"],
+                         "logs/binning/all.{assembler_co}.dastools.binning.log")
         priority:
             30
         params:
@@ -600,8 +599,8 @@ if config["params"]["binning"]["dastools"]["do"]:
             megabin_penalty = config["params"]["binning"]["dastools"]["megabin_penalty"],
             bin_suffix = config["params"]["binning"]["bin_suffix"],
             bin_prefix = os.path.join(
-                config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/dastools/{sample}.{assembler}.dastools.bin")
+                config["output"]["cobinning"],
+                "bins/all.{assembler_co}.out/dastools/all.{assembler_co}.dastools.bin")
         threads:
             config["params"]["binning"]["threads"]
         run:
@@ -684,38 +683,37 @@ if config["params"]["binning"]["dastools"]["do"]:
                         shell('''mv %s %s''' % (bin_fa, os.path.join(output.bins_dir, bin_fa_)))
 
 
-    rule binning_dastools_all:
+    rule cobinning_dastools_all:
         input:
             expand(
                 os.path.join(
-                    config["output"]["binning"],
-                    "bins/{sample}.{assembler}.out/dastools"),
-                assembler=ASSEMBLERS,
-                sample=SAMPLES.index.unique()),
+                    config["output"]["cobinning"],
+                    "bins/all.{assembler_co}.out/dastools"),
+                assembler_co=ASSEMBLERS_CO),
 
-            rules.predict_scaftigs_gene_prodigal_all.input
+            rules.copredict_scaftigs_gene_prodigal_all.input
 
 else:
-    rule binning_dastools_all:
+    rule cobinning_dastools_all:
         input:
 
 
 if len(BINNERS_CHECKM) != 0:
-    rule binning_report:
+    rule cobinning_report:
         input:
             bins_dir = os.path.join(
-                config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/{binner_checkm}")
+                config["output"]["cobinning"],
+                "bins/all.{assembler_co}.out/{binner_checkm}")
         output:
             report_dir = directory(
                 os.path.join(
-                    config["output"]["binning"],
-                    "report/{assembler}_{binner_checkm}_stats/{sample}"))
+                    config["output"]["cobinning"],
+                    "report/{assembler_co}_{binner_checkm}_stats/all"))
         priority:
             35
         params:
-            sample_id = "{sample}",
-            assembler = "{assembler}",
+            sample_id = "all",
+            assembler_co = "{assembler_co}",
             binner = "{binner_checkm}"
         run:
             import glob
@@ -732,7 +730,7 @@ if len(BINNERS_CHECKM) != 0:
             for bin_fa in bin_list:
                 bin_id = os.path.basename(os.path.splitext(bin_fa)[0])
                 header_ = "\\t".join([params.sample_id, bin_id,
-                                      params.assembler, params.binner])
+                                      params.assembler_co, params.binner])
                 stats_file = os.path.join(output.report_dir,
                                           bin_id + ".seqtk.comp.tsv.gz")
 
@@ -747,16 +745,15 @@ if len(BINNERS_CHECKM) != 0:
                     ''' % (bin_fa, header, header_, stats_file))
 
 
-    rule binning_report_merge:
+    rule cobinning_report_merge:
         input:
-            expand(os.path.join(
-                config["output"]["binning"],
-                "report/{{assembler}}_{{binner_checkm}}_stats/{sample}"),
-                   sample=SAMPLES.index.unique())
+            os.path.join(
+                config["output"]["cobinning"],
+                "report/{assembler_co}_{binner_checkm}_stats/all")
         output:
             summary = os.path.join(
                 config["output"]["binning"],
-                "report/assembly_stats_{assembler}_{binner_checkm}.tsv")
+                "report/assembly_stats_{assembler_co}_{binner_checkm}.tsv")
         params:
             len_ranges = config["params"]["assembly"]["report"]["len_ranges"]
         threads:
@@ -776,24 +773,24 @@ if len(BINNERS_CHECKM) != 0:
                 shell('''touch {output.summary}''')
 
 
-    rule binning_report_all:
+    rule cobinning_report_all:
         input:
             expand(os.path.join(
-                config["output"]["binning"],
-                "report/assembly_stats_{assembler}_{binner_checkm}.tsv"),
-                   assembler=ASSEMBLERS,
+                config["output"]["cobinning"],
+                "report/assembly_stats_{assembler_co}_{binner_checkm}.tsv"),
+                   assembler_co=ASSEMBLERS_CO,
                    binner_checkm=BINNERS_CHECKM)
 
 else:
-    rule binning_report_all:
+    rule cobinning_report_all:
         input:
 
 
 rule binning_all:
     input:
-        rules.binning_metabat2_all.input,
-        rules.binning_maxbin2_all.input,
-        rules.binning_concoct_all.input,
-        rules.binning_graphbin_all.input,
-        rules.binning_dastools_all.input,
-        rules.binning_report_all.input
+        rules.cobinning_metabat2_all.input,
+        rules.cobinning_maxbin2_all.input,
+        rules.cobinning_concoct_all.input,
+        rules.cobinning_graphbin_all.input,
+        rules.cobinning_dastools_all.input,
+        rules.cobinning_report_all.input
