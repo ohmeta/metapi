@@ -429,7 +429,7 @@ if config["params"]["binning"]["concoct"]["do"]:
             expand(os.path.join(
                 config["output"]["cobinning"],
                 "bins/all.{assembler_co}.out/concoct"),
-                   assembler_co=ASSEMBLERS_CO)
+                   assembler_co=ASSEMBLERS_CO),
 
             rules.coassembly_all.input
 
@@ -752,7 +752,7 @@ if len(BINNERS_CHECKM) != 0:
                 "report/{assembler_co}_{binner_checkm}_stats/all")
         output:
             summary = os.path.join(
-                config["output"]["binning"],
+                config["output"]["cobinning"],
                 "report/assembly_stats_{assembler_co}_{binner_checkm}.tsv")
         params:
             len_ranges = config["params"]["assembly"]["report"]["len_ranges"]
@@ -786,7 +786,7 @@ else:
         input:
 
 
-rule binning_all:
+rule cobinning_all:
     input:
         rules.cobinning_metabat2_all.input,
         rules.cobinning_maxbin2_all.input,

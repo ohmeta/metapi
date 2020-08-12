@@ -342,6 +342,7 @@ output:
   binning: "results/06.binning"
   cobinning: "results/06.cobinning"
   predict: "results/07.predict"
+  copredict: "results/07.copredict"
   checkm: "results/08.checkm"
   classify: "results/09.classify"
   dereplicate: "results/10.dereplicate"

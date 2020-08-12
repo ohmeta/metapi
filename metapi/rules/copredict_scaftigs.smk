@@ -41,7 +41,7 @@ rule copredict_scaftigs_gene_prodigal_all:
             config["output"]["copredict"],
             "scaftigs_gene/all.{assembler_co}.prodigal.out/all.{assembler_co}.{ext}"),
                ext=["faa", "ffn", "gff"],
-               assembler_co=ASSEMBLERS_CO)
+               assembler_co=ASSEMBLERS_CO),
 
         rules.coassembly_all.input
 
