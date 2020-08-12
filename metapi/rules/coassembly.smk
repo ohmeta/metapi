@@ -81,3 +81,9 @@ rule coassembly_all:
 
         rules.rmhost_all.input,
         rules.qcreport_all.input
+
+
+rule assembly_all:
+    input:
+        rules.single_assembly_all.input,
+        rules.coassembly_all.input

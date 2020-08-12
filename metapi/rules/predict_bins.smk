@@ -193,13 +193,13 @@ else:
         input:
 
 
-rule predict_bins_gene_all:
+rule single_predict_bins_gene_all:
     input:
         rules.predict_bins_gene_prodigal_all.input,
         rules.predict_bins_gene_prokka_all.input,
 
 
-rule predict_all:
+rule single_predict_all:
     input:
-        rules.predict_scaftigs_gene_all.input,
-        rules.predict_bins_gene_all.input
+        rules.single_predict_scaftigs_gene_all.input,
+        rules.single_predict_bins_gene_all.input

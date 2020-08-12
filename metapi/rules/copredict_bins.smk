@@ -195,7 +195,19 @@ rule copredict_bins_gene_all:
         rules.copredict_bins_gene_prokka_all.input,
 
 
+rule predict_bins_gene_all:
+    input:
+        rules.single_predict_bins_gene_all.input,
+        rules.copredict_bins_gene_all.input
+
+
 rule copredict_all:
     input:
         rules.copredict_scaftigs_gene_all.input,
         rules.copredict_bins_gene_all.input
+
+
+rule predict_all:
+    input:
+        rules.single_predict_all.input,
+        rules.copredict_all.input

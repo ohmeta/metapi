@@ -794,3 +794,9 @@ rule cobinning_all:
         rules.cobinning_graphbin_all.input,
         rules.cobinning_dastools_all.input,
         rules.cobinning_report_all.input
+
+
+rule binning_all:
+    input:
+        rules.single_binning_all.input,
+        rules.cobinning_all.input

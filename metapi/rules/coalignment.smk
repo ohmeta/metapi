@@ -140,3 +140,9 @@ rule coalignment_all:
         rules.coalignment_base_depth_all.input,
 
         rules.coassembly_all.input
+
+
+rule alignment_all:
+    input:
+        rules.single_alignment_all.input,
+        rules.coalignment_all.input

@@ -788,7 +788,7 @@ else:
         input:
 
 
-rule binning_all:
+rule single_binning_all:
     input:
         rules.binning_metabat2_all.input,
         rules.binning_maxbin2_all.input,

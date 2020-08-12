@@ -130,7 +130,7 @@ rule alignment_report:
         metapi.flagstats_summary(input_list, output_str, 2)
 
 
-rule alignment_all:
+rule single_alignment_all:
     input:
         expand(os.path.join(
             config["output"]["alignment"],

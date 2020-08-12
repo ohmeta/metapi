@@ -142,3 +142,9 @@ rule copredict_scaftigs_gene_all:
     input:
         rules.copredict_scaftigs_gene_prodigal_all.input,
         rules.copredict_scaftigs_gene_prokka_all.input
+
+
+rule predict_scaftigs_gene_all:
+    input:
+        rules.single_predict_scaftigs_gene_all.input,
+        rules.copredict_scaftigs_gene_all.input

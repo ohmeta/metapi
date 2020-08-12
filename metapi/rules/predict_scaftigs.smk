@@ -141,7 +141,7 @@ else:
         input:
 
 
-rule predict_scaftigs_gene_all:
+rule single_predict_scaftigs_gene_all:
     input:
         rules.predict_scaftigs_gene_prodigal_all.input,
         rules.predict_scaftigs_gene_prokka_all.input
