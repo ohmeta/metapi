@@ -20,13 +20,15 @@ localrules:
   - assembly_plass_all
   - assembly_metaquast_all
   - assembly_report_all
-  - assembly_all
+  - single_assembly_all
   - coassembly_megahit_all
   - coassembly_all
+  - assembly_all
   - alignment_base_depth_all
   - coalignment_base_depth_all
-  - alignment_all
+  - single_alignment_all
   - coalignment_all
+  - alignment_all
   - binning_metabat2_coverage_all
   - binning_metabat2_all
   - binning_maxbin2_all
@@ -34,7 +36,7 @@ localrules:
   - binning_graphbin_all
   - binning_dastools_all
   - binning_report_all
-  - binning_all
+  - single_binning_all
   - cobinning_metabat2_coverage_all
   - cobinning_metabat2_all
   - cobinning_maxbin2_all
@@ -43,12 +45,15 @@ localrules:
   - cobinning_dastools_all
   - cobinning_report_all
   - cobinning_all
-  - predcit_scafitgs_gene_all
-  - predict_bins_gene_all
-  - predcit_all
-  - copredcit_scafitgs_gene_all
+  - binning_all
+  - single_predict_scaftigs_gene_all
+  - single_predict_bins_gene_all
+  - copredcit_scaftigs_gene_all
   - copredict_bins_gene_all
+  - predict_scaftigs_gene_all
+  - predict_bins_gene_all
   - copredcit_all
+  - predcit_all
   - checkm_link_bins
   - checkm_all
   - dereplicate_mags_drep_all
