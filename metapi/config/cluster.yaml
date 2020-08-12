@@ -55,6 +55,9 @@ localrules:
   - copredcit_all
   - predcit_all
   - checkm_link_bins
+  - cocheckm_link_bins
+  - single_checkm_all
+  - cocheckm_all
   - checkm_all
   - dereplicate_mags_drep_all
   - dereplicate_mags_all
@@ -529,16 +532,29 @@ checkm_link_bins:
   output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
   error: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
 
-#checkm_coverage:
-#  mem: "512M"
-#  cores: 8
-#  output: "logs/08.{rules}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-#  error:  "logs/08.{rules}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+cocheckm_prepare:
+  mem: "512M"
+  cores: 1
+  output: "logs/08.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.o"
+  error: "logs/08.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.e"
 
-#checkm_profile:
-#  mem: "512M"
-#  output: "logs/08.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-#  error:  "logs/08.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+cocheckm_lineage_wf:
+  mem: "20G"
+  cores: 8
+  output: "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler_co}.{wildcards.binner_checkm}.o"
+  error: "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler_co}.{wildcards.binner_checkm}.e"
+
+cocheckm_report:
+  mem: "512M"
+  cores: 8
+  output: "logs/08.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.o"
+  error: "logs/08.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.e"
+
+cocheckm_link_bins:
+  mem: "512M"
+  cores: 8
+  output: "logs/08.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.o"
+  error: "logs/08.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.e"
 
 classify_short_reads_kraken2:
   mem: "8G"

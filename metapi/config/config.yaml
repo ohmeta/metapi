@@ -344,6 +344,7 @@ output:
   predict: "results/07.predict"
   copredict: "results/07.copredict"
   checkm: "results/08.checkm"
+  cocheckm: "results/08.cocheckm"
   classify: "results/09.classify"
   dereplicate: "results/10.dereplicate"
   profiling: "results/11.profiling"

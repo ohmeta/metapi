@@ -189,7 +189,7 @@ if config["params"]["checkm"]["do"]:
                                             bin_id + params.bin_suffix))
 
 
-    rule checkm_all:
+    rule single_checkm_all:
         input:
             expand([
                 os.path.join(config["output"]["checkm"],
@@ -209,5 +209,5 @@ if config["params"]["checkm"]["do"]:
             rules.binning_all.input,
 
 else:
-    rule checkm_all:
+    rule single_checkm_all:
         input:
