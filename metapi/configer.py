@@ -115,6 +115,7 @@ class metaconfig:
         "logs/08.cocheckm_link_bins",
         "logs/09.classify_short_reads_kraken2",
         "logs/09.classify_hmq_bins_gtdbtk",
+        "logs/09.coclassify_hmq_bins_gtdbtk",
         "logs/10.dereplicate_mags_drep_prepare",
         "logs/10.dereplicate_mags_drep",
         "logs/10.dereplicate_gene_prepare",

@@ -346,6 +346,7 @@ output:
   checkm: "results/08.checkm"
   cocheckm: "results/08.cocheckm"
   classify: "results/09.classify"
+  coclassify: "results/09.coclassify"
   dereplicate: "results/10.dereplicate"
   profiling: "results/11.profiling"
   upload: "results/99.upload"

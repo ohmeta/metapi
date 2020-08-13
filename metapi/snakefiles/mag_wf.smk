@@ -98,6 +98,7 @@ include: "../rules/checkm.smk"
 include: "../rules/cocheckm.smk"
 include: "../rules/dereplicate_mags.smk"
 include: "../rules/classify.smk"
+include: "../rules/coclassify.smk"
 include: "../rules/profiling.smk"
 include: "../rules/upload.smk"
 

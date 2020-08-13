@@ -65,7 +65,11 @@ localrules:
   - dereplicate_gene_all
   - dereplicate_all
   - classify_short_reads_kraken2_all
+  - single_classify_hmq_bins_gtdbtk_all
+  - coclassify_hmq_bins_gtdbtk_all
   - classify_hmq_bins_gtdbtk_all
+  - single_classify_all
+  - coclassify_all
   - classify_all
   - profiling_metaphlan2_all
   - profiling_metaphlan3_all
@@ -567,6 +571,12 @@ classify_hmq_bins_gtdbtk:
   cores: 8
   output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
   error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
+
+coclassify_hmq_bins_gtdbtk:
+  mem: "130G"
+  cores: 8
+  output: "logs/09.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.o"
+  error: "logs/09.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.e"
 
 dereplicate_mags_drep_prepare:
   mem: "512M"
