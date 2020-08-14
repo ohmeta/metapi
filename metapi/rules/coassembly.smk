@@ -12,59 +12,63 @@ if config["params"]["coassembly"]["megahit"]["do"]:
         input:
             unpack(coassembly_inputs)
         output:
-            scaftigs = os.path.join(config["output"]["coassembly"],
-                                    "scaftigs/final.contigs.fa.gz")
+            scaftigs = os.path.join(
+                config["output"]["coassembly"],
+                "scaftigs/all.megahit.out/all.megahit.scaftigs.fa.gz")
+        priority:
+            20
         log:
             os.path.join(config["output"]["coassembly"],
-                         "logs/coassembly.megahit.log")
+                         "logs/all.megahit.log")
         params:
+            output_prefix = "all",
             min_contig = config["params"]["coassembly"]["megahit"]["min_contig"],
+            k_list = ",".join(config["params"]["coassembly"]["megahit"]["k_list"]),
+            presets = config["params"]["coassembly"]["megahit"]["presets"],
+            output_dir = os.path.join(config["output"]["coassembly"],
+                                      "scaftigs/all.megahit.out"),
+            contigs = os.path.join(
+                config["output"]["coassembly"],
+                "scaftigs/all.megahit.out/all.contigs.fa"),
             only_save_scaftigs = \
-                config["params"]["coassembly"]["megahit"]["only_save_scaftigs"],
-            output_dir = os.path.join(config["output"]["coassembly"], "scaftigs")
+                config["params"]["coassembly"]["megahit"]["only_save_scaftigs"]
         threads:
             config["params"]["coassembly"]["megahit"]["threads"]
         run:
-            shell('''rm -rf {params.output_dir}''')
-            reads_num = len(input)
-            if IS_PE:
-                shell(
-                    '''
-                    megahit \
-                    -1 %s \
-                    -2 %s \
-                    -t {threads} \
-                    --min-contig-len {params.min_contig} \
-                    --out-dir {params.output_dir} \
-                    2> {log}
-                    ''' % (",".join(input[0:reads_num//2]),
-                           ",".join(input[reads_num//2:])))
+            if os.path.exists(os.path.join(params.output_dir, "options.json")):
+                shell('''megahit --continue --out-dir {params.output_dir}''')
             else:
+                reads_num = len(input)
+                shell("rm -rf {params.output_dir}")
                 shell(
                     '''
                     megahit \
-                    -r %s \
+                    %s \
                     -t {threads} \
+                    %s \
                     --min-contig-len {params.min_contig} \
                     --out-dir {params.output_dir} \
+                    --out-prefix {params.output_prefix} \
                     2> {log}
-                    ''' % ",".join(input))
-            shell('''pigz -p {threads} {params.output_dir}/final.contigs.fa''')
+                    ''' % ("-1 %s -2 %s" % (",".join(input[0:reads_num//2]),
+                                            ",".join(input[reads_num//2:])) \
+                           if IS_PE else "-r %s" % ",".join(input),
+                           "--presets %s" % params.presets \
+                           if params.presets != "" \
+                           else "--k-list {params.k_list}"))
+
+            shell('''pigz -p {threads} {params.contigs}''')
+            shell('''mv {params.contigs}.gz {output.scaftigs}''')
 
             if params.only_save_scaftigs:
-                shell(
-                    '''
-                    find {params.output_dir} \
-                    -type f \
-                    ! -wholename "{output.scaftigs}" -delete
-                    ''')
+                shell('''fd -t f -E "*.gz" . {params.output_dir} -x rm -rf {{}}''')
                 shell('''rm -rf {params.output_dir}/intermediate_contigs''')
 
 
     rule coassembly_megahit_all:
         input:
             os.path.join(config["output"]["coassembly"],
-                         "scaftigs/final.contigs.fa.gz")
+                         "scaftigs/all.megahit.out/all.megahit.scaftigs.fa.gz")
 
 else:
     rule coassembly_megahit_all:
@@ -77,3 +81,9 @@ rule coassembly_all:
 
         rules.rmhost_all.input,
         rules.qcreport_all.input
+
+
+rule assembly_all:
+    input:
+        rules.single_assembly_all.input,
+        rules.coassembly_all.input

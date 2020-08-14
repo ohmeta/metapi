@@ -1,18 +1,18 @@
-rule predict_bins_gene_prodigal:
+rule copredict_bins_gene_prodigal:
     input:
         bins_dir = os.path.join(
-            config["output"]["binning"],
-            "bins/{sample}.{assembler}.out/{binner_checkm}")
+            config["output"]["cobinning"],
+            "bins/all.{assembler_co}.out/{binner_checkm}")
     output:
         done = os.path.join(
-            config["output"]["predict"],
-            "bins_gene/{assembler}.{binner_checkm}.prodigal.out/{sample}/done")
+            config["output"]["copredict"],
+            "bins_gene/{assembler_co}.{binner_checkm}.prodigal.out/all/done")
     params:
         output_dir = os.path.join(
-            config["output"]["predict"],
-            "bins_gene/{assembler}.{binner_checkm}.prodigal.out/{sample}"),
-        logs_dir = os.path.join(config["output"]["predict"],
-                                "logs/bins_gene/{sample}.prodigal"),
+            config["output"]["copredict"],
+            "bins_gene/{assembler_co}.{binner_checkm}.prodigal.out/all"),
+        logs_dir = os.path.join(config["output"]["copredict"],
+                                "logs/bins_gene/all.prodigal"),
         format = config["params"]["predict"]["format"]
     run:
         import glob
@@ -61,35 +61,34 @@ rule predict_bins_gene_prodigal:
         if gff_count == len(bin_list):
             shell('''touch {output.done}''')
 
-       
-rule predict_bins_gene_prodigal_all:
+
+rule copredict_bins_gene_prodigal_all:
     input:
         expand(os.path.join(
-            config["output"]["predict"],
-            "bins_gene/{assembler}.{binner_checkm}.prodigal.out/{sample}/done"),
-               assembler=ASSEMBLERS,
-               binner_checkm=BINNERS_CHECKM,
-               sample=SAMPLES.index.unique()),
+            config["output"]["copredict"],
+            "bins_gene/{assembler_co}.{binner_checkm}.prodigal.out/all/done"),
+               assembler_co=ASSEMBLERS_CO,
+               binner_checkm=BINNERS_CHECKM),
 
-        rules.binning_all.input
+        rules.cobinning_all.input
 
 
 if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
-    rule predict_bins_gene_prokka:
+    rule copredict_bins_gene_prokka:
         input:
             bins_dir = os.path.join(
-                config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/{binner_checkm}")
+                config["output"]["cobinning"],
+                "bins/all.{assembler_co}.out/{binner_checkm}")
         output:
             done = os.path.join(
-                config["output"]["predict"],
-                "bins_gene/{assembler}.{binner_checkm}.prokka.out/{sample}/done")
+                config["output"]["copredict"],
+                "bins_gene/{assembler_co}.{binner_checkm}.prokka.out/all/done")
         params:
             output_dir = os.path.join(
-                config["output"]["predict"],
-                "bins_gene/{assembler}.{binner_checkm}.prokka.out/{sample}"),
-            logs_dir = os.path.join(config["output"]["predict"],
-                                    "logs/bins_gene/{sample}.prodigal"),
+                config["output"]["copredict"],
+                "bins_gene/{assembler_co}.{binner_checkm}.prokka.out/all"),
+            logs_dir = os.path.join(config["output"]["copredict"],
+                                    "logs/bins_gene/all.prodigal"),
             kingdom = config["params"]["predict"]["bins_to_gene"]["prokka"]["kingdom"]
         threads:
             config["params"]["predict"]["threads"]
@@ -133,31 +132,29 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
                 shell('''touch {output.done}''')
 
 
-    rule predict_bins_gene_prokka_multiqc:
+    rule copredict_bins_gene_prokka_multiqc:
         input:
-            expand(
-                os.path.join(
-                    config["output"]["predict"],
-                    "bins_gene/{{assembler}}.{{binner_checkm}}.prokka.out/{sample}/done"),
-                sample=SAMPLES.index.unique())
+            os.path.join(
+                config["output"]["copredict"],
+                "bins_gene/{assembler_co}.{binner_checkm}.prokka.out/all/done")
         output:
             html = os.path.join(
-                config["output"]["predict"],
-                "report/bins_gene_{assembler}.{binner_checkm}.multiqc.out/prokka_multiqc_report.html"),
+                config["output"]["copredict"],
+                "report/bins_gene_{assembler_co}.{binner_checkm}.multiqc.out/prokka_multiqc_report.html"),
             data_dir = directory(os.path.join(
-                config["output"]["predict"],
-                "report/bins_gene_{assembler}.{binner_checkm}.multiqc.out/prokka_multiqc_report_data"))
+                config["output"]["copredict"],
+                "report/bins_gene_{assembler_co}.{binner_checkm}.multiqc.out/prokka_multiqc_report_data"))
         log:
             os.path.join(
-                config["output"]["predict"],
-                "logs/report/bins_gene_{assembler}.{binner_checkm}.multiqc.prokka.log")
+                config["output"]["copredict"],
+                "logs/report/bins_gene_{assembler_co}.{binner_checkm}.multiqc.prokka.log")
         params:
             input_dir = os.path.join(
-                config["output"]["predict"],
-                "bins_gene/{assembler}.{binner_checkm}.prokka.out/"),
+                config["output"]["copredict"],
+                "bins_gene/{assembler_co}.{binner_checkm}.prokka.out/"),
             output_dir = os.path.join(
-                config["output"]["predict"],
-                "report/bins_gene_{assembler}.{binner_checkm}.multiqc.out")
+                config["output"]["copredict"],
+                "report/bins_gene_{assembler_co}.{binner_checkm}.multiqc.out")
         shell:
             '''
             multiqc \
@@ -170,36 +167,47 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
             '''
 
 
-    rule predict_bins_gene_prokka_all:
+    rule copredict_bins_gene_prokka_all:
         input:
             expand([
                 os.path.join(
-                    config["output"]["predict"],
-                    "bins_gene/{assembler}.{binner_checkm}.prokka.out/{sample}/done"),
+                    config["output"]["copredict"],
+                    "bins_gene/{assembler_co}.{binner_checkm}.prokka.out/all/done"),
                 os.path.join(
-                    config["output"]["predict"],
-                    "report/bins_gene_{assembler}.{binner_checkm}.multiqc.out/prokka_multiqc_report.html"),
+                    config["output"]["copredict"],
+                    "report/bins_gene_{assembler_co}.{binner_checkm}.multiqc.out/prokka_multiqc_report.html"),
                 os.path.join(
-                    config["output"]["predict"],
-                    "report/bins_gene_{assembler}.{binner_checkm}.multiqc.out/prokka_multiqc_report_data")],
-                   assembler=ASSEMBLERS,
-                   binner_checkm=BINNERS_CHECKM,
-                   sample=SAMPLES.index.unique()),
+                    config["output"]["copredict"],
+                    "report/bins_gene_{assembler_co}.{binner_checkm}.multiqc.out/prokka_multiqc_report_data")],
+                   assembler_co=ASSEMBLERS_CO,
+                   binner_checkm=BINNERS_CHECKM),
 
-            rules.binning_all.input
+            rules.cobinning_all.input
 
 else:
-    rule predict_bins_gene_prokka_all:
+    rule copredict_bins_gene_prokka_all:
         input:
 
 
-rule single_predict_bins_gene_all:
+rule copredict_bins_gene_all:
     input:
-        rules.predict_bins_gene_prodigal_all.input,
-        rules.predict_bins_gene_prokka_all.input,
+        rules.copredict_bins_gene_prodigal_all.input,
+        rules.copredict_bins_gene_prokka_all.input,
 
 
-rule single_predict_all:
+rule predict_bins_gene_all:
     input:
-        rules.single_predict_scaftigs_gene_all.input,
-        rules.single_predict_bins_gene_all.input
+        rules.single_predict_bins_gene_all.input,
+        rules.copredict_bins_gene_all.input
+
+
+rule copredict_all:
+    input:
+        rules.copredict_scaftigs_gene_all.input,
+        rules.copredict_bins_gene_all.input
+
+
+rule predict_all:
+    input:
+        rules.single_predict_all.input,
+        rules.copredict_all.input

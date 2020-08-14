@@ -635,7 +635,7 @@ else:
         input:
 
 
-rule assembly_all:
+rule single_assembly_all:
     input:
         rules.assembly_megahit_all.input,
         rules.assembly_idba_ud_all.input,

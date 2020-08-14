@@ -121,8 +121,10 @@ params:
     megahit:
       do: False
       threads: 8
-      min_contig: 500
+      min_contig: 100
       only_save_scaftigs: True
+      k_list: ["21", "33", "55", "77"]
+      presets: "" # choose from "meta-sensitive" or "meta-large"
 
   alignment:
     do: True
@@ -336,11 +338,15 @@ output:
   assembly: "results/04.assembly"
   coassembly: "results/04.coassembly"
   alignment: "results/05.alignment"
+  coalignment: "results/05.coalignment"
   binning: "results/06.binning"
   cobinning: "results/06.cobinning"
   predict: "results/07.predict"
+  copredict: "results/07.copredict"
   checkm: "results/08.checkm"
+  cocheckm: "results/08.cocheckm"
   classify: "results/09.classify"
+  coclassify: "results/09.coclassify"
   dereplicate: "results/10.dereplicate"
   profiling: "results/11.profiling"
   upload: "results/99.upload"

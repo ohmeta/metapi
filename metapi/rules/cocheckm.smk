@@ -1,14 +1,13 @@
 if config["params"]["checkm"]["do"]:
-    checkpoint checkm_prepare:
+    checkpoint cocheckm_prepare:
         input:
-            expand(os.path.join(
-                config["output"]["predict"],
-                "bins_gene/{{assembler}}.{{binner_checkm}}.prodigal.out/{sample}/done"),
-                   sample=SAMPLES.index.unique())
+            os.path.join(
+                config["output"]["copredict"],
+                "bins_gene/{assembler_co}.{binner_checkm}.prodigal.out/all/done")
         output:
             directory(os.path.join(
-                config["output"]["checkm"],
-                "bins_input/{assembler}.{binner_checkm}.links"))
+                config["output"]["cocheckm"],
+                "bins_input/{assembler_co}.{binner_checkm}.links"))
         params:
             suffix = "faa",
             batch_num = config["params"]["checkm"]["batch_num"]
@@ -38,30 +37,30 @@ if config["params"]["checkm"]["do"]:
                 os.makedirs(os.path.join(output[0], "bins_0"), exist_ok=True)
 
 
-    rule checkm_lineage_wf:
+    rule cocheckm_lineage_wf:
         input:
-            os.path.join(config["output"]["checkm"],
-                         "bins_input/{assembler}.{binner_checkm}.links/bins_{batchid}")
+            os.path.join(config["output"]["cocheckm"],
+                         "bins_input/{assembler_co}.{binner_checkm}.links/bins_{batchid}")
         output:
             table = os.path.join(
-                config["output"]["checkm"],
-                "table/bins_{batchid}/bins_{batchid}.{assembler}.{binner_checkm}.checkm.table.tsv"),
+                config["output"]["cocheckm"],
+                "table/bins_{batchid}/bins_{batchid}.{assembler_co}.{binner_checkm}.checkm.table.tsv"),
             data = os.path.join(
-                config["output"]["checkm"],
-                "data/bins_{batchid}/bins_{batchid}.{assembler}.{binner_checkm}.checkm.data.tar.gz")
+                config["output"]["cocheckm"],
+                "data/bins_{batchid}/bins_{batchid}.{assembler_co}.{binner_checkm}.checkm.data.tar.gz")
         wildcard_constraints:
             batchid="\d+"
         params:
             suffix = "faa",
-            table_dir = os.path.join(config["output"]["checkm"], "table/bins_{batchid}"),
-            data_dir = os.path.join(config["output"]["checkm"], "data/bins_{batchid}"),
+            table_dir = os.path.join(config["output"]["cocheckm"], "table/bins_{batchid}"),
+            data_dir = os.path.join(config["output"]["cocheckm"], "data/bins_{batchid}"),
             data_dir_temp = os.path.join(
-                config["output"]["checkm"],
-                "data/bins_{batchid}/bins_{batchid}.{assembler}.{binner_checkm}")
+                config["output"]["cocheckm"],
+                "data/bins_{batchid}/bins_{batchid}.{assembler_co}.{binner_checkm}")
         log:
             os.path.join(
-                config["output"]["checkm"],
-                "logs/bins_{batchid}.{assembler}.{binner_checkm}.checkm.log")
+                config["output"]["cocheckm"],
+                "logs/bins_{batchid}.{assembler_co}.{binner_checkm}.checkm.log")
         threads:
             config["params"]["checkm"]["threads"]
         run:
@@ -93,53 +92,53 @@ if config["params"]["checkm"]["do"]:
             shell('''rm -rf {params.data_dir_temp}''')
 
 
-    def aggregate_checkm_report_input(wildcards):
-        checkpoint_output = checkpoints.checkm_prepare.get(**wildcards).output[0]
+    def aggregate_cocheckm_report_input(wildcards):
+        checkpoint_output = checkpoints.cocheckm_prepare.get(**wildcards).output[0]
 
         return expand(os.path.join(
-            config["output"]["checkm"],
-            "table/bins_{batchid}/bins_{batchid}.{assembler}.{binner_checkm}.checkm.table.tsv"),
-                      assembler=wildcards.assembler,
+            config["output"]["cocheckm"],
+            "table/bins_{batchid}/bins_{batchid}.{assembler_co}.{binner_checkm}.checkm.table.tsv"),
+                      assembler_co=wildcards.assembler_co,
                       binner_checkm=wildcards.binner_checkm,
                       batchid=list(set([i.split("/")[0] \
                                         for i in glob_wildcards(os.path.join(checkpoint_output,
                                                                              "bins_{batchid}")).batchid])))
 
-   
-    rule checkm_report:
+
+    rule cocheckm_report:
         input:
-            aggregate_checkm_report_input
+            aggregate_cocheckm_report_input
         output:
-            table = os.path.join(config["output"]["checkm"],
-                                 "report/{assembler}_{binner_checkm}_checkm_table.tsv")
+            table = os.path.join(config["output"]["cocheckm"],
+                                 "report/{assembler_co}_{binner_checkm}_checkm_table.tsv")
         threads:
             config["params"]["checkm"]["threads"]
         run:
             metapi.checkm_report(input, output.table, threads)
-       
 
-    rule checkm_link_bins:
+
+    rule cocheckm_link_bins:
         input:
-            table = os.path.join(config["output"]["checkm"],
-                                 "report/{assembler}_{binner_checkm}_checkm_table.tsv")
+            table = os.path.join(config["output"]["cocheckm"],
+                                 "report/{assembler_co}_{binner_checkm}_checkm_table.tsv")
         output:
             bins_dir_hq = directory(
-                os.path.join(config["output"]["checkm"],
-                             "bins_hq/{assembler}.{binner_checkm}.links")),
+                os.path.join(config["output"]["cocheckm"],
+                             "bins_hq/{assembler_co}.{binner_checkm}.links")),
             bins_dir_mq = directory(
-                os.path.join(config["output"]["checkm"],
-                             "bins_mq/{assembler}.{binner_checkm}.links")),
+                os.path.join(config["output"]["cocheckm"],
+                             "bins_mq/{assembler_co}.{binner_checkm}.links")),
             bins_dir_lq = directory(
-                os.path.join(config["output"]["checkm"],
-                             "bins_lq/{assembler}.{binner_checkm}.links")),
+                os.path.join(config["output"]["cocheckm"],
+                             "bins_lq/{assembler_co}.{binner_checkm}.links")),
             bins_dir_hmq = directory(
-                os.path.join(config["output"]["checkm"],
-                             "bins_hmq/{assembler}.{binner_checkm}.links"))
+                os.path.join(config["output"]["cocheckm"],
+                             "bins_hmq/{assembler_co}.{binner_checkm}.links"))
         params:
-            bins_dir = os.path.join(config["output"]["binning"], "bins"),
+            bins_dir = os.path.join(config["output"]["cobinning"], "bins"),
             bin_suffix = ".fa",
             standard = config["params"]["checkm"]["standard"] + "_quality_level",
-            assembler = "{assembler}",
+            assembler_co = "{assembler_co}",
             binner = "{binner_checkm}"
         run:
             if os.path.exists(output.bins_dir_hq):
@@ -163,7 +162,7 @@ if config["params"]["checkm"]["do"]:
                 bin_fa_path = os.path.realpath(
                     os.path.join(
                         params.bins_dir,
-                        sample_id + "." + params.assembler + ".out/" + \
+                        sample_id + "." + params.assembler_co + ".out/" + \
                         params.binner + "/" + \
                         bin_id + params.bin_suffix))
 
@@ -189,25 +188,31 @@ if config["params"]["checkm"]["do"]:
                                             bin_id + params.bin_suffix))
 
 
-    rule single_checkm_all:
+    rule cocheckm_all:
         input:
             expand([
-                os.path.join(config["output"]["checkm"],
-                             "report/{assembler}_{binner_checkm}_checkm_table.tsv"),
-                os.path.join(config["output"]["checkm"],
-                             "bins_hq/{assembler}.{binner_checkm}.links"),
-                os.path.join(config["output"]["checkm"],
-                             "bins_mq/{assembler}.{binner_checkm}.links"),
-                os.path.join(config["output"]["checkm"],
-                             "bins_lq/{assembler}.{binner_checkm}.links"),
-                os.path.join(config["output"]["checkm"],
-                             "bins_hmq/{assembler}.{binner_checkm}.links")],
-                   assembler=ASSEMBLERS,
+                os.path.join(config["output"]["cocheckm"],
+                             "report/{assembler_co}_{binner_checkm}_checkm_table.tsv"),
+                os.path.join(config["output"]["cocheckm"],
+                             "bins_hq/{assembler_co}.{binner_checkm}.links"),
+                os.path.join(config["output"]["cocheckm"],
+                             "bins_mq/{assembler_co}.{binner_checkm}.links"),
+                os.path.join(config["output"]["cocheckm"],
+                             "bins_lq/{assembler_co}.{binner_checkm}.links"),
+                os.path.join(config["output"]["cocheckm"],
+                             "bins_hmq/{assembler_co}.{binner_checkm}.links")],
+                   assembler_co=ASSEMBLERS_CO,
                    binner_checkm=BINNERS_CHECKM),
 
-            rules.predict_bins_gene_prodigal_all.input,
-            rules.binning_all.input,
+            rules.copredict_bins_gene_prodigal_all.input,
+            rules.cobinning_all.input,
 
 else:
-    rule single_checkm_all:
+    rule cocheckm_all:
         input:
+
+
+rule checkm_all:
+    input:
+        rules.single_checkm_all.input,
+        rules.cocheckm_all.input

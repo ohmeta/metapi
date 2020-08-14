@@ -134,7 +134,7 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             '''
 
 
-    rule classify_hmq_bins_gtdbtk_all:
+    rule single_classify_hmq_bins_gtdbtk_all:
         input:
             expand(
                 os.path.join(
@@ -146,11 +146,11 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             rules.checkm_all.input,
 
 else:
-    rule classify_hmq_bins_gtdbtk_all:
+    rule single_classify_hmq_bins_gtdbtk_all:
         input:
 
 
-rule classify_all:
+rule single_classify_all:
     input:
         rules.classify_short_reads_kraken2_all.input,
-        rules.classify_hmq_bins_gtdbtk_all.input
+        rules.single_classify_hmq_bins_gtdbtk_all.input

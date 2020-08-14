@@ -39,6 +39,11 @@ if config["params"]["assembly"]["spades"]["do"]:
     ASSEMBLERS += ["spades"]
 
 
+ASSEMBLERS_CO = []
+if config["params"]["coassembly"]["megahit"]["do"]:
+    ASSEMBLERS_CO += ["megahit"]
+
+
 BINNERS_TOTAL = []
 BINNERS_GRAPHBIN = []
 BINNERS_DASTOOLS = []
@@ -82,13 +87,18 @@ include: "../rules/qcreport.smk"
 include: "../rules/assembly.smk"
 include: "../rules/coassembly.smk"
 include: "../rules/predict_scaftigs.smk"
+include: "../rules/copredict_scaftigs.smk"
 include: "../rules/alignment.smk"
+include: "../rules/coalignment.smk"
 include: "../rules/binning.smk"
 include: "../rules/cobinning.smk"
 include: "../rules/predict_bins.smk"
+include: "../rules/copredict_bins.smk"
 include: "../rules/checkm.smk"
+include: "../rules/cocheckm.smk"
 include: "../rules/dereplicate_mags.smk"
 include: "../rules/classify.smk"
+include: "../rules/coclassify.smk"
 include: "../rules/profiling.smk"
 include: "../rules/upload.smk"
 
@@ -101,11 +111,9 @@ rule all:
         rules.rmhost_all.input,
         rules.qcreport_all.input,
         rules.assembly_all.input,
-        rules.coassembly_all.input,
         rules.predict_scaftigs_gene_all.input,
         rules.alignment_all.input,
         rules.binning_all.input,
-        rules.cobinning_all.input,
         rules.predict_bins_gene_all.input,
         rules.checkm_all.input,
         rules.dereplicate_mags_all.input,
