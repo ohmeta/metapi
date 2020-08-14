@@ -689,6 +689,7 @@ rule single_assembly_all:
         rules.assembly_metaspades_all.input,
         rules.assembly_spades_all.input,
         rules.assembly_plass_all.input,
+        rules.assembly_opera_ms_all.input,
 
         rules.assembly_report_all.input,
         rules.assembly_metaquast_all.input,

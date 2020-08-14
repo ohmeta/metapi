@@ -72,7 +72,7 @@ $ metapi init --help
       -s, --samples SAMPLES
                             desired input:
                             samples list, tsv format required.
-                                
+
                             if begin from trimming, rmhost, or assembly:
                                 if it is fastq:
                                     the header is [id, fq1, fq2]
@@ -80,7 +80,7 @@ $ metapi init --help
                                     the header is [id, sra]
                             if begin from simulate:
                                 the header is [id, genome, abundance, reads_num, model]
-                                        
+
     -b, --begin {simulate,trimming,rmhost,assembly}
                             pipeline starting point (default: trimming)
 ```
@@ -104,7 +104,7 @@ $ metapi mag_wf raw_fastqc_all --run
 $ metapi mag_wf trimming_all --run
 
 # run rmhost
-$ metapi mag_wf rmhost_all --run 
+$ metapi mag_wf rmhost_all --run
 
 # run qc report
 $ metapi mag_wf qcreport_all --run
@@ -112,7 +112,7 @@ $ metapi mag_wf qcreport_all --run
 # run assembly
 $ metapi mag_wf assembly_all --run
 
-# run binning 
+# run binning
 $ metapi mag_wf binning_all --run
 
 # run gene predict
@@ -152,36 +152,63 @@ Note: The fastq need gzip compress.
 
 - begin from trimming, rmhost or assembly:
 
-  - `Paired-end fastq`
+  - `Paired-end reads`
 
-  | id  | fq1        | fq2        |
-  | :-: | :-----:    | :-----:    |
+  | id  |    fq1     |    fq2     |
+  | :-: | :--------: | :--------: |
   | s1  | aa.1.fq.gz | aa.2.fq.gz |
   | s2  | bb.1.fq.gz | bb.2.fq.gz |
   | s2  | cc.1.fq.gz | cc.2.fq.gz |
   | s3  | dd.1.fq.gz | dd.2.fq.gz |
 
-  - `Single-end fastq`
+  - `Paired-end reads(interleaved)`
 
-  | id  | fq1        | fq2 |
-  | :-: | :-----:    | :-: |
-  | s1  | aa.1.fq.gz |     |
-  | s2  | bb.1.fq.gz |     |
-  | s2  | cc.1.fq.gz |     |
-  | s3  | dd.1.fq.gz |     |
+  | id  |     fq1     | fq2 |
+  | :-: | :---------: | :-: |
+  | s1  | aa.12.fq.gz |     |
+  | s2  | bb.12.fq.gz |     |
+  | s2  | cc.12.fq.gz |     |
+  | s3  | dd.12.fq.gz |     |
 
-  - `SRA`:
+* `Paired-end reads with long reads`
 
-  SRA can be dumpped to Paired-end fastq reads
+| id  |    fq1     |    fq2     |    fq_long    |
+| :-: | :--------: | :--------: | :-----------: |
+| s1  | aa.1.fq.gz | aa.2.fq.gz | aa.long.fq.gz |
+| s2  | bb.1.fq.gz | bb.2.fq.gz | bb.long.fq.gz |
+| s2  | cc.1.fq.gz | cc.2.fq.gz | cc.long.fq.gz |
+| s3  | dd.1.fq.gz | dd.2.fq.gz | dd.long.fq.gz |
 
-  | id  |  sra   |
-  | :-: | :----: |
-  | s1  | aa.sra |
-  | s2  | bb.sra |
-  | s2  | cc.sra |
-  | s3  | dd.sra |
+- `Paired-end reads(interleaved) with long reads`
 
-- begin from simulate
+| id  |     fq1     | fq2 |    fq_long    |
+| :-: | :---------: | :-: | :-----------: |
+| s1  | aa.12.fq.gz |     | aa.long.fq.gz |
+| s2  | bb.12.fq.gz |     | bb.long.fq.gz |
+| s2  | cc.12.fq.gz |     | cc.long.fq.gz |
+| s3  | dd.12.fq.gz |     | dd.long.fq.gz |
+
+- `Single-end reads`
+
+| id  |    fq1     | fq2 |
+| :-: | :--------: | :-: |
+| s1  | aa.1.fq.gz |     |
+| s2  | bb.1.fq.gz |     |
+| s2  | cc.1.fq.gz |     |
+| s3  | dd.1.fq.gz |     |
+
+- `SRA (only support paired-end reads)` :
+
+SRA can be dumpped to Paired-end fastq reads
+
+| id  |  sra   |
+| :-: | :----: |
+| s1  | aa.sra |
+| s2  | bb.sra |
+| s2  | cc.sra |
+| s3  | dd.sra |
+
+- begin from simulate, only support paired-end reads
 
   | id  | genome | abundance | reads_num | model |
   | :-: | :----: | :-------: | :-------: | :---: |
@@ -211,9 +238,9 @@ species g3 is 0.5.
 Then metapi will use [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq) to generate metagenomics shutgun reads.
 
 ## FAQ
-* You know what you want to do, so you know how to configure config.yaml
-* You know snakemake, so you know how to hack metapi
 
+- You know what you want to do, so you know how to configure config.yaml
+- You know snakemake, so you know how to hack metapi
 
 ## Getting help
 
