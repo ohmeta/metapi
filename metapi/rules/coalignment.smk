@@ -25,7 +25,7 @@ rule coalignment_scaftigs_index:
 
 rule coalignment_reads_scaftigs:
     input:
-        reads = assembly_input,
+        reads = assembly_input_with_short_reads,
         index = expand(os.path.join(
             config["output"]["coalignment"],
             "index/all.{{assembler_co}}.out/all.{{assembler_co}}.scaftigs.fa.gz.{suffix}"),

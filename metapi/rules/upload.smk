@@ -10,7 +10,7 @@ if config["upload"]["do"]:
 
     rule upload_md5_short_reads:
         input:
-            assembly_input
+            assembly_input_with_short_reads
         output:
             os.path.join(config["output"]["upload"], "short_reads/{sample}.md5")
         shell:

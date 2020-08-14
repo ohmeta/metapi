@@ -15,6 +15,16 @@ IS_PE = True \
        else False
 
 
+IS_INTERLEAVED = True \
+    if config["params"]["interleaved"] \
+       else False
+
+
+HAVE_LONG = True \
+    if IS_PE and config["params"]["have_long"] \
+       else False
+
+
 RMHOST_DO = True \
     if config["params"]["rmhost"]["bwa"]["do"] or \
        config["params"]["rmhost"]["bowtie2"]["do"] \
@@ -37,6 +47,8 @@ if config["params"]["assembly"]["metaspades"]["do"]:
     ASSEMBLERS += ["metaspades"]
 if config["params"]["assembly"]["spades"]["do"]:
     ASSEMBLERS += ["spades"]
+if config["params"]["assembly"]["opera_ms"]["do"]:
+    ASSEMBLERS += ["opera_ms"]
 
 
 ASSEMBLERS_CO = []

@@ -1,7 +1,7 @@
 if config["params"]["classify"]["kraken2"]["do"]:
     rule classify_short_reads_kraken2:
         input:
-            reads = assembly_input,
+            reads = assembly_input_with_short_reads,
             database = expand(os.path.join(
                 config["params"]["classify"]["kraken2"]["database"], "{db}"),
                               db = ["hash.k2d", "taxo.k2d", "opts.k2d"])
