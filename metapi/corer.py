@@ -29,6 +29,7 @@ WORKFLOWS_MAG = [
     "assembly_metaspades_all",
     "assembly_spades_all",
     "assembly_plass_all",
+    "assembly_opera_ms_all",
     "assembly_metaquast_all",
     "assembly_report_all",
     "single_assembly_all",

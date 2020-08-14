@@ -1,7 +1,7 @@
 if config["params"]["profiling"]["metaphlan"]["do_v2"]:
     rule profiling_metaphlan2:
         input:
-            assembly_input
+            assembly_input_with_short_reads
         output:
            profile = protected(os.path.join(
                config["output"]["profiling"],
@@ -15,7 +15,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"]:
         params:
             sample_id = "{sample}",
             wrapper_dir = WRAPPER_DIR,
-            input_str = lambda wildcards: ",".join(assembly_input(wildcards)),
+            input_str = lambda wildcards: ",".join(assembly_input_with_short_reads(wildcards)),
             read_min_len = config["params"]["profiling"]["metaphlan"]["read_min_len"],
             bowtie2db = config["params"]["profiling"]["metaphlan"]["bowtie2db"],
             index = config["params"]["profiling"]["metaphlan"]["index_v2"],
@@ -142,7 +142,7 @@ else:
 if config["params"]["profiling"]["metaphlan"]["do_v3"]:
     rule profiling_metaphlan3:
         input:
-            assembly_input
+            assembly_input_with_short_reads
         output:
            protected(os.path.join(
                config["output"]["profiling"],
@@ -309,7 +309,7 @@ if config["params"]["profiling"]["jgi"]["do"]:
     if not config["params"]["profiling"]["jgi"]["oneway"]:
         rule profiling_jgi:
             input:
-                reads = assembly_input,
+                reads = assembly_input_with_short_reads,
                 index_database = expand(
                     "{prefix}.{suffix}",
                     prefix=config["params"]["profiling"]["jgi"]["index_prefix"],
@@ -724,7 +724,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
     rule profiling_humann2:
         input:
             tag = os.path.join(config["output"]["profiling"], ".humann2.config.done"),
-            reads = assembly_input,
+            reads = assembly_input_with_short_reads,
             index = expand(os.path.join(
                 config["output"]["profiling"],
                 "database/humann2/{{sample}}/{{sample}}_bowtie2_index.{suffix}"),

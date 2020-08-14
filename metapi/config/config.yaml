@@ -1,6 +1,7 @@
 params:
   reads_layout: "pe"
   interleaved: False
+  have_long: False
   fq_encoding: "sanger"
   begin: "trimming"
   samples: "samples.tsv"
@@ -107,6 +108,9 @@ params:
       min_length: 45
       evalue:
       filter_protiens: 1
+    opera_ms:
+      do: False
+      path: /home/zhujie/projects/OPERA-MS/OPERA-MS.pl
 
     metaquast:
       do: False

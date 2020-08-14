@@ -1,16 +1,16 @@
-def coassembly_inputs(wildcards):
+def coassembly_inputs_with_short_reads(wildcards):
     if RMHOST_DO:
-        return get_reads_list("rmhost")
+        return get_short_reads_list("rmhost")
     elif TRIMMING_DO:
-        return get_reads_list("trimming")
+        return get_short_reads_list("trimming")
     else:
-        return get_reads_list("raw")
+        return get_short_reads_list("raw")
 
 
 if config["params"]["coassembly"]["megahit"]["do"]:
     rule coassembly_megahit:
         input:
-            unpack(coassembly_inputs)
+            unpack(coassembly_inputs_with_short_reads)
         output:
             scaftigs = os.path.join(
                 config["output"]["coassembly"],

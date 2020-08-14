@@ -1,4 +1,4 @@
-def assembly_input(wildcards):
+def assembly_input_with_short_reads(wildcards):
     if RMHOST_DO:
         return get_reads(wildcards, "rmhost", False)
     elif TRIMMING_DO:
@@ -6,11 +6,20 @@ def assembly_input(wildcards):
     else:
         return get_reads(wildcards, "raw", False)
 
+
+def assembly_input_with_short_and_long_reads(wildcards):
+    if RMHOST_DO:
+        return get_reads(wildcards, "rmhost", False, True)
+    elif TRIMMING_DO:
+        return get_reads(wildcards, "trimming", False, True)
+    else:
+        return get_reads(wildcards, "raw", False, True)
+
    
 if "megahit" in ASSEMBLERS:
     rule assembly_megahit:
         input:
-            reads = assembly_input
+            reads = assembly_input_with_short_reads
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
@@ -78,7 +87,7 @@ else:
 if "idba_ud" in ASSEMBLERS:
     rule assembly_idba_ud:
         input:
-            reads = assembly_input
+            reads = assembly_input_with_short_reads
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
@@ -160,7 +169,7 @@ else:
 if "metaspades" in ASSEMBLERS:
     rule assembly_metaspades:
         input:
-            reads = assembly_input
+            reads = assembly_input_with_short_reads
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
@@ -306,7 +315,7 @@ else:
 if "spades" in ASSEMBLERS:
     rule assembly_spades:
         input:
-            reads = assembly_input
+            reads = assembly_input_with_short_reads
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
@@ -440,7 +449,7 @@ else:
 if "plass" in ASSEMBLERS:
     rule assembly_plass:
         input:
-            reads = assembly_input
+            reads = assembly_input_with_short_reads
         output:
             proteins = os.path.join(
                 config["output"]["assembly"],
@@ -484,11 +493,49 @@ else:
         input:
 
 
+if "opera_ms" in ASSEMBLERS:
+    rule assembly_opera_ms:
+        input:
+            reads = assembly_input_with_short_and_long_reads
+        output:
+            scaftigs = protected(os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.opera_ms.out/{sample}.opera_ms.scaftigs.fa.gz"))
+        log:
+            os.path.join(config["output"]["assembly"],
+                         "logs/{sample}.opera_ms.log")
+        params:
+            opera_ms = config["params"]["assembly"]["opera_ms"]["path"]
+        threads:
+            config["params"]["assembly"]["threads"]
+        shell:
+            '''
+            perl {params.opera_ms} \
+            --short-read1 {input.reads[0]} \
+            --short-read2 {input.reads[1]} \
+            --long-read {input.reads[2]} \
+            --num-processors {threads} \
+            --out-dir {output.scaftigs} 2> {log}
+            '''
+
+
+    rule assembly_opera_ms_all:
+        input:
+            expand(os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.opera_ms.out/{sample}.opera_ms.scaftigs.fa.gz"),
+                   sample=SAMPLES.index.unique())
+
+else:
+    rule assembly_opera_ms_all:
+        input:
+
+
 if len(ASSEMBLERS) != 0:
     if config["params"]["assembly"]["metaquast"]["do"] and IS_PE:
         rule assembly_metaquast:
             input:
-                reads = assembly_input,
+                reads = assembly_input_with_short_reads,
                 scaftigs = os.path.join(
                     config["output"]["assembly"],
                     "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz")

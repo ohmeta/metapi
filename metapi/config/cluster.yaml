@@ -18,6 +18,7 @@ localrules:
   - assembly_metaspades_all
   - assembly_spades_all
   - assembly_plass_all
+  - assembly_opera_ms_all
   - assembly_metaquast_all
   - assembly_report_all
   - single_assembly_all
@@ -233,6 +234,12 @@ assembly_spades:
   error: "logs/04.{rule}/{rule}.{wildcards.sample}.e"
 
 assembly_plass:
+  mem: "20G"
+  cores: 8
+  output: "logs/04.{rule}/{rule}.{wildcards.sample}.o"
+  error: "logs/04.{rule}/{rule}.{wildcards.sample}.e"
+
+assembly_opera_ms:
   mem: "20G"
   cores: 8
   output: "logs/04.{rule}/{rule}.{wildcards.sample}.o"

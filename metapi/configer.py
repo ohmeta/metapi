@@ -58,6 +58,7 @@ class metaconfig:
         "logs/04.assembly_metaspades",
         "logs/04.assembly_spades",
         "logs/04.assembly_plass",
+        "logs/04.assembly_opera_ms",
         "logs/04.assembly_metaquast",
         "logs/04.assembly_metaquast_multiqc",
         "logs/04.assembly_report",
