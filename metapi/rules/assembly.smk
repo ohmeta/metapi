@@ -83,7 +83,7 @@ if "megahit" in ASSEMBLERS:
                 break
             shell(
                 '''
-                megahit_toolkit contigs2fasta \
+                megahit_toolkit contigs2fastg \
                 %d \
                 {params.contigs} \
                 > {params.fastg}
