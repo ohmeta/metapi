@@ -74,7 +74,7 @@ if config["params"]["coassembly"]["megahit"]["do"]:
                 break
             shell(
                 '''
-                megahit_toolkit contigs2fasta \
+                megahit_toolkit contigs2fastg \
                 %d \
                 {params.contigs} \
                 > {params.fastg}
