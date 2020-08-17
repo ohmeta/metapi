@@ -35,10 +35,10 @@ if config["params"]["coassembly"]["megahit"]["do"]:
                 "scaftigs/all.megahit.out/all.contigs.fa"),
             fastg = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/all.megahit.out/all.contigs.fastg"),
+                "scaftigs/all.megahit.out/all.megahit.scaftigs.fastg"),
             gfa = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/all.megahit.out/all.contigs.gfa"),
+                "scaftigs/all.megahit.out/all.megahit.scaftigs.gfa"),
             only_save_scaftigs = \
                 config["params"]["coassembly"]["megahit"]["only_save_scaftigs"]
         threads:
@@ -72,13 +72,15 @@ if config["params"]["coassembly"]["megahit"]["do"]:
             for seq_record in SeqIO.parse(params.contigs, "fasta"):
                 k_num = re.search('k(.*)_', seq_record.id).group(1)
                 break
+
             shell(
                 '''
                 megahit_toolkit contig2fastg \
                 %d \
                 {params.contigs} \
                 > {params.fastg}
-                ''')
+                ''' % k_num)
+
             shell('''fastg2gfa {params.fastg} > {params.gfa}''')
             shell('''pigz -p {threads} {params.fastg}''')
             shell('''pigz -p {threads} {params.gfa}''')
