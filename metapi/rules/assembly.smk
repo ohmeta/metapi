@@ -23,7 +23,11 @@ if "megahit" in ASSEMBLERS:
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.megahit.out/{sample}.megahit.scaftigs.fa.gz"))
+                "scaftigs/{sample}.megahit.out/{sample}.megahit.scaftigs.fa.gz")),
+            gfa = protected(os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.megahit.out/{sample}.megahit.scaftigs.gfa.gz"
+            ))
         priority:
             20
         params:
@@ -36,6 +40,12 @@ if "megahit" in ASSEMBLERS:
             contigs = os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{sample}.megahit.out/{sample}.contigs.fa"),
+            fastg = os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.megahit.out/{sample}.contigs.fastg"),
+            gfa = os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.megahit.out/{sample}.contigs.gfa"),
             only_save_scaftigs = \
                 config["params"]["assembly"]["megahit"]["only_save_scaftigs"]
         threads:
@@ -44,6 +54,9 @@ if "megahit" in ASSEMBLERS:
             os.path.join(config["output"]["assembly"],
                          "logs/{sample}.megahit.log")
         run:
+            from Bio import SeqIO
+            import re
+
             if os.path.exists(os.path.join(params.output_dir, "options.json")):
                 shell('''megahit --continue --out-dir {params.output_dir}''')
             else:
@@ -64,6 +77,21 @@ if "megahit" in ASSEMBLERS:
                            if params.presets != "" \
                            else "--k-list {params.k_list}"))
 
+            k_num = 0
+            for seq_record in SeqIO.parse(params.contigs, "fasta"):
+                k_num = re.search('k(.*)_', seq_record.id).group(1)
+                break
+            shell(
+                '''
+                megahit_toolkit contigs2fasta \
+                %d \
+                {params.contigs} \
+                > {params.fastg}
+                ''')
+            shell('''fastg2gfa {params.fastg} > {params.gfa}''')
+            shell('''pigz -p {threads} {params.fastg}''')
+            shell('''pigz -p {threads} {params.gfa}''')
+
             shell('''pigz -p {threads} {params.contigs}''')
             shell('''mv {params.contigs}.gz {output.scaftigs}''')
 
@@ -74,9 +102,13 @@ if "megahit" in ASSEMBLERS:
 
     rule assembly_megahit_all:
         input:
-            expand(os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{sample}.megahit.out/{sample}.megahit.scaftigs.fa.gz"),
+            expand([
+                os.path.join(
+                    config["output"]["assembly"],
+                    "scaftigs/{sample}.megahit.out/{sample}.megahit.scaftigs.fa.gz"),
+                os.path.join(
+                    config["output"]["assembly"],
+                    "scaftigs/{sample}.megahit.out/{sample}.megahit.scaftigs.gfa.gz")],
                    sample=SAMPLES.index.unique())
 
 else:

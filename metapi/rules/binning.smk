@@ -537,6 +537,7 @@ if config["params"]["binning"]["graphbin"]["do"]:
                         graphbin \
                         --assembler {params.assembler} \
                         --graph {input.gfa} \
+                        --contigs {input.scaftigs} \
                         --binned {input.binned} \
                         --max_iteration {params.max_iteration} \
                         --diff_threshold {params.diff_threshold} \

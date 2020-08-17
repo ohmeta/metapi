@@ -14,7 +14,10 @@ if config["params"]["coassembly"]["megahit"]["do"]:
         output:
             scaftigs = os.path.join(
                 config["output"]["coassembly"],
-                "scaftigs/all.megahit.out/all.megahit.scaftigs.fa.gz")
+                "scaftigs/all.megahit.out/all.megahit.scaftigs.fa.gz"),
+            gfa = os.path.join(
+                config["output"]["coassembly"],
+                "scaftigs/all.megahit.out/all.megahit.scaftigs.gfa.gz")
         priority:
             20
         log:
@@ -30,11 +33,20 @@ if config["params"]["coassembly"]["megahit"]["do"]:
             contigs = os.path.join(
                 config["output"]["coassembly"],
                 "scaftigs/all.megahit.out/all.contigs.fa"),
+            fastg = os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/all.megahit.out/all.contigs.fastg"),
+            gfa = os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/all.megahit.out/all.contigs.gfa"),
             only_save_scaftigs = \
                 config["params"]["coassembly"]["megahit"]["only_save_scaftigs"]
         threads:
             config["params"]["coassembly"]["megahit"]["threads"]
         run:
+            from Bio import SeqIO
+            import re
+
             if os.path.exists(os.path.join(params.output_dir, "options.json")):
                 shell('''megahit --continue --out-dir {params.output_dir}''')
             else:
@@ -56,6 +68,20 @@ if config["params"]["coassembly"]["megahit"]["do"]:
                            "--presets %s" % params.presets \
                            if params.presets != "" \
                            else "--k-list {params.k_list}"))
+            k_num = 0
+            for seq_record in SeqIO.parse(params.contigs, "fasta"):
+                k_num = re.search('k(.*)_', seq_record.id).group(1)
+                break
+            shell(
+                '''
+                megahit_toolkit contigs2fasta \
+                %d \
+                {params.contigs} \
+                > {params.fastg}
+                ''')
+            shell('''fastg2gfa {params.fastg} > {params.gfa}''')
+            shell('''pigz -p {threads} {params.fastg}''')
+            shell('''pigz -p {threads} {params.gfa}''')
 
             shell('''pigz -p {threads} {params.contigs}''')
             shell('''mv {params.contigs}.gz {output.scaftigs}''')
@@ -68,7 +94,9 @@ if config["params"]["coassembly"]["megahit"]["do"]:
     rule coassembly_megahit_all:
         input:
             os.path.join(config["output"]["coassembly"],
-                         "scaftigs/all.megahit.out/all.megahit.scaftigs.fa.gz")
+                         "scaftigs/all.megahit.out/all.megahit.scaftigs.fa.gz"),
+            os.path.join(config["output"]["coassembly"],
+                         "scaftigs/all.megahit.out/all.megahit.scaftigs.gfa.gz")
 
 else:
     rule coassembly_megahit_all:
