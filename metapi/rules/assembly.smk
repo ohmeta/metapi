@@ -79,7 +79,7 @@ if "megahit" in ASSEMBLERS:
 
             k_num = 0
             for seq_record in SeqIO.parse(params.contigs, "fasta"):
-                k_num = re.search('k(.*)_', seq_record.id).group(1)
+                k_num = int(re.search('k(.*)_', seq_record.id).group(1))
                 break
 
             shell(
