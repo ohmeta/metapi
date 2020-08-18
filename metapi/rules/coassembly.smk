@@ -34,10 +34,10 @@ if config["params"]["coassembly"]["megahit"]["do"]:
                 config["output"]["coassembly"],
                 "scaftigs/all.megahit.out/all.contigs.fa"),
             fastg = os.path.join(
-                config["output"]["assembly"],
+                config["output"]["coassembly"],
                 "scaftigs/all.megahit.out/all.megahit.scaftigs.fastg"),
             gfa = os.path.join(
-                config["output"]["assembly"],
+                config["output"]["coassembly"],
                 "scaftigs/all.megahit.out/all.megahit.scaftigs.gfa"),
             only_save_scaftigs = \
                 config["params"]["coassembly"]["megahit"]["only_save_scaftigs"]
