@@ -518,7 +518,7 @@ if config["params"]["binning"]["graphbin"]["do"]:
             df = pd.read_csv(input.binned, names=["scaftigs_id", "bin_id"])
 
             if not df.empty:
-                if params.assembler == "metaspades" or params.assembler == "spades":
+                if params.assembler_co == "metaspades" or params.assembler_co == "spades":
                     shell('''pigz -p {threads} -dc {params.paths} > {output}/scaftigs.paths''')
                     shell(
                         '''
@@ -536,7 +536,7 @@ if config["params"]["binning"]["graphbin"]["do"]:
                     shell(
                         '''
                         graphbin \
-                        --assembler {params.assembler} \
+                        --assembler {params.assembler_co} \
                         --graph {input.gfa} \
                         --binned {input.binned} \
                         --max_iteration {params.max_iteration} \
