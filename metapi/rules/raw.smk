@@ -201,7 +201,7 @@ rule prepare_reads_all:
         rules.prepare_long_reads_all.input
 
 
-def get_reads(wildcards, step, short_or_long, have_single=False, have_long=False):
+def get_reads(wildcards, step, have_single=False, have_long=False):
     read = ""
     if IS_PE:
         read = short_reads_suffix()
