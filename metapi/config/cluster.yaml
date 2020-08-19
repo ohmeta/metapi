@@ -1,5 +1,7 @@
 localrules:
   - simulate_all
+  - prepare_short_reads_all
+  - prepare_long_reads_all
   - prepare_reads_all
   - raw_fastqc_all
   - raw_report_all
@@ -95,7 +97,13 @@ simulate_short_reads:
   output: "logs/00.{rule}/{rule}.{wildcards.sample}.o"
   error: "logs/00.{rule}/{rule}.{wildcards.sample}.e"
 
-prepare_reads:
+prepare_short_reads:
+  mem: "512M"
+  cores: 1
+  output: "logs/00.{rule}/{rule}.{wildcards.sample}.o"
+  error: "logs/00.{rule}/{rule}.{wildcards.sample}.e"
+
+prepare_long_reads:
   mem: "512M"
   cores: 1
   output: "logs/00.{rule}/{rule}.{wildcards.sample}.o"
