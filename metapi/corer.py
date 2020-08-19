@@ -242,6 +242,9 @@ def init(args, unknown):
 
                 conf["params"]["raw"]["save_reads"] = True
 
+                conf["params"]["raw"]["fastqc"]["do"] = False
+                conf["params"]["qcreport"]["do"] = False
+
         if args.samples:
             conf["params"]["samples"] = args.samples
 
