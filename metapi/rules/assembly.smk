@@ -539,7 +539,10 @@ if "opera_ms" in ASSEMBLERS:
             os.path.join(config["output"]["assembly"],
                          "logs/{sample}.opera_ms.log")
         params:
-            opera_ms = config["params"]["assembly"]["opera_ms"]["path"]
+            opera_ms = config["params"]["assembly"]["opera_ms"]["path"],
+            out_dir = os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.opera_ms.out")
         threads:
             config["params"]["assembly"]["threads"]
         shell:
@@ -549,7 +552,11 @@ if "opera_ms" in ASSEMBLERS:
             --short-read2 {input.reads[1]} \
             --long-read {input.reads[2]} \
             --num-processors {threads} \
-            --out-dir {output.scaftigs} 2> {log}
+            --out-dir {params.out_dir} 2> {log}
+
+            pigz -p {threads} {params.out_dir}/contigs.fasta
+            pigz -p {threads} {params.out_dir}/contigs.polished.fasta
+            ln -s {params.out_dir}/contigs.polished.fasta.gz {output.scaftigs}
             '''
 
 
