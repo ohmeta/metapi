@@ -555,19 +555,19 @@ if "opera_ms" in ASSEMBLERS:
                 config["output"]["assembly"],
                 "scaftigs/{sample}.opera_ms.out"),
             no_ref_clustering = "--no-ref-clustering" \
-                if config["params"]["assembly"]["opera-ms"]["no_ref_clustering"] else "",
+                if config["params"]["assembly"]["opera_ms"]["no_ref_clustering"] else "",
             no_strain_clustering = "--no-strain-clustering" \
-                if config["params"]["assembly"]["opera-ms"]["no_strain_clustering"] else "",
+                if config["params"]["assembly"]["opera_ms"]["no_strain_clustering"] else "",
             no_gap_filling = "--no-gap-filling" \
-                if config["params"]["assembly"]["opera-ms"]["no_gap_filling"] else "",
+                if config["params"]["assembly"]["opera_ms"]["no_gap_filling"] else "",
             polishing = "--polishing" \
-                if config["params"]["assembly"]["opera-ms"]["polishing"] else "",
-            long_read_mapper = config["params"]["assembly"]["opera-ms"]["long_read_mapper"],
-            short_read_assembler = config["params"]["assembly"]["opera-ms"]["short_read_assembler"],
-            contig_len_threshold = config["params"]["assembly"]["opera-ms"]["contig_len_threshold"],
-            contig_edge_len = config["params"]["assembly"]["opera-ms"]["contig_edge_len"],
-            contig_window_len = config["params"]["assembly"]["opera-ms"]["contig_window_len"],
-            genome_db = config["params"]["assembly"]["opera-ms"]["genome_db"]
+                if config["params"]["assembly"]["opera_ms"]["polishing"] else "",
+            long_read_mapper = config["params"]["assembly"]["opera_ms"]["long_read_mapper"],
+            short_read_assembler = config["params"]["assembly"]["opera_ms"]["short_read_assembler"],
+            contig_len_threshold = config["params"]["assembly"]["opera_ms"]["contig_len_threshold"],
+            contig_edge_len = config["params"]["assembly"]["opera_ms"]["contig_edge_len"],
+            contig_window_len = config["params"]["assembly"]["opera_ms"]["contig_window_len"],
+            genome_db = config["params"]["assembly"]["opera_ms"]["genome_db"]
         threads:
             config["params"]["assembly"]["threads"]
         run:
