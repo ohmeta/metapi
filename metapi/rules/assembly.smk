@@ -527,10 +527,20 @@ else:
         input:
 
 
+def opera_ms_scaftigs_input(wildcards):
+    return expand(
+        os.path.join(
+            config["output"]["assembly"],
+            "scaftigs/{sample}.{assembler}.out/{sample}.megahit.scaftigs.fa.gz"),
+        sample=wildcards.sample,
+        assembler=config["params"]["assembly"]["opera_ms"]["short_read_assembler"])
+
+
 if "opera_ms" in ASSEMBLERS:
     rule assembly_opera_ms:
         input:
-            reads = assembly_input_with_short_and_long_reads
+            reads = assembly_input_with_short_and_long_reads,
+            scaftigs = opera_ms_scaftigs_input
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
@@ -540,24 +550,68 @@ if "opera_ms" in ASSEMBLERS:
                          "logs/{sample}.opera_ms.log")
         params:
             opera_ms = config["params"]["assembly"]["opera_ms"]["path"],
+            prefix = "{sample}",
             out_dir = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.opera_ms.out")
+                "scaftigs/{sample}.opera_ms.out"),
+            no_ref_clustering = "--no-ref-clustering" \
+                if config["params"]["assembly"]["opera-ms"]["no_ref_clustering"] else "",
+            no_strain_clustering = "--no-strain-clustering" \
+                if config["params"]["assembly"]["opera-ms"]["no_strain_clustering"] else "",
+            no_gap_filling = "--no-gap-filling" \
+                if config["params"]["assembly"]["opera-ms"]["no_gap_filling"] else "",
+            polishing = "--polishing" \
+                if config["params"]["assembly"]["opera-ms"]["polishing"] else "",
+            long_read_mapper = config["params"]["assembly"]["opera-ms"]["long_read_mapper"],
+            short_read_assembler = config["params"]["assembly"]["opera-ms"]["short_read_assembler"],
+            contig_len_threshold = config["params"]["assembly"]["opera-ms"]["contig_len_threshold"],
+            contig_edge_len = config["params"]["assembly"]["opera-ms"]["contig_edge_len"],
+            contig_window_len = config["params"]["assembly"]["opera-ms"]["contig_window_len"],
+            genome_db = config["params"]["assembly"]["opera-ms"]["genome_db"]
         threads:
             config["params"]["assembly"]["threads"]
-        shell:
-            '''
-            perl {params.opera_ms} \
-            --short-read1 {input.reads[0]} \
-            --short-read2 {input.reads[1]} \
-            --long-read {input.reads[2]} \
-            --num-processors {threads} \
-            --out-dir {params.out_dir} 2> {log}
+        run:
+            shell(
+                '''
+                perl {params.opera_ms} \
+                --short-read1 {input.reads[0]} \
+                --short-read2 {input.reads[1]} \
+                --long-read {input.reads[2]} \
+                --contig-file {input.scaftigs} \
+                --num-processors {threads} \
+                --out-dir {params.out_dir} \
+                {params.no_ref_clustering} \
+                {params.no_strain_clustering} \
+                {params.no_gap_filling} \
+                {params.polishing} \
+                --long_read_mapper {params.long_read_mapper} \
+                --short_read_assembler {params.short_read_assembler} \
+                --contig_len_threshold {params.contig_len_threshold} \
+                --contig_edge_len {params.contig_edge_len} \
+                --contig_window_len {params.contig_window_len} \
+                %s \
+                2> {log}
+                ''' % "--genome-db {params.genome_db}" \
+                if params.no_ref_clustering == "" else "")
 
-            pigz -p {threads} {params.out_dir}/contigs.fasta
-            pigz -p {threads} {params.out_dir}/contigs.polished.fasta
-            ln -s {params.out_dir}/contigs.polished.fasta.gz {output.scaftigs}
-            '''
+            shell('''pigz -p {threads} {params.out_dir}/contigs.fasta''')
+
+            if params.polishing != "":
+                shell(
+                    '''
+                    pigz -p {threads} {params.out_dir}/contigs.polished.fasta
+
+                    pushd {params.output_dir} && \
+                    ln -s contigs.polished.fasta.gz {params.prefix}.opera_ms.scaftigs.fa.gz && \
+                    popd
+                    ''')
+            else:
+                shell(
+                    '''
+                    pushd {params.output_dir} && \
+                    ln -s contigs.fasta.gz {params.prefix}.opera_ms.scaftigs.fa.gz && \
+                    popd
+                    ''')
 
 
     rule assembly_opera_ms_all:

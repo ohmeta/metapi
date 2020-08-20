@@ -110,7 +110,17 @@ params:
       filter_protiens: 1
     opera_ms:
       do: False
-      path: /home/zhujie/projects/OPERA-MS/OPERA-MS.pl
+      path: /ldfssz1/ST_META/share/User/zhujie/toolkit/OPERA-MS/OPERA-MS.pl
+      no_ref_clustering: False
+      no_strain_clustering: False
+      no_gap_filling: False
+      polishing: True
+      long_read_mapper: blasr
+      short_read_assembler: megahit
+      contig_len_threshold: 500
+      contig_edge_len: 80
+      contig_window_len: 340
+      genome_db: /ldfssz1/ST_META/share/User/zhujie/toolkit/OPERA-MS/OPERA-MS-DB
 
     metaquast:
       do: False
