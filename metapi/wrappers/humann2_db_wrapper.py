@@ -35,7 +35,8 @@ def build_chocophlan_pangenome_db(
         "parse taxonomy profile and custom database creation", start_time
     )
 
-    nucleotide_index_file = nucleotide.index(custom_database)
+    if custom_database != "Empty":
+        nucleotide_index_file = nucleotide.index(custom_database)
     start_time = timestamp_message("database index", start_time)
 
     os.remove(custom_database)
@@ -46,10 +47,12 @@ def main():
         description="HUMANn2 build chocophlan pangenome database wrapper"
     )
     parser.add_argument("--log", help="log file")
-    parser.add_argument("--basename", help="file basename")
-    parser.add_argument("--db_dir", help="database directory")
-    parser.add_argument("--prescreen_threshold", help="prescreen threshold")
-    parser.add_argument("--taxonomic_profile", help="MetaPhlAn2 taxonomic profile")
+    parser.add_argument("--basename", type=str, help="file basename")
+    parser.add_argument("--db_dir", type=str, help="database directory")
+    parser.add_argument("--prescreen_threshold", type=float, help="prescreen threshold")
+    parser.add_argument(
+        "--taxonomic_profile", type=str, help="MetaPhlAn2 taxonomic profile"
+    )
 
     args = parser.parse_args()
     build_chocophlan_pangenome_db(
