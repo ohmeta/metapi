@@ -604,14 +604,14 @@ if "opera_ms" in ASSEMBLERS:
                     '''
                     pigz -p {threads} {params.out_dir}/contigs.polished.fasta
 
-                    pushd {params.output_dir} && \
+                    pushd {params.out_dir} && \
                     ln -s contigs.polished.fasta.gz {params.prefix}.opera_ms.scaftigs.fa.gz && \
                     popd
                     ''')
             else:
                 shell(
                     '''
-                    pushd {params.output_dir} && \
+                    pushd {params.out_dir} && \
                     ln -s contigs.fasta.gz {params.prefix}.opera_ms.scaftigs.fa.gz && \
                     popd
                     ''')
