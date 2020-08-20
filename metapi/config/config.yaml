@@ -310,8 +310,8 @@ params:
       fragment: 1200
       memory_limit: 8G
       compression_level: 6
-      taxonomy: /hwfssz1/ST_META/P18Z10200N0127_MA/zhujie/igo/assay/profilling/oral_mgs_index_metadata.tsv
-      index_metadata: /hwfssz1/ST_META/P18Z10200N0127_MA/zhujie/igo/assay/taxonomy/lineages_gtdb/oral_mgs_gtdb_taxonomy.tsv
+      index_metadata: /hwfssz1/ST_META/P18Z10200N0127_MA/zhujie/igo/assay/profilling/oral_mgs_index_metadata.tsv
+      taxonomy: /hwfssz1/ST_META/P18Z10200N0127_MA/zhujie/igo/assay/taxonomy/lineages_gtdb/oral_mgs_gtdb_taxonomy.tsv
       index_prefix: /ldfssz1/ST_META/share/User/zhujie/database/igo/mpa_v20_m200
     bracken:
       do: True
