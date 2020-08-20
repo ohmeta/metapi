@@ -584,11 +584,11 @@ if "opera_ms" in ASSEMBLERS:
                 {params.no_strain_clustering} \
                 {params.no_gap_filling} \
                 {params.polishing} \
-                --long_read_mapper {params.long_read_mapper} \
-                --short_read_assembler {params.short_read_assembler} \
-                --contig_len_threshold {params.contig_len_threshold} \
-                --contig_edge_len {params.contig_edge_len} \
-                --contig_window_len {params.contig_window_len} \
+                --long-read-mapper {params.long_read_mapper} \
+                --short-read-assembler {params.short_read_assembler} \
+                --contig-len-thr {params.contig_len_threshold} \
+                --contig-edge-len {params.contig_edge_len} \
+                --contig-window-len {params.contig_window_len} \
                 %s \
                 2> {log}
                 ''' % "--genome-db {params.genome_db}" \
