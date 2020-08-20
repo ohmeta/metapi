@@ -38,7 +38,10 @@ TRIMMING_DO = True \
        else False
 
 
+
+
 ASSEMBLERS = []
+
 if config["params"]["assembly"]["megahit"]["do"]:
     ASSEMBLERS += ["megahit"]
 if config["params"]["assembly"]["idba_ud"]["do"]:
@@ -47,8 +50,17 @@ if config["params"]["assembly"]["metaspades"]["do"]:
     ASSEMBLERS += ["metaspades"]
 if config["params"]["assembly"]["spades"]["do"]:
     ASSEMBLERS += ["spades"]
+
 if config["params"]["assembly"]["opera_ms"]["do"]:
     ASSEMBLERS += ["opera_ms"]
+    if (config["params"]["assembly"]["opera_ms"]["short_read_assembler"] == "megahit") \
+       and (not "megahit" in ASSEMBLERS):
+        config["params"]["assembly"]["megahit"]["do"] = True
+        ASSEMBLERS += ["megahit"]
+    elif (config["params"]["assembly"]["opera_ms"]["short_read_assembler"] == "metaspades") \
+         and (not "metaspades" in ASSEMBLERS):
+        config["params"]["assembly"]["metaspades"]["do"] = True
+        ASSEMBLERS += ["metaspades"]
 
 
 ASSEMBLERS_CO = []
