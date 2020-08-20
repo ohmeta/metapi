@@ -111,7 +111,7 @@ params:
     opera_ms:
       do: False
       path: /ldfssz1/ST_META/share/User/zhujie/toolkit/OPERA-MS/OPERA-MS.pl
-      no_ref_clustering: False
+      no_ref_clustering: True
       no_strain_clustering: False
       no_gap_filling: False
       polishing: True

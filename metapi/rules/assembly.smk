@@ -542,6 +542,9 @@ if "opera_ms" in ASSEMBLERS:
             reads = assembly_input_with_short_and_long_reads,
             scaftigs = opera_ms_scaftigs_input
         output:
+            scaftigs_ = temp(os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.opera_ms.out/{sample}.opera_ms_input.scaftigs.fa")),
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{sample}.opera_ms.out/{sample}.opera_ms.scaftigs.fa.gz"))
@@ -551,9 +554,8 @@ if "opera_ms" in ASSEMBLERS:
         params:
             opera_ms = config["params"]["assembly"]["opera_ms"]["path"],
             prefix = "{sample}",
-            out_dir = os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{sample}.opera_ms.out"),
+            out_dir = os.path.join(config["output"]["assembly"],
+                                   "scaftigs/{sample}.opera_ms.out"),
             no_ref_clustering = "--no-ref-clustering" \
                 if config["params"]["assembly"]["opera_ms"]["no_ref_clustering"] else "",
             no_strain_clustering = "--no-strain-clustering" \
@@ -573,11 +575,13 @@ if "opera_ms" in ASSEMBLERS:
         run:
             shell(
                 '''
+                pigz -p {threads} -dc {input.scaftigs} > {output.scaftigs_}
+
                 perl {params.opera_ms} \
                 --short-read1 {input.reads[0]} \
                 --short-read2 {input.reads[1]} \
                 --long-read {input.reads[2]} \
-                --contig-file {input.scaftigs} \
+                --contig-file {output.scaftigs_} \
                 --num-processors {threads} \
                 --out-dir {params.out_dir} \
                 {params.no_ref_clustering} \
