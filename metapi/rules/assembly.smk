@@ -566,7 +566,9 @@ if "opera_ms" in ASSEMBLERS:
             contig_len_threshold = config["params"]["assembly"]["opera_ms"]["contig_len_threshold"],
             contig_edge_len = config["params"]["assembly"]["opera_ms"]["contig_edge_len"],
             contig_window_len = config["params"]["assembly"]["opera_ms"]["contig_window_len"],
-            genome_db = config["params"]["assembly"]["opera_ms"]["genome_db"]
+            genome_db = "--genome-db %s" % config["params"]["assembly"]["opera_ms"]["genome_db"] \
+                if not config["params"]["assembly"]["opera_ms"]["no_ref_clustering"] \
+                   else ""
         threads:
             config["params"]["assembly"]["threads"]
         run:
@@ -586,14 +588,14 @@ if "opera_ms" in ASSEMBLERS:
                 {params.no_strain_clustering} \
                 {params.no_gap_filling} \
                 {params.polishing} \
+                {params.genome_db} \
                 --long-read-mapper {params.long_read_mapper} \
                 --short-read-assembler {params.short_read_assembler} \
                 --contig-len-thr {params.contig_len_threshold} \
                 --contig-edge-len {params.contig_edge_len} \
                 --contig-window-len {params.contig_window_len} \
                 %s >{log} 2>&1
-                ''' % "--genome-db {params.genome_db}" \
-                if params.no_ref_clustering == "" else "")
+                ''')
 
             shell('''pigz -p {threads} {params.out_dir}/contigs.fasta''')
 
