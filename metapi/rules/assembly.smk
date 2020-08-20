@@ -542,9 +542,6 @@ if "opera_ms" in ASSEMBLERS:
             reads = assembly_input_with_short_and_long_reads,
             scaftigs = opera_ms_scaftigs_input
         output:
-            scaftigs_ = temp(os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{sample}.opera_ms.out/{sample}.opera_ms_input.scaftigs.fa")),
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{sample}.opera_ms.out/{sample}.opera_ms.scaftigs.fa.gz"))
@@ -575,13 +572,14 @@ if "opera_ms" in ASSEMBLERS:
         run:
             shell(
                 '''
-                pigz -p {threads} -dc {input.scaftigs} > {output.scaftigs_}
+                rm -rf {params.out_dir}
+                pigz -p {threads} -dc {input.scaftigs} > {input.scaftigs}.fa
 
                 perl {params.opera_ms} \
                 --short-read1 {input.reads[0]} \
                 --short-read2 {input.reads[1]} \
                 --long-read {input.reads[2]} \
-                --contig-file {output.scaftigs_} \
+                --contig-file {input.scaftigs}.fa \
                 --num-processors {threads} \
                 --out-dir {params.out_dir} \
                 {params.no_ref_clustering} \
@@ -593,8 +591,7 @@ if "opera_ms" in ASSEMBLERS:
                 --contig-len-thr {params.contig_len_threshold} \
                 --contig-edge-len {params.contig_edge_len} \
                 --contig-window-len {params.contig_window_len} \
-                %s \
-                2> {log}
+                %s >{log} 2>&1
                 ''' % "--genome-db {params.genome_db}" \
                 if params.no_ref_clustering == "" else "")
 
@@ -616,6 +613,7 @@ if "opera_ms" in ASSEMBLERS:
                     ln -s contigs.fasta.gz {params.prefix}.opera_ms.scaftigs.fa.gz && \
                     popd
                     ''')
+            shell('''rm -rf {input.scaftigs}.fa''')
 
 
     rule assembly_opera_ms_all:
