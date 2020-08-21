@@ -161,10 +161,7 @@ if HAVE_LONG:
                        os.path.join(
                            config["output"]["raw"],
                            "long_reads/{{sample}}/{{sample}}.raw{read}.fq"),
-                       read=long_reads_suffix))
-        params:
-            output_dir = os.path.join(config["output"]["raw"],
-                                      "long_reads/{sample}")
+                       read=long_reads_suffix()))
         run:
             reads_num = len(input)
 
