@@ -211,12 +211,14 @@ def get_reads(wildcards, step, have_single=False, have_long=False):
     short_reads = expand(os.path.join(
         config["output"][step],
         "short_reads/{sample}/{sample}.{step}{read}.fq.gz"),
+                         step=step,
                          read=read,
                          sample=wildcards.sample)
 
     long_reads = expand(os.path.join(
         config["output"]["raw"],
         "long_reads/{sample}/{sample}.{step}{read}.fq"),
+                        step="raw",
                         read=long_reads_suffix(),
                         sample=wildcards.sample)
 
@@ -237,6 +239,7 @@ def get_reads_(wildcards, step, have_single=False):
         os.path.join(
             config["output"][step],
             "short_reads/{sample_}/{sample_}.{step}{read}.fq.gz"),
+        step=step,
         read=read,
         sample_=wildcards.sample_)
 
@@ -248,11 +251,13 @@ def get_short_reads_list(step):
                 os.path.join(
                     config["output"][step],
                     "short_reads/{sample}/{sample}.{step}.1.fq.gz"),
+                step=step,
                 sample=SAMPLES.index.unique()),
             expand(
                 os.path.join(
                     config["output"][step],
                     "short_reads/{sample}/{sample}.{step}.2.fq.gz"),
+                step=step,
                 sample=SAMPLES.index.unique())]
     else:
         return [
@@ -260,6 +265,7 @@ def get_short_reads_list(step):
                 os.path.join(
                     config["output"][step],
                     "short_reads/{sample}/{sample}.{step}.fq.gz"),
+                step=step,
                 sample=SAMPLES.index.unique())]
 
 
