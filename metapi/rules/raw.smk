@@ -56,7 +56,7 @@ rule prepare_short_reads:
                    os.path.join(
                        config["output"]["raw"],
                        "short_reads/{{sample}}/{{sample}}.raw{read}.fq.gz"),
-                   read=short_reads_suffix))
+                   read=short_reads_suffix()))
     params:
         output_dir = os.path.join(config["output"]["raw"],
                                   "short_reads/{sample}"),
