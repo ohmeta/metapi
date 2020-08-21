@@ -218,7 +218,7 @@ def get_reads(wildcards, step, have_single=False, have_long=False):
     long_reads = expand(os.path.join(
         config["output"][step],
         "long_reads/{sample}/{sample}.{step}{read}.fq"),
-                        step=step,
+                        step="raw",
                         read=long_reads_suffix(),
                         sample=wildcards.sample)
 
