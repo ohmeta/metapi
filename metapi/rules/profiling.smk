@@ -94,8 +94,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"]:
         run:
            metapi.metaphlan_init(2)
            profile_df = metapi.merge_metaphlan_tables(input, threads,
-                                                      output=output.abundance_profile)\
-                              .set_index("clade_name")
+                                                      output=output.abundance_profile)
 
            profile_df.filter(regex='t__\w*$', axis=0).reset_index()\
                      .to_csv(output.abundance_profile_t, sep="\t", index=False)
@@ -260,8 +259,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
         run:
            metapi.metaphlan_init(3)
            profile_df = metapi.merge_metaphlan_tables(input, threads,
-                                                      output=output.abundance_profile)\
-                              .set_index("clade_name")
+                                                      output=output.abundance_profile)
 
            profile_df.filter(regex='t__\w*$', axis=0).reset_index()\
                      .to_csv(output.abundance_profile_t, sep="\t", index=False)

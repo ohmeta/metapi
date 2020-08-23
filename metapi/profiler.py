@@ -48,9 +48,9 @@ def merge_metaphlan_tables(table_files, workers, **kwargs):
             if abun_df is not None:
                 abun_list.append(abun_df)
 
-    abun_df_ = pd.concat(abun_list, axis=1).fillna(0).reset_index()
+    abun_df_ = pd.concat(abun_list, axis=1).fillna(0)
     if "output" in kwargs:
-        abun_df_.to_csv(kwargs["output"], sep="\t", index=False)
+        abun_df_.reset_index().to_csv(kwargs["output"], sep="\t", index=False)
     return abun_df_
 
 
