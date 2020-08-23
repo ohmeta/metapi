@@ -594,7 +594,7 @@ if "opera_ms" in ASSEMBLERS:
                 --contig-len-thr {params.contig_len_threshold} \
                 --contig-edge-len {params.contig_edge_len} \
                 --contig-window-len {params.contig_window_len} \
-                %s >{log} 2>&1
+                >{log} 2>&1
                 ''')
 
             shell('''pigz -p {threads} {params.out_dir}/contigs.fasta''')
