@@ -9,7 +9,7 @@ from Bio import bgzf
 
 
 def parse_samples(config):
-    samples_df = pd.read_csv(config["params"]["samples"], sep="\s+").set_index(
+    samples_df = pd.read_csv(config["params"]["samples"], sep="\t").set_index(
         "id", drop=False
     )
 
