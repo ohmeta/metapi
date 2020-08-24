@@ -5,21 +5,24 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
                 config["output"]["cocheckm"],
                 "bins_hmq/{assembler_co}.{binner_checkm}.links")
         output:
-            directory(os.path.join(
+            os.path.join(
                 config["output"]["coclassify"],
-                "bins_hmq/{assembler_co}.{binner_checkm}.gtdbtk.out"))
+                "bins_hmq/{assembler_co}.{binner_checkm}.gtdbtk.out/gtdbtk.log")
         log:
             os.path.join(config["output"]["coclassify"],
                          "logs/{assembler_co}.{binner_checkm}.gtdbtk.log")
         params:
-            bin_suffix = "fa"
+            bin_suffix = "fa",
+            out_dir = os.path.join(
+                config["output"]["coclassify"],
+                "bins_hmq/{assembler_co}.{binner_checkm}.gtdbtk.out")
         threads:
             config["params"]["classify"]["threads"]
         shell:
             '''
             gtdbtk classify_wf \
             --genome_dir {input}/ \
-            --out_dir {output} \
+            --out_dir {params.out_dir} \
             --extension {params.bin_suffix} \
             --cpus {threads} \
             > {log}
@@ -31,7 +34,7 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             expand(
                 os.path.join(
                     config["output"]["coclassify"],
-                    "bins_hmq/{assembler_co}.{binner_checkm}.gtdbtk.out"),
+                    "bins_hmq/{assembler_co}.{binner_checkm}.gtdbtk.out/gtdbtk.log"),
                 assembler_co=ASSEMBLERS_CO,
                 binner_checkm=BINNERS_CHECKM),
 
