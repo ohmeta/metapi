@@ -107,23 +107,51 @@ else:
 
 
 if config["params"]["classify"]["gtdbtk"]["do"]:
-    rule classify_hmq_bins_gtdbtk:
+    checkpoint classify_hmq_bins_gtdbtk_prepare:
         input:
             bins_hmq = os.path.join(
                 config["output"]["checkm"],
                 "report/{assembler}_{binner_checkm}_bins_hmq.tsv")
         output:
+            out_dir = directory(
+                os.path.join(config["output"]["classify"],
+                             "bins_hmq_input/{assembler}_{binner_checkm}"))
+        params:
+            batch_num = config["params"]["classify"]["gtdbtk"]["batch_num"]
+        run:
+            import pandas as pd
+            import os
+
+            df = pd.read_csv(input.bins_hmq, names=["path"])
+            df["id"] = df.apply(lambda x: os.path.basename(x["path"]), axis=1)
+
+            if len(df) > 0:
+                for batch_id in range(0, len(df), params.batch_num):
+                    df_ = df.iloc[batch_id:batch_id + params.batch_num][["path", "id"]]
+                    df_.to_csv(os.path.join(output.out_dir, "bins_hmq_%d.tsv" % batch_id),
+                               sep='\t', index=False, header=None)
+
+
+    rule classify_hmq_bins_gtdbtk:
+        input:
+            bins_hmq = os.path.join(
+                config["output"]["classify"],
+                "bins_hmq_input/{assembler}_{binner_checkm}/bins_hmq_{batchid}.tsv")
+        output:
+            done = os.path.join(
+                config["output"]["classify"],
+                "table/{assembler}.{binner_checkm}.gtdbtk.out.{batchid}/done")
+        wildcard_constraints:
+            batchid="\d+"
+        log:
             os.path.join(
                 config["output"]["classify"],
-                "bins_hmq/{assembler}.{binner_checkm}.gtdbtk.out/gtdbtk.log")
-        log:
-            os.path.join(config["output"]["classify"],
-                         "logs/{assembler}.{binner_checkm}.gtdbtk.log")
+                "logs/bins_hmq_{batchid}.{assembler}.{binner_checkm}.gtdbtk.log")
         params:
             bin_suffix = "fa",
             out_dir = os.path.join(
                 config["output"]["classify"],
-                "bins_hmq/{assembler}.{binner_checkm}.gtdbtk.out")
+                "table/{assembler}.{binner_checkm}.gtdbtk.out.{batchid}")
         threads:
             config["params"]["classify"]["threads"]
         shell:
@@ -134,7 +162,53 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             --extension {params.bin_suffix} \
             --cpus {threads} \
             > {log}
+
+            touch {output.done}
             '''
+
+
+    def aggregate_gtdbtk_report_input(wildcards):
+        checkpoint_output = checkpoints.classify_hmq_bins_gtdbtk_prepare.get(**wildcards).output[0]
+
+        return expand(os.path.join(
+            config["output"]["classify"],
+            "table/{assembler}.{binner_checkm}.gtdbtk.out.{batchid}/done"),
+                      assembler=wildcards.assembler,
+                      binner_checkm=wildcards.binner_checkm,
+                      batchid=list(set([i.split("/")[0] \
+                                        for i in glob_wildcards(
+                                                os.path.join(checkpoint_output,
+                                                             "bins_hmq_{batchid}.tsv")).batchid])))
+
+
+    rule classify_hmq_bins_gtdbtk_report:
+        input:
+            aggregate_gtdbtk_report_input
+        output:
+            table_gtdb_a = os.path.join(
+                config["output"]["classify"],
+                "report/bins_hmq.{assembler}.{binner_checkm}.gtdbtk.archaea.gtdb.tsv"),
+            table_gtdb_b = os.path.join(
+                config["output"]["classify"],
+                "report/bins_hmq.{assembler}.{binner_checkm}.gtdbtk.bacteria.gtdb.tsv")
+        threads:
+            8
+        run:
+            import os
+
+            ar122_list = []
+            bac120_list = []
+
+            for i in input:
+                ar122_tsv = os.path.join(os.path.dirname(i), "gtdbtk.ar122.summary.tsv")
+                bac120_tsv = os.path.join(os.path.dirname(i), "gtdbtk.bac120.summary.tsv")
+                if os.path.exists(ar122_tsv):
+                    ar122_list.append(ar122_tsv)
+                if os.path.exists(bac120_tsv):
+                    bac120_list.append(bac120_tsv)
+
+            metapi.merge(ar122_list, metapi.parse, threads, output=output.table_gtdb_a)
+            metapi.merge(bac120_list, metapi.parse, threads, output=output.table_gtdb_b)
 
 
     rule single_classify_hmq_bins_gtdbtk_all:
@@ -142,7 +216,9 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             expand(
                 os.path.join(
                     config["output"]["classify"],
-                    "bins_hmq/{assembler}.{binner_checkm}.gtdbtk.out/gtdbtk.log"),
+                    "report/bins_hmq.{assembler}.{binner_checkm}.gtdbtk.{taxonomy}.{system}.tsv"),
+                taxonomy=["archaea", "bacteria"],
+                system=["gtdb"],
                 assembler=ASSEMBLERS,
                 binner_checkm=BINNERS_CHECKM),
 
