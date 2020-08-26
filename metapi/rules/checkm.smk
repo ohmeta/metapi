@@ -82,8 +82,8 @@ if config["params"]["checkm"]["do"]:
                     --tab_table \
                     --file {output.table} \
                     --threads {threads} \
-                    {params.reduced_tree} \
                     --pplacer_threads {params.pplacer_threads} \
+                    {params.reduced_tree} \
                     --extension {params.suffix} \
                     --genes \
                     {input}/ \

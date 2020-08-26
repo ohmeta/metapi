@@ -251,6 +251,7 @@ params:
       classified_out: False
     gtdbtk:
       do: True
+      pplacer_threads: 1
       batch_num: 1000
 
   dereplicate:

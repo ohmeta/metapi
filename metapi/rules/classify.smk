@@ -152,10 +152,11 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
                 config["output"]["classify"],
                 "logs/bins_hmq_{batchid}.{assembler}.{binner_checkm}.gtdbtk.log")
         params:
-            bin_suffix = "fa",
+            bin_suffix = config["params"]["binning"]["bin_suffix"],
             out_dir = os.path.join(
                 config["output"]["classify"],
-                "table/{assembler}.{binner_checkm}.gtdbtk.out.{batchid}")
+                "table/{assembler}.{binner_checkm}.gtdbtk.out.{batchid}"),
+            pplacer_threads = config["params"]["classify"]["gtdbtk"]["pplacer_threads"]
         threads:
             config["params"]["classify"]["threads"]
         shell:
@@ -165,6 +166,7 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             --out_dir {params.out_dir} \
             --extension {params.bin_suffix} \
             --cpus {threads} \
+            --pplacer_cpus {params.pplacer_threads} \
             > {log}
 
             touch {output.done}

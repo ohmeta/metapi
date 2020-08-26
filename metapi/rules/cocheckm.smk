@@ -52,6 +52,8 @@ if config["params"]["checkm"]["do"]:
             batchid="\d+"
         params:
             suffix = "faa",
+            pplacer_threads = config["params"]["checkm"]["pplacer_threads"],
+            reduced_tree = "--reduced_tree" if config["params"]["checkm"]["reduced_tree"] else "",
             table_dir = os.path.join(config["output"]["cocheckm"], "table/bins_{batchid}"),
             data_dir = os.path.join(config["output"]["cocheckm"], "data/bins_{batchid}"),
             data_dir_temp = os.path.join(
@@ -79,6 +81,8 @@ if config["params"]["checkm"]["do"]:
                     --tab_table \
                     --file {output.table} \
                     --threads {threads} \
+                    --pplacer_threads {params.pplacer_threads} \
+                    {params.reduced_tree} \
                     --extension {params.suffix} \
                     --genes \
                     {input}/ \
