@@ -125,11 +125,15 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             df = pd.read_csv(input.bins_hmq, names=["path"])
             df["id"] = df.apply(lambda x: os.path.basename(x["path"]), axis=1)
 
+            os.mkdirs(output.out_dir, exists_ok=True)
+
             if len(df) > 0:
                 for batch_id in range(0, len(df), params.batch_num):
                     df_ = df.iloc[batch_id:batch_id + params.batch_num][["path", "id"]]
                     df_.to_csv(os.path.join(output.out_dir, "bins_hmq_%d.tsv" % batch_id),
                                sep='\t', index=False, header=None)
+            else:
+                shell('''touch {output.out_dir}/bins_hmq_0.tsv''')
 
 
     rule classify_hmq_bins_gtdbtk:
