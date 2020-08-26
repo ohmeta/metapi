@@ -125,7 +125,7 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             df = pd.read_csv(input.bins_hmq, names=["path"])
             df["id"] = df.apply(lambda x: os.path.basename(x["path"]), axis=1)
 
-            os.makedirs(output.out_dir, exists_ok=True)
+            os.makedirs(output.out_dir, exist_ok=True)
 
             if len(df) > 0:
                 for batch_id in range(0, len(df), params.batch_num):
