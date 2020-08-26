@@ -76,6 +76,7 @@ def checkm_report(checkm_list, output, threads):
     df_["quality_score"] = df_.apply(lambda x: quality_score(x), axis=1)
 
     df_.to_csv(output, sep="\t", index=False)
+    return df_
 
 
 def main():

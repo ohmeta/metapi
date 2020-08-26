@@ -227,6 +227,8 @@ params:
     check_binners: ["metabat2", "dastools"]
     report: True
     threads: 8
+    pplacer_threads: 1
+    reduced_tree: False
     completeness: 90
     contamination: 10
     standard: "MIMAG" # SGB
@@ -249,6 +251,7 @@ params:
       classified_out: False
     gtdbtk:
       do: True
+      batch_num: 1000
 
   dereplicate:
     drep:

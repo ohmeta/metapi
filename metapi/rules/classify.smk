@@ -109,9 +109,9 @@ else:
 if config["params"]["classify"]["gtdbtk"]["do"]:
     rule classify_hmq_bins_gtdbtk:
         input:
-            os.path.join(
+            bins_hmq = os.path.join(
                 config["output"]["checkm"],
-                "bins_hmq/{assembler}.{binner_checkm}.links")
+                "report/{assembler}_{binner_checkm}_bins_hmq.tsv")
         output:
             os.path.join(
                 config["output"]["classify"],
@@ -129,7 +129,7 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
         shell:
             '''
             gtdbtk classify_wf \
-            --genome_dir {input}/ \
+            --batchfile {input.bins_hmq}/ \
             --out_dir {params.out_dir} \
             --extension {params.bin_suffix} \
             --cpus {threads} \

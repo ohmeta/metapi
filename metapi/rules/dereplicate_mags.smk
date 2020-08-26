@@ -43,9 +43,8 @@ if config["params"]["dereplicate"]["drep"]["do"]:
 
     rule dereplicate_mags_drep:
         input:
-            bins_hmq = os.path.join(
-                config["output"]["checkm"],
-                "bins_hmq/{assembler}.{binner_checkm}.links"),
+            bins_hmq = os.path.join(config["output"]["checkm"],
+                                    "report/{assembler}_{binner_checkm}_bins_hmq.tsv"),
             genome_info = os.path.join(
                 config["output"]["dereplicate"],
                 "mags/genomes_info_{assembler}_{binner_checkm}_checkm.csv")
@@ -59,7 +58,6 @@ if config["params"]["dereplicate"]["drep"]["do"]:
         conda:
             config["envs"]["bioenv3.6"]
         params:
-            bin_suffix = "fa",
             filtering_genome_min_length = \
                 config["params"]["dereplicate"]["drep"]["filtering_genome_min_length"],
             filtering_completeness = \
@@ -85,7 +83,7 @@ if config["params"]["dereplicate"]["drep"]["do"]:
             --S_algorithm {params.genome_comparison_algorithm} \
             --P_ani {params.clustering_primary_ANI} \
             --S_ani {params.clustering_secondary_ANI} \
-            --genomes {input.bins_hmq}/*.{params.bin_suffix} \
+            --genomes {input.bins_hmq} \
             --genomeInfo {input.genome_info} \
             2> {log}
             '''
