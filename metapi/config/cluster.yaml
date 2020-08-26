@@ -57,8 +57,6 @@ localrules:
   - predict_bins_gene_all
   - copredcit_all
   - predcit_all
-  - checkm_link_bins
-  - cocheckm_link_bins
   - single_checkm_all
   - cocheckm_all
   - checkm_all
@@ -534,20 +532,12 @@ checkm_prepare:
   error: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
 
 checkm_lineage_wf:
-  queue: "st_supermem.q"
-  project: "st_supermem"
-  mem: "70G"
+  mem: "30G"
   cores: 8
   output: "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
   error: "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
 
 checkm_report:
-  mem: "512M"
-  cores: 8
-  output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
-  error: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
-
-checkm_link_bins:
   mem: "512M"
   cores: 8
   output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
@@ -560,20 +550,12 @@ cocheckm_prepare:
   error: "logs/08.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.e"
 
 cocheckm_lineage_wf:
-  queue: "st_supermem.q"
-  project: "st_supermem"
-  mem: "70G"
+  mem: "30G"
   cores: 8
   output: "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler_co}.{wildcards.binner_checkm}.o"
   error: "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler_co}.{wildcards.binner_checkm}.e"
 
 cocheckm_report:
-  mem: "512M"
-  cores: 8
-  output: "logs/08.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.o"
-  error: "logs/08.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.e"
-
-cocheckm_link_bins:
   mem: "512M"
   cores: 8
   output: "logs/08.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.o"
@@ -585,6 +567,12 @@ classify_short_reads_kraken2:
   output: "logs/09.{rule}/{rule}.{wildcards.sample}.o"
   error: "logs/09.{rule}/{rule}.{wildcards.sample}.e"
 
+classify_hmq_bins_gtdbtk_prepare:
+  mem: "512M"
+  cores: 1
+  output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
+  error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
+
 classify_hmq_bins_gtdbtk:
   queue: "st_supermem.q"
   project: "st_supermem"
@@ -593,11 +581,29 @@ classify_hmq_bins_gtdbtk:
   output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
   error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
 
+classify_hmq_bins_gtdbtk_report:
+  mem: "512M"
+  cores: 1
+  output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
+  error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
+
+coclassify_hmq_bins_gtdbtk_prepare:
+  mem: "512M"
+  cores: 1
+  output: "logs/09.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.o"
+  error: "logs/09.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.e"
+
 coclassify_hmq_bins_gtdbtk:
   queue: "st_supermem.q"
   project: "st_supermem"
   mem: "130G"
   cores: 8
+  output: "logs/09.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.o"
+  error: "logs/09.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.e"
+
+coclassify_hmq_bins_gtdbtk_report:
+  mem: "512M"
+  cores: 1
   output: "logs/09.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.o"
   error: "logs/09.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.e"
 
