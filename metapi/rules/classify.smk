@@ -161,7 +161,7 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
         shell:
             '''
             gtdbtk classify_wf \
-            --batchfile {input.bins_hmq}/ \
+            --batchfile {input.bins_hmq} \
             --out_dir {params.out_dir} \
             --extension {params.bin_suffix} \
             --cpus {threads} \
