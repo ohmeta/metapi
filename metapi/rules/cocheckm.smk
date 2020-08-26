@@ -110,82 +110,57 @@ if config["params"]["checkm"]["do"]:
             aggregate_cocheckm_report_input
         output:
             table = os.path.join(config["output"]["cocheckm"],
-                                 "report/{assembler_co}_{binner_checkm}_checkm_table.tsv")
+                                 "report/{assembler_co}_{binner_checkm}_checkm_table.tsv"),
+            bins_hq = os.path.join(config["output"]["cocheckm"],
+                                   "report/{assembler_co}_{binner_checkm}_bins_hq.tsv"),
+            bins_mq = os.path.join(config["output"]["cocheckm"],
+                                   "report/{assembler_co}_{binner_checkm}_bins_mq.tsv"),
+            bins_lq = os.path.join(config["output"]["cocheckm"],
+                                   "report/{assembler_co}_{binner_checkm}_bins_lq.tsv"),
+            bins_hmq = os.path.join(config["output"]["cocheckm"],
+                                    "report/{assembler_co}_{binner_checkm}_bins_hmq.tsv")
         threads:
             config["params"]["checkm"]["threads"]
-        run:
-            metapi.checkm_report(input, output.table, threads)
-
-
-    rule cocheckm_link_bins:
-        input:
-            table = os.path.join(config["output"]["cocheckm"],
-                                 "report/{assembler_co}_{binner_checkm}_checkm_table.tsv")
-        output:
-            bins_dir_hq = directory(
-                os.path.join(config["output"]["cocheckm"],
-                             "bins_hq/{assembler_co}.{binner_checkm}.links")),
-            bins_dir_mq = directory(
-                os.path.join(config["output"]["cocheckm"],
-                             "bins_mq/{assembler_co}.{binner_checkm}.links")),
-            bins_dir_lq = directory(
-                os.path.join(config["output"]["cocheckm"],
-                             "bins_lq/{assembler_co}.{binner_checkm}.links")),
-            bins_dir_hmq = directory(
-                os.path.join(config["output"]["cocheckm"],
-                             "bins_hmq/{assembler_co}.{binner_checkm}.links"))
         params:
             bins_dir = os.path.join(config["output"]["cobinning"], "bins"),
-            bin_suffix = ".fa",
+            bin_suffix = config["params"]["binning"]["bin_suffix"],
             standard = config["params"]["checkm"]["standard"] + "_quality_level",
             assembler_co = "{assembler_co}",
             binner = "{binner_checkm}"
         run:
-            if os.path.exists(output.bins_dir_hq):
-                os.rmdir(output.bins_dir_hq)
-            if os.path.exists(output.bins_dir_mq):
-                os.rmdir(output.bins_dir_mq)
-            if os.path.exists(output.bins_dir_lq):
-                os.rmdir(output.bins_dir_lq)
-            if os.path.exists(output.bins_dir_hmq):
-                os.rmdir(output.bins_dir_hmq)
+            import pandas as pd
 
-            os.mkdir(output.bins_dir_hq)
-            os.mkdir(output.bins_dir_mq)
-            os.mkdir(output.bins_dir_lq)
-            os.mkdir(output.bins_dir_hmq)
+            df = metapi.checkm_report(input, output.table, threads)
 
-            df = pd.read_csv(input.table, sep='\t').set_index("bin_id")
-
-            for bin_id in df.index:
-                sample_id = bin_id.split(".")[0]
+            def get_bin_path(row):
                 bin_fa_path = os.path.realpath(
                     os.path.join(
                         params.bins_dir,
-                        sample_id + "." + params.assembler_co + ".out/" + \
-                        params.binner + "/" + \
-                        bin_id + params.bin_suffix))
+                        "%s.%s.out/%s/%s.%s" % (
+                            row["bin_id"].split(".")[0],
+                            params.assembler_co,
+                            params.binner,
+                            row["bin_id"],
+                            params.bin_suffix)))
+                return bin_fa_path
 
-                if df.loc[bin_id, params.standard] == "high_quality":
-                    os.symlink(bin_fa_path,
-                               os.path.join(output.bins_dir_hq,
-                                            bin_id + params.bin_suffix))
-                    os.symlink(bin_fa_path,
-                               os.path.join(output.bins_dir_hmq,
-                                            bin_id + params.bin_suffix))
+            df["bin_fa_path"] = df.apply(lambda x: get_bin_path(x), axis=1)
 
-                if df.loc[bin_id, params.standard] == "medium_quality":
-                    os.symlink(bin_fa_path,
-                               os.path.join(output.bins_dir_mq,
-                                            bin_id + params.bin_suffix))
-                    os.symlink(bin_fa_path,
-                               os.path.join(output.bins_dir_hmq,
-                                            bin_id + params.bin_suffix))
+            df.query('%s=="high_quality"' % params.standard)\
+              .loc[:, "bin_fa_path"]\
+              .to_csv(output.bins_hq, sep='\t', index=False, header=False)
 
-                if df.loc[bin_id, params.standard] == "low_quality":
-                    os.symlink(bin_fa_path,
-                               os.path.join(output.bins_dir_lq,
-                                            bin_id + params.bin_suffix))
+            df.query('%s=="high_quality" or %s=="medium_quality"' % (params.standard, params.standard))\
+              .loc[:, "bin_fa_path"]\
+              .to_csv(output.bins_hmq, sep='\t', index=False, header=False)
+
+            df.query('%s=="medium_quality"' % params.standard)\
+              .loc[:, "bin_fa_path"]\
+              .to_csv(output.bins_mq, sep='\t', index=False, header=False)
+
+            df.query('%s=="low_quality"' % params.standard)\
+              .loc[:, "bin_fa_path"]\
+              .to_csv(output.bins_lq, sep='\t', index=False, header=False)
 
 
     rule cocheckm_all:
@@ -194,13 +169,13 @@ if config["params"]["checkm"]["do"]:
                 os.path.join(config["output"]["cocheckm"],
                              "report/{assembler_co}_{binner_checkm}_checkm_table.tsv"),
                 os.path.join(config["output"]["cocheckm"],
-                             "bins_hq/{assembler_co}.{binner_checkm}.links"),
+                             "report/{assembler_co}_{binner_checkm}_bins_hq.tsv"),
                 os.path.join(config["output"]["cocheckm"],
-                             "bins_mq/{assembler_co}.{binner_checkm}.links"),
+                             "report/{assembler_co}_{binner_checkm}_bins_mq.tsv"),
                 os.path.join(config["output"]["cocheckm"],
-                             "bins_lq/{assembler_co}.{binner_checkm}.links"),
+                             "report/{assembler_co}_{binner_checkm}_bins_lq.tsv"),
                 os.path.join(config["output"]["cocheckm"],
-                             "bins_hmq/{assembler_co}.{binner_checkm}.links")],
+                             "report/{assembler_co}_{binner_checkm}_bins_hmq.tsv")],
                    assembler_co=ASSEMBLERS_CO,
                    binner_checkm=BINNERS_CHECKM),
 
