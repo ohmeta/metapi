@@ -653,8 +653,8 @@ else:
 
 
 if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
-   config["params"]["profiling"]["humann2"]["do"]:
-    if config["params"]["profiling"]["humann2"]["update_config"]:
+   config["params"]["profiling"]["humann"]["do_v2"]:
+    if config["params"]["profiling"]["humann"]["update_config"]:
         rule profiling_humann2_config:
             output:
                 touch(os.path.join(config["output"]["profiling"], ".humann2.config.done"))
@@ -663,9 +663,9 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             conda:
                 config["envs"]["bioenv2"]
             params:
-                database_utility_mapping = config["params"]["profiling"]["humann2"]["database_utility_mapping"],
-                database_nucleotide = config["params"]["profiling"]["humann2"]["database_nucleotide"],
-                database_protein = config["params"]["profiling"]["humann2"]["database_protein"],
+                database_utility_mapping = config["params"]["profiling"]["humann"]["database_utility_mapping"],
+                database_nucleotide = config["params"]["profiling"]["humann"]["database_nucleotide"],
+                database_protein = config["params"]["profiling"]["humann"]["database_protein"],
                 threads = config["params"]["profiling"]["threads"]
             shell:
                 '''
@@ -707,7 +707,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             basename = "{sample}",
             wrapper_dir = WRAPPER_DIR,
             db_dir = os.path.join(config["output"]["profiling"], "database/humann2/{sample}"),
-            prescreen_threshold = config["params"]["profiling"]["humann2"]["prescreen_threshold"]
+            prescreen_threshold = config["params"]["profiling"]["humann"]["prescreen_threshold"]
         shell:
             '''
             python {params.wrapper_dir}/humann2_db_wrapper.py \
@@ -743,21 +743,21 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             basename = "{sample}",
             index = os.path.join(config["output"]["profiling"],
                                  "database/humann2/{sample}/{sample}_bowtie2_index"),
-            evalue = config["params"]["profiling"]["humann2"]["evalue"],
-            prescreen_threshold = config["params"]["profiling"]["humann2"]["prescreen_threshold"],
-            identity_threshold = config["params"]["profiling"]["humann2"]["identity_threshold"],
+            evalue = config["params"]["profiling"]["humann"]["evalue"],
+            prescreen_threshold = config["params"]["profiling"]["humann"]["prescreen_threshold"],
+            identity_threshold = config["params"]["profiling"]["humann"]["identity_threshold"],
             translated_subject_coverage_threshold = \
-                config["params"]["profiling"]["humann2"]["translated_subject_coverage_threshold"],
+                config["params"]["profiling"]["humann"]["translated_subject_coverage_threshold"],
             translated_query_coverage_threshold = \
-                config["params"]["profiling"]["humann2"]["translated_query_coverage_threshold"],
+                config["params"]["profiling"]["humann"]["translated_query_coverage_threshold"],
             xipe = config["params"]["profiling"]["humann"]["xipe"],
             minpath = config["params"]["profiling"]["humann"]["minpath"],
             pick_frames = config["params"]["profiling"]["humann"]["pick_frames"],
             gap_fill = config["params"]["profiling"]["humann"]["gap_fill"],
             remove_temp_output = "--remove-temp-output" \
-                if config["params"]["profiling"]["humann2"]["remove_temp_output"] \
+                if config["params"]["profiling"]["humann"]["remove_temp_output"] \
                    else "",
-            memory_use = config["params"]["profiling"]["humann2"]["memory_use"],
+            memory_use = config["params"]["profiling"]["humann"]["memory_use"],
             output_dir = os.path.join(config["output"]["profiling"],
                                       "profile/humann2/{sample}")
         threads:
@@ -805,11 +805,11 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                 config["output"]["profiling"],
                 "profile/humann2/{{sample}}/{{sample}}_{target}.{norm}.tsv"),
                 target=["genefamilies", "pathabundance", "pathcoverage"],
-                norm=config["params"]["profiling"]["humann2"]["normalize_method"]),
+                norm=config["params"]["profiling"]["humann"]["normalize_method"]),
             groupprofiles = expand(os.path.join(
                 config["output"]["profiling"],
                 "profile/humann2/{{sample}}/{{sample}}_{group}_groupped.tsv"),
-                group=config["params"]["profiling"]["humann2"]["map_database"])
+                group=config["params"]["profiling"]["humann"]["map_database"])
         log:
             os.path.join(config["output"]["profiling"],
                          "logs/{sample}.humann2_postprocess.log")
@@ -817,9 +817,9 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             config["envs"]["bioenv2"]
         params:
             wrapper_dir =WRAPPER_DIR,
-            normalize_method = config["params"]["profiling"]["humann2"]["normalize_method"],
-            regroup_method = config["params"]["profiling"]["humann2"]["regroup_method"],
-            map_database =  config["params"]["profiling"]["humann2"]["map_database"]
+            normalize_method = config["params"]["profiling"]["humann"]["normalize_method"],
+            regroup_method = config["params"]["profiling"]["humann"]["regroup_method"],
+            map_database =  config["params"]["profiling"]["humann"]["map_database"]
         shell:
             '''
             humann2_renorm_table \
@@ -863,7 +863,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                     config["output"]["profiling"],
                     "profile/humann2/{sample}/{sample}_{group}_groupped.tsv")],
                    target=["genefamilies", "pathabundance", "pathcoverage"],
-                   group=config["params"]["profiling"]["humann2"]["map_database"],
+                   group=config["params"]["profiling"]["humann"]["map_database"],
                    sample=SAMPLES.index.unique())
         output:
             targets = expand(
@@ -875,7 +875,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                 os.path.join(
                     config["output"]["profiling"],
                     "profile/humann2.{group}.joined.tsv"),
-                group=config["params"]["profiling"]["humann2"]["map_database"])
+                group=config["params"]["profiling"]["humann"]["map_database"])
         log:
             os.path.join(config["output"]["profiling"],
                          "logs/humann2_join.log")
@@ -884,7 +884,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
         params:
             wrapper_dir =WRAPPER_DIR,
             input_dir = os.path.join(config["output"]["profiling"], "profile/humann2"),
-            map_database = config["params"]["profiling"]["humann2"]["map_database"]
+            map_database = config["params"]["profiling"]["humann"]["map_database"]
         shell:
             '''
             python {params.wrapper_dir}/humann2_postprocess_wrapper.py \
@@ -914,7 +914,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                 os.path.join(
                     config["output"]["profiling"],
                     "profile/humann2.{group}.joined.tsv"),
-                group=config["params"]["profiling"]["humann2"]["map_database"])
+                group=config["params"]["profiling"]["humann"]["map_database"])
         output:
             expand([
                 os.path.join(
@@ -924,7 +924,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                     config["output"]["profiling"],
                     "profile/humann2.{group}.joined_{suffix}.tsv")],
                    target=["genefamilies", "pathabundance", "pathcoverage"],
-                   group=config["params"]["profiling"]["humann2"]["map_database"],
+                   group=config["params"]["profiling"]["humann"]["map_database"],
                    suffix=["stratified", "unstratified"])
         log:
             os.path.join(config["output"]["profiling"],
@@ -934,7 +934,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
         params:
             wrapper_dir = WRAPPER_DIR,
             output_dir = os.path.join(config["output"]["profiling"], "profile"),
-            map_database = config["params"]["profiling"]["humann2"]["map_database"]
+            map_database = config["params"]["profiling"]["humann"]["map_database"]
         shell:
             '''
             python {params.wrapper_dir}/humann2_postprocess_wrapper.py \
@@ -967,7 +967,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                     config["output"]["profiling"],
                     "profile/humann2.{group}.joined_{suffix}.tsv")],
                    target=["genefamilies", "pathabundance", "pathcoverage"],
-                   group=config["params"]["profiling"]["humann2"]["map_database"],
+                   group=config["params"]["profiling"]["humann"]["map_database"],
                    suffix=["stratified", "unstratified"]),
 
             rules.rmhost_all.input,
