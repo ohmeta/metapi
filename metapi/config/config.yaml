@@ -289,16 +289,16 @@ params:
       taxonomic_level: "a"
       min_cu_len: 2000
       avoid_disqm: True
-      analysis_type:
-        [
-          "rel_ab",
-          "rel_ab_w_read_stats",
-          "reads_map",
-          "clade_profiles",
-          "marker_ab_table",
-          "marker_counts",
-          "marker_pres_table",
-        ]
+      analysis_type: "rel_ab"
+      #  [
+      #    "rel_ab",
+      #    "rel_ab_w_read_stats",
+      #    "reads_map",
+      #    "clade_profiles",
+      #    "marker_ab_table",
+      #    "marker_counts",
+      #    "marker_pres_table",
+      #  ]
       stat_q: "0.1"
       stat: "tavg_g"
       no_unknown_estimation: False
