@@ -750,10 +750,14 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                 config["params"]["profiling"]["humann"]["translated_subject_coverage_threshold"],
             translated_query_coverage_threshold = \
                 config["params"]["profiling"]["humann"]["translated_query_coverage_threshold"],
-            xipe = config["params"]["profiling"]["humann"]["xipe"],
-            minpath = config["params"]["profiling"]["humann"]["minpath"],
-            pick_frames = config["params"]["profiling"]["humann"]["pick_frames"],
-            gap_fill = config["params"]["profiling"]["humann"]["gap_fill"],
+            xipe = "--xipe on " if config["params"]["profiling"]["humann"]["xipe"] \
+                else "--xipe off",
+            minpath = "--minpath on" if config["params"]["profiling"]["humann"]["minpath"] \
+                else "--minpath off",
+            pick_frames = "--pick-frames on" if config["params"]["profiling"]["humann"]["pick_frames"] \
+                else "--pick-frames off",
+            gap_fill = "--gap-fill on" if config["params"]["profiling"]["humann"]["gap_fill"] \
+                else "--gap-file off",
             remove_temp_output = "--remove-temp-output" \
                 if config["params"]["profiling"]["humann"]["remove_temp_output"] \
                    else "",
@@ -782,10 +786,10 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             --identity-threshold {params.identity_threshold} \
             --translated-subject-coverage-threshold {params.translated_subject_coverage_threshold} \
             --translated-query-coverage-threshold {params.translated_query_coverage_threshold} \
-            --xipe {params.xipe} \
-            --minpath {params.minpath} \
-            --pick-frames {params.pick_frames} \
-            --gap_fill {params.gap_fill} \
+            {params.xipe} \
+            {params.minpath} \
+            {params.pick_frames} \
+            {params.gap_fill} \
             --memory-use {params.memory_use} \
             --output-basename {params.basename} \
             --output {params.output_dir} \
@@ -1044,10 +1048,14 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
                 config["params"]["profiling"]["humann"]["nucleotide_subject_coverage_threshold"],
             nucleotide_query_coverage_threshold = \
                 config["params"]["profiling"]["humann"]["nucleotide_query_coverage_threshold"],
-            xipe = config["params"]["profiling"]["humann"]["xipe"],
-            minpath = config["params"]["profiling"]["humann"]["minpath"],
-            pick_frames = config["params"]["profiling"]["humann"]["pick_frames"],
-            gap_fill = config["params"]["profiling"]["humann"]["gap_fill"],
+            xipe = "--xipe on " if config["params"]["profiling"]["humann"]["xipe"] \
+                else "--xipe off",
+            minpath = "--minpath on" if config["params"]["profiling"]["humann"]["minpath"] \
+                else "--minpath off",
+            pick_frames = "--pick-frames on" if config["params"]["profiling"]["humann"]["pick_frames"] \
+                else "--pick-frames off",
+            gap_fill = "--gap-fill on" if config["params"]["profiling"]["humann"]["gap_fill"] \
+                else "--gap-file off",
             remove_temp_output = "--remove-temp-output" \
                 if config["params"]["profiling"]["humann"]["remove_temp_output"] \
                    else "",
@@ -1079,10 +1087,10 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
             --nucleotide-subject-coverage-threshold {params.nucleotide_subject_coverage_threshold} \
             --translated-query-coverage-threshold {params.translated_query_coverage_threshold} \
             --nucleotide-query-coverage-threshold {params.nucleotide_query_coverage_threshold} \
-            --xipe {params.xipe} \
-            --minpath {params.minpath} \
-            --pick-frames {params.pick_frames} \
-            --gap_fill {params.gap_fill} \
+            {params.xipe} \
+            {params.minpath} \
+            {params.pick_frames} \
+            {params.gap_fill} \
             --memory-use {params.memory_use} \
             --output-basename {params.basename} \
             --output {params.output_dir} \
