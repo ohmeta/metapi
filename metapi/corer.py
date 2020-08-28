@@ -93,6 +93,7 @@ WORKFLOWS_MAG = [
     "profiling_jgi_all",
     "profiling_bracken_all",
     "profiling_humann2_all",
+    "profiling_humann3_all",
     "profiling_all",
     "upload_sequencing_all",
     "upload_assembly_all",

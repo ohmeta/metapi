@@ -321,13 +321,23 @@ params:
       do: True
       reads_len: 100
       level: "S"
-    humann2:
-      do: True
+    humann:
+      do_v2: True
+      do_v3: True
       evalue: 1.0
       prescreen_threshold: 0.01
       identity_threshold: 50.0
+      nucleotide_identity_threshold: 0.0 # nucleotide: 0
+      translated_identity_threshold: 80.0 # uniref90: 80.0; uniref50: 50.0
+      nucleotide_subject_coverage_threshold: 50.0
       translated_subject_coverage_threshold: 50.0
-      translated_query_coverage_threshold: 50.0
+      nucleotide_query_coverage_threshold: 90.0
+      translated_query_coverage_threshold: 90.0
+      translated-alignment: "diamond" # ["diamond", "usearch", "rapsearch"]
+      xipe: off
+      minpath: on
+      pick_frames: off
+      gap_fill: off
       remove_temp_output: True
       memory_use: "minimum"
       normalize_method: "relab"
@@ -344,8 +354,11 @@ params:
         ]
       update_config: True
       database_utility_mapping: /ldfssz1/ST_META/share/User/zhujie/database/humann/utility_mapping
+      database_utility_mapping_v3: /ldfssz1/ST_META/share/User/zhujie/database/humann/utility_mapping_v3
       database_protein: /ldfssz1/ST_META/share/User/zhujie/database/humann/uniref90_diamond
+      database_protein_v3: /ldfssz1/ST_META/share/User/zhujie/database/humann/uniref90_diamond_v3
       database_nucleotide: /ldfssz1/ST_META/share/User/zhujie/database/humann/chocophlan_full
+      database_nucleotide_v3: /ldfssz1/ST_META/share/User/zhujie/database/humann/chocophlan_full_v3
 
 output:
   simulate: "results/00.simulate"

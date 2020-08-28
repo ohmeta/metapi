@@ -750,6 +750,10 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                 config["params"]["profiling"]["humann2"]["translated_subject_coverage_threshold"],
             translated_query_coverage_threshold = \
                 config["params"]["profiling"]["humann2"]["translated_query_coverage_threshold"],
+            xipe = config["params"]["profiling"]["humann"]["xipe"],
+            minpath = config["params"]["profiling"]["humann"]["minpath"],
+            pick_frames = config["params"]["profiling"]["humann"]["pick_frames"],
+            gap_fill = config["params"]["profiling"]["humann"]["gap_fill"],
             remove_temp_output = "--remove-temp-output" \
                 if config["params"]["profiling"]["humann2"]["remove_temp_output"] \
                    else "",
@@ -778,6 +782,10 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             --identity-threshold {params.identity_threshold} \
             --translated-subject-coverage-threshold {params.translated_subject_coverage_threshold} \
             --translated-query-coverage-threshold {params.translated_query_coverage_threshold} \
+            --xipe {params.xipe} \
+            --minpath {params.minpath} \
+            --pick-frames {params.pick_frames} \
+            --gap_fill {params.gap_fill} \
             --memory-use {params.memory_use} \
             --output-basename {params.basename} \
             --output {params.output_dir} \
@@ -970,10 +978,302 @@ else:
         input:
 
 
+if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
+   config["params"]["profiling"]["humann"]["do_v3"]:
+    rule profiling_humann3_build_chocophlan_pangenome_db:
+        input:
+            profile = os.path.join(
+                config["output"]["profiling"],
+                "profile/metaphlan3/{sample}/{sample}.metaphlan3.abundance.profile.tsv")
+        output:
+            expand(os.path.join(
+                config["output"]["profiling"],
+                "database/humann3/{{sample}}/{{sample}}_bowtie2_index.{suffix}"),
+                   suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
+        log:
+            os.path.join(config["output"]["profiling"],
+                         "logs/{sample}.humann3.build_pandb.log")
+        params:
+            basename = "{sample}",
+            wrapper_dir = WRAPPER_DIR,
+            db_dir = os.path.join(config["output"]["profiling"], "database/humann3/{sample}"),
+            prescreen_threshold = config["params"]["profiling"]["humann"]["prescreen_threshold"]
+        shell:
+            '''
+            python {params.wrapper_dir}/humann3_db_wrapper.py \
+            --log {log} \
+            --basename {params.basename} \
+            --db_dir {params.db_dir} \
+            --prescreen_threshold {params.prescreen_threshold} \
+            --taxonomic_profile {input.profile}
+            '''
+
+
+    rule profiling_humann3:
+        input:
+            reads = assembly_input_with_short_reads,
+            index = expand(os.path.join(
+                config["output"]["profiling"],
+                "database/humann3/{{sample}}/{{sample}}_bowtie2_index.{suffix}"),
+                           suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
+        output:
+            genefamilies = protected(os.path.join(
+                config["output"]["profiling"],
+                "profile/humann3/{sample}/{sample}_genefamilies.tsv")),
+            pathabundance = protected(os.path.join(
+                config["output"]["profiling"],
+                "profile/humann3/{sample}/{sample}_pathabundance.tsv")),
+            pathcoverage = protected(os.path.join(
+                config["output"]["profiling"],
+                "profile/humann3/{sample}/{sample}_pathcoverage.tsv"))
+        params:
+            basename = "{sample}",
+            index = os.path.join(config["output"]["profiling"],
+                                 "database/humann3/{sample}/{sample}_bowtie2_index"),
+            evalue = config["params"]["profiling"]["humann"]["evalue"],
+            prescreen_threshold = config["params"]["profiling"]["humann"]["prescreen_threshold"],
+            nucleotide_identity_threshold = \
+                config["params"]["profiling"]["humann"]["nucleotide_identity_threshold"],
+            translated_identity_threshold = \
+                config["params"]["profiling"]["humann"]["translated_identity_threshold"],
+            translated_subject_coverage_threshold = \
+                config["params"]["profiling"]["humann"]["translated_subject_coverage_threshold"],
+            translated_query_coverage_threshold = \
+                config["params"]["profiling"]["humann"]["translated_query_coverage_threshold"],
+            nucleotide_subject_coverage_threshold = \
+                config["params"]["profiling"]["humann"]["nucleotide_subject_coverage_threshold"],
+            nucleotide_query_coverage_threshold = \
+                config["params"]["profiling"]["humann"]["nucleotide_query_coverage_threshold"],
+            xipe = config["params"]["profiling"]["humann"]["xipe"],
+            minpath = config["params"]["profiling"]["humann"]["minpath"],
+            pick_frames = config["params"]["profiling"]["humann"]["pick_frames"],
+            gap_fill = config["params"]["profiling"]["humann"]["gap_fill"],
+            remove_temp_output = "--remove-temp-output" \
+                if config["params"]["profiling"]["humann"]["remove_temp_output"] \
+                   else "",
+            memory_use = config["params"]["profiling"]["humann"]["memory_use"],
+            output_dir = os.path.join(config["output"]["profiling"],
+                                      "profile/humann/{sample}")
+        threads:
+            config["params"]["profiling"]["threads"]
+        log:
+            os.path.join(
+                config["output"]["profiling"],
+                "logs/{sample}.humann3.log")
+        shell:
+            '''
+            zcat {input.reads} | \
+            bowtie2 \
+            --threads {threads} \
+            -x {params.index} \
+            -U - 2>> {log} | \
+            humann \
+            --threads {threads} \
+            --input - \
+            --input-format sam \
+            --evalue {params.evalue} \
+            --prescreen-threshold {params.prescreen_threshold} \
+            --nucleotide-identity-threshold {params.nucleotide_identity_threshold} \
+            --translated-identity-threshold {params.translated_identity_threshold} \
+            --translated-subject-coverage-threshold {params.translated_subject_coverage_threshold} \
+            --nucleotide-subject-coverage-threshold {params.nucleotide_subject_coverage_threshold} \
+            --translated-query-coverage-threshold {params.translated_query_coverage_threshold} \
+            --nucleotide-query-coverage-threshold {params.nucleotide_query_coverage_threshold} \
+            --xipe {params.xipe} \
+            --minpath {params.minpath} \
+            --pick-frames {params.pick_frames} \
+            --gap_fill {params.gap_fill} \
+            --memory-use {params.memory_use} \
+            --output-basename {params.basename} \
+            --output {params.output_dir} \
+            {params.remove_temp_output} \
+            --o-log {log}
+            '''
+
+
+    rule profiling_humann3_postprocess:
+        input:
+            expand(os.path.join(
+                config["output"]["profiling"],
+                "profile/humann3/{{sample}}/{{sample}}_{target}.tsv"),
+                   target=["genefamilies", "pathabundance", "pathcoverage"])
+        output:
+            targets = expand(os.path.join(
+                config["output"]["profiling"],
+                "profile/humann3/{{sample}}/{{sample}}_{target}.{norm}.tsv"),
+                target=["genefamilies", "pathabundance", "pathcoverage"],
+                norm=config["params"]["profiling"]["humann"]["normalize_method"]),
+            groupprofiles = expand(os.path.join(
+                config["output"]["profiling"],
+                "profile/humann3/{{sample}}/{{sample}}_{group}_groupped.tsv"),
+                group=config["params"]["profiling"]["humann"]["map_database"])
+        log:
+            os.path.join(config["output"]["profiling"],
+                         "logs/{sample}.humann3_postprocess.log")
+        params:
+            wrapper_dir =WRAPPER_DIR,
+            normalize_method = config["params"]["profiling"]["humann"]["normalize_method"],
+            regroup_method = config["params"]["profiling"]["humann"]["regroup_method"],
+            map_database =  config["params"]["profiling"]["humann"]["map_database"]
+        shell:
+            '''
+            humann_renorm_table \
+            --input {input[0]} \
+            --update-snames \
+            --output {output.targets[0]} \
+            --units {params.normalize_method} \
+            > {log} 2>&1
+
+            humann_renorm_table \
+            --input {input[1]} \
+            --update-snames \
+            --output {output.targets[1]} \
+            --units {params.normalize_method} \
+            >> {log} 2>&1
+
+            humann_renorm_table \
+            --input {input[2]} \
+            --update-snames \
+            --output {output.targets[2]} \
+            --units {params.normalize_method} \
+            >> {log} 2>&1
+
+            python {params.wrapper_dir}/humann3_postprocess_wrapper.py \
+            regroup_table \
+            --input {input[0]} \
+            --group {params.map_database} \
+            --function {params.regroup_method} \
+            --output {output.groupprofiles} \
+            >> {log} 2>&1
+            '''
+
+
+    rule profiling_humann3_join:
+        input:
+            expand([
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann3/{sample}/{sample}_{target}.tsv"),
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann3/{sample}/{sample}_{group}_groupped.tsv")],
+                   target=["genefamilies", "pathabundance", "pathcoverage"],
+                   group=config["params"]["profiling"]["humann"]["map_database"],
+                   sample=SAMPLES.index.unique())
+        output:
+            targets = expand(
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann3_{target}_joined.tsv"),
+                target=["genefamilies", "pathabundance", "pathcoverage"]),
+            groupprofile = expand(
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann3.{group}.joined.tsv"),
+                group=config["params"]["profiling"]["humann"]["map_database"])
+        log:
+            os.path.join(config["output"]["profiling"],
+                         "logs/humann3_join.log")
+        params:
+            wrapper_dir =WRAPPER_DIR,
+            input_dir = os.path.join(config["output"]["profiling"], "profile/humann3"),
+            map_database = config["params"]["profiling"]["humann"]["map_database"]
+        shell:
+            '''
+            python {params.wrapper_dir}/humann3_postprocess_wrapper.py \
+            join_tables \
+            --input {params.input_dir} \
+            --output {output.targets} \
+            --file_name genefamilies.tsv pathabundance.tsv pathcoverage.tsv \
+            > {log} 2>&1
+
+            python {params.wrapper_dir}/humann3_postprocess_wrapper.py \
+            join_tables \
+            --input {params.input_dir} \
+            --output {output.groupprofile} \
+            --file_name {params.map_database} \
+            >> {log} 2>&1
+            '''
+
+
+    rule profiling_humann3_split_stratified:
+        input:
+            targets = expand(
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann3_{target}_joined.tsv"),
+                target=["genefamilies", "pathabundance", "pathcoverage"]),
+            groupprofile = expand(
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann3.{group}.joined.tsv"),
+                group=config["params"]["profiling"]["humann"]["map_database"])
+        output:
+            expand([
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann3_{target}_joined_{suffix}.tsv"),
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann3.{group}.joined_{suffix}.tsv")],
+                   target=["genefamilies", "pathabundance", "pathcoverage"],
+                   group=config["params"]["profiling"]["humann"]["map_database"],
+                   suffix=["stratified", "unstratified"])
+        log:
+            os.path.join(config["output"]["profiling"],
+                         "logs/humann3_split_stratified.log")
+        params:
+            wrapper_dir = WRAPPER_DIR,
+            output_dir = os.path.join(config["output"]["profiling"], "profile"),
+            map_database = config["params"]["profiling"]["humann"]["map_database"]
+        shell:
+            '''
+            python {params.wrapper_dir}/humann3_postprocess_wrapper.py \
+            split_stratified_table \
+            --input {input.targets} \
+            --output {params.output_dir} \
+            > {log} 2>&1
+
+            python {params.wrapper_dir}/humann3_postprocess_wrapper.py \
+            split_stratified_table \
+            --input {input.groupprofile} \
+            --output {params.output_dir} \
+            >> {log} 2>&1
+            '''
+
+
+    rule profiling_humann3_all:
+        input:
+            expand([
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann3_{target}_joined.tsv"),
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann3.{group}.joined.tsv"),
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann3_{target}_joined_{suffix}.tsv"),
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann3.{group}.joined_{suffix}.tsv")],
+                   target=["genefamilies", "pathabundance", "pathcoverage"],
+                   group=config["params"]["profiling"]["humann"]["map_database"],
+                   suffix=["stratified", "unstratified"]),
+
+            rules.rmhost_all.input,
+            rules.qcreport_all.input
+
+else:
+    rule profiling_humann3_all:
+        input:
+
+
 rule profiling_all:
     input:
         rules.profiling_metaphlan2_all.input,
         rules.profiling_metaphlan3_all.input,
         rules.profiling_jgi_all.input,
         rules.profiling_bracken_all.input,
-        rules.profiling_humann2_all.input
+        rules.profiling_humann2_all.input,
+        rules.profiling_humann3_all.input

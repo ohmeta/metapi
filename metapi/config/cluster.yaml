@@ -77,6 +77,7 @@ localrules:
   - profiling_jgi_all
   - profiling_bracken_all
   - profiling_humann2_all
+  - profiling_humann3_all
   - profiling_all
   - upload_sequencing_all
   - upload_assembly_all
@@ -678,19 +679,19 @@ profiling_bracken_merge:
   error: "logs/11.{rule}/{rule}.e"
 
 profiling_humann2_config:
-  mem: "30G"
-  cores: 8
+  mem: "50M"
+  cores: 1
   output: "logs/11.{rule}/{rule}.o"
   error: "logs/11.{rule}/{rule}.e"
 
 profiling_humann2_build_chocophlan_pangenome_db:
-  mem: "30G"
+  mem: "6G"
   cores: 8
   output: "logs/11.{rule}/{rule}.{wildcards.sample}.o"
   error: "logs/11.{rule}/{rule}.{wildcards.sample}.e"
 
 profiling_humann2:
-  mem: "30G"
+  mem: "10G"
   cores: 8
   output: "logs/11.{rule}/{rule}.{wildcards.sample}.o"
   error: "logs/11.{rule}/{rule}.{wildcards.sample}.e"
@@ -701,11 +702,38 @@ profiling_humann2_postprocess:
   error: "logs/11.{rule}/{rule}.{wildcards.sample}.e"
 
 profiling_humann2_join:
-  mem: "20G"
+  mem: "512M"
   output: "logs/11.{rule}/{rule}.o"
   error: "logs/11.{rule}/{rule}.e"
 
 profiling_humann2_split_stratified:
+  mem: "512M"
+  output: "logs/11.{rule}/{rule}.o"
+  error: "logs/11.{rule}/{rule}.e"
+
+profiling_humann3_build_chocophlan_pangenome_db:
+  mem: "6G"
+  cores: 8
+  output: "logs/11.{rule}/{rule}.{wildcards.sample}.o"
+  error: "logs/11.{rule}/{rule}.{wildcards.sample}.e"
+
+profiling_humann3:
+  mem: "10G"
+  cores: 8
+  output: "logs/11.{rule}/{rule}.{wildcards.sample}.o"
+  error: "logs/11.{rule}/{rule}.{wildcards.sample}.e"
+
+profiling_humann3_postprocess:
+  mem: "512M"
+  output: "logs/11.{rule}/{rule}.{wildcards.sample}.o"
+  error: "logs/11.{rule}/{rule}.{wildcards.sample}.e"
+
+profiling_humann3_join:
+  mem: "512M"
+  output: "logs/11.{rule}/{rule}.o"
+  error: "logs/11.{rule}/{rule}.e"
+
+profiling_humann3_split_stratified:
   mem: "512M"
   output: "logs/11.{rule}/{rule}.o"
   error: "logs/11.{rule}/{rule}.e"
