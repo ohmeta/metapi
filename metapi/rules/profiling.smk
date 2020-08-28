@@ -757,7 +757,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             pick_frames = "--pick-frames on" if config["params"]["profiling"]["humann"]["pick_frames"] \
                 else "--pick-frames off",
             gap_fill = "--gap-fill on" if config["params"]["profiling"]["humann"]["gap_fill"] \
-                else "--gap-file off",
+                else "--gap-fill off",
             remove_temp_output = "--remove-temp-output" \
                 if config["params"]["profiling"]["humann"]["remove_temp_output"] \
                    else "",
@@ -1055,7 +1055,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
             pick_frames = "--pick-frames on" if config["params"]["profiling"]["humann"]["pick_frames"] \
                 else "--pick-frames off",
             gap_fill = "--gap-fill on" if config["params"]["profiling"]["humann"]["gap_fill"] \
-                else "--gap-file off",
+                else "--gap-fill off",
             remove_temp_output = "--remove-temp-output" \
                 if config["params"]["profiling"]["humann"]["remove_temp_output"] \
                    else "",
