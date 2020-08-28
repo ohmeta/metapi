@@ -984,42 +984,41 @@ else:
 
 if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
    config["params"]["profiling"]["humann"]["do_v3"]:
-    rule profiling_humann3_build_chocophlan_pangenome_db:
-        input:
-            profile = os.path.join(
-                config["output"]["profiling"],
-                "profile/metaphlan3/{sample}/{sample}.metaphlan3.abundance.profile.tsv")
-        output:
-            expand(os.path.join(
-                config["output"]["profiling"],
-                "database/humann3/{{sample}}/{{sample}}_bowtie2_index.{suffix}"),
-                   suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
-        log:
-            os.path.join(config["output"]["profiling"],
-                         "logs/{sample}.humann3.build_pandb.log")
-        params:
-            basename = "{sample}",
-            wrapper_dir = WRAPPER_DIR,
-            db_dir = os.path.join(config["output"]["profiling"], "database/humann3/{sample}"),
-            prescreen_threshold = config["params"]["profiling"]["humann"]["prescreen_threshold"]
-        shell:
-            '''
-            python {params.wrapper_dir}/humann3_db_wrapper.py \
-            --log {log} \
-            --basename {params.basename} \
-            --db_dir {params.db_dir} \
-            --prescreen_threshold {params.prescreen_threshold} \
-            --taxonomic_profile {input.profile}
-            '''
+    #rule profiling_humann3_build_chocophlan_pangenome_db:
+    #    input:
+    #        profile = os.path.join(
+    #            config["output"]["profiling"],
+    #            "profile/metaphlan3/{sample}/{sample}.metaphlan3.abundance.profile.tsv")
+    #    output:
+    #        expand(os.path.join(
+    #            config["output"]["profiling"],
+    #            "database/humann3/{{sample}}/{{sample}}_bowtie2_index.{suffix}"),
+    #               suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
+    #    log:
+    #        os.path.join(config["output"]["profiling"],
+    #                     "logs/{sample}.humann3.build_pandb.log")
+    #    params:
+    #        basename = "{sample}",
+    #        wrapper_dir = WRAPPER_DIR,
+    #        db_dir = os.path.join(config["output"]["profiling"], "database/humann3/{sample}"),
+    #        prescreen_threshold = config["params"]["profiling"]["humann"]["prescreen_threshold"]
+    #    shell:
+    #        '''
+    #        python {params.wrapper_dir}/humann3_db_wrapper.py \
+    #        --log {log} \
+    #        --basename {params.basename} \
+    #        --db_dir {params.db_dir} \
+    #        --prescreen_threshold {params.prescreen_threshold} \
+    #        --taxonomic_profile {input.profile}
+    #        '''
 
 
     rule profiling_humann3:
         input:
             reads = assembly_input_with_short_reads,
-            index = expand(os.path.join(
+            profile = os.path.join(
                 config["output"]["profiling"],
-                "database/humann3/{{sample}}/{{sample}}_bowtie2_index.{suffix}"),
-                           suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
+                "profile/metaphlan3/{sample}/{sample}.metaphlan3.abundance.profile.tsv")
         output:
             genefamilies = protected(os.path.join(
                 config["output"]["profiling"],
@@ -1070,17 +1069,15 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
                 "logs/{sample}.humann3.log")
         shell:
             '''
-            rm -rf {params.output_dir}
+            mkdir -p {params.output_dir}
+            zcat {input.reads} > {params.output_dir}/{params.basename}.fq.gz
 
-            zcat {input.reads} | \
-            bowtie2 \
-            --threads {threads} \
-            -x {params.index} \
-            -U - 2>> {log} | \
             humann \
+            --resume \
             --threads {threads} \
-            --input - \
-            --input-format sam \
+            --input {params.output_dir}/{params.basename}.fq.gz \
+            --input-format fastq.gz \
+            --taxonomic-profile {input.profile} \
             --evalue {params.evalue} \
             --prescreen-threshold {params.prescreen_threshold} \
             --nucleotide-identity-threshold {params.nucleotide_identity_threshold} \
@@ -1098,6 +1095,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
             --output {params.output_dir} \
             {params.remove_temp_output} \
             --o-log {log}
+
+            rm -rf {params.output_dir}/{params.basename}.fq.gz
             '''
 
 
