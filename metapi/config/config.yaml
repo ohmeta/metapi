@@ -334,10 +334,10 @@ params:
       nucleotide_query_coverage_threshold: 90.0
       translated_query_coverage_threshold: 90.0
       translated-alignment: "diamond" # ["diamond", "usearch", "rapsearch"]
-      xipe: off
-      minpath: on
-      pick_frames: off
-      gap_fill: off
+      xipe: "off"
+      minpath: "on"
+      pick_frames: "off"
+      gap_fill: "off"
       remove_temp_output: True
       memory_use: "minimum"
       normalize_method: "relab"
