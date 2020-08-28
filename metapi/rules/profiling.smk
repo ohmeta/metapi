@@ -1061,7 +1061,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
                    else "",
             memory_use = config["params"]["profiling"]["humann"]["memory_use"],
             output_dir = os.path.join(config["output"]["profiling"],
-                                      "profile/humann/{sample}")
+                                      "profile/humann3/{sample}")
         threads:
             config["params"]["profiling"]["threads"]
         log:
@@ -1070,6 +1070,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
                 "logs/{sample}.humann3.log")
         shell:
             '''
+            rm -rf {params.output_dir}
+
             zcat {input.reads} | \
             bowtie2 \
             --threads {threads} \
