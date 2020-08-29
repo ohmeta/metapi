@@ -1073,7 +1073,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
 
             if not os.path.exists(os.path.join(params.output_dir,
                                                params.basename + ".fq.gz")):
-                if len(input.reads) = 1:
+                if len(input.reads) == 1:
                     shell(
                         '''
                         pushd {params.output_dir} && \
