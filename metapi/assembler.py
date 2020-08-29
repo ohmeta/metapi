@@ -86,22 +86,36 @@ def parse_assembly(stats_file):
         df["GC_content"] = df.apply(lambda x: GC_content(x), axis=1)
 
         N_ = []
+        LEN_LIST = []
+
         for N in range(0, 105, 5):
             N_.append("N" + str(N))
 
         for i in range(0, 21):
             df[("length", N_[i])] = df.apply(lambda x: x[("length", "Nx")][i], axis=1)
 
+
         for i in range(0, len(CONTIGS_LENGTH_RANGES__) - 1):
             len_tuple = CONTIGS_LENGTH_RANGES__[i]
+            LEN_LIST.append(len_tuple[0])
+            LEN_LIST.append(len_tuple[1])
             len_range_str = "[%d, %d)" % (len_tuple[0], len_tuple[1])
             df[("length", len_range_str)] = df.apply(
                 lambda x: x[("length", "cal_len_range")][i], axis=1
             )
 
+        LEN_LIST.append(CONTIGS_LENGTH_RANGES__[-1])
+
         df[("length", "[%d, )" % CONTIGS_LENGTH_RANGES__[-1])] = df.apply(
             lambda x: x[("length", "cal_len_range")][-1], axis=1
         )
+
+        LEN_LIST = sorted(list(set(LEN_LIST)))
+        for i in range(0, len(LEN_LIST)):
+            df[("length", ">=%d" % LEN_LIST[i])] = df.apply(
+                lambda x: sum(x[("length", "cal_len_range")][i:]),
+                axis=1
+            )
         return df
     else:
         return None
