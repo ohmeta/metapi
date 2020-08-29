@@ -1067,37 +1067,53 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
             os.path.join(
                 config["output"]["profiling"],
                 "logs/{sample}.humann3.log")
-        shell:
-            '''
-            mkdir -p {params.output_dir}
-            zcat {input.reads} > {params.output_dir}/{params.basename}.fq.gz
+        run:
+            import os
+            shell('''mkdir -p {params.output_dir}''')
 
-            humann \
-            --resume \
-            --threads {threads} \
-            --input {params.output_dir}/{params.basename}.fq.gz \
-            --input-format fastq.gz \
-            --taxonomic-profile {input.profile} \
-            --evalue {params.evalue} \
-            --prescreen-threshold {params.prescreen_threshold} \
-            --nucleotide-identity-threshold {params.nucleotide_identity_threshold} \
-            --translated-identity-threshold {params.translated_identity_threshold} \
-            --translated-subject-coverage-threshold {params.translated_subject_coverage_threshold} \
-            --nucleotide-subject-coverage-threshold {params.nucleotide_subject_coverage_threshold} \
-            --translated-query-coverage-threshold {params.translated_query_coverage_threshold} \
-            --nucleotide-query-coverage-threshold {params.nucleotide_query_coverage_threshold} \
-            {params.xipe} \
-            {params.minpath} \
-            {params.pick_frames} \
-            {params.gap_fill} \
-            --memory-use {params.memory_use} \
-            --output-basename {params.basename} \
-            --output {params.output_dir} \
-            {params.remove_temp_output} \
-            --o-log {log}
+            if not os.path.exists(os.path.join(params.output_dir,
+                                               params.basename + ".fq.gz")):
+                if len(input.reads) = 1:
+                    shell(
+                        '''
+                        pushd {params.output_dir} && \
+                        ln -s %s {params.basename}.fq.gz && \
+                        popd
+                        ''' % os.path.realpath(input.reads))
+                else:
+                    shell(
+                        '''
+                        cat {input.reads} > {params.output_dir}/{params.basename}.fq.gz
+                        ''')
 
-            rm -rf {params.output_dir}/{params.basename}.fq.gz
-            '''
+            shell(
+                '''
+                humann \
+                --resume \
+                --threads {threads} \
+                --input {params.output_dir}/{params.basename}.fq.gz \
+                --input-format fastq.gz \
+                --taxonomic-profile {input.profile} \
+                --evalue {params.evalue} \
+                --prescreen-threshold {params.prescreen_threshold} \
+                --nucleotide-identity-threshold {params.nucleotide_identity_threshold} \
+                --translated-identity-threshold {params.translated_identity_threshold} \
+                --translated-subject-coverage-threshold {params.translated_subject_coverage_threshold} \
+                --nucleotide-subject-coverage-threshold {params.nucleotide_subject_coverage_threshold} \
+                --translated-query-coverage-threshold {params.translated_query_coverage_threshold} \
+                --nucleotide-query-coverage-threshold {params.nucleotide_query_coverage_threshold} \
+                {params.xipe} \
+                {params.minpath} \
+                {params.pick_frames} \
+                {params.gap_fill} \
+                --memory-use {params.memory_use} \
+                --output-basename {params.basename} \
+                --output {params.output_dir} \
+                {params.remove_temp_output} \
+                --o-log {log}
+                ''')
+
+            shell('''rm -rf {params.output_dir}/{params.basename}.fq.gz''')
 
 
     rule profiling_humann3_postprocess:
