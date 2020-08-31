@@ -229,7 +229,7 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
                     f'''
                     python {params.gtdb_to_ncbi_script} \
                     --gtdbtk_output_dir {out_dir} \
-                    --output_file {ncbi_summary} \
+                    --output_file {gtdb_to_ncbi_summary} \
                     --ar122_metadata_file {params.ar122_metadata} \
                     --bac120_metadata_file {params.bac120_metadata} \
                     > {gtdb_to_ncbi_log}
