@@ -156,11 +156,14 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             out_dir = os.path.join(
                 config["output"]["classify"],
                 "table/{assembler}.{binner_checkm}.gtdbtk.out.{batchid}"),
+            gtdb_data_path = config["params"]["classify"]["gtdbtk"]["gtdb_data_path"],
             pplacer_threads = config["params"]["classify"]["gtdbtk"]["pplacer_threads"]
         threads:
             config["params"]["classify"]["threads"]
         shell:
             '''
+            export GTDB_DATA_PATH={params.gtdb_data_path}
+
             gtdbtk classify_wf \
             --batchfile {input.bins_hmq} \
             --out_dir {params.out_dir} \
@@ -191,30 +194,52 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
         input:
             aggregate_gtdbtk_report_input
         output:
-            table_gtdb_a = os.path.join(
+            table_gtdb = os.path.join(
                 config["output"]["classify"],
-                "report/bins_hmq.{assembler}.{binner_checkm}.gtdbtk.archaea.gtdb.tsv"),
-            table_gtdb_b = os.path.join(
+                "report/bins_hmq.{assembler}.{binner_checkm}.gtdbtk.gtdb.tsv"),
+            table_ncbi = os.path.join(
                 config["output"]["classify"],
-                "report/bins_hmq.{assembler}.{binner_checkm}.gtdbtk.bacteria.gtdb.tsv")
+                "report/bins_hmq.{assembler}.{binner_checkm}.gtdbtk.ncbi.tsv")
+        params:
+            ar122_metadata = config["params"]["classify"]["gtdbtk"]["ar122_metadata"],
+            bac120_metadata = config["params"]["classify"]["gtdbtk"]["bac120_metadata"],
+            gtdb_to_ncbi_script = config["params"]["classify"]["gtdbtk"]["gtdb_to_ncbi_script"]
         threads:
             8
         run:
             import os
 
-            ar122_list = []
-            bac120_list = []
+            gtdb_list = []
+            ncbi_list = []
 
             for i in input:
-                ar122_tsv = os.path.join(os.path.dirname(i), "gtdbtk.ar122.summary.tsv")
-                bac120_tsv = os.path.join(os.path.dirname(i), "gtdbtk.bac120.summary.tsv")
-                if os.path.exists(ar122_tsv):
-                    ar122_list.append(ar122_tsv)
-                if os.path.exists(bac120_tsv):
-                    bac120_list.append(bac120_tsv)
+                out_dir = os.path.dirname(i)
+                ar122_tsv = os.path.join(out_dir, "gtdbtk.ar122.summary.tsv")
+                bac120_tsv = os.path.join(out_dir, "gtdbtk.bac120.summary.tsv")
 
-            metapi.merge(ar122_list, metapi.parse, threads, output=output.table_gtdb_a)
-            metapi.merge(bac120_list, metapi.parse, threads, output=output.table_gtdb_b)
+                if os.path.exists(ar122_tsv):
+                    gtdb_list.append(ar122_tsv)
+                if os.path.exists(bac120_tsv):
+                    gtdb_list.append(bac120_tsv)
+
+                gtdb_to_ncbi_summary = os.path.join(out_dir, "gtdbtk.ncbi.summary.tsv")
+                gtdb_to_ncbi_log = os.path.join(out_dir, "gtdbtk.to.ncbi.log")
+
+                shell(
+                    f'''
+                    python {params.gtdb_to_ncbi_script} \
+                    --gtdbtk_output_dir {out_dir} \
+                    --output_file {ncbi_summary} \
+                    --ar122_metadata_file {params.ar122_metadata} \
+                    --bac120_metadata_file {params.bac120_metadata} \
+                    > {gtdb_to_ncbi_log}
+                    ''')
+
+                if os.path.exists(gtdb_to_ncbi_summary):
+                    ncbi_list.append(gtdb_to_ncbi_summary)
+
+            metapi.merge(gtdb_list, metapi.parse, threads, output=output.table_gtdb)
+            metapi.merge(ncbi_list, metapi.parse, threads, output=output.table_ncbi)
 
 
     rule single_classify_hmq_bins_gtdbtk_all:
@@ -222,9 +247,8 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             expand(
                 os.path.join(
                     config["output"]["classify"],
-                    "report/bins_hmq.{assembler}.{binner_checkm}.gtdbtk.{taxonomy}.{system}.tsv"),
-                taxonomy=["archaea", "bacteria"],
-                system=["gtdb"],
+                    "report/bins_hmq.{assembler}.{binner_checkm}.gtdbtk.{system}.tsv"),
+                system=["gtdb", "ncbi"],
                 assembler=ASSEMBLERS,
                 binner_checkm=BINNERS_CHECKM),
 

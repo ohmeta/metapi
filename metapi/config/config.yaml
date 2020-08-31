@@ -253,6 +253,10 @@ params:
       do: True
       pplacer_threads: 1
       batch_num: 1000
+      gtdb_data_path: /ldfssz1/ST_META/share/User/zhujie/database/gtdb/release95
+      ar122_metadata: /ldfssz1/ST_META/share/User/zhujie/database/gtdb/ar122_metadata_r95.tsv
+      bac120_metadata: /ldfssz1/ST_META/share/User/zhujie/database/gtdb/bac120_metadata_r95.tsv
+      gtdb_to_ncbi_script: /ldfssz1/ST_META/share/User/zhujie/toolkit/GTDBTk/scripts/gtdb_to_ncbi_majority_vote.py
 
   dereplicate:
     drep:
