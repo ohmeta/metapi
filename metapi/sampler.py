@@ -16,6 +16,9 @@ def parse_samples(config):
     cancel = False
     if "fq1" in samples_df.columns:
         for sample_id in samples_df.index.unique():
+            if "." in sample_id:
+                print("%s contain '.', please remove '.', now quiting :)" % sample_id)
+                cancel = True
             fq1_list = samples_df.loc[[sample_id], "fq1"].dropna().tolist()
             fq2_list = samples_df.loc[[sample_id], "fq2"].dropna().tolist()
             for fq_file in fq1_list:
