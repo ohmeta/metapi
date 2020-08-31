@@ -17,32 +17,36 @@ def parse_samples(config):
     if "fq1" in samples_df.columns:
         for sample_id in samples_df.index.unique():
             if "." in sample_id:
-                print("%s contain '.', please remove '.', now quiting :)" % sample_id)
+                print(
+                    "{sample_id} contain '.', please remove '.', now quiting :)".format(
+                        sample_id=sample_id
+                    )
+                )
                 cancel = True
             fq1_list = samples_df.loc[[sample_id], "fq1"].dropna().tolist()
             fq2_list = samples_df.loc[[sample_id], "fq2"].dropna().tolist()
             for fq_file in fq1_list:
                 if not fq_file.endswith(".gz"):
-                    print("%s need gzip format" % fq_file)
+                    print("{fq_file} need gzip format".format(fq_file=fq_file))
                     cancel = True
                 if not os.path.exists(fq_file):
-                    print("%s not exists" % fq_file)
+                    print("{fq_file} not exists".format(fq_file))
                     cancel = True
                 if (config["params"]["reads_layout"] == "pe") and (
                     not config["params"]["interleaved"]
                 ):
                     if len(fq2_list) == 0:
-                        print("%s fq2 not exists" % sample_id)
+                        print("{sample_id} fq2 not exists".format(sample_id=sample_id))
                         cancel = True
     elif "sra" in samples_df.columns:
         for sample_id in samples_df.index.unique():
             sra_list = samples_df.loc[[sample_id], "sra"].dropna().tolist()
             for sra_file in sra_list:
                 if not os.path.exists(sra_file):
-                    print("%s not exists" % sra_file)
+                    print("{sra_file} not exists".format(sra_file=sra_file))
                     cancel = True
     else:
-        print("wrong header: %s" % samples_df.columns)
+        print("wrong header: {header}".format(header=samples_df.columns))
         cancel = True
 
     if cancel:
