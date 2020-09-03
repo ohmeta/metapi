@@ -149,7 +149,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
         log:
             os.path.join(
                 config["output"]["profiling"],
-                         "logs/{sample}.metaphlan3.log")
+                "logs/{sample}.metaphlan3.log")
         params:
             sample_id = "{sample}",
             read_min_len = config["params"]["profiling"]["metaphlan"]["read_min_len"],
