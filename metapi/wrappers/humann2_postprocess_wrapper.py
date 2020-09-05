@@ -6,13 +6,13 @@ import sys
 
 
 def regroup_table(args):
-    for i in range(0, len(args.group)):
+    for i in range(0, len(args.groups)):
         cmd = [
             "humann2_regroup_table",
             "--input",
             args.input,
-            "--group",
-            args.group[i],
+            "--groups",
+            args.groups[i],
             "--function",
             args.function,
             "--output",
@@ -62,7 +62,7 @@ def main():
         "regroup_table", prog="humann2_postprocess_wrapper.py regroup_table"
     )
     parser_regroup_table.add_argument("--input", type=str)
-    parser_regroup_table.add_argument("--group", nargs="+")
+    parser_regroup_table.add_argument("--groups", nargs="+")
     parser_regroup_table.add_argument("--output", nargs="+")
     parser_regroup_table.add_argument("--function", type=str)
 
@@ -77,13 +77,16 @@ def main():
     parser_join_tables.set_defaults(func=join_tables)
 
     parser_split_stratified_table = subparsers.add_parser(
-        "split_stratified_table", prog="humann2_postprocess_wrapper.py split_stratified_table"
+        "split_stratified_table",
+        prog="humann2_postprocess_wrapper.py split_stratified_table",
     )
     parser_split_stratified_table.add_argument(
-        "--input", nargs="+",
+        "--input",
+        nargs="+",
     )
     parser_split_stratified_table.add_argument(
-        "--output", type=str,
+        "--output",
+        type=str,
     )
     parser_split_stratified_table.set_defaults(func=split_stratified_table)
 

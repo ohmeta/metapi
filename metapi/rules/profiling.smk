@@ -850,7 +850,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             python {params.wrapper_dir}/humann2_postprocess_wrapper.py \
             regroup_table \
             --input {input[0]} \
-            --group {params.map_database} \
+            --groups {params.map_database} \
             --function {params.regroup_method} \
             --output {output.groupprofiles} \
             >> {log} 2>&1
@@ -1166,7 +1166,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
             python {params.wrapper_dir}/humann3_postprocess_wrapper.py \
             regroup_table \
             --input {input[0]} \
-            --group {params.map_database} \
+            --groups {params.map_database} \
             --function {params.regroup_method} \
             --output {output.groupprofiles} \
             >> {log} 2>&1
