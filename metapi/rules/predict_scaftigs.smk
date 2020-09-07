@@ -44,7 +44,7 @@ rule predict_scaftigs_gene_prodigal_all:
                assembler=ASSEMBLERS,
                sample=SAMPLES.index.unique()),
 
-        rules.assembly_all.input
+        rules.single_assembly_all.input
 
 
 if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
@@ -134,7 +134,7 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
                    assembler=ASSEMBLERS,
                    sample=SAMPLES.index.unique()),
 
-            rules.assembly_all.input
+            rules.single_assembly_all.input
 
 else:
     rule predict_scaftigs_gene_prokka_all:
