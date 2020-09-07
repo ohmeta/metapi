@@ -38,8 +38,6 @@ TRIMMING_DO = True \
        else False
 
 
-
-
 ASSEMBLERS = []
 
 if config["params"]["assembly"]["megahit"]["do"]:
