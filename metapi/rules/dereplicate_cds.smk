@@ -27,24 +27,23 @@ if config["params"]["dereplicate"]["cdhit"]["do_gene"]:
         threads:
             config["params"]["dereplicate"]["cdhit"]["threads"]
         params:
-            identity = config["params"]["dereplicate"]["cdhit"]["identity"],
-            overlap = config["params"]["dereplicate"]["cdhit"]["overlap"],
-            wordlen = config["params"]["dereplicate"]["cdhit"]["wordlen"],
-            global_ = 1 if config["params"]["dereplicate"]["cdhit"]["global"] else 0,
-            memory = config["params"]["dereplicate"]["cdhit"]["memory"],
-            clstrlen = config["params"]["dereplicate"]["cdhit"]["clstrlen"],
-            default_algorithm = 0 if config["params"]["dereplicate"]["cdhit"]["default_algorithm"] else 1,
-            both_alignment = 1 if config["params"]["dereplicate"]["cdhit"]["both_alignment"] \
-                else 0
+            sequence_identity_threshold = config["params"]["dereplicate"]["cdhit"]["sequence_identity_threshold"],
+            alignment_coverage_for_shorter_sequence = config["params"]["dereplicate"]["cdhit"]["alignment_coverage_for_shorter_sequence"],
+            word_length = config["params"]["dereplicate"]["cdhit"]["word_length"],
+            use_global_sequence_identity = config["params"]["dereplicate"]["cdhit"]["use_global_sequence_identity"],
+            memory_limit = config["params"]["dereplicate"]["cdhit"]["memory_limit"],
+            cluster_description_length = config["params"]["dereplicate"]["cdhit"]["cluster_description_length"],
+            default_algorithm = config["params"]["dereplicate"]["cdhit"]["default_algorithm"],
+            both_alignment = config["params"]["dereplicate"]["cdhit"]["both_alignment"]
         shell:
             '''
             cd-hit-est -i {input} -o {output} \
-            -c {params.identity} \
-            -n {params.wordlen} \
-            -G {params.global_} \
-            -aS {params.overlap} \
-            -M {params.memory} \
-            -d {params.clstrlen} \
+            -c {params.sequence_identity_threshold} \
+            -n {params.word_length} \
+            -G {params.use_global_sequence_identity} \
+            -aS {params.alignment_coverage_for_shorter_sequence} \
+            -M {params.memory_limit} \
+            -d {params.cluster_description_length} \
             -g {params.default_algorithm} \
             -r {params.both_alignment} \
             -T {threads} 2> {log}

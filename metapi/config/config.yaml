@@ -270,16 +270,22 @@ params:
       clustering_secondary_ANI: 0.99
     cdhit:
       do_gene: True
-      do_protenis: False
+      do_proteins: False
       threads: 32
-      identity: 0.95
-      overlap: 0.9
-      wordlen: 8
-      global: True
-      memory: 0
-      clstrlen: 0
-      default_algorithm: False
-      both_alignment: True
+      sequence_identity_threshold: 0.95
+      alignment_coverage_for_shorter_sequence: 0.9
+      word_length: 8
+      use_global_sequence_identity: 0
+      memory_limit: 0
+      cluster_description_length: 0
+      default_algorithm: 0
+      both_alignment: 1
+    galah:
+      ani: 99
+      max_contamination:
+      min_completeness: 0
+      prethreshold_ani: 95
+      threads: 32
 
   profiling:
     threads: 8
