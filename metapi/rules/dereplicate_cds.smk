@@ -5,12 +5,28 @@ rule dereplicate_gene_prepare:
             "scaftigs_gene/{sample}.{{assembler}}.prodigal.out/{sample}.{{assembler}}.ffn"),
                sample=SAMPLES.index.unique())
     output:
-        os.path.join(config["output"]["predict"],
-                     "{assembler}.prodigal.scaftigs.gene.merged.ffn")
-    shell:
-        '''
-        cat {input} > {output}
-        '''
+        ffn = os.path.join(config["output"]["predict"],
+                           "{assembler}.prodigal.scaftigs.gene.merged.ffn"),
+        metadata = os.path.join(config["output"]["predict"],
+                                "{assembler}.prodigal.scaftigs.gene.merged.ffn.metadata")
+    run:
+        from Bio import SeqIO
+
+        mg_count = 0
+
+        with open(output.ffn, 'w') as fh, open(output.metadata, 'w') as mh:
+            mh.write("mg_id\tcds_id\tmg_name\tcds_name\n")
+            for i in input:
+                mg_count += 1
+                cds_count = 0
+                for seq_record in SeqIO.parse(i, "fasta"):
+                    cds_count += 1
+                    mh.write(
+                        f"MG_{mg_count}\tCDS_{cds_count}\t{i}\t{seq_record.name}\n")
+                    seq_record.id = f"MG_{mg_count}-CDS_{cds_count}"
+                    seq_record.name = ""
+                    seq_record.description = ""
+                    SeqIO.write(seq_record, fh, "fasta")
 
 
 if config["params"]["dereplicate"]["cdhit"]["do_gene"]:
@@ -46,7 +62,7 @@ if config["params"]["dereplicate"]["cdhit"]["do_gene"]:
             -d {params.cluster_description_length} \
             -g {params.default_algorithm} \
             -r {params.both_alignment} \
-            -T {threads} 2> {log}
+            -T {threads} >{log} 2>&1
             '''
 
 

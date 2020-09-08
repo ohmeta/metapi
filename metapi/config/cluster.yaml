@@ -620,7 +620,7 @@ dereplicate_mags_drep:
   output: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
   error: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
 
-dereplicate_gene_preprae:
+dereplicate_gene_prepare:
   mem: "512M"
   cores: 1
   output: "logs/10.{rule}/{rule}.{wildcards.assembler}.o"
