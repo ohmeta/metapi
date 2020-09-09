@@ -33,3 +33,24 @@ def merge(input_list, func, workers, **kwargs):
     if "output" in kwargs:
         df_.to_csv(kwargs["output"], sep="\t", index=False)
     return df_
+
+
+def merge2(input_list, func, workers, **kwargs):
+    df1_list = []
+    df2_list = []
+    with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as executor:
+        for df1, df2 in executor.map(func, input_list):
+            if df1 is not None:
+                df1_list.append(df1)
+            if df2 is not None:
+                df2_list.append(df2)
+
+    df_1 = pd.concat(df1_list)
+    df_2 = pd.concat(df2_list)
+
+    if "output_1" in kwargs:
+        df_1.to_csv(kwargs["output_1"], sep="\t", index=False)
+    if "output_2" in kwargs:
+        df_2.to_csv(kwargs["output_2"], sep="\t", index=False)
+
+    return df_1, df_2
