@@ -201,7 +201,7 @@ if config["params"]["binning"]["maxbin2"]["do"]:
                 {params.plotmarker} \
                 -markerset {params.markerset} \
                 -out {params.bin_prefix} \
-                -verbose > {log} 2>&1
+                > {log} 2>&1
 
                 exitcode=$?
                 if [ $exitcode -eq 1 ]
