@@ -249,7 +249,7 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             metapi.merge(ncbi_list, metapi.parse, threads, output=output.table_ncbi)
 
             table_gtdb = pd.read_csv(output.table_gtdb, sep='\t')\
-                           .rename(columns={"classfication": "GTDB classification"})
+                           .rename(columns={"classification": "GTDB classification"})
 
             table_ncbi = pd.read_csv(output.table_ncbi, sep='\t')
 
