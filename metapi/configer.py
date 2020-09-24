@@ -3,6 +3,7 @@
 import argparse
 import os
 import shutil
+
 from ruamel.yaml import YAML
 
 
@@ -116,7 +117,7 @@ class metaconfig:
         "logs/09.classify_short_reads_kraken2",
         "logs/09.classify_hmq_bins_gtdbtk_prepare",
         "logs/09.classify_hmq_bins_gtdbtk",
-        "logs/09.classify_hmq_bins_report",
+        "logs/09.classify_hmq_bins_gtdbtk_report",
         "logs/09.coclassify_hmq_bins_gtdbtk_prepare",
         "logs/09.coclassify_hmq_bins_gtdbtk",
         "logs/09.coclassify_hmq_bins_gtdbtk_report",
