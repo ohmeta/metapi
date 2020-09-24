@@ -192,14 +192,20 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
 
     rule classify_hmq_bins_gtdbtk_report:
         input:
-            aggregate_gtdbtk_report_input
+            tables_gtdb = aggregate_gtdbtk_report_input,
+            table_checkm= os.path.join(
+                config["output"]["checkm"],
+                "report/{assembler}_{binner_checkm}_checkm_table.tsv")
         output:
             table_gtdb = os.path.join(
                 config["output"]["classify"],
                 "report/bins_hmq.{assembler}.{binner_checkm}.gtdbtk.gtdb.tsv"),
             table_ncbi = os.path.join(
                 config["output"]["classify"],
-                "report/bins_hmq.{assembler}.{binner_checkm}.gtdbtk.ncbi.tsv")
+                "report/bins_hmq.{assembler}.{binner_checkm}.gtdbtk.ncbi.tsv"),
+            table_all = os.path.join(
+                config["output"]["classify"],
+                "report/bins_hmq.{assembler}.{binner_checkm}.gtdbtk.all.tsv")
         params:
             ar122_metadata = config["params"]["classify"]["gtdbtk"]["ar122_metadata"],
             bac120_metadata = config["params"]["classify"]["gtdbtk"]["bac120_metadata"],
@@ -208,11 +214,12 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             8
         run:
             import os
+            import pandas as pd
 
             gtdb_list = []
             ncbi_list = []
 
-            for i in input:
+            for i in input.tables_gtdb:
                 out_dir = os.path.dirname(i)
                 ar122_tsv = os.path.join(out_dir, "gtdbtk.ar122.summary.tsv")
                 bac120_tsv = os.path.join(out_dir, "gtdbtk.bac120.summary.tsv")
@@ -241,6 +248,20 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             metapi.merge(gtdb_list, metapi.parse, threads, output=output.table_gtdb)
             metapi.merge(ncbi_list, metapi.parse, threads, output=output.table_ncbi)
 
+            table_gtdb = pd.read_csv(output.table_gtdb, sep='\t')\
+                           .rename(columns={"classfication": "GTDB classification"})
+
+            table_ncbi = pd.read_csv(output.table_ncbi, sep='\t')
+
+            table_checkm = pd.read_csv(input.table_checkm, sep='\t')\
+                             .rename(columns={"bin_id": "user_genome"})
+            table_checkm["user_genome"] = table_checkm.apply(lambda x: x["user_genome"] + ".fa",
+                                                             axis=1)
+            join_key = ["user_genome", "GTDB classification"]
+            table_gtdb.join(table_ncbi.set_index(join_key), key=join_key)\
+                      .join(table_checkm.set_index(join_key), key=join_key)\
+                      .to_csv(output.table_all, sep='\t', index=False)
+
 
     rule single_classify_hmq_bins_gtdbtk_all:
         input:
@@ -248,7 +269,7 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
                 os.path.join(
                     config["output"]["classify"],
                     "report/bins_hmq.{assembler}.{binner_checkm}.gtdbtk.{system}.tsv"),
-                system=["gtdb", "ncbi"],
+                system=["gtdb", "ncbi", "all"],
                 assembler=ASSEMBLERS,
                 binner_checkm=BINNERS_CHECKM),
 
