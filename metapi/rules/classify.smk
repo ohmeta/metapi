@@ -258,8 +258,8 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             table_checkm["user_genome"] = table_checkm.apply(lambda x: x["user_genome"] + ".fa",
                                                              axis=1)
             join_key = ["user_genome", "GTDB classification"]
-            table_gtdb.join(table_ncbi.set_index(join_key), key=join_key)\
-                      .join(table_checkm.set_index(join_key), key=join_key)\
+            table_gtdb.join(table_ncbi.set_index(join_key), on=join_key)\
+                      .join(table_checkm.set_index(join_key), on=join_key)\
                       .to_csv(output.table_all, sep='\t', index=False)
 
 
