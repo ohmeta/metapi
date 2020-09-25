@@ -288,7 +288,7 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
            
             table_gtdb.join(
                 table_ncbi.set_index(["user_genome", "GTDB classification"]),
-                on=["user_gneome", "GTDB classification"]
+                on=["user_genome", "GTDB classification"]
             ).join(table_checkm.set_index("user_genome"), on="user_genome").join(
                 table_bins.set_index("user_genome"), on="user_genome"
             ).loc[
