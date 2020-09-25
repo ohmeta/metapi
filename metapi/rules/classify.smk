@@ -217,8 +217,9 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             8
         run:
             import os
-            import pandas as pd
 
+            import pandas as pd
+           
             gtdb_list = []
             ncbi_list = []
 
@@ -226,84 +227,91 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
                 out_dir = os.path.dirname(i)
                 ar122_tsv = os.path.join(out_dir, "gtdbtk.ar122.summary.tsv")
                 bac120_tsv = os.path.join(out_dir, "gtdbtk.bac120.summary.tsv")
-
+           
                 if os.path.exists(ar122_tsv):
                     gtdb_list.append(ar122_tsv)
                 if os.path.exists(bac120_tsv):
                     gtdb_list.append(bac120_tsv)
-
+           
                 gtdb_to_ncbi_summary = os.path.join(out_dir, "gtdbtk.ncbi.summary.tsv")
                 gtdb_to_ncbi_log = os.path.join(out_dir, "gtdbtk.to.ncbi.log")
-
+           
                 shell(
-                    f'''
+                    f"""
                     python {params.gtdb_to_ncbi_script} \
                     --gtdbtk_output_dir {out_dir} \
                     --output_file {gtdb_to_ncbi_summary} \
                     --ar122_metadata_file {params.ar122_metadata} \
                     --bac120_metadata_file {params.bac120_metadata} \
                     > {gtdb_to_ncbi_log}
-                    ''')
-
+                    """)
+           
                 if os.path.exists(gtdb_to_ncbi_summary):
                     ncbi_list.append(gtdb_to_ncbi_summary)
-
+           
             metapi.merge(gtdb_list, metapi.parse, threads, output=output.table_gtdb)
             metapi.merge(ncbi_list, metapi.parse, threads, output=output.table_ncbi)
-
-            table_bins = pd.read_csv(input.table_bins, sep='\t', header=[0, 1])
-            table_bins = table_bins[[
-                ("Unnamed: 1_level_1", "bin_id"),
-                ("chr", "count"),
-                ("length", "sum"),
-                ("length", "min"),
-                ("length", "max"),
-                ("length", "std"),
-                ("length", "N50"),
-            ]]
-            table_bins.columns = ["user_genome",
-                                  "contig_number",
-                                  "contig_length_sum",
-                                  "contig_length_min",
-                                  "contig_length_max",
-                                  "contig_length_std",
-                                  "N50"]
-            table_bins["user_genome"] = table_bins.apply(lambda x: x["user_genome"] + ".fa",
-                                                         axis=1)
-
-            table_gtdb = pd.read_csv(output.table_gtdb, sep='\t')\
-                           .rename(columns={"classification": "GTDB classification"})
-
-            table_ncbi = pd.read_csv(output.table_ncbi, sep='\t')
-
-            table_checkm = pd.read_csv(input.table_checkm, sep='\t')\
-                             .rename(columns={"bin_id": "user_genome"})
-            table_checkm["user_genome"] = table_checkm.apply(lambda x: x["user_genome"] + ".fa",
-                                                             axis=1)
-
-            table_gtdb.join(table_ncbi.set_index(["user_genome", "GTDB classification"]),
-                            on=["user_gneome", "GTDB classification"])\
-                      .join(table_checkm.set_index("user_genome"), on="user_genome")\
-                      .join(table_bins.set_index("user_genome"), on="user_genome")\
-                      .loc[:, [
-                          "user_genome",
-                          "GTDB classification",
-                          "NCBI classification",
-                          "completeness",
-                          "contamination",
-                          "strain_heterogeneity",
-                          "MIMAG_quality_level",
-                          "SGB_quality_level",
-                          "quality_score",
-                          "contig_number",
-                          "contig_length_sum",
-                          "contig_length_min",
-                          "contig_length_max",
-                          "contig_length_std",
-                          "N50"
-                      ]\
-                      .to_csv(output.table_all, sep='\t', index=False)
-
+           
+            table_bins = pd.read_csv(input.table_bins, sep="\t", header=[0, 1])
+            table_bins = table_bins[
+                [
+                    ("Unnamed: 1_level_1", "bin_id"),
+                    ("chr", "count"),
+                    ("length", "sum"),
+                    ("length", "min"),
+                    ("length", "max"),
+                    ("length", "std"),
+                    ("length", "N50")
+                ]
+            ]
+            table_bins.columns = [
+                "user_genome",
+                "contig_number",
+                "contig_length_sum",
+                "contig_length_min",
+                "contig_length_max",
+                "contig_length_std",
+                "N50"
+            ]
+            table_bins["user_genome"] = table_bins.apply(
+                lambda x: x["user_genome"] + ".fa", axis=1)
+           
+            table_gtdb = pd.read_csv(output.table_gtdb, sep="\t").rename(
+                columns={"classification": "GTDB classification"})
+           
+            table_ncbi = pd.read_csv(output.table_ncbi, sep="\t")
+           
+            table_checkm = pd.read_csv(input.table_checkm, sep="\t").rename(
+                columns={"bin_id": "user_genome"})
+            table_checkm["user_genome"] = table_checkm.apply(
+                lambda x: x["user_genome"] + ".fa", axis=1)
+           
+            table_gtdb.join(
+                table_ncbi.set_index(["user_genome", "GTDB classification"]),
+                on=["user_gneome", "GTDB classification"]
+            ).join(table_checkm.set_index("user_genome"), on="user_genome").join(
+                table_bins.set_index("user_genome"), on="user_genome"
+            ).loc[
+                :,
+                [
+                    "user_genome",
+                    "GTDB classification",
+                    "NCBI classification",
+                    "completeness",
+                    "contamination",
+                    "strain_heterogeneity",
+                    "MIMAG_quality_level",
+                    "SGB_quality_level",
+                    "quality_score",
+                    "contig_number",
+                    "contig_length_sum",
+                    "contig_length_min",
+                    "contig_length_max",
+                    "contig_length_std",
+                    "N50"
+                ],
+            ].to_csv(output.table_all, sep="\t", index=False)
+           
 
     rule single_classify_hmq_bins_gtdbtk_all:
         input:
