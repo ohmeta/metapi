@@ -255,7 +255,7 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             table_bins = pd.read_csv(input.table_bins, sep="\t", header=[0, 1])
             table_bins = table_bins[
                 [
-                    ("Unnamed: 1_level_1", "bin_id"),
+                    ("bin_id", "Unnamed: 1_level_1"),
                     ("chr", "count"),
                     ("length", "sum"),
                     ("length", "min"),
