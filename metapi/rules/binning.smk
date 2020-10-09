@@ -375,6 +375,8 @@ if config["params"]["binning"]["concoct"]["do"]:
 
             shell(
                 '''
+                set +e
+
                 concoct \
                 --threads {threads} \
                 --basename {params.basename} \
@@ -392,6 +394,21 @@ if config["params"]["binning"]["concoct"]["do"]:
                 {params.no_original_data} \
                 {params.coverage_out} \
                 2> {log}
+
+                cat {basename}_log.txt >> {log}
+
+                exitcode=$?
+                if [ $exitcode -eq 1 ]
+                then
+                    grep -oEi 'Not enough contigs pass the threshold filter' {basename}_log.txt
+                    grepcode=$?
+                    if [ $grepcode -eq 0 ]
+                    then
+                        exit 0
+                    else
+                        exit $exitcode
+                    fi
+                fi
                 ''')
 
             shell(
