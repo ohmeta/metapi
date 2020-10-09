@@ -458,7 +458,7 @@ cobinning_graphbin_prepare_binned:
 
 cobinning_graphbin:
   mem: "512M"
-  cores: 8
+  cores: 1
   output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.e"
 
