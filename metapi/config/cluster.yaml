@@ -390,7 +390,7 @@ binning_graphbin_prepare_binned:
 
 binning_graphbin:
   mem: "512M"
-  cores: 8
+  cores: 1
   output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
