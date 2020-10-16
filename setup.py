@@ -29,7 +29,7 @@ entry_points = {"console_scripts": ["metapi=metapi.corer:main"]}
 
 requires = [
     req.strip()
-    for req in open("requirements.txt", "rU").readlines()
+    for req in open("requirements.txt", "r").readlines()
     if not req.startswith("#")
 ]
 
