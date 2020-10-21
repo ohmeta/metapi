@@ -279,6 +279,22 @@ def sync(args, unknown):
     snakefile = os.path.join(
         os.path.dirname(__file__), f"snakefiles/{args.workflow}.smk"
     )
+    conf = metapi.parse_yaml(args.config_yaml)
+    samples_df = metapi.parse_samples(conf)
+    samples_index = samples_df.index.unique()
+
+    count = -1
+    for i in range(0, len(samples_index), args.split_num):
+        count += 1
+        samples = samples_df.loc[samples_index[i:i+args.split_num], ]
+        outdir = os.path.join(args.outdir, args.name + f"_{count}")
+        os.makedirs(outdir, exist_ok=True)
+        samples_file = os.path.join(outdir, "samples.tsv")
+        samples.to_csv(samples_file, sep='\t', index=False)
+        conf["params"]["samples"] = samples_file
+        metapi.update_config(args.config_yaml, os.path.join(outdir, "config.ayml"), conf, remove=False)
+
+
     cmd = [
         "snakemake",
         "--snakefile",
@@ -291,8 +307,6 @@ def sync(args, unknown):
     ]
     cmd_out = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     summary = pd.read_csv(StringIO(cmd_out.stdout.read().decode()), sep="\t")
-    from pprint import pprint
-    pprint(summary)
 
 
 def main():
