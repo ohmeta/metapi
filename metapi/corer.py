@@ -2,11 +2,14 @@
 
 import argparse
 import os
-import sys
 import subprocess
+import sys
 import textwrap
-import metapi
+from io import StringIO
 
+import pandas as pd
+
+import metapi
 
 WORKFLOWS_MAG = [
     "simulate_all",
@@ -198,7 +201,11 @@ def run_snakemake(args, unknown, snakefile, workflow):
 
     env = os.environ.copy()
     proc = subprocess.Popen(
-        cmd_str, shell=True, stdout=sys.stdout, stderr=sys.stderr, env=env,
+        cmd_str,
+        shell=True,
+        stdout=sys.stdout,
+        stderr=sys.stderr,
+        env=env,
     )
     proc.communicate()
 
@@ -268,6 +275,26 @@ def gene_wf(args, unknown):
     run_snakemake(args, unknown, snakefile, "gene_wf")
 
 
+def sync(args, unknown):
+    snakefile = os.path.join(
+        os.path.dirname(__file__), f"snakefiles/{args.workflow}.smk"
+    )
+    cmd = [
+        "snakemake",
+        "--snakefile",
+        snakefile,
+        "--configfile",
+        args.config,
+        "--until",
+        args.task,
+        "--summary",
+    ]
+    cmd_out = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    summary = pd.read_csv(StringIO(cmd_out.stdout.read().decode()), sep="\t")
+    from pprint import pprint
+    pprint(summary)
+
+
 def main():
     banner = """
 
@@ -327,19 +354,34 @@ def main():
         "--jobs", type=int, default=80, help="qsub job numbers, default: 80"
     )
     run_parser.add_argument(
-        "--list", default=False, action="store_true", help="list pipeline rules",
+        "--list",
+        default=False,
+        action="store_true",
+        help="list pipeline rules",
     )
     run_parser.add_argument(
-        "--run", default=False, action="store_true", help="run pipeline",
+        "--run",
+        default=False,
+        action="store_true",
+        help="run pipeline",
     )
     run_parser.add_argument(
-        "--debug", default=False, action="store_true", help="debug pipeline",
+        "--debug",
+        default=False,
+        action="store_true",
+        help="debug pipeline",
     )
     run_parser.add_argument(
-        "--dry_run", default=False, action="store_true", help="dry run pipeline",
+        "--dry_run",
+        default=False,
+        action="store_true",
+        help="dry run pipeline",
     )
     run_parser.add_argument(
-        "--qsub", default=False, action="store_true", help="qsub pipeline",
+        "--qsub",
+        default=False,
+        action="store_true",
+        help="qsub pipeline",
     )
     run_parser.add_argument(
         "--wait", type=int, default=60, help="wait given seconds, default: 60"
@@ -375,6 +417,13 @@ def main():
         parents=[common_parser, run_parser],
         prog="metapi gene_wf",
         help="metagenome-assembly-gene pipeline",
+    )
+    parser_sync = subparsers.add_parser(
+        "sync",
+        formatter_class=metapi.custom_help_formatter,
+        parents=[common_parser],
+        prog="metapi sync",
+        help="metapi sync project",
     )
 
     parser_init.add_argument(
@@ -427,6 +476,38 @@ if begin from simulate:
         help="pipeline end point. Allowed values are " + ", ".join(WORKFLOWS_GENE),
     )
     parser_gene_wf.set_defaults(func=gene_wf)
+
+    parser_sync.add_argument(
+        "workflow",
+        metavar="WORKFLOW",
+        nargs="?",
+        type=str,
+        default="mag_wf",
+        choices=["mag_wf", "gene_wf"],
+        help="workflow. Allowed values are mag_wf and gene_wf",
+    )
+    parser_sync.add_argument(
+        "task",
+        metavar="TASK",
+        nargs="?",
+        type=str,
+        default="all",
+        help="pipeline end point",
+    )
+    parser_sync.add_argument(
+        "--config",
+        type=str,
+        default="./config.yaml",
+        help="config.yaml, default: ./config.yaml",
+    )
+    parser_sync.add_argument("--name", type=str, required=True, help="project basename")
+    parser_sync.add_argument(
+        "--outdir", type=str, required=True, help="sync to a directory"
+    )
+    parser_sync.add_argument(
+        "--split_num", type=int, default=1, help="split project to sync directory"
+    )
+    parser_sync.set_defaults(func=sync)
 
     args, unknown = parser.parse_known_args()
 
