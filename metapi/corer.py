@@ -275,39 +275,65 @@ def gene_wf(args, unknown):
     run_snakemake(args, unknown, snakefile, "gene_wf")
 
 
-def sync(args, unknown):
-    snakefile = os.path.join(
-        os.path.dirname(__file__), f"snakefiles/{args.workflow}.smk"
-    )
-    conf = metapi.parse_yaml(args.config_yaml)
-    samples_df = metapi.parse_samples(conf)
-    samples_index = samples_df.index.unique()
-
-    count = -1
-    for i in range(0, len(samples_index), args.split_num):
-        count += 1
-        samples = samples_df.loc[samples_index[i:i+args.split_num], ]
-        outdir = os.path.join(args.outdir, args.name + f"_{count}")
-        os.makedirs(outdir, exist_ok=True)
-        samples_file = os.path.join(outdir, "samples.tsv")
-        samples.to_csv(samples_file, sep='\t', index=False)
-        conf["params"]["samples"] = samples_file
-        metapi.update_config(args.config_yaml, os.path.join(outdir, "config.ayml"), conf, remove=False)
-
-
+def snakemake_summary(snakefile, configfile, task):
     cmd = [
         "snakemake",
         "--snakefile",
         snakefile,
         "--configfile",
-        args.config,
+        configfile,
         "--until",
-        args.task,
+        task,
         "--summary",
     ]
     cmd_out = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     summary = pd.read_csv(StringIO(cmd_out.stdout.read().decode()), sep="\t")
+    return summary
 
+
+def sync(args, unknown):
+    snakefile = os.path.join(
+        os.path.dirname(__file__), f"snakefiles/{args.workflow}.smk"
+    )
+    summary_df = snakemake_summary(snakefile, args.config, args.task)
+
+    conf = metapi.parse_yaml(args.config)
+    if conf["params"]["simulate"]["do"]:
+        samples_df = metapi.parse_genomes(conf)
+    else:
+        samples_df = metapi.parse_samples(conf)
+
+    samples_index = samples_df.index.unique()
+    count = -1
+    for i in range(0, len(samples_index), args.split_num):
+        count += 1
+        outdir = os.path.abspath(os.path.join(args.outdir, args.name + f"_{count}"))
+        os.makedirs(outdir, exist_ok=True)
+        samples_file = os.path.join(outdir, f"samples_{count}.tsv")
+        config_file = os.path.join(outdir, "config.yaml")
+
+        samples = samples_df.loc[
+            samples_index[i : i + args.split_num],
+        ]
+        samples.to_csv(samples_file, sep="\t", index=False)
+        conf["params"]["samples"] = samples_file
+        metapi.update_config(args.config, config_file, conf, remove=False)
+
+        summary = snakemake_summary(snakefile, config_file, args.task)
+        summary_ = summary_df[summary_df.output_file.isin(summary.output_file)]
+        sync_sh = os.path.join(args.workdir, f"sync-{args.workflow}-{args.task}_{count}.sh")
+        with open(sync_sh, 'w') as oh:
+            print(f"generating {sync_sh}")
+            for output_file in summary_["output_file"]:
+                if output_file != "-" and (not pd.isna(output_file)):
+                    output_file_path = os.path.join(args.workdir, output_file)
+                    oh.write(f"rsync --archive --relative --progress {output_file_path} {outdir}\n")
+            for log_file in summary_["log-file(s)"]:
+                if log_file != "-" and (not pd.isna(log_file)):
+                    log_file_path = os.path.join(args.workdir, log_file)
+                    oh.write(f"rsync --archive --relative --progress {log_file_path} {outdir}\n")
+
+    print(f"please change current directory to {args.workdir} to run sync script")
 
 def main():
     banner = """
