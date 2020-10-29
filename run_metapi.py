@@ -2,10 +2,8 @@
 
 import os
 import sys
-from site import addsitedir
 
-sys.path.append(os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(__file__))
 
 from metapi.corer import main
-print(sys.path)
 main()
