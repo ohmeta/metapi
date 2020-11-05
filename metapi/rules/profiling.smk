@@ -1079,7 +1079,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
                         pushd {params.output_dir} && \
                         ln -s %s {params.basename}.fq.gz && \
                         popd
-                        ''' % os.path.realpath(input.reads))
+                        ''' % os.path.realpath(input.reads[0]))
                 else:
                     shell(
                         '''
