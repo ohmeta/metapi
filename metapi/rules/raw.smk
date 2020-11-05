@@ -10,6 +10,8 @@ def raw_short_reads(wildcards):
                 else:
                     return [metapi.get_reads(SAMPLES, wildcards, "fq1"),
                             metapi.get_reads(SAMPLES, wildcards, "fq2")]
+            else:
+                return [metapi.get_reads(SAMPLES, wildcards, "fq1")]
     elif READS_FORMAT == "sra":
         return [metapi.get_reads(SAMPLES, wildcards, "sra")]
 
