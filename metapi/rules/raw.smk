@@ -201,11 +201,9 @@ rule prepare_reads_all:
 
 
 def get_reads(wildcards, step, have_single=False, have_long=False):
-    read = ""
-    if IS_PE:
-        read = short_reads_suffix()
-        if have_single:
-            read += [".single"]
+    read = short_reads_suffix()
+    if IS_PE and have_single:
+        read += [".single"]
 
     short_reads = expand(os.path.join(
         config["output"][step],
