@@ -807,7 +807,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
         output:
             targets = expand(os.path.join(
                 config["output"]["profiling"],
-                "profile/humann2/{{sample}}/{{sample}}_{target}.{norm}.tsv"),
+                "profile/humann2/{{sample}}/{{sample}}_{target}_{norm}.tsv"),
                 target=["genefamilies", "pathabundance", "pathcoverage"],
                 norm=config["params"]["profiling"]["humann"]["normalize_method"]),
             groupprofiles = expand(os.path.join(
@@ -863,10 +863,14 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                 os.path.join(
                     config["output"]["profiling"],
                     "profile/humann2/{sample}/{sample}_{target}.tsv"),
+               os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann2/{sample}/{sample}_{target}_{norm}.tsv"),
                 os.path.join(
                     config["output"]["profiling"],
                     "profile/humann2/{sample}/{sample}_{group}_groupped.tsv")],
                    target=["genefamilies", "pathabundance", "pathcoverage"],
+                   norm = config["params"]["profiling"]["humann"]["normalize_method"],
                    group=config["params"]["profiling"]["humann"]["map_database"],
                    sample=SAMPLES.index.unique())
         output:
@@ -875,6 +879,12 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                     config["output"]["profiling"],
                     "profile/humann2_{target}_joined.tsv"),
                 target=["genefamilies", "pathabundance", "pathcoverage"]),
+            targets_norm = expand(
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann2_{target}_{norm}_joined.tsv"),
+                target=["genefamilies", "pathabundance", "pathcoverage"],
+                norm=config["params"]["profiling"]["humann"]["normalize_method"]),
             groupprofile = expand(
                 os.path.join(
                     config["output"]["profiling"],
@@ -888,6 +898,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
         params:
             wrapper_dir =WRAPPER_DIR,
             input_dir = os.path.join(config["output"]["profiling"], "profile/humann2"),
+            normalize_method = config["params"]["profiling"]["humann"]["normalize_method"],
             map_database = config["params"]["profiling"]["humann"]["map_database"]
         shell:
             '''
@@ -896,6 +907,16 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             --input {params.input_dir} \
             --output {output.targets} \
             --file_name genefamilies.tsv pathabundance.tsv pathcoverage.tsv \
+            > {log} 2>&1
+
+            python {params.wrapper_dir}/humann2_postprocess_wrapper.py \
+            join_tables \
+            --input {params.input_dir} \
+            --output {output.targets_norm} \
+            --file_name \
+            genefamilies_{params.normalize_method}.tsv \
+            pathabundance_{params.normalize_method}.tsv \
+            pathcoverage_{params.normalize_method}.tsv \
             > {log} 2>&1
 
             python {params.wrapper_dir}/humann2_postprocess_wrapper.py \
@@ -914,6 +935,12 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                     config["output"]["profiling"],
                     "profile/humann2_{target}_joined.tsv"),
                 target=["genefamilies", "pathabundance", "pathcoverage"]),
+            targets_norm = expand(
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann2_{target}_{norm}_joined.tsv"),
+                norm = config["params"]["profiling"]["humann"]["normalize_method"],
+                target=["genefamilies", "pathabundance", "pathcoverage"]),
             groupprofile = expand(
                 os.path.join(
                     config["output"]["profiling"],
@@ -926,8 +953,12 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                     "profile/humann2_{target}_joined_{suffix}.tsv"),
                 os.path.join(
                     config["output"]["profiling"],
+                    "profile/humann2_{target}_{norm}_joined_{suffix}.tsv"),
+                os.path.join(
+                    config["output"]["profiling"],
                     "profile/humann2.{group}.joined_{suffix}.tsv")],
                    target=["genefamilies", "pathabundance", "pathcoverage"],
+                   norm = config["params"]["profiling"]["humann"]["normalize_method"],
                    group=config["params"]["profiling"]["humann"]["map_database"],
                    suffix=["stratified", "unstratified"])
         log:
@@ -949,6 +980,12 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
 
             python {params.wrapper_dir}/humann2_postprocess_wrapper.py \
             split_stratified_table \
+            --input {input.targets_norm} \
+            --output {params.output_dir} \
+            > {log} 2>&1
+
+            python {params.wrapper_dir}/humann2_postprocess_wrapper.py \
+            split_stratified_table \
             --input {input.groupprofile} \
             --output {params.output_dir} \
             >> {log} 2>&1
@@ -963,14 +1000,21 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                     "profile/humann2_{target}_joined.tsv"),
                 os.path.join(
                     config["output"]["profiling"],
-                    "profile/humann2.{group}.joined.tsv"),
+                    "profile/humann2_{target}_joined_{suffix}.tsv"),
+               os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann2_{target}_{norm}_joined.tsv"),
                 os.path.join(
                     config["output"]["profiling"],
-                    "profile/humann2_{target}_joined_{suffix}.tsv"),
+                    "profile/humann2_{target}_{norm}_joined_{suffix}.tsv"),
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann2.{group}.joined.tsv"),
                 os.path.join(
                     config["output"]["profiling"],
                     "profile/humann2.{group}.joined_{suffix}.tsv")],
                    target=["genefamilies", "pathabundance", "pathcoverage"],
+                   norm = config["params"]["profiling"]["humann"]["normalize_method"],
                    group=config["params"]["profiling"]["humann"]["map_database"],
                    suffix=["stratified", "unstratified"]),
 
@@ -1125,7 +1169,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
         output:
             targets = expand(os.path.join(
                 config["output"]["profiling"],
-                "profile/humann3/{{sample}}/{{sample}}_{target}.{norm}.tsv"),
+                "profile/humann3/{{sample}}/{{sample}}_{target}_{norm}.tsv"),
                 target=["genefamilies", "pathabundance", "pathcoverage"],
                 norm=config["params"]["profiling"]["humann"]["normalize_method"]),
             groupprofiles = expand(os.path.join(
@@ -1181,8 +1225,12 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
                     "profile/humann3/{sample}/{sample}_{target}.tsv"),
                 os.path.join(
                     config["output"]["profiling"],
+                    "profile/humann3/{sample}/{sample}_{target}_{norm}.tsv"),
+                os.path.join(
+                    config["output"]["profiling"],
                     "profile/humann3/{sample}/{sample}_{group}_groupped.tsv")],
                    target=["genefamilies", "pathabundance", "pathcoverage"],
+                   norm=config["params"]["profiling"]["humann"]["normalize_method"],
                    group=config["params"]["profiling"]["humann"]["map_database"],
                    sample=SAMPLES.index.unique())
         output:
@@ -1191,6 +1239,12 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
                     config["output"]["profiling"],
                     "profile/humann3_{target}_joined.tsv"),
                 target=["genefamilies", "pathabundance", "pathcoverage"]),
+            targets_norm = expand(
+               os.path.join(
+                   config["output"]["profiling"],
+                   "profile/humann3_{target}_{norm}_joined.tsv"),
+                target=["genefamilies", "pathabundance", "pathcoverage"],
+                norm=config["params"]["profiling"]["humann"]["normalize_method"]),
             groupprofile = expand(
                 os.path.join(
                     config["output"]["profiling"],
@@ -1202,6 +1256,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
         params:
             wrapper_dir =WRAPPER_DIR,
             input_dir = os.path.join(config["output"]["profiling"], "profile/humann3"),
+            normalize_method = config["params"]["profiling"]["humann"]["normalize_method"],
             map_database = config["params"]["profiling"]["humann"]["map_database"]
         shell:
             '''
@@ -1210,6 +1265,16 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
             --input {params.input_dir} \
             --output {output.targets} \
             --file_name genefamilies.tsv pathabundance.tsv pathcoverage.tsv \
+            > {log} 2>&1
+
+            python {params.wrapper_dir}/humann3_postprocess_wrapper.py \
+            join_tables \
+            --input {params.input_dir} \
+            --output {output.targets_norm} \
+            --file_name \
+            genefamilies_{params.normalize_method}.tsv \
+            pathabundance_{params.normalize_method}.tsv \
+            pathcoverage_{params.normalize_method}.tsv \
             > {log} 2>&1
 
             python {params.wrapper_dir}/humann3_postprocess_wrapper.py \
@@ -1228,6 +1293,12 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
                     config["output"]["profiling"],
                     "profile/humann3_{target}_joined.tsv"),
                 target=["genefamilies", "pathabundance", "pathcoverage"]),
+            targets_norm = expand(
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann3_{target}_{norm}_joined.tsv"),
+                norm = config["params"]["profiling"]["humann"]["normalize_method"],
+                target=["genefamilies", "pathabundance", "pathcoverage"]),
             groupprofile = expand(
                 os.path.join(
                     config["output"]["profiling"],
@@ -1240,8 +1311,12 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
                     "profile/humann3_{target}_joined_{suffix}.tsv"),
                 os.path.join(
                     config["output"]["profiling"],
+                    "profile/humann3_{target}_{norm}_joined_{suffix}.tsv"),
+                os.path.join(
+                    config["output"]["profiling"],
                     "profile/humann3.{group}.joined_{suffix}.tsv")],
                    target=["genefamilies", "pathabundance", "pathcoverage"],
+                   norm = config["params"]["profiling"]["humann"]["normalize_method"],
                    group=config["params"]["profiling"]["humann"]["map_database"],
                    suffix=["stratified", "unstratified"])
         log:
@@ -1261,6 +1336,12 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
 
             python {params.wrapper_dir}/humann3_postprocess_wrapper.py \
             split_stratified_table \
+            --input {input.targets_norm} \
+            --output {params.output_dir} \
+            > {log} 2>&1
+
+            python {params.wrapper_dir}/humann3_postprocess_wrapper.py \
+            split_stratified_table \
             --input {input.groupprofile} \
             --output {params.output_dir} \
             >> {log} 2>&1
@@ -1275,14 +1356,21 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
                     "profile/humann3_{target}_joined.tsv"),
                 os.path.join(
                     config["output"]["profiling"],
-                    "profile/humann3.{group}.joined.tsv"),
+                    "profile/humann3_{target}_joined_{suffix}.tsv"),
                 os.path.join(
                     config["output"]["profiling"],
-                    "profile/humann3_{target}_joined_{suffix}.tsv"),
+                    "profile/humann3_{target}_{norm}_joined.tsv"),
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann3_{target}_{norm}_joined_{suffix}.tsv"),
+                os.path.join(
+                    config["output"]["profiling"],
+                    "profile/humann3.{group}.joined.tsv"),
                 os.path.join(
                     config["output"]["profiling"],
                     "profile/humann3.{group}.joined_{suffix}.tsv")],
                    target=["genefamilies", "pathabundance", "pathcoverage"],
+                   norm = config["params"]["profiling"]["humann"]["normalize_method"],
                    group=config["params"]["profiling"]["humann"]["map_database"],
                    suffix=["stratified", "unstratified"]),
 
