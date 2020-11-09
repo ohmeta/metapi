@@ -86,8 +86,6 @@ def simulate_short_reads(
             default_abunf = output_prefix + "_abundance.txt"
             if os.path.exists(default_abunf):
                 os.rename(default_abunf, abunf)
-        os.remove(output_prefix + "_R1.fastq")
-        os.remove(output_prefix + "_R2.fastq")
         os.rename(output_prefix + "_R1.fastq.gz", r1)
         os.rename(output_prefix + "_R2.fastq.gz", r2)
     else:
