@@ -16,9 +16,8 @@ metapi works with Python 3.6+.
 You can install it via [bioconda](https://bioconda.github.io/):
 
 ```
-# [WIP]
 $ conda install -c bioconda metapi
-# or [Complete]
+# or
 $ conda install -c ohmeta metapi
 ```
 
@@ -55,6 +54,7 @@ $ metapi --help
     init         init project
     mag_wf       metagenome-assembly-genome pipeline
     gene_wf      metagenome-assembly-gene pipeline
+    sync         metapi sync project
 ```
 
 ### init
