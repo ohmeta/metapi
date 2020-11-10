@@ -153,6 +153,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
         conda:
             config["envs"]["biobakery"]
         params:
+            reads = ",".join(input),
             sample_id = "{sample}",
             read_min_len = config["params"]["profiling"]["metaphlan"]["read_min_len"],
             bowtie2db = config["params"]["profiling"]["metaphlan"]["bowtie2db"],
@@ -169,14 +170,15 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
             no_unknown_estimation = "--no_unknown_estimation" \
                 if config["params"]["profiling"]["metaphlan"]["no_unknown_estimation"] \
                    else "",
-            no_map = config["params"]["profiling"]["metaphlan"]["no_map"],
-            bowtie2_out = os.path.join(
+            map_out = "--no_map" if config["params"]["profiling"]["metaphlan"]["no_map"] \
+                else "--bowtie2out %s" % os.path.join(
+                        config["output"]["profiling"],
+                        "profile/metaphlan3/{sample}/{sample}.metaphlan3.bowtie2.bz2"),
+            biom_out = "--biom %s" % os.path.join(
                 config["output"]["profiling"],
-                "profile/metaphlan3/{sample}/{sample}.metaphlan3.bowtie2.bz2"),
-            biom = config["params"]["profiling"]["metaphlan"]["biom"],
-            biom_out = os.path.join(
-                config["output"]["profiling"],
-                "profile/metaphlan3/{sample}/{sample}.metaphlan3.abundance.profile.biom"),
+                "profile/metaphlan3/{sample}/{sample}.metaphlan3.abundance.profile.biom") \
+                if config["params"]["profiling"]["metaphlan"]["biom"] \
+                   else "",
             legacy_output = "--legacy-output" \
                 if config["params"]["profiling"]["metaphlan"]["legacy_output"] \
                    else "",
@@ -185,41 +187,31 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                    else ""
         threads:
             config["params"]["profiling"]["threads"]
-        run:
-            shell(
-                '''
-                metaphlan \
-                %s \
-                --input_type fastq \
-                --read_min_len {params.read_min_len} \
-                --nproc {threads} \
-                %s \
-                --bowtie2db {params.bowtie2db} \
-                --index {params.index} \
-                --bt2_ps {params.bowtie2_presets} \
-                --min_cu_len {params.min_cu_len} \
-                --tax_lev {params.taxonomic_level} \
-                {params.avoid_disqm} \
-                --stat_q {params.stat_q} \
-                --stat {params.stat} \
-                -t {params.analysis_type} \
-                {params.no_unknown_estimation} \
-                --output_file {output} \
-                --sample_id {params.sample_id} \
-                {params.legacy_output} \
-                {params.cami_format_output} \
-                %s \
-                2> {log}
-                ''' % (
-                    ",".join(input),
-
-                    "--no_map" \
-                    if params.no_map \
-                    else "--bowtie2out %s" % params.bowtie2_out,
-
-                    "--biom %s" % params.biom_out \
-                    if params.biom \
-                    else ""))
+        shell:
+            '''
+            metaphlan \
+            {params.reads} \
+            --input_type fastq \
+            --read_min_len {params.read_min_len} \
+            --nproc {threads} \
+            {params.map_out} \
+            --bowtie2db {params.bowtie2db} \
+            --index {params.index} \
+            --bt2_ps {params.bowtie2_presets} \
+            --min_cu_len {params.min_cu_len} \
+            --tax_lev {params.taxonomic_level} \
+            {params.avoid_disqm} \
+            --stat_q {params.stat_q} \
+            --stat {params.stat} \
+            -t {params.analysis_type} \
+            {params.no_unknown_estimation} \
+            --output_file {output} \
+            --sample_id {params.sample_id} \
+            {params.legacy_output} \
+            {params.cami_format_output} \
+            {params.biom_out} \
+            2> {log}
+            '''
 
 
     rule profiling_metaphlan3_merge:
