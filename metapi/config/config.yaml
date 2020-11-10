@@ -326,7 +326,7 @@ params:
       compression_level: 6
       index_metadata: /ldfssz1/ST_META/share/User/zhujie/database/oral_genome_database/oral_genome_db_metadata.tsv
       taxonomy: /ldfssz1/ST_META/share/User/zhujie/database/oral_genome_database/oral_genome_db_gtdb_taxonomy.tsv
-      index_prefix: /ldfssz1/ST_META/share/User/zhujie/database/oral_genome_database/oral_genome
+      index_prefix: /ldfssz1/ST_META/share/User/zhujie/database/oral_genome_database/oral_genome_db
     bracken:
       do: True
       reads_len: 100
