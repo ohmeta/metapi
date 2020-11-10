@@ -7,7 +7,7 @@ import snakemake
 
 def link_or_cat(args):
     if not os.path.exists(os.path.join(args.output_dir,
-                                       args.basenmae + ".fq.gz")):
+                                       args.basename + ".fq.gz")):
         if len(args.input) == 1:
             real_path = os.path.realpath(args.input[0])
             snakemake.shell(
@@ -25,7 +25,7 @@ def link_or_cat(args):
 
 def main():
     parser = argparse.ArgumentParser("metapi misc")
-    parser.add_argument("--basename")
+    parser.add_argument("--basename", dest="basename")
     parser.add_argument("--input-file", dest="input_file", nargs="+")
     parser.add_argument("--output-dir", dest="output_dir")
 
