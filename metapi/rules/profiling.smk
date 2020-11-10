@@ -153,7 +153,6 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
         conda:
             config["envs"]["biobakery"]
         params:
-            reads = ",".join(input),
             sample_id = "{sample}",
             read_min_len = config["params"]["profiling"]["metaphlan"]["read_min_len"],
             bowtie2db = config["params"]["profiling"]["metaphlan"]["bowtie2db"],
@@ -189,8 +188,10 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
             config["params"]["profiling"]["threads"]
         shell:
             '''
+            reads=$(python -c "import sys; print(','.join(sys.argv[1:]))" {input})
+
             metaphlan \
-            {params.reads} \
+            $reads \
             --input_type fastq \
             --read_min_len {params.read_min_len} \
             --nproc {threads} \
