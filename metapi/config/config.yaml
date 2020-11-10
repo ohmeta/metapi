@@ -238,7 +238,7 @@ params:
     threads: 8
     kraken2:
       do: True
-      database: /ldfssz1/ST_META/share/database/KRAKEN/minikraken2_v2_8GB_201904_UPDATE
+      database: /ldfssz1/ST_META/share/User/zhujie/database/kraken2/k2_standard_20200919
       quick: False
       memory_mapping: False
       use_names: True
@@ -324,9 +324,9 @@ params:
       fragment: 1200
       memory_limit: 8G
       compression_level: 6
-      index_metadata: /hwfssz1/ST_META/P18Z10200N0127_MA/zhujie/igo/assay/profilling/oral_mgs_index_metadata.tsv
-      taxonomy: /hwfssz1/ST_META/P18Z10200N0127_MA/zhujie/igo/assay/taxonomy/lineages_gtdb/oral_mgs_gtdb_taxonomy.tsv
-      index_prefix: /ldfssz1/ST_META/share/User/zhujie/database/igo/mpa_v20_m200
+      index_metadata: /ldfssz1/ST_META/share/User/zhujie/database/oral_genome_database/oral_genome_db_metadata.tsv
+      taxonomy: /ldfssz1/ST_META/share/User/zhujie/database/oral_genome_database/oral_genome_db_gtdb_taxonomy.tsv
+      index_prefix: /ldfssz1/ST_META/share/User/zhujie/database/oral_genome_database/oral_genome
     bracken:
       do: True
       reads_len: 100
@@ -443,5 +443,6 @@ upload:
 
 envs:
   bioenv3.7: "envs/bioenv3.7.yaml"
-  bioenv3.6: "envs/bioenv3.6.yaml"
-  bioenv2: "envs/bioenv2.yaml"
+  bioenv3.6: "envs/bioenv3.6.yaml" # drep
+  bioenv2: "envs/bioenv2.yaml"     # metaphlan2, humann2
+  biobakery: "envs/biobakery.yaml" # metaphlan3, humann3

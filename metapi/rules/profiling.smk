@@ -150,6 +150,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
             os.path.join(
                 config["output"]["profiling"],
                 "logs/{sample}.metaphlan3.log")
+        conda:
+            config["envs"]["biobakery"]
         params:
             sample_id = "{sample}",
             read_min_len = config["params"]["profiling"]["metaphlan"]["read_min_len"],
@@ -1073,8 +1075,11 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
             pathcoverage = protected(os.path.join(
                 config["output"]["profiling"],
                 "profile/humann3/{sample}/{sample}_pathcoverage.tsv"))
+        conda:
+            config["envs"]["biobakery"]
         params:
             basename = "{sample}",
+            wrapper_dir = WRAPPER_DIR,
             index = os.path.join(config["output"]["profiling"],
                                  "database/humann3/{sample}/{sample}_bowtie2_index"),
             evalue = config["params"]["profiling"]["humann"]["evalue"],
@@ -1111,53 +1116,41 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
             os.path.join(
                 config["output"]["profiling"],
                 "logs/{sample}.humann3.log")
-        run:
-            import os
-            shell('''mkdir -p {params.output_dir}''')
+        shell:
+            '''
+            mkdir -p {params.output_dir}
 
-            if not os.path.exists(os.path.join(params.output_dir,
-                                               params.basename + ".fq.gz")):
-                if len(input.reads) == 1:
-                    shell(
-                        '''
-                        pushd {params.output_dir} && \
-                        ln -s %s {params.basename}.fq.gz && \
-                        popd
-                        ''' % os.path.realpath(input.reads[0]))
-                else:
-                    shell(
-                        '''
-                        cat {input.reads} > {params.output_dir}/{params.basename}.fq.gz
-                        ''')
+            python {params.wrapper_dir}/misc.py \
+            --basename {params.basename} \
+            --input-file {input.reads} \
+            --output-dir {params.output_dir}
 
-            shell(
-                '''
-                humann \
-                --resume \
-                --threads {threads} \
-                --input {params.output_dir}/{params.basename}.fq.gz \
-                --input-format fastq.gz \
-                --taxonomic-profile {input.profile} \
-                --evalue {params.evalue} \
-                --prescreen-threshold {params.prescreen_threshold} \
-                --nucleotide-identity-threshold {params.nucleotide_identity_threshold} \
-                --translated-identity-threshold {params.translated_identity_threshold} \
-                --translated-subject-coverage-threshold {params.translated_subject_coverage_threshold} \
-                --nucleotide-subject-coverage-threshold {params.nucleotide_subject_coverage_threshold} \
-                --translated-query-coverage-threshold {params.translated_query_coverage_threshold} \
-                --nucleotide-query-coverage-threshold {params.nucleotide_query_coverage_threshold} \
-                {params.xipe} \
-                {params.minpath} \
-                {params.pick_frames} \
-                {params.gap_fill} \
-                --memory-use {params.memory_use} \
-                --output-basename {params.basename} \
-                --output {params.output_dir} \
-                {params.remove_temp_output} \
-                --o-log {log}
-                ''')
+            humann \
+            --resume \
+            --threads {threads} \
+            --input {params.output_dir}/{params.basename}.fq.gz \
+            --input-format fastq.gz \
+            --taxonomic-profile {input.profile} \
+            --evalue {params.evalue} \
+            --prescreen-threshold {params.prescreen_threshold} \
+            --nucleotide-identity-threshold {params.nucleotide_identity_threshold} \
+            --translated-identity-threshold {params.translated_identity_threshold} \
+            --translated-subject-coverage-threshold {params.translated_subject_coverage_threshold} \
+            --nucleotide-subject-coverage-threshold {params.nucleotide_subject_coverage_threshold} \
+            --translated-query-coverage-threshold {params.translated_query_coverage_threshold} \
+            --nucleotide-query-coverage-threshold {params.nucleotide_query_coverage_threshold} \
+            {params.xipe} \
+            {params.minpath} \
+            {params.pick_frames} \
+            {params.gap_fill} \
+            --memory-use {params.memory_use} \
+            --output-basename {params.basename} \
+            --output {params.output_dir} \
+            {params.remove_temp_output} \
+            --o-log {log}
 
-            shell('''rm -rf {params.output_dir}/{params.basename}.fq.gz''')
+            rm -rf {params.output_dir}/{params.basename}.fq.gz
+            '''
 
 
     rule profiling_humann3_postprocess:
@@ -1179,6 +1172,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
         log:
             os.path.join(config["output"]["profiling"],
                          "logs/{sample}.humann3_postprocess.log")
+        conda:
+            config["envs"]["biobakery"]
         params:
             wrapper_dir =WRAPPER_DIR,
             normalize_method = config["params"]["profiling"]["humann"]["normalize_method"],
@@ -1253,6 +1248,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
         log:
             os.path.join(config["output"]["profiling"],
                          "logs/humann3_join.log")
+        conda:
+            config["envs"]["biobakery"]
         params:
             wrapper_dir =WRAPPER_DIR,
             input_dir = os.path.join(config["output"]["profiling"], "profile/humann3"),
@@ -1322,6 +1319,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
         log:
             os.path.join(config["output"]["profiling"],
                          "logs/humann3_split_stratified.log")
+        conda:
+            config["envs"]["biobakery"]
         params:
             wrapper_dir = WRAPPER_DIR,
             output_dir = os.path.join(config["output"]["profiling"], "profile"),
