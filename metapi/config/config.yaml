@@ -357,10 +357,10 @@ params:
           "uniref90_go",
           "uniref90_ko",
           "uniref90_eggnog",
-          "uniref90_pfam",
-          "uniref90_level4ec",
-          "uniref90_infogo1000",
-          "uniref90_rxn",
+          "uniref90_pfam"
+        #  "uniref90_level4ec",
+        #  "uniref90_infogo1000",
+        #  "uniref90_rxn",
         ]
       update_config: True
       database_utility_mapping: /ldfssz1/ST_META/share/User/zhujie/database/humann/utility_mapping
