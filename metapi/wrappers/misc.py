@@ -2,7 +2,8 @@
 
 import os
 import argparse
-import snakemake
+import subprocess
+import sys
 
 
 def link_or_cat(args):
@@ -10,17 +11,17 @@ def link_or_cat(args):
                                        args.basename + ".fq.gz")):
         if len(args.input_file) == 1:
             real_path = os.path.realpath(args.input_file[0])
-            snakemake.shell(
+            subprocess.call(
                 f'''
                 pushd {args.output_dir} && \
                 ln -s {real_path} {args.basename}.fq.gz && \
                 popd
-                ''')
+                ''', shell=True, stdout=sys.stdout, stderr=sys.stderr)
         else:
-            snakemake.shell(
+            subprocess.call(
                 f'''
                 cat {args.input_file} > {args.output_dir}/{args.basename}.fq.gz
-                ''')
+                ''', shell=True, stdout=sys.stdout, stderr=sys.stderr)
 
 
 def main():
