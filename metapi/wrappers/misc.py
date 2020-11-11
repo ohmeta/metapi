@@ -8,7 +8,7 @@ import snakemake
 def link_or_cat(args):
     if not os.path.exists(os.path.join(args.output_dir,
                                        args.basename + ".fq.gz")):
-        if len(args.input) == 1:
+        if len(args.input_file) == 1:
             real_path = os.path.realpath(args.input_file[0])
             snakemake.shell(
                 f'''
