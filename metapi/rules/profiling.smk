@@ -1118,8 +1118,9 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
             --input-file {input.reads} \
             --output-dir {params.output_dir}
 
+            rm -rf {params.output_dir}/{params.basename}_humann_temp_*
+
             humann \
-            --resume \
             --threads {threads} \
             --input {params.output_dir}/{params.basename}.fq.gz \
             --input-format fastq.gz \
