@@ -1023,6 +1023,39 @@ else:
 
 if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
    config["params"]["profiling"]["humann"]["do_v3"]:
+    if config["params"]["profiling"]["humann"]["update_config"]:
+        rule profiling_humann3_config:
+            output:
+                touch(os.path.join(config["output"]["profiling"], ".humann3.config.done"))
+            log:
+                os.path.join(config["output"]["profiling"], "logs/humann3.config.log")
+            conda:
+                config["envs"]["biobakery"]
+            params:
+                database_utility_mapping = config["params"]["profiling"]["humann"]["database_utility_mapping_v3"],
+                database_nucleotide = config["params"]["profiling"]["humann"]["database_nucleotide_v3"],
+                database_protein = config["params"]["profiling"]["humann"]["database_protein_v3"],
+                threads = config["params"]["profiling"]["threads"]
+            shell:
+                '''
+                humann_config > {log}
+                humann_config --update database_folders utility_mapping {params.database_utility_mapping}
+                humann_config --update database_folders nucleotide {params.database_nucleotide}
+                humann_config --update database_folders protein {params.database_protein}
+                humann_config --update run_modes threads {params.threads}
+                echo "####" >> {log}
+                humann_config >> {log}
+                '''
+    else:
+        rule profiling_humann3_config:
+            output:
+                touch(os.path.join(config["output"]["profiling"], ".humann3.config.done"))
+            shell:
+                '''
+                echo "hello"
+                '''
+
+
     #rule profiling_humann3_build_chocophlan_pangenome_db:
     #    input:
     #        profile = os.path.join(
@@ -1054,6 +1087,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
 
     rule profiling_humann3:
         input:
+            tag = os.path.join(config["output"]["profiling"], ".humann3.config.done"),
             reads = assembly_input_with_short_reads,
             profile = os.path.join(
                 config["output"]["profiling"],

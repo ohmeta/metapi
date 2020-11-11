@@ -711,6 +711,12 @@ profiling_humann2_split_stratified:
   output: "logs/11.{rule}/{rule}.o"
   error: "logs/11.{rule}/{rule}.e"
 
+profiling_humann3_config:
+  mem: "50M"
+  cores: 1
+  output: "logs/11.{rule}/{rule}.o"
+  error: "logs/11.{rule}/{rule}.e"
+
 profiling_humann3_build_chocophlan_pangenome_db:
   mem: "6G"
   cores: 8
