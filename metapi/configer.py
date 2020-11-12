@@ -133,7 +133,6 @@ class metaconfig:
         "logs/11.profiling_jgi_merge",
         "logs/11.profiling_bracken",
         "logs/11.profiling_bracken_merge",
-        "logs/11.profiling_humann2_config",
         "logs/11.profiling_humann2_build_chocophlan_pangenome_db",
         "logs/11.profiling_humann2",
         "logs/11.profiling_humann2_postprocess",

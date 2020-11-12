@@ -204,13 +204,6 @@ params:
       duplicate_penalty: 0.6
       megabin_penalty: 0.5
 
-  cobinning:
-    do: False
-    threads: 8
-    scaftigs_length: 1000
-    vsearch:
-      identity: 0.75
-
   predict:
     threads: 8
     format: "gff"
