@@ -7,8 +7,13 @@ import sys
 
 
 def link_or_cat(args):
-    if not os.path.exists(os.path.join(args.output_dir,
-                                       args.basename + ".fq.gz")):
+    fq_gz = os.path.join(args.output_dir, args.basename + ".fq.gz")
+
+    if (not os.path.exists(fq_gz)) or (os.path.getsize(fq_gz) == 0):
+        subprocess.call(
+            f'''rm -rf {fq_gz}''',
+            shell=True, stdout=sys.stdout, stderr=sys.stderr)
+
         if len(args.input_file) == 1:
             real_path = os.path.realpath(args.input_file[0])
             subprocess.call(
