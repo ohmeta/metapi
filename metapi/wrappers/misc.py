@@ -15,17 +15,18 @@ def link_or_cat(args):
             shell=True, stdout=sys.stdout, stderr=sys.stderr)
 
         if len(args.input_file) == 1:
-            real_path = os.path.realpath(args.input_file[0])
+            reads = os.path.realpath(args.input_file[0])
             subprocess.call(
                 f'''
                 pushd {args.output_dir} && \
-                ln -s {real_path} {args.basename}.fq.gz && \
+                ln -s {reads} {args.basename}.fq.gz && \
                 popd
                 ''', shell=True, stdout=sys.stdout, stderr=sys.stderr)
         else:
+            reads = " ".join(args.input_file)
             subprocess.call(
                 f'''
-                cat {args.input_file} > {args.output_dir}/{args.basename}.fq.gz
+                cat {reads} > {args.output_dir}/{args.basename}.fq.gz
                 ''', shell=True, stdout=sys.stdout, stderr=sys.stderr)
 
 
