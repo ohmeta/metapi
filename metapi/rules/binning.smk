@@ -395,12 +395,12 @@ if config["params"]["binning"]["concoct"]["do"]:
                 {params.coverage_out} \
                 2> {log}
 
-                cat {basename}_log.txt >> {log}
+                cat {params.basename}_log.txt >> {log}
 
                 exitcode=$?
                 if [ $exitcode -eq 1 ]
                 then
-                    grep -oEi 'Not enough contigs pass the threshold filter' {basename}_log.txt
+                    grep -oEi 'Not enough contigs pass the threshold filter' {params.basename}_log.txt
                     grepcode=$?
                     if [ $grepcode -eq 0 ]
                     then
