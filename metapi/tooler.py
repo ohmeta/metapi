@@ -6,18 +6,19 @@ import pandas as pd
 
 
 def parse(stats_file):
-    try:
-        if os.path.exists(stats_file):
+    if os.path.exists(stats_file):
+        try:
             df = pd.read_csv(stats_file, sep="\t")
-            if not df.empty:
-                return df
-            else:
-                return None
-        else:
-            print("%s is not exists" % stats_file)
+        except pd.errors.EmptyDataError:
+            print("%s is empty, please check" % stats_file)
             return None
-    except pd.io.common.EmptyDataError:
-        print("%s is empty, please check" % stats_file)
+
+        if not df.empty:
+            return df
+        else:
+            return None
+    else:
+        print("%s is not exists" % stats_file)
         return None
 
 
