@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 
+from metapi import tooler
+import seaborn as sns
+import matplotlib.pyplot as plt
 import argparse
 import os
 import pandas as pd
 import numpy as np
 
-import matplotlib.pyplot as plt
-import seaborn as sns
-from metapi import tooler
+import matplotlib
+matplotlib.use("agg")
 
 
 def change(output, sample_id, step, fq_type, reads_list):
@@ -23,16 +25,16 @@ def compute_host_rate(df, **kwargs):
     host_rate = {}
     df = df.set_index("id")
     for i in df.index.unique():
-        if not df.loc[i,].query('reads=="fq1" and step=="rmhost"').empty:
-            reads_num_rmhost = df.loc[i,].query('reads=="fq1" and step=="rmhost"')[
+        if not df.loc[i, ].query('reads=="fq1" and step=="rmhost"').empty:
+            reads_num_rmhost = df.loc[i, ].query('reads=="fq1" and step=="rmhost"')[
                 "num_seqs"
             ][0]
-            if not df.loc[i,].query('reads=="fq1" and step=="trimming"').empty:
-                reads_num = df.loc[i,].query('reads=="fq1" and step=="trimming"')[
+            if not df.loc[i, ].query('reads=="fq1" and step=="trimming"').empty:
+                reads_num = df.loc[i, ].query('reads=="fq1" and step=="trimming"')[
                     "num_seqs"
                 ][0]
-            elif not df.loc[i,].query('reads=="fq1" and step=="raw"').empty:
-                reads_num = df.loc[i,].query('reads=="fq1" and step=="raw"')[
+            elif not df.loc[i, ].query('reads=="fq1" and step=="raw"').empty:
+                reads_num = df.loc[i, ].query('reads=="fq1" and step=="raw"')[
                     "num_seqs"
                 ][0]
             hostrate = (reads_num - reads_num_rmhost) / reads_num
@@ -75,18 +77,18 @@ def qc_bar_plot(df, engine, stacked=False, **kwargs):
                 reads_host = 0
                 reads_clean = 0
 
-                if not df.loc[i,].query('reads=="fq1" and step=="raw"').empty:
-                    reads_total = df.loc[i,].query('reads=="fq1" and step=="raw"')[
+                if not df.loc[i, ].query('reads=="fq1" and step=="raw"').empty:
+                    reads_total = df.loc[i, ].query('reads=="fq1" and step=="raw"')[
                         "num_seqs"
                     ][0]
 
-                if not df.loc[i,].query('reads=="fq1" and step=="trimming"').empty:
-                    reads_trim = df.loc[i,].query('reads=="fq1" and step=="trimming"')[
+                if not df.loc[i, ].query('reads=="fq1" and step=="trimming"').empty:
+                    reads_trim = df.loc[i, ].query('reads=="fq1" and step=="trimming"')[
                         "num_seqs"
                     ][0]
 
-                if not df.loc[i,].query('reads=="fq1" and step=="rmhost"').empty:
-                    reads_clean = df.loc[i,].query('reads=="fq1" and step=="rmhost"')[
+                if not df.loc[i, ].query('reads=="fq1" and step=="rmhost"').empty:
+                    reads_clean = df.loc[i, ].query('reads=="fq1" and step=="rmhost"')[
                         "num_seqs"
                     ][0]
 
@@ -124,7 +126,8 @@ def main():
     trimming_list = pd.read_csv(
         args.trimming_stats_list, header=None, names=["trimming"]
     )
-    rmhost_list = pd.read_csv(args.rmhost_stats_list, header=None, names=["rmhost"])
+    rmhost_list = pd.read_csv(args.rmhost_stats_list,
+                              header=None, names=["rmhost"])
 
     df = tooler.merge(
         raw_list["raw"].dropna().tolist()
