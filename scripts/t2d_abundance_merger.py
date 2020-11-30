@@ -24,7 +24,7 @@ def get_abun_df_hsx(abun_file):
         else:
             print("%s is not exists" % abun_file)
             return None, None
-    except pd.io.common.EmptyDataError:
+    except pd.errors.EmptyDataError:
         print("%s is empty" % abun_file)
         return None, None
 
@@ -50,7 +50,7 @@ def get_abun_df_jgi(depth_file):
         else:
             print("%s is not exists" % depth_file)
             return None, None
-    except pd.io.common.EmptyDataError:
+    except pd.errors.EmptyDataError:
         print("%s is empty" % depth_file)
         return None, None
 

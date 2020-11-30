@@ -121,7 +121,7 @@ def parse_md5(md5_file):
         else:
             print("%s is not exists" % md5_file)
             return None
-    except pd.io.common.EmptyDataError:
+    except pd.errors.EmptyDataError:
         print("%s is empty, please check" % md5_file)
         return None
 
