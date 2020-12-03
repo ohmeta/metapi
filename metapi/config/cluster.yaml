@@ -99,12 +99,14 @@ simulate_short_reads:
   error: "logs/00.{rule}/{rule}.{wildcards.sample}.e"
 
 prepare_short_reads:
+  queue: "st_short.q"
   mem: "512M"
   cores: 1
   output: "logs/00.{rule}/{rule}.{wildcards.sample}.o"
   error: "logs/00.{rule}/{rule}.{wildcards.sample}.e"
 
 prepare_long_reads:
+  queue: "st_short.q"
   mem: "512M"
   cores: 1
   output: "logs/00.{rule}/{rule}.{wildcards.sample}.o"
@@ -117,18 +119,21 @@ raw_fastqc:
   error: "logs/00.{rule}/{rule}.{wildcards.sample}.e"
 
 raw_fastqc_multiqc:
+  queue: "st_short.q"
   mem: "128M"
   cores: 1
   output: "logs/00.{rule}/{rule}.o"
   error: "logs/00.{rule}/{rule}.e"
 
 raw_report:
+  queue: "st_short.q"
   mem: "1G"
   cores: 2
   output: "logs/00.{rule}/{rule}.{wildcards.sample}.o"
   error: "logs/00.{rule}/{rule}.{wildcards.sample}.e"
 
 raw_report_merge:
+  queue: "st_short.q"
   mem: "512M"
   cores: 2
   output: "logs/00.{rule}/{rule}.o"
@@ -153,24 +158,28 @@ trimming_fastp:
   error: "logs/01.{rule}/{rule}.{wildcards.sample}.e"
 
 trimming_fastp_multiqc:
+  queue: "st_short.q"
   mem: "128M"
   cores: 1
   output: "logs/01.{rule}/{rule}.o"
   error: "logs/01.{rule}/{rule}.e"
 
 trimming_report:
+  queue: "st_short.q"
   mem: "1G"
   cores: 2
   output: "logs/01.{rule}/{rule}.{wildcards.sample}.o"
   error: "logs/01.{rule}/{rule}.{wildcards.sample}.e"
 
 trimming_report_merge:
+  queue: "st_short.q"
   mem: "512M"
   cores: 2
   output: "logs/01.{rule}/{rule}.o"
   error: "logs/01.{rule}/{rule}.e"
 
 rmhost_bwa_index:
+  queue: "st_short.q"
   mem: "1G"
   cores: 1
   output: "logs/02.{rule}/{rule}.o"
@@ -183,6 +192,7 @@ rmhost_bwa:
   error: "logs/02.{rule}/{rule}.{wildcards.sample}.e"
 
 rmhost_bowtie2_index:
+  queue: "st_short.q"
   mem: "1G"
   cores: 1
   output: "logs/02.{rule}/{rule}.o"
@@ -195,24 +205,28 @@ rmhost_bowtie2:
   error: "logs/02.{rule}/{rule}.{wildcards.sample}.e"
 
 rmhost_report:
+  queue: "st_short.q"
   mem: "1G"
   cores: 2
   output: "logs/02.{rule}/{rule}.{wildcards.sample}.o"
   error: "logs/02.{rule}/{rule}.{wildcards.sample}.e"
 
 rmhost_report_merge:
+  queue: "st_short.q"
   mem: "512M"
   cores: 2
   output: "logs/02.{rule}/{rule}.o"
   error: "logs/02.{rule}/{rule}.e"
 
 qcreport_summary:
+  queue: "st_short.q"
   mem: "512M"
   cores: 4
   output: "logs/03.{rule}/{rule}.o"
   error: "logs/03.{rule}/{rule}.e"
 
 qcreport_plot:
+  queue: "st_short.q"
   mem: "512M"
   cores: 4
   output: "logs/03.{rule}/{rule}.o"
@@ -261,18 +275,21 @@ assembly_metaquast:
   error: "logs/04.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 assembly_metaquast_multiqc:
+  queue: "st_short.q"
   mem: "128M"
   cores: 1
   output: "logs/04.{rule}/{rule}.o"
   error: "logs/04.{rule}/{rule}.e"
 
 assembly_report:
+  queue: "st_short.q"
   mem: "512M"
   cores: 1
   output: "logs/04.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "logs/04.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 assembly_report_merge:
+  queue: "st_short.q"
   mem: "1G"
   cores: 8
   output: "logs/04.{rule}/{rule}.{wildcards.assembler}.o"
@@ -285,6 +302,7 @@ coassembly_megahit:
   error: "logs/04.{rule}/{rule}.e"
 
 alignment_scaftigs_index:
+  queue: "st_short.q"
   mem: "512M"
   cores: 1
   output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
@@ -309,6 +327,7 @@ coalignment_reads_scaftigs:
   error: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler_co}.e"
 
 alignment_bam_index:
+  queue: "st_short.q"
   mem: "512M"
   cores: 8
   output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
@@ -333,6 +352,7 @@ coalignment_base_depth:
   error: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler_co}.e"
 
 alignment_report:
+  queue: "st_short.q"
   mem: "128M"
   cores: 1
   output: "logs/05.{rule}/{rule}.{wildcards.assembler}.o"
@@ -403,11 +423,13 @@ binning_dastools:
   error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
 binning_report:
+  queue: "st_short.q"
   mem: "1G"
   output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
 
 binning_report_merge:
+  queue: "st_short.q"
   mem: "1G"
   output: "logs/06.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.e"
@@ -681,6 +703,7 @@ profiling_bracken_merge:
   error: "logs/11.{rule}/{rule}.e"
 
 profiling_humann2_config:
+  queue: "st_short.q"
   mem: "512M"
   cores: 1
   output: "logs/11.{rule}/{rule}.o"
@@ -714,6 +737,7 @@ profiling_humann2_split_stratified:
   error: "logs/11.{rule}/{rule}.e"
 
 profiling_humann3_config:
+  queue: "st_short.q"
   mem: "512M"
   cores: 1
   output: "logs/11.{rule}/{rule}.o"
