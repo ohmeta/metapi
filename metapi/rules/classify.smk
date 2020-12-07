@@ -82,6 +82,23 @@ if config["params"]["classify"]["kraken2"]["do"]:
             shell('''pigz %s''' % os.path.splitext(output.table)[0])
 
 
+    rule classify_short_reads_kraken2_krona_report:
+        input:
+            expand(
+                os.path.join(
+                    config["output"]["classify"],
+                    "short_reads/{sample}.kraken2.out/{sample}.kraken2.report"),
+                sample=SAMPLES.index.unique())
+        output:
+            os.path.join(
+                config["output"]["classify"],
+                "report/kraken2_krona.all.html")
+        shell:
+            '''
+            ktImportTaxonomy -q 2 -t 3 {input} -o {output}
+            '''
+
+
     rule classify_short_reads_kraken2_all:
         input:
             expand([
@@ -90,7 +107,10 @@ if config["params"]["classify"]["kraken2"]["do"]:
                     "short_reads/{sample}.kraken2.out/{sample}.kraken2.table.gz"),
                 os.path.join(
                     config["output"]["classify"],
-                    "short_reads/{sample}.kraken2.out/{sample}.kraken2.report")],
+                    "short_reads/{sample}.kraken2.out/{sample}.kraken2.report"),
+                os.path.join(
+                    config["output"]["classify"],
+                    "report/kraken2_krona.all.html")],
                    sample=SAMPLES.index.unique()),
 
             rules.rmhost_all.input,
