@@ -11,7 +11,7 @@ if config["params"]["classify"]["kraken2"]["do"]:
                 "short_reads/{sample}.kraken2.out/{sample}.kraken2.table.gz")),
             report = protected(os.path.join(
                 config["output"]["classify"],
-                "short_reads/{sample}.kraken2.out/{sample}.kraken2.report.gz"))
+                "short_reads/{sample}.kraken2.out/{sample}.kraken2.report"))
         log:
             os.path.join(config["output"]["classify"],
                          "logs/{sample}.kraken2.log")
@@ -77,14 +77,9 @@ if config["params"]["classify"]["kraken2"]["do"]:
                 {input.reads} \
                 2> {log}
                 ''' % (os.path.splitext(output.table)[0],
-                       os.path.splitext(output.report)[0]))
+                       output.report))
 
-            output_dir = os.path.dirname(output.report)
-            with os.scandir(output_dir) as itr:
-                for entry in itr:
-                    if entry.is_file():
-                        shell('''pigz -p {threads} %s''' \
-                              % os.path.join(output_dir, entry.name))
+            shell('''pigz %s''' % os.path.splitext(output.table)[0])
 
 
     rule classify_short_reads_kraken2_all:
@@ -95,7 +90,7 @@ if config["params"]["classify"]["kraken2"]["do"]:
                     "short_reads/{sample}.kraken2.out/{sample}.kraken2.table.gz"),
                 os.path.join(
                     config["output"]["classify"],
-                    "short_reads/{sample}.kraken2.out/{sample}.kraken2.report.gz")],
+                    "short_reads/{sample}.kraken2.out/{sample}.kraken2.report")],
                    sample=SAMPLES.index.unique()),
 
             rules.rmhost_all.input,

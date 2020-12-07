@@ -567,7 +567,7 @@ if config["params"]["classify"]["kraken2"]["do"] and \
         input:
             os.path.join(
                 config["output"]["classify"],
-                "short_reads/{sample}.kraken2.out/{sample}.kraken2.report.gz")
+                "short_reads/{sample}.kraken2.out/{sample}.kraken2.report")
         output:
             profile = protected(os.path.join(
                 config["output"]["profiling"],
@@ -584,27 +584,18 @@ if config["params"]["classify"]["kraken2"]["do"] and \
             level = config["params"]["profiling"]["bracken"]["level"]
         threads:
             config["params"]["profiling"]["threads"]
-        run:
-            import os
-            output_dir = os.path.dirname(output.profile)
-            report = os.path.join(output_dir, "kreport")
-
-            shell('''pigz -p {threads} -d -k -c {input} > %s''' % report)
-
-            shell(
-                '''
-                bracken \
-                -d {params.database} \
-                -i %s \
-                -o {output.profile} \
-                -w {output.report} \
-                -r {params.reads_len} \
-                -l {params.level} \
-                -t {threads} \
-                > {log} 2>&1
-                ''' % report)
-
-            shell('''rm -rf %s''' % report)
+        shell:
+            '''
+            bracken \
+            -d {params.database} \
+            -i {input} \
+            -o {output.profile} \
+            -w {output.report} \
+            -r {params.reads_len} \
+            -l {params.level} \
+            -t {threads} \
+            > {log} 2>&1
+            '''
 
 
     rule profiling_bracken_merge:
