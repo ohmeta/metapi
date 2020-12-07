@@ -592,6 +592,12 @@ classify_short_reads_kraken2:
   output: "logs/09.{rule}/{rule}.{wildcards.sample}.o"
   error: "logs/09.{rule}/{rule}.{wildcards.sample}.e"
 
+classify_short_reads_kraken2_krona_report:
+  mem: "512M"
+  cores: 1
+  output: "logs/09.{rule}/{rule}.o"
+  error: "logs/09.{rule}/{rule}.e"
+
 classify_hmq_bins_gtdbtk_prepare:
   mem: "512M"
   cores: 1

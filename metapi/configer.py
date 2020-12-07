@@ -115,6 +115,7 @@ class metaconfig:
         "logs/08.cocheckm_lineage_wf",
         "logs/08.cocheckm_report",
         "logs/09.classify_short_reads_kraken2",
+        "logs/09.classify_short_reads_kraken2_krona_report",
         "logs/09.classify_hmq_bins_gtdbtk_prepare",
         "logs/09.classify_hmq_bins_gtdbtk",
         "logs/09.classify_hmq_bins_gtdbtk_report",
