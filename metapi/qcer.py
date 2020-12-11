@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import sys
 from metapi import tooler
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -25,22 +26,26 @@ def compute_host_rate(df, **kwargs):
     host_rate = {}
     df = df.set_index("id")
     for i in df.index.unique():
-        if not df.loc[i, ].query('reads=="fq1" and step=="rmhost"').empty:
-            reads_num_rmhost = df.loc[i, ].query('reads=="fq1" and step=="rmhost"')[
-                "num_seqs"
-            ][0]
-            if not df.loc[i, ].query('reads=="fq1" and step=="trimming"').empty:
-                reads_num = df.loc[i, ].query('reads=="fq1" and step=="trimming"')[
+        if not pd.isnull(i):
+            if not df.loc[[i], ].query('reads=="fq1" and step=="rmhost"').empty:
+                reads_num_rmhost = df.loc[[i], ].query('reads=="fq1" and step=="rmhost"')[
                     "num_seqs"
                 ][0]
-            elif not df.loc[i, ].query('reads=="fq1" and step=="raw"').empty:
-                reads_num = df.loc[i, ].query('reads=="fq1" and step=="raw"')[
-                    "num_seqs"
-                ][0]
-            hostrate = (reads_num - reads_num_rmhost) / reads_num
-            host_rate[i] = hostrate
+                if not df.loc[[i], ].query('reads=="fq1" and step=="trimming"').empty:
+                    reads_num = df.loc[[i], ].query('reads=="fq1" and step=="trimming"')[
+                        "num_seqs"
+                    ][0]
+                elif not df.loc[[i], ].query('reads=="fq1" and step=="raw"').empty:
+                    reads_num = df.loc[[i], ].query('reads=="fq1" and step=="raw"')[
+                        "num_seqs"
+                    ][0]
+                hostrate = (reads_num - reads_num_rmhost) / reads_num
+                host_rate[i] = hostrate
+            else:
+                host_rate[i] = np.nan
         else:
-            host_rate[i] = np.nan
+            print("exists NA value in sample id list, please check")
+            sys.exit(1)
 
     df = df.reset_index()
     df["host_rate"] = df.apply(lambda x: host_rate[x["id"]], axis=1)
@@ -77,18 +82,18 @@ def qc_bar_plot(df, engine, stacked=False, **kwargs):
                 reads_host = 0
                 reads_clean = 0
 
-                if not df.loc[i, ].query('reads=="fq1" and step=="raw"').empty:
-                    reads_total = df.loc[i, ].query('reads=="fq1" and step=="raw"')[
+                if not df.loc[[i], ].query('reads=="fq1" and step=="raw"').empty:
+                    reads_total = df.loc[[i], ].query('reads=="fq1" and step=="raw"')[
                         "num_seqs"
                     ][0]
 
-                if not df.loc[i, ].query('reads=="fq1" and step=="trimming"').empty:
-                    reads_trim = df.loc[i, ].query('reads=="fq1" and step=="trimming"')[
+                if not df.loc[[i], ].query('reads=="fq1" and step=="trimming"').empty:
+                    reads_trim = df.loc[[i], ].query('reads=="fq1" and step=="trimming"')[
                         "num_seqs"
                     ][0]
 
-                if not df.loc[i, ].query('reads=="fq1" and step=="rmhost"').empty:
-                    reads_clean = df.loc[i, ].query('reads=="fq1" and step=="rmhost"')[
+                if not df.loc[[i], ].query('reads=="fq1" and step=="rmhost"').empty:
+                    reads_clean = df.loc[[i], ].query('reads=="fq1" and step=="rmhost"')[
                         "num_seqs"
                     ][0]
 
