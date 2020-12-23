@@ -20,6 +20,7 @@ def parse_samples(config):
             if "." in sample_id:
                 print(f"{sample_id} contain '.', please remove '.', now quiting :)")
                 cancel = True
+
             fq1_list = samples_df.loc[[sample_id], "fq1"].dropna().tolist()
             fq2_list = samples_df.loc[[sample_id], "fq2"].dropna().tolist()
             for fq_file in fq1_list:
@@ -37,6 +38,10 @@ def parse_samples(config):
                         cancel = True
     elif "sra" in samples_df.columns:
         for sample_id in samples_df.index.unique():
+            if "." in sample_id:
+                print(f"{sample_id} contain '.', please remove '.', now quiting :)")
+                cancel = True
+
             sra_list = samples_df.loc[[sample_id], "sra"].dropna().tolist()
             for sra_file in sra_list:
                 if not os.path.exists(sra_file):
