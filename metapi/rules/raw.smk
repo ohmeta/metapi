@@ -104,7 +104,7 @@ rule prepare_short_reads:
 
                     pigz --processes {threads} {params.output_dir}/{sra_file}_1.fastq
                     pigz --processes {threads} {params.output_dir}/{sra_file}_2.fastq
-                    rm -rf {params.output_dir}/{sra_file}.sra_*.fastq
+                    rm -rf {params.output_dir}/{sra_file}._*.fastq
 
                     mv {params.output_dir}/{sra_file}_1.fastq.gz {output.reads[0]}
                     mv {params.output_dir}/{sra_file}_2.fastq.gz {output.reads[1]}
@@ -113,7 +113,8 @@ rule prepare_short_reads:
             else:
                 r1_list = []
                 r2_list = []
-                for sra_file in input:
+                for sra in input:
+                    sra_file = os.path.basename(sra)
                     r1_list.append(os.path.join(params.output_dir,
                                                 sra_file + "_1.fastq.gz"))
                     r2_list.append(os.path.join(params.output_dir,
@@ -123,11 +124,11 @@ rule prepare_short_reads:
                         fasterq-dump \
                         --threads {threads} \
                         --split-3 \
-                        --outdir {params.output_dir} {sra_file} >>{log} 2>&1
+                        --outdir {params.output_dir} {sra} >>{log} 2>&1
 
                         pigz --processes {threads} {params.output_dir}/{sra_file}_1.fastq
                         pigz --processes {threads} {params.output_dir}/{sra_file}_2.fastq
-                        rm -rf {params.output_dir}/{sra_file}.sra_*.fastq
+                        rm -rf {params.output_dir}/{sra_file}._*.fastq
                         ''')
 
                 r1_str = " ".join(r1_list)
