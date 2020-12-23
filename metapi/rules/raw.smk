@@ -100,8 +100,10 @@ rule prepare_short_reads:
                     fasterq-dump \
                     --threads {threads} \
                     --split-3 \
+                    --temp {params.output_dir}.{sra_file}.temp \
                     --outdir {params.output_dir} {input[0]} >{log} 2>&1
 
+                    rm -rf {params.output_dir}.{sra_file}.temp
                     pigz --processes {threads} {params.output_dir}/{sra_file}_1.fastq
                     pigz --processes {threads} {params.output_dir}/{sra_file}_2.fastq
                     rm -rf {params.output_dir}/{sra_file}._*.fastq
@@ -124,8 +126,10 @@ rule prepare_short_reads:
                         fasterq-dump \
                         --threads {threads} \
                         --split-3 \
+                        --temp {params.output_dir}.{sra_file}.temp \
                         --outdir {params.output_dir} {sra} >>{log} 2>&1
 
+                        rm -rf {params.output_dir}.{sra_file}.temp
                         pigz --processes {threads} {params.output_dir}/{sra_file}_1.fastq
                         pigz --processes {threads} {params.output_dir}/{sra_file}_2.fastq
                         rm -rf {params.output_dir}/{sra_file}._*.fastq
