@@ -65,6 +65,8 @@ rule prepare_short_reads:
         interleaved = config["params"]["interleaved"]
     threads:
         config["params"]["raw"]["threads"]
+    log:
+        os.path.join(config["output"]["raw"], "logs/fasterq_dump_{sample}.log")
     run:
         reads_num = len(input)
 
@@ -91,45 +93,42 @@ rule prepare_short_reads:
                     shell('''cat {input} > {output.reads[0]}''')
 
         elif READS_FORMAT == "sra":
-            reads_direction = str("+")
-            header_format = str("@$ac-$si/$ri")
-
             if reads_num == 1:
-                sra_id = os.path.basename(input[0]).split(".")[0]
+                sra_file = os.path.basename(input[0])
                 shell(
-                    '''
-                    fastq-dump \
-                    --gzip \
+                    f'''
+                    fasterq-dump \
+                    --threads {threads} \
                     --split-3 \
-                    --defline-qual '%s' \
-                    --defline-seq '%s' \
-                    --outdir {params.output_dir} \
-                    {input[0]}
-                    ''' % (reads_direction, header_format))
+                    --outdir {params.output_dir} {input[0]} >{log} 2>&1
 
-                shell('''mv {params.output_dir}/%s_1.fastq.gz {output.reads[0]}''' % sra_id)
-                shell('''mv {params.output_dir}/%s_2.fastq.gz {output.reads[1]}''' % sra_id)
-                shell('''rm -rf {params.output_dir}/%s.fastq.gz''' % sra_id)
+                    pigz --processes {threads} {params.output_dir}/{sra_file}_1.fastq
+                    pigz --processes {threads} {params.output_dir}/{sra_file}_2.fastq
+                    rm -rf {params.output_dir}/{sra_file}.sra_*.fastq
+
+                    mv {params.output_dir}/{sra_file}_1.fastq.gz {output.reads[0]}
+                    mv {params.output_dir}/{sra_file}_2.fastq.gz {output.reads[1]}
+                    ''')
+
             else:
                 r1_list = []
                 r2_list = []
                 for sra_file in input:
-                    sra_id = os.path.basename(sra_file).split(".")[0]
                     r1_list.append(os.path.join(params.output_dir,
-                                                sra_id + "_1.fastq.gz"))
+                                                sra_file + "_1.fastq.gz"))
                     r2_list.append(os.path.join(params.output_dir,
-                                                sra_id + "_2.fastq.gz"))
+                                                sra_file + "_2.fastq.gz"))
                     shell(
-                        '''
-                        fastq-dump \
-                        --gzip \
+                        f'''
+                        fasterq-dump \
+                        --threads {threads} \
                         --split-3 \
-                        --defline-qual '%s' \
-                        --defline-seq '%s' \
-                        --outdir {params.output_dir} %s
-                        ''' % (reads_direction, header_format, sra_file))
+                        --outdir {params.output_dir} {sra_file} >>{log} 2>&1
 
-                    shell('''rm -rf {params.output_dir}/%s.fastq.gz''' % sra_id)
+                        pigz --processes {threads} {params.output_dir}/{sra_file}_1.fastq
+                        pigz --processes {threads} {params.output_dir}/{sra_file}_2.fastq
+                        rm -rf {params.output_dir}/{sra_file}.sra_*.fastq
+                        ''')
 
                 r1_str = " ".join(r1_list)
                 r2_str = " ".join(r2_list)
