@@ -97,6 +97,9 @@ rule prepare_short_reads:
                 sra_file = os.path.basename(input[0])
                 shell(
                     f'''
+                    rm -rf {params.output_dir}/{sra_file}*
+                    rm -rf {params.output_dir}.{sra_file}.temp
+
                     fasterq-dump \
                     --threads {threads} \
                     --split-3 \
@@ -123,6 +126,9 @@ rule prepare_short_reads:
                                                 sra_file + "_2.fastq.gz"))
                     shell(
                         f'''
+                        rm -rf {params.output_dir}/{sra_file}*
+                        rm -rf {params.output_dir}.{sra_file}.temp
+
                         fasterq-dump \
                         --threads {threads} \
                         --split-3 \
