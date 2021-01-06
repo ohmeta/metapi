@@ -203,6 +203,10 @@ params:
       score_threshold: 0.5
       duplicate_penalty: 0.6
       megabin_penalty: 0.5
+    vamb:
+      do: True
+      min_contig: 1500
+
 
   predict:
     threads: 8

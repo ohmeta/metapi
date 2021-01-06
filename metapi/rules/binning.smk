@@ -717,6 +717,186 @@ else:
         input:
 
 
+if config["params"]["binning"]["vamb"]["do"]:
+    rule binning_vamb_combine_scaftigs:
+        input:
+            expand(os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.{{assembler}}.out/{sample}.{{assembler}}.scaftigs.fa.gz"),
+                   sample=SAMPLES.index.unique())
+        output:
+            os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/all.{assembler}.combined.out/all.{assembler}.combined.scaftigs.fa.gz")
+        params:
+            min_contig = config["params"]["binning"]["vamb"]["min_contig"]
+        shell:
+            '''
+            concatenate.py {output} {input} -m {params.min_contig}
+            '''
+
+
+    rule binning_vamb_dict_scaftigs:
+        input:
+            os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/all.{assembler}.combined.out/all.{assembler}.combined.scaftigs.fa.gz")
+        output:
+            os.path.join(
+                config["output"]["alignment"],
+                "index/all.{assembler}.combined.out/all.{assembler}.combined.scaftigs.dict")
+        log:
+            os.path.join(config["output"]["alignment"],
+                         "logs/binning_vamb_dict_scaftigs_{assembler}.log")
+        shell:
+            '''
+            samtools dict {input} | cut -f1-3 > {output} 2> {log}
+            '''
+
+
+    rule binning_vamb_index_scaftigs:
+        input:
+            os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/all.{assembler}.combined.out/all.{assembler}.combined.scaftigs.fa.gz")
+        output:
+            os.path.join(
+                config["output"]["alignment"],
+                "index/all.{assembler}.combined.out/all.{assembler}.combined.scaftigs.minimap2.mmi")
+        log:
+            os.path.join(config["output"]["alignment"],
+                         "logs/binning_vamb_index_scaftigs_{assembler}.log")
+        params:
+            index_size = config["params"]["binning"]["vamb"]["index_size"]
+        shell:
+            '''
+            minimap2 -I {params.index_size} -d {output} {input} 2> {log}
+            '''
+
+
+    rule binning_vamb_align_scaftigs:
+        input:
+            reads = assembly_input_with_short_reads,
+            index = os.path.join(
+                config["output"]["alignment"],
+                "index/all.{assembler}.combined.out/all.{assembler}.combined.scaftigs.minimap2.mmi"),
+            dict = os.path.join(
+                config["output"]["alignment"],
+                "index/all.{assembler}.combined.out/all.{assembler}.combined.scaftigs.dict")
+        output:
+            flagstat = os.path.join(
+                config["output"]["alignment"],
+                "report/flagstat_minimap2/{sample}.{assembler}.align2combined_scaftigs.flagstat"),
+            bam = temp(os.path.join(
+                config["output"]["alignment"],
+                "bam/all.{assembler}.combined.out/{sample}.minimap2.out/{sample}.align2combined_scaftigs.sorted.bam"))
+        log:
+            os.path.join(config["output"]["alignment"],
+                         "logs/alignment2/{sample}.{assembler}.align.reads2combined_scaftigs.log")
+        threads:
+            config["params"]["alignment"]["threads"]
+        shell:
+            '''
+            rm -rf {output.bam}*
+
+            minimap2 -t {threads} -ax sr {input.index} {input.reads} 2> {log} |
+            tee >(samtools flagstat \
+                  -@{threads} - > {output.flagstat}) | \
+            grep -v "^@" | \
+            cat {input.dict} - | \
+            samtools view -F 3584 -b - |
+            samtools sort -@{threads} -T {output.bam} -O BAM -o {output.bam} -
+            '''
+
+
+    rule binning_vamb_coverage:
+        input:
+            bam = os.path.join(
+                config["output"]["alignment"],
+                "bam/all.{assembler}.combined.out/{sample}.minimap2.out/{sample}.align2combined_scaftigs.sorted.bam")
+        output:
+            raw_jgi = os.path.join(
+                config["output"]["binning"],
+                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.align2combined_scaftigs.raw.jgi"),
+            cut_jgi = os.path.join(
+                config["output"]["binning"],
+                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.align2combined_scaftigs.cut.jgi")
+        log:
+            os.path.join(config["output"]["binning"],
+                         "logs/coverage/{sample}.{assembler}.align2combined_scaftigs.jgi.coverage.log")
+        shell:
+            '''
+            jgi_summarize_bam_contig_depths \
+            --noIntraDepthVariance --outputDepth {output.raw_jgi} {input.bam} 2> {log}
+
+            cut -f1-3 --complement {output.raw_jgi} > {output.cut_jgi} 2>> {log}
+            '''
+
+
+    rule binning_vamb_gen_abundance_matrix:
+        input:
+            data = expand(os.path.join(
+                config["output"]["binning"],
+                "coverage/{sample}.{{assembler}}.out/{sample}.{{assembler}}.align2combined_scaftigs.cut.jgi"),
+                          sample=SAMPLES.index.unique())
+        output:
+            os.path.join(config["output"]["binning"],
+                         "coverage/all.{assembler}.combined.out/jgi.abundance.matrix.tsv")
+        log:
+            os.path.join(config["output"]["binning"],
+                         "logs/coverage/binning_vamb_gen_abundance_matrix_{assembler}.log")
+        shell:
+            '''
+            cut -f1-3 {input[0]} > {output}.column1to3
+            paste {output}.column1to3 {input.data} > {output} 2> {log}
+
+            rm -rf {output}.column1to3
+            '''
+
+
+    rule binning_vamb:
+        input:
+            scaftigs = os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/all.{assembler}.combined.out/all.{assembler}.combined.scaftigs.fa.gz"),
+            jgi = os.path.join(
+                config["output"]["binning"],
+                "coverage/all.{assembler}.combined.out/jgi.abundance.matrix.tsv")
+        output:
+            os.path.join(config["output"]["binning"],
+                         "bins/all.{assembler}.combined.vamb.out/clusters.tsv"),
+            os.path.join(config["output"]["binning"],
+                         "bins/all.{assembler}.combined.vamb.out/latent.npz"),
+            os.path.join(config["output"]["binning"],
+                         "bins/all.{assembler}.combined.vamb.out/lengths.npz"),
+            os.path.join(config["output"]["binning"],
+                         "bins/all.{assembler}.combined.vamb.out/log.txt"),
+            os.path.join(config["output"]["binning"],
+                         "bins/all.{assembler}.combined.vamb.out/model.pt"),
+            os.path.join(config["output"]["binning"],
+                         "bins/all.{assembler}.combined.vamb.out/mask.npz"),
+            os.path.join(config["output"]["binning"],
+                         "bins/all.{assembler}.combined.vamb.out/tnf.npz"),
+            directory(os.path.join(config["output"]["binning"],
+                                   "bins/all.{assembler}.combined.vamb.out/bins"))
+        log:
+            os.path.join(config["output"]["binning"],
+                         "logs/binning/all.{assembler}.vamb.binning.log")
+        params:
+            outdir = os.path.join(
+                config["output"]["binning"],
+                "bins/all.{assembler}.combined.vamb.out")
+        shell:
+            '''
+            vamb \
+            --outdir {params.outdir} \
+            --fasta {input.scaftigs} \
+            --jgi {input.jgi} \
+            -o C -m 2000 --minfasta 500000 \
+            2> {log}
+            '''
+
+
 if len(BINNERS_CHECKM) != 0:
     rule binning_report:
         input:
