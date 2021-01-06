@@ -88,6 +88,9 @@ else:
 if config["params"]["binning"]["dastools"]["do"]:
     BINNERS_TOTAL.append("dastools")
 
+if config["params"]["binning"]["vamb"]["do"]:
+    BINNERS_TOTAL.append("vamb")
+
 BINNERS_CHECKM = config["params"]["checkm"]["check_binners"]
 
 

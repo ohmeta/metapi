@@ -897,6 +897,30 @@ if config["params"]["binning"]["vamb"]["do"]:
             '''
 
 
+    rule binning_vamb_all:
+        input:
+            os.path.join(config["output"]["binning"],
+                         "bins/all.{assembler}.combined.vamb.out/clusters.tsv"),
+            os.path.join(config["output"]["binning"],
+                         "bins/all.{assembler}.combined.vamb.out/latent.npz"),
+            os.path.join(config["output"]["binning"],
+                         "bins/all.{assembler}.combined.vamb.out/lengths.npz"),
+            os.path.join(config["output"]["binning"],
+                         "bins/all.{assembler}.combined.vamb.out/log.txt"),
+            os.path.join(config["output"]["binning"],
+                         "bins/all.{assembler}.combined.vamb.out/model.pt"),
+            os.path.join(config["output"]["binning"],
+                         "bins/all.{assembler}.combined.vamb.out/mask.npz"),
+            os.path.join(config["output"]["binning"],
+                         "bins/all.{assembler}.combined.vamb.out/tnf.npz"),
+            directory(os.path.join(config["output"]["binning"],
+                                   "bins/all.{assembler}.combined.vamb.out/bins"))
+
+else:
+    rule binning_vamb_all:
+        input:
+
+
 if len(BINNERS_CHECKM) != 0:
     rule binning_report:
         input:
@@ -993,4 +1017,5 @@ rule single_binning_all:
         rules.binning_concoct_all.input,
         rules.binning_graphbin_all.input,
         rules.binning_dastools_all.input,
+        rules.binning_vamb_all.input,
         rules.binning_report_all.input

@@ -38,6 +38,7 @@ localrules:
   - binning_concoct_all
   - binning_graphbin_all
   - binning_dastools_all
+  - binning_vamb_all
   - binning_report_all
   - single_binning_all
   - cobinning_metabat2_coverage_all
@@ -421,6 +422,48 @@ binning_dastools:
   cores: 4
   output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+
+binning_vamb_combine_scaftigs:
+  mem: "1G"
+  cores: 1
+  output: "logs/06.{rule}/{rule}.{wildcards.assembler}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembler}.e"
+
+binning_vamb_dict_scaftigs:
+  mem: "1G"
+  cores: 1
+  output: "logs/06.{rule}/{rule}.{wildcards.assembler}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembler}.e"
+
+binning_vamb_index_scaftigs:
+  mem: "1G"
+  cores: 1
+  output: "logs/06.{rule}/{rule}.{wildcards.assembler}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembler}.e"
+
+binning_vamb_align_scaftigs:
+  mem: "1G"
+  cores: 8
+  output: "logs/06.{rule}/{rule}.{wildcards.assembler}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembler}.e"
+
+binning_vamb_coverage:
+  mem: "1G"
+  cores: 8
+  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
+
+binning_vamb_gen_abundance_matrix:
+  mem: "1G"
+  cores: 1
+  output: "logs/06.{rule}/{rule}.{wildcards.assembler}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembler}.e"
+
+binning_vamb:
+  mem: "1G"
+  cores: 1
+  output: "logs/06.{rule}/{rule}.{wildcards.assembler}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembler}.e"
 
 binning_report:
   queue: "st_short.q"
