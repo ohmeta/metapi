@@ -206,7 +206,7 @@ params:
     vamb:
       do: True
       min_contig: 1500
-
+      index_size: 12G
 
   predict:
     threads: 8
@@ -379,6 +379,7 @@ output:
   coalignment: "results/05.coalignment"
   binning: "results/06.binning"
   cobinning: "results/06.cobinning"
+  multisplit_binning: "results/06.multisplit_binning"
   predict: "results/07.predict"
   copredict: "results/07.copredict"
   checkm: "results/08.checkm"
