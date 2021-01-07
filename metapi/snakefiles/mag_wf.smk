@@ -165,7 +165,7 @@ localrules: \
     rmhost_report_all, \
     rmhost_all, \
     qcreport_all, \
-    assebmly_megahit_all, \
+    assembly_megahit_all, \
     assembly_idba_ud_all, \
     assembly_metaspades_all, \
     assembly_spades_all, \
@@ -203,12 +203,12 @@ localrules: \
     binning_all, \
     single_predict_scaftigs_gene_all, \
     single_predict_bins_gene_all, \
-    copredcit_scaftigs_gene_all, \
+    copredict_scaftigs_gene_all, \
     copredict_bins_gene_all, \
     predict_scaftigs_gene_all, \
     predict_bins_gene_all, \
-    copredcit_all, \
-    predcit_all, \
+    copredict_all, \
+    predict_all, \
     single_checkm_all, \
     cocheckm_all, \
     checkm_all, \
