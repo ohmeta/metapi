@@ -88,6 +88,9 @@ else:
 if config["params"]["binning"]["dastools"]["do"]:
     BINNERS_TOTAL.append("dastools")
 
+if config["params"]["binning"]["vamb"]["do"]:
+    BINNERS_TOTAL.append("vamb")
+
 BINNERS_CHECKM = config["params"]["checkm"]["check_binners"]
 
 
@@ -114,6 +117,7 @@ include: "../rules/alignment.smk"
 include: "../rules/coalignment.smk"
 include: "../rules/binning.smk"
 include: "../rules/cobinning.smk"
+include: "../rules/multisplit_binning.smk"
 include: "../rules/predict_bins.smk"
 include: "../rules/copredict_bins.smk"
 include: "../rules/checkm.smk"
@@ -142,3 +146,93 @@ rule all:
         rules.classify_all.input,
         rules.profiling_all.input,
         rules.upload_all.input
+
+
+localrules: \
+    simulate_all, \
+    prepare_short_reads_all, \
+    prepare_long_reads_all, \
+    prepare_reads_all, \
+    raw_fastqc_all, \
+    raw_report_all, \
+    trimming_oas1_all, \
+    trimming_sickle_all, \
+    trimming_fastp_all, \
+    trimming_report_all, \
+    trimming_all, \
+    rmhost_bwa_all, \
+    rmhost_bowtie2_all, \
+    rmhost_report_all, \
+    rmhost_all, \
+    qcreport_all, \
+    assembly_megahit_all, \
+    assembly_idba_ud_all, \
+    assembly_metaspades_all, \
+    assembly_spades_all, \
+    assembly_plass_all, \
+    assembly_opera_ms_all, \
+    assembly_metaquast_all, \
+    assembly_report_all, \
+    single_assembly_all, \
+    coassembly_megahit_all, \
+    coassembly_all, \
+    assembly_all, \
+    alignment_base_depth_all, \
+    coalignment_base_depth_all, \
+    single_alignment_all, \
+    coalignment_all, \
+    alignment_all, \
+    binning_metabat2_coverage_all, \
+    binning_metabat2_all, \
+    binning_maxbin2_all, \
+    binning_concoct_all, \
+    binning_graphbin_all, \
+    binning_dastools_all, \
+    binning_report_all, \
+    single_binning_all, \
+    cobinning_metabat2_coverage_all, \
+    cobinning_metabat2_all, \
+    cobinning_maxbin2_all, \
+    cobinning_concoct_all, \
+    cobinning_graphbin_all, \
+    cobinning_dastools_all, \
+    cobinning_report_all, \
+    cobinning_all, \
+    binning_vamb_all, \
+    multisplit_binning_all, \
+    binning_all, \
+    single_predict_scaftigs_gene_all, \
+    single_predict_bins_gene_all, \
+    copredict_scaftigs_gene_all, \
+    copredict_bins_gene_all, \
+    predict_scaftigs_gene_all, \
+    predict_bins_gene_all, \
+    copredict_all, \
+    predict_all, \
+    single_checkm_all, \
+    cocheckm_all, \
+    checkm_all, \
+    dereplicate_mags_drep_all, \
+    dereplicate_mags_all, \
+    dereplicate_gene_cdhit_all, \
+    dereplicate_gene_all, \
+    dereplicate_all, \
+    classify_short_reads_kraken2_all, \
+    single_classify_hmq_bins_gtdbtk_all, \
+    coclassify_hmq_bins_gtdbtk_all, \
+    classify_hmq_bins_gtdbtk_all, \
+    single_classify_all, \
+    coclassify_all, \
+    classify_all, \
+    profiling_metaphlan2_all, \
+    profiling_metaphlan3_all, \
+    profiling_jgi_all, \
+    profiling_bracken_all, \
+    profiling_humann2_config, \
+    profiling_humann2_all, \
+    profiling_humann3_config, \
+    profiling_humann3_all, \
+    profiling_all, \
+    upload_sequencing_all, \
+    upload_assembly_all, \
+    upload_all
