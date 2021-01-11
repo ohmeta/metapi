@@ -116,7 +116,11 @@ if config["params"]["binning"]["vamb"]["do"]:
 
     rule binning_vamb_gen_abundance_matrix:
         input:
-            data = expand(os.path.join(
+            raw_jgi = os.path.join(
+                config["output"]["multisplit_binning"],
+                "coverage/%s.{{assembler}}.out/%s.{{assembler}}.align2combined_scaftigs.raw.jgi" % \
+                SAMPLES.index.unique()[0]),
+            cut_jgi = expand(os.path.join(
                 config["output"]["multisplit_binning"],
                 "coverage/{sample}.{{assembler}}.out/{sample}.{{assembler}}.align2combined_scaftigs.cut.jgi"),
                           sample=SAMPLES.index.unique())
@@ -128,9 +132,8 @@ if config["params"]["binning"]["vamb"]["do"]:
                          "logs/coverage/binning_vamb_gen_abundance_matrix_{assembler}.log")
         shell:
             '''
-            cut -f1-3 {input[0]} > {output}.column1to3
-            paste {output}.column1to3 {input.data} > {output} 2> {log}
-
+            cut -f1-3 {input.raw_jgi} > {output}.column1to3
+            paste {output}.column1to3 {input.cut_jgi} > {output} 2> {log}
             rm -rf {output}.column1to3
             '''
 
@@ -166,9 +169,15 @@ if config["params"]["binning"]["vamb"]["do"]:
         params:
             outdir = os.path.join(
                 config["output"]["multisplit_binning"],
-                "bins/all.{assembler}.combined.out/vamb")
+                "bins/all.{assembler}.combined.out/vamb"),
+            outdir_base = os.path.join(
+                config["output"]["multisplit_binning"],
+                "bins/all.{assembler}.combined.out/")
         shell:
             '''
+            rm -rf {params.outdir}
+            mkdir -p {params.outdir_base}
+
             vamb \
             --outdir {params.outdir} \
             --fasta {input.scaftigs} \
