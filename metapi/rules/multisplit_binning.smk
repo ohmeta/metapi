@@ -119,7 +119,7 @@ if config["params"]["binning"]["vamb"]["do"]:
             raw_jgi = os.path.join(
                 config["output"]["multisplit_binning"],
                 "coverage/%s.{{assembler}}.out/%s.{{assembler}}.align2combined_scaftigs.raw.jgi" % \
-                (SAMPLES.index.unique()[0], SAMPLES.index.unique()[0]),
+                (SAMPLES.index.unique()[0], SAMPLES.index.unique()[0])),
             cut_jgi = expand(os.path.join(
                 config["output"]["multisplit_binning"],
                 "coverage/{sample}.{{assembler}}.out/{sample}.{{assembler}}.align2combined_scaftigs.cut.jgi"),
