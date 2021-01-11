@@ -327,7 +327,7 @@ params:
     bracken:
       do: True
       reads_len: 100
-      level: "S"
+      level: ["G", "S"]
     humann:
       do_v2: True
       do_v3: True

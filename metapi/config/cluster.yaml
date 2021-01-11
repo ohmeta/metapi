@@ -654,14 +654,14 @@ profiling_jgi_merge:
 profiling_bracken:
   mem: "1G"
   cores: 4
-  output: "logs/11.{rule}/{rule}.{wildcards.sample}.o"
-  error: "logs/11.{rule}/{rule}.{wildcards.sample}.e"
+  output: "logs/11.{rule}/{rule}.{wildcards.sample}.{wildcards.level}.o"
+  error: "logs/11.{rule}/{rule}.{wildcards.sample}.{wildcards.level}.e"
 
 profiling_bracken_merge:
   mem: "512M"
   cores: 1
-  output: "logs/11.{rule}/{rule}.o"
-  error: "logs/11.{rule}/{rule}.e"
+  output: "logs/11.{rule}/{rule}.{wildcards.level}.o"
+  error: "logs/11.{rule}/{rule}.{wildcards.level}.e"
 
 profiling_humann2_config:
   queue: "st_short.q"

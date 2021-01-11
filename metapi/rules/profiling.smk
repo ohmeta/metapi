@@ -571,13 +571,13 @@ if config["params"]["classify"]["kraken2"]["do"] and \
         output:
             profile = protected(os.path.join(
                 config["output"]["profiling"],
-                "profile/bracken/{sample}/{sample}.bracken.profile")),
+                "profile/bracken/{sample}/{sample}.bracken.{level}.profile"),
             report = protected(os.path.join(
                 config["output"]["profiling"],
-                "profile/bracken/{sample}/{sample}.bracken.report"))
+                "profile/bracken/{sample}/{sample}.bracken.{level}.report")
         log:
             os.path.join(config["output"]["profiling"],
-                         "logs/{sample}.bracken.log")
+                         "logs/{sample}.bracken.{level}.log")
         params:
             database = config["params"]["classify"]["kraken2"]["database"],
             reads_len = config["params"]["profiling"]["bracken"]["reads_len"],
@@ -603,15 +603,15 @@ if config["params"]["classify"]["kraken2"]["do"] and \
             expand(
                 os.path.join(
                     config["output"]["profiling"],
-                    "profile/bracken/{sample}/{sample}.bracken.profile"),
+                    "profile/bracken/{sample}/{sample}.bracken.{{level}}.profile"),
                  sample=SAMPLES.index.unique())
         output:
-            expand(os.path.join(
+            os.path.join(
                 config["output"]["profiling"],
-                "profile/bracken.merged.abundance.profile.{level}.tsv"),
-                level=config["params"]["profiling"]["bracken"]["level"])
+                "profile/bracken.merged.abundance.profile.{level}.tsv")
         log:
-            os.path.join(config["output"]["profiling"], "logs/bracken.merged.log")
+            os.path.join(config["output"]["profiling"],
+                         "logs/bracken.merged.{level}.log")
         run:
             shell(
                 '''
