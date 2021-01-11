@@ -92,7 +92,7 @@ class metaconfig:
         "logs/06.binning_vamb_align_scaftigs",
         "logs/06.binning_vamb_coverage",
         "logs/06.binning_vamb_gen_abundance_matrix",
-        "log/06.binning_vamb",
+        "logs/06.binning_vamb",
         "logs/06.binning_report",
         "logs/06.binning_report_merge",
         "logs/06.cobinning_metabat2_coverage",
