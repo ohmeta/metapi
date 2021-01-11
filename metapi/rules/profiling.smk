@@ -581,7 +581,7 @@ if config["params"]["classify"]["kraken2"]["do"] and \
         params:
             database = config["params"]["classify"]["kraken2"]["database"],
             reads_len = config["params"]["profiling"]["bracken"]["reads_len"],
-            level = config["params"]["profiling"]["bracken"]["level"]
+            level = "{level}"
         threads:
             config["params"]["profiling"]["threads"]
         shell:
