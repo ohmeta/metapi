@@ -571,10 +571,10 @@ if config["params"]["classify"]["kraken2"]["do"] and \
         output:
             profile = protected(os.path.join(
                 config["output"]["profiling"],
-                "profile/bracken/{sample}/{sample}.bracken.{level}.profile"),
+                "profile/bracken/{sample}/{sample}.bracken.{level}.profile")),
             report = protected(os.path.join(
                 config["output"]["profiling"],
-                "profile/bracken/{sample}/{sample}.bracken.{level}.report")
+                "profile/bracken/{sample}/{sample}.bracken.{level}.report"))
         log:
             os.path.join(config["output"]["profiling"],
                          "logs/{sample}.bracken.{level}.log")
