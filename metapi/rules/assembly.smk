@@ -28,6 +28,9 @@ if "megahit" in ASSEMBLERS:
                 config["output"]["assembly"],
                 "scaftigs/{sample}.megahit.out/{sample}.megahit.scaftigs.gfa.gz"
             ))
+        benchmark:
+            os.path.join(config["output"]["assembly"],
+                         "benchmark/megahit/{sample}.megahit.benchmark.txt")
         priority:
             20
         params:
@@ -126,6 +129,9 @@ if "idba_ud" in ASSEMBLERS:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{sample}.idba_ud.out/{sample}.idba_ud.scaftigs.fa.gz"))
+        benchmark:
+            os.path.join(config["output"]["assembly"],
+                         "benchmark/idba_ud/{sample}.idba_ud.benchmark.txt")
         priority:
             20
         params:
@@ -211,6 +217,9 @@ if "metaspades" in ASSEMBLERS:
             gfa = protected(os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.gfa.gz"))
+        benchmark:
+            os.path.join(config["output"]["assembly"],
+                         "benchmark/metaspades/{sample}.metaspades.benchmark.txt")
         priority:
             20
         params:
@@ -357,6 +366,9 @@ if "spades" in ASSEMBLERS:
             gfa = protected(os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{sample}.spades.out/{sample}.spades.scaftigs.gfa.gz"))
+        benchmark:
+            os.path.join(config["output"]["assembly"],
+                         "benchmark/spades/{sample}.spades.benchmark.txt")
         priority:
             20
         params:
@@ -491,6 +503,9 @@ if "plass" in ASSEMBLERS:
             tmp = directory(temp(os.path.join(
                 config["output"]["assembly"],
                 "proteins/{sample}.plass.out.tmp")))
+        benchmark:
+            os.path.join(config["output"]["assembly"],
+                         "benchmark/plass/{sample}.plass.benchmark.txt")
         log:
             os.path.join(config["output"]["assembly"],
                          "logs/{sample}.plass.log")
@@ -545,6 +560,9 @@ if "opera_ms" in ASSEMBLERS:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{sample}.opera_ms.out/{sample}.opera_ms.scaftigs.fa.gz"))
+        benchmark:
+            os.path.join(config["output"]["assembly"],
+                         "benchmark/opera_ms/{sample}.opera_ms.benchmark.txt")
         log:
             os.path.join(config["output"]["assembly"],
                          "logs/{sample}.opera_ms.log")
@@ -642,6 +660,10 @@ if len(ASSEMBLERS) != 0:
                 protected(os.path.join(
                     config["output"]["assembly"],
                     "metaquast/{sample}.{assembler}.metaquast.out/combined_reference/report.tsv"))
+            benchmark:
+                os.path.join(config["output"]["assembly"],
+                             "benchmark/metaquast_{assembler}/{sample}.{assembler}.metaquast.benchmark.txt")
+
             log:
                 os.path.join(config["output"]["assembly"],
                              "logs/{sample}.{assembler}.metaquast.log")
