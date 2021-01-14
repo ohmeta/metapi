@@ -5,6 +5,124 @@ def rmhost_input(wildcards, have_single=False):
         return get_reads(wildcards, "raw", have_single)
 
 
+if config["params"]["rmhost"]["soap"]["do"]:
+    rule rmhost_soap_index:
+        input:
+            config["params"]["rmhost"]["host_fasta"]
+        output:
+            expand("{prefix}.{suffix}",
+                   prefix=config["params"]["rmhost"]["soap"]["index_prefix"],
+                   suffix=["amb", "ann", "bwt", "fmv", "hot", "lkt", "pac",
+                           "rev.bwt", "rev.fmv", "rev.lkt", "rev.pac", "sa", ".sai"])
+        log:
+            os.path.join(config["output"]["rmhost"],
+                         "logs/build_host_index_for_soap.log")
+        params:
+            host_fasta = os.path.basename(config["params"]["rmhost"]["host_fasta"]),
+            index_dir = os.path.dirname(config["params"]["rmhost"]["soap"]["index_prefix"])
+        shell:
+            '''
+            mkdir -p {params.index_dir}
+            pushd {params.index_dir} && \
+            ln -s {input} && \
+            2bwt-builder {params.host_fasta} 2> {log} && popd
+            '''
+
+
+    rule rmhost_soap:
+        input:
+            reads = lambda wildcards: rmhost_input(wildcards),
+            index = expand("{prefix}.{suffix}",
+                   prefix=config["params"]["rmhost"]["soap"]["index_prefix"],
+                   suffix=["amb", "ann", "bwt", "fmv", "hot", "lkt", "pac",
+                           "rev.bwt", "rev.fmv", "rev.lkt", "rev.pac", "sa", "sai"])
+        output:
+            reads = expand(os.path.join(
+                config["output"]["rmhost"],
+                "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                           read=[".1", ".2"] if IS_PE else "") \
+                           if config["params"]["rmhost"]["save_reads"] else \
+                              temp(expand(os.path.join(
+                                  config["output"]["rmhost"],
+                                  "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                                          read=[".1", ".2"] if IS_PE else ""))
+        log:
+            os.path.join(config["output"]["rmhost"], "logs/{sample}.soap.log")
+        priority:
+            10
+        params:
+            index_prefix = config["params"]["rmhost"]["soap"]["index_prefix"],
+            match_model = config["params"]["rmhost"]["soap"]["match_model"],
+            align_seed = config["params"]["rmhost"]["soap"]["align_seed"],
+            report_repeat_hits = config["params"]["rmhost"]["soap"]["report_repeat_hits"],
+            max_mismatch_num = config["params"]["rmhost"]["soap"]["max_mismatch_num"],
+            identity = config["params"]["rmhost"]["soap"]["identity"]
+        threads:
+            config["params"]["rmhost"]["threads"]
+        run:
+            outdir = os.path.dirname(output.reads[0])
+            shell(f'''mkdir -p {outdir}''')
+
+            if IS_PE:
+                shell(
+                    f'''
+                    soap2.22 \
+                    -a {input.reads[0]} -b {input.reads[1]} \
+                    -D {params.index_prefix} \
+                    -M {params.match_model} \
+                    -l {params.align_seed} \
+                    -r {params.report_repeat_hits} \
+                    -v {params.max_mismatch_num} \
+                    -c {params.identity} \
+                    -p {threads} \
+                    -S \
+                    -o {outdir}/soap.pe \
+                    -2 {outdir}/soap.se \
+                    -u {outdir}/unmapped.fq 2> {log}
+
+                    seqtk dropse {outdir}/unmapped.fq |
+                    tee >(seqtk seq -1 - | pigz > {output.reads[0]}) |
+                    seqtk seq -2 - | pigz > {output.reads[1]}
+
+                    rm -rf {outdir}/soap.pe
+                    rm -rf {outdir}/soap.se
+                    rm -rf {outdir}/unmapped.fq
+                    ''')
+            else:
+                shell(
+                    f'''
+                    soap2.22 \
+                    -a {input.reads[0]} \
+                    -D {params.index_prefix} \
+                    -M {params.match_model} \
+                    -l {params.align_seed} \
+                    -r {params.report_repeat_hits} \
+                    -v {params.max_mismatch_num} \
+                    -c {params.identity} \
+                    -p {threads} \
+                    -S \
+                    -o {outdir}/soap.se \
+                    -u {outdir}/unmapped.fq 2> {log}
+
+                    rm -rf {outdir}/soap.se
+                    pigz {outdir}/unmapped.fq
+                    mv {outdir}/unmapped.fq.gz {output.reads[0]}
+                    ''')
+
+
+    rule rmhost_soap_all:
+        input:
+            expand(os.path.join(
+                config["output"]["rmhost"],
+                "short_reads/{sample}/{sample}.rmhost{read}.fq.gz"),
+                   sample=SAMPLES.index.unique(),
+                   read=[".1", ".2"] if IS_PE else "")
+
+else:
+    rule rmhost_soap_all:
+        input:
+
+
 if config["params"]["rmhost"]["bwa"]["do"]:
     rule rmhost_bwa_index:
         input:
@@ -366,6 +484,7 @@ rule rmhost_all:
     input:
         rules.rmhost_bwa_all.input,
         rules.rmhost_bowtie2_all.input,
+        rules.rmhost_soap_all.input,
         rules.rmhost_report_all.input,
 
         rules.trimming_all.input

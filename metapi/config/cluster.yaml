@@ -91,8 +91,21 @@ trimming_report_merge:
   output: "logs/01.{rule}/{rule}.o"
   error: "logs/01.{rule}/{rule}.e"
 
+rmhost_soap_index:
+  queue: "st.q"
+  mem: "1G"
+  cores: 1
+  output: "logs/02.{rule}/{rule}.o"
+  error: "logs/02.{rule}/{rule}.e"
+
+rmhost_soap:
+  mem: "6G"
+  cores: 8
+  output: "logs/02.{rule}/{rule}.{wildcards.sample}.o"
+  error: "logs/02.{rule}/{rule}.{wildcards.sample}.e"
+
 rmhost_bwa_index:
-  queue: "st_short.q"
+  queue: "st.q"
   mem: "1G"
   cores: 1
   output: "logs/02.{rule}/{rule}.o"
@@ -105,7 +118,7 @@ rmhost_bwa:
   error: "logs/02.{rule}/{rule}.{wildcards.sample}.e"
 
 rmhost_bowtie2_index:
-  queue: "st_short.q"
+  queue: "st.q"
   mem: "1G"
   cores: 1
   output: "logs/02.{rule}/{rule}.o"

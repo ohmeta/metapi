@@ -51,6 +51,14 @@ params:
     save_reads: True
     save_bam: False
     compression: 6
+    soap:
+      do: False
+      index_prefix: /ldfssz1/ST_META/share/User/zhujie/database/galaxy_indexes/hg38/hg38full/soap_index/hg38full.fa.index
+      match_model: 4
+      align_seed: 30
+      report_repeat_hits: 1
+      max_mismatch_num: 7
+      identity: 0.9
     bwa:
       do: False
       index_prefix: /ldfssz1/ST_META/share/User/zhujie/database/galaxy_indexes/hg38/hg38full/bwa_index/hg38full.fa
