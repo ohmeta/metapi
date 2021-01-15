@@ -15,6 +15,9 @@ if config["params"]["classify"]["kraken2"]["do"]:
         log:
             os.path.join(config["output"]["classify"],
                          "logs/{sample}.kraken2.log")
+        benchmark:
+            os.path.join(config["output"]["classify"],
+                         "benchmark/kraken2/{sample}.kraken2.benchmark.txt")
         params:
             paired = "--paired" if IS_PE else "",
             database = config["params"]["classify"]["kraken2"]["database"],
@@ -166,6 +169,10 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             os.path.join(
                 config["output"]["classify"],
                 "logs/bins_hmq_{batchid}.{assembler}.{binner_checkm}.gtdbtk.log")
+        benchmark:
+            os.path.join(
+                config["output"]["classify"],
+                "benchmark/gtdbtk/bins_hmq_{batchid}.{assembler}.{binner_checkm}.gtdbtk.benchmark.txt")
         params:
             bin_suffix = config["params"]["binning"]["bin_suffix"],
             out_dir = os.path.join(

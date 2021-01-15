@@ -40,6 +40,9 @@ if config["params"]["dereplicate"]["cdhit"]["do_gene"]:
         log:
             os.path.join(config["output"]["dereplicate"],
                          "logs/{assembler}.prodigal.scaftigs.gene.cdhit.log")
+        benchmark:
+            os.path.join(config["output"]["dereplicate"],
+                         "benchmark/{assembler}.cdhit.benchmark.txt")
         threads:
             config["params"]["dereplicate"]["cdhit"]["threads"]
         params:

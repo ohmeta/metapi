@@ -41,6 +41,9 @@ rule alignment_reads_scaftigs:
     log:
         os.path.join(config["output"]["alignment"],
                      "logs/alignment/{sample}.{assembler}.align.reads2scaftigs.log")
+    benchmark:
+        os.path.join(config["output"]["alignment"],
+                     "benchmark/alignment/{sample}.{assembler}.align.reads2scaftigs.benchmark.txt")
     params:
         index_prefix = os.path.join(
             config["output"]["alignment"],

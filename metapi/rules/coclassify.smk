@@ -43,6 +43,10 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             os.path.join(
                 config["output"]["coclassify"],
                 "logs/bins_hmq_{batchid}.{assembler_co}.{binner_checkm}.gtdbtk.log")
+        benchmark:
+            os.path.join(
+                config["output"]["coclassify"],
+                "benchmark/gtdbtk/bins_hmq_{batchid}.{assembler_co}.{binner_checkm}.gtdbtk.benchmark.txt")
         params:
             bin_suffix = config["params"]["binning"]["bin_suffix"],
             out_dir = os.path.join(

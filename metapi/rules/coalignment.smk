@@ -41,6 +41,9 @@ rule coalignment_reads_scaftigs:
     log:
         os.path.join(config["output"]["coalignment"],
                      "logs/alignment/{sample}.{assembler_co}.align.reads2scaftigs.log")
+    benchmark:
+        os.path.join(config["output"]["coalignment"],
+                     "benchmark/alignment/{sample}.{assembler_co}.align.reads2scaftigs.benchmark.txt")
     params:
         index_prefix = os.path.join(
             config["output"]["coalignment"],

@@ -55,6 +55,9 @@ if config["params"]["dereplicate"]["drep"]["do"]:
         log:
             os.path.join(config["output"]["dereplicate"],
                          "logs/hmq.bins.{assembler}.{binner_checkm}.drep.log")
+        benchmark:
+            os.path.join(config["output"]["dereplicate"],
+                         "benchmark/{assembler}.{binner_checkm}.drep.benchmark.txt")
         conda:
             config["envs"]["bioenv3.6"]
         params:

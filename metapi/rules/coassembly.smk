@@ -23,6 +23,9 @@ if config["params"]["coassembly"]["megahit"]["do"]:
         log:
             os.path.join(config["output"]["coassembly"],
                          "logs/all.megahit.log")
+        benchmark:
+            os.path.join(config["output"]["coassembly"],
+                         "benchmark/coassembly.megahit.benchmark.txt")
         params:
             output_prefix = "all",
             min_contig = config["params"]["coassembly"]["megahit"]["min_contig"],

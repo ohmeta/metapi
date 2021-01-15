@@ -63,6 +63,9 @@ if config["params"]["checkm"]["do"]:
             os.path.join(
                 config["output"]["cocheckm"],
                 "logs/bins_{batchid}.{assembler_co}.{binner_checkm}.checkm.log")
+        benchmark:
+            os.path.join(config["output"]["cocheckm"],
+                         "benchmark/bins_{batchid}.{assembler_co}.{binner_checkm}.checkm.benchmark.txt")
         threads:
             config["params"]["checkm"]["threads"]
         run:

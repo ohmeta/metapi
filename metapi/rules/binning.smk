@@ -80,6 +80,9 @@ rule binning_metabat2:
     log:
         os.path.join(config["output"]["binning"],
                      "logs/binning/{sample}.{assembler}.metabat2.binning.log")
+    benchmark:
+        os.path.join(config["output"]["binning"],
+                     "benchmark/metabat2/{sample}.{assembler}.metabat2.benchmark.txt")
     params:
         bin_prefix = os.path.join(
             config["output"]["binning"],
@@ -169,6 +172,9 @@ if config["params"]["binning"]["maxbin2"]["do"]:
         log:
             os.path.join(config["output"]["binning"],
                          "logs/binning/{sample}.{assembler}.maxbin2.binning.log")
+        benchmark:
+            os.path.join(config["output"]["binning"],
+                         "benchmark/maxbin2/{sample}.{assembler}.maxbin2.benchmark.txt")
         params:
             bin_suffix = config["params"]["binning"]["bin_suffix"],
             bin_prefix = os.path.join(
@@ -342,6 +348,9 @@ if config["params"]["binning"]["concoct"]["do"]:
         log:
             os.path.join(config["output"]["binning"],
                          "logs/binning/{sample}.{assembler}.concoct.binning.log")
+        benchmark:
+            os.path.join(config["output"]["binning"],
+                         "benchmark/concoct/{sample}.{assembler}.concoct.benchmark.txt")
         params:
             clusters = config["params"]["binning"]["concoct"]["clusters"],
             kmer_length = config["params"]["binning"]["concoct"]["kmer_length"],
@@ -514,6 +523,9 @@ if config["params"]["binning"]["graphbin"]["do"]:
         log:
             os.path.join(config["output"]["binning"],
                          "logs/binning/{sample}.{assembler}.{binner_graphbin}.graphbin.refine.log")
+        benchmark:
+            os.path.join(config["output"]["binning"],
+                         "benchmark/{binner_graph}/{sample}.{assembler}.{binner_graphbin}.benchmark.txt")
         params:
             assembler = "{assembler}",
             prefix = os.path.join(
@@ -604,6 +616,9 @@ if config["params"]["binning"]["dastools"]["do"]:
         log:
             os.path.join(config["output"]["binning"],
                          "logs/binning/{sample}.{assembler}.dastools.binning.log")
+        benchmark:
+            os.path.join(config["output"]["binning"],
+                         "benchmark/dastools/{sample}.{assembler}.dastools.benchmark.txt")
         priority:
             30
         params:

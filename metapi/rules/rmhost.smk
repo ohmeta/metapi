@@ -48,6 +48,8 @@ if config["params"]["rmhost"]["soap"]["do"]:
                                           read=[".1", ".2"] if IS_PE else ""))
         log:
             os.path.join(config["output"]["rmhost"], "logs/{sample}.soap.log")
+        benchmark:
+            os.path.join(config["output"]["rmhost"], "benchmark/soap/{sample}.soap.txt")
         priority:
             10
         params:
@@ -162,6 +164,8 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                                           read=[".1", ".2"] if IS_PE else ""))
         log:
             os.path.join(config["output"]["rmhost"], "logs/{sample}.bwa.log")
+        benchmark:
+            os.path.join(config["output"]["rmhost"], "benchmark/bwa/{sample}.bwa.txt")
         priority:
             10
         params:
@@ -313,6 +317,8 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                                           read=[".1", ".2"] if IS_PE else ""))
         log:
             os.path.join(config["output"]["rmhost"], "logs/{sample}.bowtie2.log")
+        benchmark:
+            os.path.join(config["output"]["rmhost"], "benchmark/bowtie2/{sample}.bowtie2.txt")
         priority:
             10
         params:

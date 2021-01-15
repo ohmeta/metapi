@@ -82,6 +82,9 @@ rule cobinning_metabat2:
     log:
         os.path.join(config["output"]["cobinning"],
                      "logs/binning/all.{assembler_co}.metabat2.binning.log")
+    benchmark:
+        os.path.join(config["output"]["cobinning"],
+                     "benchmark/binning/all.{assembler_co}.metabat2.binning.benchmark.txt")
     params:
         bin_prefix = os.path.join(
             config["output"]["cobinning"],
@@ -170,6 +173,9 @@ if config["params"]["binning"]["maxbin2"]["do"]:
         log:
             os.path.join(config["output"]["cobinning"],
                          "logs/binning/all.{assembler_co}.maxbin2.binning.log")
+        benchmark:
+            os.path.join(config["output"]["cobinning"],
+                         "benchmark/binning/all.{assembler_co}.maxbin2.binning.benchmark.txt")
         params:
             bin_suffix = config["params"]["binning"]["bin_suffix"],
             bin_prefix = os.path.join(
@@ -344,6 +350,9 @@ if config["params"]["binning"]["concoct"]["do"]:
         log:
             os.path.join(config["output"]["cobinning"],
                          "logs/binning/all.{assembler_co}.concoct.binning.log")
+        benchmark:
+            os.path.join(config["output"]["cobinning"],
+                         "benchmark/binning/all.{assembler_co}.concoct.binning.benchmark.txt")
         params:
             clusters = config["params"]["binning"]["concoct"]["clusters"],
             kmer_length = config["params"]["binning"]["concoct"]["kmer_length"],
@@ -498,6 +507,9 @@ if config["params"]["binning"]["graphbin"]["do"]:
         log:
             os.path.join(config["output"]["cobinning"],
                          "logs/binning/all.{assembler_co}.{binner_graphbin}.graphbin.refine.log")
+        benchmark:
+            os.path.join(config["output"]["cobinning"],
+                         "benchmark/binning/all.{assembler_co}.{binner_graphbin}.graphbin.refine.benchmark.txt")
         params:
             assembler_co = "{assembler_co}",
             prefix = os.path.join(
@@ -587,6 +599,9 @@ if config["params"]["binning"]["dastools"]["do"]:
         log:
             os.path.join(config["output"]["cobinning"],
                          "logs/binning/all.{assembler_co}.dastools.binning.log")
+        benchmark:
+            os.path.join(config["output"]["cobinning"],
+                         "benchmark/binning/all.{assembler_co}.dastools.binning.benchmark.txt")
         priority:
             30
         params:

@@ -9,9 +9,10 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"]:
         conda:
             config["envs"]["bioenv2"]
         log:
-            os.path.join(
-                config["output"]["profiling"],
-                         "logs/{sample}.metaphlan2.log")
+            os.path.join(config["output"]["profiling"], "logs/{sample}.metaphlan2.log")
+        benchmark:
+            os.path.join(config["output"]["profiling"],
+                         "benchmark/metaphlan2/{sample}.metaphlan2.benchmark.txt")
         params:
             sample_id = "{sample}",
             wrapper_dir = WRAPPER_DIR,
@@ -147,9 +148,10 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                config["output"]["profiling"],
                "profile/metaphlan3/{sample}/{sample}.metaphlan3.abundance.profile.tsv"))
         log:
-            os.path.join(
-                config["output"]["profiling"],
-                "logs/{sample}.metaphlan3.log")
+            os.path.join(config["output"]["profiling"], "logs/{sample}.metaphlan3.log")
+        benchmark:
+            os.path.join(config["output"]["profiling"],
+                         "benchmark/metaphlan3/{sample}.metaphlan3.benchmark.txt")
         conda:
             config["envs"]["biobakery"]
         params:
@@ -313,9 +315,10 @@ if config["params"]["profiling"]["jgi"]["do"]:
                     config["output"]["profiling"],
                     "profile/jgi/{sample}/{sample}.jgi.coverage.gz"))
             log:
-                os.path.join(
-                    config["output"]["profiling"],
-                    "logs/{sample}.jgi.log")
+                os.path.join(config["output"]["profiling"], "logs/{sample}.jgi.log")
+            benchmark:
+                os.path.join(config["output"]["profiling"],
+                             "benchmark/jgi/{sample}.jgi.benchmark.txt")
             threads:
                 config["params"]["profiling"]["threads"]
             params:
@@ -378,9 +381,10 @@ if config["params"]["profiling"]["jgi"]["do"]:
                     config["output"]["profiling"],
                     "profile/jgi/{sample}/{sample}.jgi.coverage.gz"))
             log:
-                os.path.join(
-                    config["output"]["profiling"],
-                    "logs/{sample}.jgi.log")
+                os.path.join(config["output"]["profiling"], "logs/{sample}.jgi.log")
+            benchmark:
+                os.path.join(config["output"]["profiling"],
+                             "benchmark/jgi_2/{sample}.jgi.benchmark.txt")
             threads:
                 config["params"]["profiling"]["threads"]
             params:
@@ -578,6 +582,9 @@ if config["params"]["classify"]["kraken2"]["do"] and \
         log:
             os.path.join(config["output"]["profiling"],
                          "logs/{sample}.bracken.{level}.log")
+        benchmark:
+            os.path.join(config["output"]["profiling"],
+                         "benchmark/bracken/{sample}.bracken.benchmark.txt")
         params:
             database = config["params"]["classify"]["kraken2"]["database"],
             reads_len = config["params"]["profiling"]["bracken"]["reads_len"],
@@ -689,6 +696,9 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
         log:
             os.path.join(config["output"]["profiling"],
                          "logs/{sample}.humann2.build_pandb.log")
+        benchmark:
+            os.path.join(config["output"]["profiling"],
+                         "benchmark/humann2/{sample}.bwotie2_index.benchmark.txt")
         params:
             basename = "{sample}",
             wrapper_dir = WRAPPER_DIR,
@@ -723,6 +733,11 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             pathcoverage = protected(os.path.join(
                 config["output"]["profiling"],
                 "profile/humann2/{sample}/{sample}_pathcoverage.tsv"))
+        log:
+            os.path.join(config["output"]["profiling"], "logs/{sample}.humann2.log")
+        benchmark:
+            os.path.join(config["output"]["profiling"],
+                         "benchmark/humann2/{sample}.humann2.benchmark.txt")
         conda:
             config["envs"]["bioenv2"]
         params:
@@ -752,10 +767,6 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                                       "profile/humann2/{sample}")
         threads:
             config["params"]["profiling"]["threads"]
-        log:
-            os.path.join(
-                config["output"]["profiling"],
-                "logs/{sample}.humann2.log")
         shell:
             '''
             zcat {input.reads} | \
@@ -1093,6 +1104,11 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
             pathcoverage = protected(os.path.join(
                 config["output"]["profiling"],
                 "profile/humann3/{sample}/{sample}_pathcoverage.tsv"))
+        log:
+            os.path.join(config["output"]["profiling"], "logs/{sample}.humann3.log")
+        benchmark:
+            os.path.join(config["output"]["profiling"],
+                         "benchmark/humann3/{sample}.humann3.benchmark.txt")
         conda:
             config["envs"]["biobakery"]
         params:
@@ -1130,10 +1146,6 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
                                       "profile/humann3/{sample}")
         threads:
             config["params"]["profiling"]["threads"]
-        log:
-            os.path.join(
-                config["output"]["profiling"],
-                "logs/{sample}.humann3.log")
         shell:
             '''
             mkdir -p {params.output_dir}
