@@ -584,7 +584,7 @@ if config["params"]["classify"]["kraken2"]["do"] and \
                          "logs/{sample}.bracken.{level}.log")
         benchmark:
             os.path.join(config["output"]["profiling"],
-                         "benchmark/bracken/{sample}.bracken.benchmark.txt")
+                         "benchmark/bracken/{sample}.bracken.{level}.benchmark.txt")
         params:
             database = config["params"]["classify"]["kraken2"]["database"],
             reads_len = config["params"]["profiling"]["bracken"]["reads_len"],
