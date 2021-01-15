@@ -213,6 +213,7 @@ params:
       megabin_penalty: 0.5
     vamb:
       do: True
+      save_bam: False
       min_contig: 1500
       index_size: 12G
 

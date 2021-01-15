@@ -68,9 +68,13 @@ if config["params"]["binning"]["vamb"]["do"]:
             flagstat = os.path.join(
                 config["output"]["alignment"],
                 "report/flagstat_minimap2/{sample}.{assembler}.align2combined_scaftigs.flagstat"),
-            bam = temp(os.path.join(
+            bam = os.path.join(
                 config["output"]["alignment"],
-                "bam/all.{assembler}.combined.out/{sample}.minimap2.out/{sample}.align2combined_scaftigs.sorted.bam"))
+                "bam/all.{assembler}.combined.out/{sample}.minimap2.out/{sample}.align2combined_scaftigs.sorted.bam") \
+                if config["params"]["binning"]["vamb"]["save_bam"] else \
+                   temp(os.path.join(
+                       config["output"]["alignment"],
+                       "bam/all.{assembler}.combined.out/{sample}.minimap2.out/{sample}.align2combined_scaftigs.sorted.bam"))
         log:
             os.path.join(config["output"]["alignment"],
                          "logs/alignment_multisplit/{sample}.{assembler}.align.reads2combined_scaftigs.log")
@@ -92,60 +96,31 @@ if config["params"]["binning"]["vamb"]["do"]:
 
     rule binning_vamb_coverage:
         input:
-            bam = os.path.join(
+            bam = expand(os.path.join(
                 config["output"]["alignment"],
-                "bam/all.{assembler}.combined.out/{sample}.minimap2.out/{sample}.align2combined_scaftigs.sorted.bam")
+                "bam/all.{{assembler}}.combined.out/{sample}.minimap2.out/{sample}.align2combined_scaftigs.sorted.bam"),
+                         sample=SAMPLES.index.unique())
         output:
-            raw_jgi = os.path.join(
+            coverage = os.path.join(
                 config["output"]["multisplit_binning"],
-                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.align2combined_scaftigs.raw.jgi"),
-            cut_jgi = os.path.join(
-                config["output"]["multisplit_binning"],
-                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.align2combined_scaftigs.cut.jgi")
+                "coverage/all.{assembler}.align2combined_scaftigs.coverage")
         log:
             os.path.join(config["output"]["multisplit_binning"],
-                         "logs/coverage/{sample}.{assembler}.align2combined_scaftigs.jgi.coverage.log")
+                         "logs/coverage/{assembler}.align2combined_scaftigs.jgi.coverage.log")
         shell:
             '''
             jgi_summarize_bam_contig_depths \
-            --noIntraDepthVariance --outputDepth {output.raw_jgi} {input.bam} 2> {log}
-
-            cut -f1-3 --complement {output.raw_jgi} > {output.cut_jgi} 2>> {log}
+            --noIntraDepthVariance --outputDepth {output.coverage} {input.bam} 2> {log}
             '''
-
-
-    rule binning_vamb_gen_abundance_matrix:
-        input:
-            raw_jgi = os.path.join(
-                config["output"]["multisplit_binning"],
-                "coverage/%s.{assembler}.out/%s.{assembler}.align2combined_scaftigs.raw.jgi" % \
-                (SAMPLES.index.unique()[0], SAMPLES.index.unique()[0])),
-            cut_jgi = expand(os.path.join(
-                config["output"]["multisplit_binning"],
-                "coverage/{sample}.{{assembler}}.out/{sample}.{{assembler}}.align2combined_scaftigs.cut.jgi"),
-                          sample=SAMPLES.index.unique())
-        output:
-            os.path.join(config["output"]["multisplit_binning"],
-                         "coverage/all.{assembler}.combined.out/jgi.abundance.matrix.tsv")
-        log:
-            os.path.join(config["output"]["binning"],
-                         "logs/coverage/binning_vamb_gen_abundance_matrix_{assembler}.log")
-        shell:
-            '''
-            cut -f1-3 {input.raw_jgi} > {output}.column1to3
-            paste {output}.column1to3 {input.cut_jgi} > {output} 2> {log}
-            rm -rf {output}.column1to3
-            '''
-
 
     rule binning_vamb:
         input:
             scaftigs = os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/all.{assembler}.combined.out/all.{assembler}.combined.scaftigs.fa.gz"),
-            jgi = os.path.join(
+            coverage = os.path.join(
                 config["output"]["multisplit_binning"],
-                "coverage/all.{assembler}.combined.out/jgi.abundance.matrix.tsv")
+                "coverage/all.{assembler}.align2combined_scaftigs.coverage")
         output:
             os.path.join(config["output"]["multisplit_binning"],
                          "bins/all.{assembler}.combined.out/vamb/clusters.tsv"),
@@ -181,7 +156,7 @@ if config["params"]["binning"]["vamb"]["do"]:
             vamb \
             --outdir {params.outdir} \
             --fasta {input.scaftigs} \
-            --jgi {input.jgi} \
+            --jgi {input.coverage} \
             -o C -m 2000 --minfasta 500000 \
             2> {log}
             '''
