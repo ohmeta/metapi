@@ -525,7 +525,7 @@ if config["params"]["binning"]["graphbin"]["do"]:
                          "logs/binning/{sample}.{assembler}.{binner_graphbin}.graphbin.refine.log")
         benchmark:
             os.path.join(config["output"]["binning"],
-                         "benchmark/{binner_graph}/{sample}.{assembler}.{binner_graphbin}.benchmark.txt")
+                         "benchmark/{binner_graphbin}/{sample}.{assembler}.{binner_graphbin}.benchmark.txt")
         params:
             assembler = "{assembler}",
             prefix = os.path.join(
