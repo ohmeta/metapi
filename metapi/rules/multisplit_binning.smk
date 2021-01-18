@@ -136,7 +136,7 @@ if config["params"]["binning"]["vamb"]["do"]:
                          "logs/coverage/binning_vamb_gen_abundance_matrix_{assembler}.log")
         shell:
             '''
-            cut -f1-3 {intput.raw_jgi_first} > {output}.column1to3
+            cut -f1-3 {input.raw_jgi_first} > {output}.column1to3
             paste {output}.column1to3 {input.cut_jgi} > {output} 2> {log}
             rm -rf {output}.column1to3
             '''
