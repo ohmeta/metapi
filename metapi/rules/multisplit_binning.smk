@@ -185,7 +185,7 @@ if config["params"]["binning"]["vamb"]["do"]:
             vamb \
             --outdir {params.outdir} \
             --fasta {input.scaftigs} \
-            --jgi {input.coverage} \
+            --jgi {input.matrix} \
             -o C -m 2000 --minfasta 500000 \
             2> {log}
             '''
