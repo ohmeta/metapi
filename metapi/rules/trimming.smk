@@ -17,6 +17,9 @@ if config["params"]["trimming"]["oas1"]["do"]:
                                read=[".1", ".2", ".single"] if IS_PE else ""))
         log:
             os.path.join(config["output"]["trimming"], "logs/{sample}.oas1.log")
+        benchmark:
+            os.path.join(config["output"]["trimming"],
+                         "benchmark/oas1/{sample}.oas1.benchmark.txt")
         params:
             output_prefix = os.path.join(config["output"]["trimming"],
                                          "short_reads/{sample}/{sample}"),
@@ -75,6 +78,9 @@ if config["params"]["trimming"]["sickle"]["do"]:
                                read=[".1", ".2", ".single"] if IS_PE else ""))
         log:
             os.path.join(config["output"]["trimming"], "logs/{sample}.sickle.log")
+        benchmark:
+            os.path.join(config["output"]["trimming"],
+                         "benchmark/sickle/{sample}.sickle.benchmark.txt")
         params:
             output_prefix = os.path.join(config["output"]["trimming"],
                                          "short_reads/{sample}/{sample}"),
@@ -156,6 +162,9 @@ if config["params"]["trimming"]["fastp"]["do"]:
                 if config["params"]["trimming"]["fastp"]["disable_adapter_trimming"] else ""
         log:
             os.path.join(config["output"]["trimming"], "logs/{sample}.fastp.log")
+        benchmark:
+            os.path.join(config["output"]["trimming"],
+                         "benchmark/fastp/{sample}.fastp.benchmark.txt")
         threads:
             config["params"]["trimming"]["fastp"]["threads"]
         run:
