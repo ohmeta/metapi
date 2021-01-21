@@ -322,6 +322,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
         priority:
             10
         params:
+            presets = config["params"]["rmhost"]["bowtie2"]["presets"],
             compression = config["params"]["rmhost"]["compression"],
             index_prefix = config["params"]["rmhost"]["bowtie2"]["index_prefix"],
             bam = os.path.join(config["output"]["rmhost"],
@@ -339,6 +340,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                         -x {params.index_prefix} \
                         -1 {input.reads[0]} \
                         -2 {input.reads[1]} \
+                        {params.presets} \
                         2> {log} | \
                         tee >(samtools flagstat \
                               -@{threads} - \
@@ -362,6 +364,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                         -x {params.index_prefix} \
                         -1 {input.reads[0]} \
                         -2 {input.reads[1]} \
+                        {params.presets} \
                         2> {log} | \
                         tee >(samtools flagstat \
                               -@{threads} - \
@@ -379,6 +382,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                     shell(
                         '''
                         bowtie2 \
+                        {params.presets} \
                         --threads {threads} \
                         -x {params.index_prefix} \
                         -U {input.reads[0]} \
@@ -401,6 +405,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                     shell(
                         '''
                         bowtie2 \
+                        {params.presets} \
                         --threads {threads} \
                         -x {params.index_prefix} \
                         -U {input.reads[0]} \
