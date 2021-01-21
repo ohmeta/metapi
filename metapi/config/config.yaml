@@ -66,6 +66,7 @@ params:
     bowtie2:
       do: True
       index_prefix: /ldfssz1/ST_META/share/User/zhujie/database/galaxy_indexes/hg38/hg38full/bowtie2_index/hg38full
+      presets: "--very-sensitive"
   qcreport:
     do: True
     seqkit:
