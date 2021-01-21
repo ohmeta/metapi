@@ -42,6 +42,7 @@ if config["params"]["trimming"]["oas1"]["do"]:
                 shell('''mv {params.output_prefix}.clean.1.fq.gz {output.reads[0]}''')
                 shell('''mv {params.output_prefix}.clean.2.fq.gz {output.reads[1]}''')
                 shell('''mv {params.output_prefix}.clean.single.fq.gz {output.reads[2]}''')
+                shell('''mv {params.output_prefix}.clean.stat_out {output.stat_out}''')
             else:
                 shell('''mv {params.output_prefix}.clean.fq.gz {output.reads[0]}''')
                 shell('''mv {params.output_prefix}.clean.stat_out {output.stat_out}''')
