@@ -630,6 +630,12 @@ dereplicate_gene_cdhit:
   output: "logs/10.{rule}/{rule}.{wildcards.assembler}.o"
   error: "logs/10.{rule}/{rule}.{wildcards.assembler}.e"
 
+profiling_bgi_soap:
+  mem: "3G"
+  cores: 8
+  output: "logs/11.{rule}/{rule}.{wildcards.sample}.o"
+  error: "logs/11.{rule}/{rule}.{wildcards.sample}.e"
+
 profiling_metaphlan2:
   mem: "3G"
   cores: 8
