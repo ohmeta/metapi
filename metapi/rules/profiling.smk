@@ -16,7 +16,10 @@ if config["params"]["profiling"]["bgi_soap"]["do"]:
             match_model = config["params"]["profiling"]["bgi_soap"]["match_model"],
             align_seed = config["params"]["profiling"]["bgi_soap"]["align_seed"],
             max_mismatch_num = config["params"]["profiling"]["bgi_soap"]["max_mismatch_num"],
-            identity = config["params"]["profiling"]["bgi_soap"]["identity"]
+            identity = config["params"]["profiling"]["bgi_soap"]["identity"],
+            soap = os.path.join(
+                config["output"]["profiling"],
+                "profile/bgi_soap/{sample}/{sample}.bgi_soap.soap")
         threads:
             config["params"]["profiling"]["threads"]
         run:
@@ -32,8 +35,8 @@ if config["params"]["profiling"]["bgi_soap"]["do"]:
                     -v {params.max_mismatch_num} \
                     -c {params.identity} \
                     -S -p {threads} \
-                    -o {output.soap} \
-                    -2 {output.soap}.se \
+                    -o {params.soap} \
+                    -2 {params.soap}.se \
                     2> {log}
                     ''')
             else:
@@ -48,10 +51,10 @@ if config["params"]["profiling"]["bgi_soap"]["do"]:
                     -v {params.max_mismatch_num} \
                     -c {params.identity} \
                     -S -p {threads} \
-                    -o {output.soap} \
+                    -o {params.soap} \
                     2> {log}
                     ''')
-            shell('''pigz {output.soap}''')
+            shell('''pigz {params.soap}''')
 
 
     rule profiling_bgi_soap_all:
