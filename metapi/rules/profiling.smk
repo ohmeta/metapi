@@ -1,3 +1,87 @@
+if config["params"]["profiling"]["bgi_soap"]["do"]:
+    rule profiling_bgi_soap:
+        input:
+            assembly_input_with_short_reads
+        output:
+            soap = os.path.join(
+                config["output"]["profiling"],
+                "profile/bgi_soap/{sample}/{sample}.bgi_soap.soap.gz")
+        log:
+            os.path.join(config["output"]["profiling"], "logs/{sample}.bgi_soap.log")
+        params:
+            index = config["params"]["profiling"]["bgi_soap"]["index_prefix"],
+            minimal_insert_size = config["params"]["profiling"]["bgi_soap"]["minimal_insert_size"],
+            maximal_insert_size = config["params"]["profiling"]["bgi_soap"]["maximal_insert_size"],
+            report_repeat_hits = config["params"]["profiling"]["bgi_soap"]["report_repeat_hits"],
+            match_model = config["params"]["profiling"]["bgi_soap"]["match_model"],
+            align_seed = config["params"]["profiling"]["bgi_soap"]["align_seed"],
+            max_mismatch_num = config["params"]["profiling"]["bgi_soap"]["max_mismatch_num"],
+            identity = config["params"]["profiling"]["bgi_soap"]["identity"]
+        threads:
+            config["params"]["profiling"]["threads"]
+        run:
+            if IS_PE:
+                shell(
+                    '''
+                    soap2.22 -a {input[0]} -b {input[1]} -D {params.index} \
+                    -m {params.minimal_insert_size} \
+                    -x {params.maximal_insert_size} \
+                    -r {params.report_repeat_hits} \
+                    -l {params.align_seed} \
+                    -M {params.match_model} \
+                    -v {params.max_mismatch_num} \
+                    -c {params.identity} \
+                    -S -p {threads} \
+                    -o {output.soap} \
+                    -2 {output.soap}.se \
+                    2> {log}
+                    ''')
+            else:
+                shell(
+                    '''
+                    soap2.22 -a {input[0]} -D {params.index} \
+                    -m {params.minimal_insert_size} \
+                    -x {params.maximal_insert_size} \
+                    -r {params.report_repeat_hits} \
+                    -l {params.align_seed} \
+                    -M {params.match_model} \
+                    -v {params.max_mismatch_num} \
+                    -c {params.identity} \
+                    -S -p {threads} \
+                    -o {output.soap} \
+                    2> {log}
+                    ''')
+            shell('''pigz {output.soap}''')
+
+'''
+    rule profiling_bgi_soap_merge:
+        input:
+            expand(os.path.join(
+                config["output"]["profiling"],
+                "profile/bgi_soap/{sample}/{sample}.bgi_soap.soap.gz"),
+                   sample=SAMPLES.index.unique()),
+            index = expand("{prefix}.{suffix}",
+                           prefix=config["params"]["profiling"]["bgi_soap"]["index_prefix"],
+                           suffix=["amb", "ann", "bwt", "fmv", "hot", "lkt", "pac",
+                                   "rev.bwt", "rev.fmv", "rev.lkt", "rev.pac", "sa", ".sai"]),
+            taxonomy = config["params"]["profiling"]["bgi_soap"]["taxonomy"]
+        output:
+        log:
+        threads:
+        shell:
+'''
+    rule profiling_bgi_soap_all:
+        input:
+            expand(os.path.join(
+                config["output"]["profiling"],
+                "profile/bgi_soap/{sample}/{sample}.bgi_soap.soap.gz"),
+                   sample=SAMPLES.index.unique())
+
+else:
+    rule profiling_bgi_soap_all:
+        input:
+
+
 if config["params"]["profiling"]["metaphlan"]["do_v2"]:
     rule profiling_metaphlan2:
         input:
@@ -1414,6 +1498,7 @@ else:
 
 rule profiling_all:
     input:
+        rules.profiling_bgi_soap_all.input,
         rules.profiling_metaphlan2_all.input,
         rules.profiling_metaphlan3_all.input,
         rules.profiling_jgi_all.input,

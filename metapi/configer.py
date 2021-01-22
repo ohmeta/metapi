@@ -135,6 +135,7 @@ class metaconfig:
         "logs/10.dereplicate_mags_drep",
         "logs/10.dereplicate_gene_prepare",
         "logs/10.dereplicate_gene_cdhit",
+        "logs/11.profiling_bgi_soap",
         "logs/11.profiling_metaphlan2",
         "logs/11.profiling_metaphlan2_merge",
         "logs/11.profiling_metaphlan3",

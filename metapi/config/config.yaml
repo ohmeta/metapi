@@ -296,6 +296,16 @@ params:
 
   profiling:
     threads: 8
+    bgi_soap:
+      do: False
+      index_prefix: /ldfssz1/ST_META/share/User/zhujie/database/bgi_soap
+      minimal_insert_size: 226
+      maximal_insert_size: 426
+      report_repeat_hits: 0
+      match_model: 4
+      align_seed: 30
+      max_mismatch_num: 5
+      identity: 0.95
     metaphlan:
       do_v2: True
       do_v3: True

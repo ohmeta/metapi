@@ -160,6 +160,7 @@ localrules: \
     trimming_fastp_all, \
     trimming_report_all, \
     trimming_all, \
+    rmhost_soap_all, \
     rmhost_bwa_all, \
     rmhost_bowtie2_all, \
     rmhost_report_all, \
@@ -188,6 +189,7 @@ localrules: \
     binning_concoct_all, \
     binning_graphbin_all, \
     binning_dastools_all, \
+    binning_vamb_all, \
     binning_report_all, \
     single_binning_all, \
     cobinning_metabat2_coverage_all, \
@@ -198,7 +200,6 @@ localrules: \
     cobinning_dastools_all, \
     cobinning_report_all, \
     cobinning_all, \
-    binning_vamb_all, \
     multisplit_binning_all, \
     binning_all, \
     single_predict_scaftigs_gene_all, \
@@ -214,8 +215,6 @@ localrules: \
     checkm_all, \
     dereplicate_mags_drep_all, \
     dereplicate_mags_all, \
-    dereplicate_gene_cdhit_all, \
-    dereplicate_gene_all, \
     dereplicate_all, \
     classify_short_reads_kraken2_all, \
     single_classify_hmq_bins_gtdbtk_all, \
@@ -224,6 +223,7 @@ localrules: \
     single_classify_all, \
     coclassify_all, \
     classify_all, \
+    profiling_bgi_soap_all, \
     profiling_metaphlan2_all, \
     profiling_metaphlan3_all, \
     profiling_jgi_all, \
