@@ -53,23 +53,7 @@ if config["params"]["profiling"]["bgi_soap"]["do"]:
                     ''')
             shell('''pigz {output.soap}''')
 
-'''
-    rule profiling_bgi_soap_merge:
-        input:
-            expand(os.path.join(
-                config["output"]["profiling"],
-                "profile/bgi_soap/{sample}/{sample}.bgi_soap.soap.gz"),
-                   sample=SAMPLES.index.unique()),
-            index = expand("{prefix}.{suffix}",
-                           prefix=config["params"]["profiling"]["bgi_soap"]["index_prefix"],
-                           suffix=["amb", "ann", "bwt", "fmv", "hot", "lkt", "pac",
-                                   "rev.bwt", "rev.fmv", "rev.lkt", "rev.pac", "sa", ".sai"]),
-            taxonomy = config["params"]["profiling"]["bgi_soap"]["taxonomy"]
-        output:
-        log:
-        threads:
-        shell:
-'''
+
     rule profiling_bgi_soap_all:
         input:
             expand(os.path.join(
