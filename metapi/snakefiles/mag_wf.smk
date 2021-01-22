@@ -27,7 +27,8 @@ HAVE_LONG = True \
 
 RMHOST_DO = True \
     if config["params"]["rmhost"]["bwa"]["do"] or \
-       config["params"]["rmhost"]["bowtie2"]["do"] \
+       config["params"]["rmhost"]["bowtie2"]["do"] or \
+       config["params"]["rmhost"]["soap"]["do"] \
        else False
 
 
