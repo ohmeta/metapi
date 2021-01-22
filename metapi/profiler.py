@@ -5,6 +5,7 @@ import concurrent.futures
 import os
 import sys
 import argparse
+import gzip
 
 
 def metaphlan_init(version):
@@ -120,6 +121,19 @@ def set_lineages_to(row, key, level):
 
 def get_mgs_id(row):
     return "_".join(row["ID"].split("_")[0:-1])
+
+
+def get_abun_df_bgi_soap(soap_file_list):
+    reads_count_dict = {}
+    for soap_file in soap_file_list: 
+        with gzip.open(soap_file, 'rt') as h:
+            for line in h:
+                ref_name = line.split("\t")[7]
+                if ref_name in reads_count_dict:
+                    reads_count_dict[ref_name] += 1
+                else:
+                    reads_count_dict[ref_name] = 1
+    return reads_count_dict
 
 
 def get_abun_df_hsx(abun_file):
