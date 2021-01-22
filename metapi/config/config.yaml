@@ -299,9 +299,9 @@ params:
     bgi_soap:
       do: False
       index_prefix: /ldfssz1/ST_META/share/User/zhujie/database/bgi_soap
-      minimal_insert_size: 226
-      maximal_insert_size: 426
-      report_repeat_hits: 0
+      minimal_insert_size: 0
+      maximal_insert_size: 1000
+      report_repeat_hits: 1
       match_model: 4
       align_seed: 30
       max_mismatch_num: 5
