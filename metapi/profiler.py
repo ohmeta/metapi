@@ -32,7 +32,8 @@ def read_metaphlan_table(table):
         with open(table, "r") as ih:
             for line in ih:
                 if not line.startswith("#"):
-                    clade_name, clade_taxid, abun = line.strip().split("\t")[0:3]
+                    clade_name, clade_taxid, abun = line.strip().split("\t")[
+                        0:3]
                     dict_["clade_name"].append(clade_name)
                     dict_["clade_taxid"].append(clade_taxid)
                     dict_[sample_id].append(abun)
@@ -58,6 +59,11 @@ def merge_metaphlan_tables(table_files, workers, **kwargs):
 def profiler_init(index_metadata):
     global INDEX_METADATA__
     INDEX_METADATA__ = pd.read_csv(index_metadata, sep="\t")
+
+
+def profiler_init2(index_metadata):
+    global INDEX_METADATA__2
+    INDEX_METADATA__2 = pd.read_csv(index_metadata, sep="\t")
 
 
 def set_lineages_to(row, key, level):
@@ -123,17 +129,20 @@ def get_mgs_id(row):
     return "_".join(row["ID"].split("_")[0:-1])
 
 
-def get_abun_df_bgi_soap(soap_file_list):
+def get_abun_df_bgi_soap(soap_file):
     reads_count_dict = {}
-    for soap_file in soap_file_list: 
-        with gzip.open(soap_file, 'rt') as h:
-            for line in h:
-                ref_name = line.split("\t")[7]
-                if ref_name in reads_count_dict:
-                    reads_count_dict[ref_name] += 1
-                else:
-                    reads_count_dict[ref_name] = 1
-    return reads_count_dict
+    with gzip.open(soap_file, 'rt') as h:
+        for line in h:
+            ref_name = line.split("\t")[7]
+            if ref_name in reads_count_dict:
+                reads_count_dict[ref_name] += 1
+            else:
+                reads_count_dict[ref_name] = 1
+    reads_count_df = pd.DataFrame(list(reads_count_dict.items()), columns=[
+                                  "reference_name", "reads_count"])
+    abun_df = reads_count_df.merge(INDEX_METADATA__2)
+
+    return abun_df
 
 
 def get_abun_df_hsx(abun_file):
@@ -233,7 +242,8 @@ def get_profile(abun_tax_df, samples_list, key, profile_tsv):
 
 def main():
     parser = argparse.ArgumentParser("metagenomics species abundance profiler")
-    parser.add_argument("-l", "--abundance_list", type=str, help="abundance list")
+    parser.add_argument("-l", "--abundance_list",
+                        type=str, help="abundance list")
     parser.add_argument(
         "--method", default="hsx", choices=["hsx", "jgi"], help="compute method"
     )
@@ -244,11 +254,13 @@ def main():
         "--taxonomy", default=None, help="genome database taxonomy information"
     )
     parser.add_argument("--threads", default=8, type=int, help="threads")
-    parser.add_argument("--out_prefix", default="./", type=str, help="output prefix")
+    parser.add_argument("--out_prefix", default="./",
+                        type=str, help="output prefix")
 
     args = parser.parse_args()
 
-    abun_files = pd.read_csv(args.abundance_list, names=["path"]).loc[:, "path"].values
+    abun_files = pd.read_csv(args.abundance_list, names=[
+                             "path"]).loc[:, "path"].values
 
     if args.method == "jgi" and args.database is None:
         print("pleas supply database when parse jgi depth file")
@@ -282,7 +294,8 @@ def main():
             abun_tax_df,
             samples_list,
             "lineages_superkingdom_new",
-            os.path.join(outdir, outprefix + "_abundance_profile_superkingdom.tsv"),
+            os.path.join(outdir, outprefix +
+                         "_abundance_profile_superkingdom.tsv"),
         )
         get_profile(
             abun_tax_df,
