@@ -177,7 +177,7 @@ def get_abun_df_bowtie2(bam):
 
     reads_count_dict = {}
     sam = pysam.AlignmentFile(bam, "rb")
-    for align in sam:
+    for r in sam:
         if not r.is_unmapped:
             tmp_nm = r.get_tag("NM:i")
             tmp_len = sum([int(i) for i in re.findall(
