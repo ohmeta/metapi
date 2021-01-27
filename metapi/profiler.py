@@ -177,17 +177,17 @@ def get_abun_df_bowtie2(bam):
 
     reads_count_dict = {}
     sam = pysam.AlignmentFile(bam, "rb")
-    for r in sam:
-        if not r.is_unmapped:
-            tmp_nm = r.get_tag("NM:i")
+    for record in sam:
+        if not record.is_unmapped:
+            tmp_nm = record.get_tag("NM:i")
             tmp_len = sum([int(i) for i in re.findall(
-                r"(\d+)(?:M|I|D)", r.cigarstring)])
+                r"(\d+)(?:M|I|D)", record.cigarstring)])
 
             if ((1 - tmp_nm / tmp_len)) >= 0.95:
-                if r.reference_name in reads_count_dict:
-                    reads_count_dict[r.reference_name] += 1
+                if record.reference_name in reads_count_dict:
+                    reads_count_dict[record.reference_name] += 1
                 else:
-                    reads_count_dict[r.reference_name] = 1
+                    reads_count_dict[record.reference_name] = 1
 
     reads_count_df = pd.DataFrame(list(reads_count_dict.items()), columns=[
                                   "reference_name", "reads_count"])
