@@ -1,7 +1,11 @@
 if config["params"]["profiling"]["bgi_soap"]["do"]:
     rule profiling_bgi_soap:
         input:
-            assembly_input_with_short_reads
+            reads = assembly_input_with_short_reads,
+            index = expand("{prefix}.{suffix}",
+                           prefix=config["params"]["profiling"]["bgi_soap"]["index_prefix"],
+                           suffix=["amb", "ann", "bwt", "fmv", "hot", "lkt", "pac",
+                                   "rev.bwt", "rev.fmv", "rev.lkt", "rev.pac", "sa", ".sai"])
         output:
             soap = os.path.join(
                 config["output"]["profiling"],
@@ -29,7 +33,7 @@ if config["params"]["profiling"]["bgi_soap"]["do"]:
             if IS_PE:
                 shell(
                     '''
-                    soap2.22 -a {input[0]} -b {input[1]} -D {params.index} \
+                    soap2.22 -a {input.reads[0]} -b {input.reads[1]} -D {params.index} \
                     -m {params.minimal_insert_size} \
                     -x {params.maximal_insert_size} \
                     -r {params.report_repeat_hits} \
@@ -50,7 +54,7 @@ if config["params"]["profiling"]["bgi_soap"]["do"]:
             else:
                 shell(
                     '''
-                    soap2.22 -a {input[0]} -D {params.index} \
+                    soap2.22 -a {input.reads[0]} -D {params.index} \
                     -m {params.minimal_insert_size} \
                     -x {params.maximal_insert_size} \
                     -r {params.report_repeat_hits} \
@@ -101,6 +105,63 @@ if config["params"]["profiling"]["bgi_soap"]["do"]:
 
 else:
     rule profiling_bgi_soap_all:
+        input:
+
+
+if config["params"]["profiling"]["bowtie2"]["do"]:
+    rule profiling_bowtie2:
+        input:
+            reads = assembly_input_with_short_reads,
+            index = expand("{prefix}.{suffix}",
+                           prefix=config["params"]["profiling"]["bowtie2"]["index_prefix"],
+                           suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
+        output:
+            flagstat = os.path.join(
+                config["output"]["profiling"],
+                "profile/bowtie2/{sample}/{sample}.bowtie2.flagstat"),
+            bam = os.path.join(
+                config["output"]["profiling"],
+                "profile/bowtie2/{sample}/{sample}.bowtie2.sorted.bam")
+        log:
+            os.path.join(config["output"]["profiling"], "logs/{sample}.bowtie2.log")
+        benchmark:
+            os.path.join(config["output"]["profiling"],
+                         "benchmark/bowtie2/{sample}.profiling.bowtie2.benchmark.txt")
+        params:
+            index_prefix = config["params"]["profiling"]["bowtie2"]["index_prefix"]
+        threads:
+            config["params"]["profiling"]["threads"]
+        run:
+            shell(
+                '''
+                bowtie2 \
+                --threads {threads} \
+                -x {params.index_prefix} \
+                %s \
+                2> {log} | \
+                tee >(samtools flagstat \
+                      -@{threads} - \
+                      > {output.flagstat}) | \
+                samtools sort \
+                -@{threads} \
+                -T {output.bam} \
+                -O BAM -o {output.bam} -
+                ''' % \
+                "-1 {input.reads[0]} -2 {input.reads[1]}" if IS_PE \
+                else "-U {input.reads[0]}")
+
+
+    rule profiling_bowtie2_all:
+        input:
+            expand([
+                os.path.join(config["output"]["profiling"],
+                             "profile/bowtie2/{sample}/{sample}.bowtie2.flagstat"),
+                os.path.join(config["output"]["profiling"],
+                             "profile/bowtie2/{sample}/{sample}/.bowtie2.sorted.bam")],
+                   sample=SAMPLES.index.unique())
+
+else:
+    rule profiling_bowtie2_all:
         input:
 
 
@@ -1521,6 +1582,7 @@ else:
 rule profiling_all:
     input:
         rules.profiling_bgi_soap_all.input,
+        rules.profiling_bowtie2_all.input,
         rules.profiling_metaphlan2_all.input,
         rules.profiling_metaphlan3_all.input,
         rules.profiling_jgi_all.input,
