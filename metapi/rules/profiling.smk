@@ -123,7 +123,7 @@ if config["params"]["profiling"]["bowtie2"]["do"]:
                 "profile/bowtie2/{sample}/{sample}.bowtie2.flagstat"),
             bam = os.path.join(
                 config["output"]["profiling"],
-                "profile/bowtie2/{sample}/{sample}.bowtie2.sorted.bam")
+                "profile/bowtie2/{sample}/{sample}.bowtie2.bam")
         log:
             os.path.join(config["output"]["profiling"], "logs/{sample}.bowtie2.log")
         benchmark:
