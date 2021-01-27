@@ -299,6 +299,7 @@ params:
     bgi_soap:
       do: False
       index_prefix: /ldfssz1/ST_META/share/User/zhujie/database/bgi_soap
+      index_taxonomy: /ldfssz1/ST_META/share/User/zhujie/database/bgi_soap/index_taxonomy
       minimal_insert_size: 0
       maximal_insert_size: 1000
       report_repeat_hits: 1
