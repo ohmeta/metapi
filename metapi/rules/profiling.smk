@@ -35,9 +35,14 @@ if config["params"]["profiling"]["bgi_soap"]["do"]:
                     -v {params.max_mismatch_num} \
                     -c {params.identity} \
                     -S -p {threads} \
-                    -o {params.soap} \
+                    -o {params.soap}.pe \
                     -2 {params.soap}.se \
                     2> {log}
+                    ''')
+                shell(
+                    '''
+                    cat {params.soap}.pe {params.soap}.se > {params.soap}
+                    rm -rf {params.soap}.pe {params.soap}.se
                     ''')
             else:
                 shell(
