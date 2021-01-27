@@ -85,7 +85,7 @@ if config["params"]["profiling"]["bgi_soap"]["do"]:
         run:
             metapi.profiler_init(input.taxonomy)
 
-            count_df, abun_df = get_all_abun_df(input.soap_list, threads, "bgi_soap")
+            count_df, abun_df = metapi.get_all_abun_df(input.soap_list, threads, "bgi_soap")
             count_df.to_csv(output.count_profile, sep='\t', index=False)
             abun_df.to_csv(output.abun_profile, sep='\t', index=False)
 
