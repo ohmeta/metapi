@@ -168,7 +168,7 @@ if config["params"]["profiling"]["bowtie2"]["do"]:
         output:
             abun_profile = os.path.join(
                 config["output"]["profiling"],
-                "profile/bowtiew2.merged.abundance.profile.tsv"),
+                "profile/bowtie2.merged.abundance.profile.tsv"),
             count_profile = os.path.join(
                 config["output"]["profiling"],
                 "profile/bowtie2.merged.count.profile.tsv")
