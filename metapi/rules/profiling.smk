@@ -157,7 +157,7 @@ if config["params"]["profiling"]["bowtie2"]["do"]:
                 os.path.join(config["output"]["profiling"],
                              "profile/bowtie2/{sample}/{sample}.bowtie2.flagstat"),
                 os.path.join(config["output"]["profiling"],
-                             "profile/bowtie2/{sample}/{sample}/.bowtie2.sorted.bam")],
+                             "profile/bowtie2/{sample}/{sample}.bowtie2.sorted.bam")],
                    sample=SAMPLES.index.unique())
 
 else:
