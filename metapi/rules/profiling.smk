@@ -75,7 +75,7 @@ if config["params"]["profiling"]["bgi_soap"]["do"]:
                 config["output"]["profiling"],
                 "profile/bgi_soap/{sample}/{sample}.bgi_soap.soap.gz"),
                    sample=SAMPLES.index.unique()),
-            taxonomy = config["params"]["profiling"]["bgi_soap"]["index_taxonomy"]
+            taxonomy = config["params"]["profiling"]["index_taxonomy"]
         output:
             abun_profile = os.path.join(
                 config["output"]["profiling"],
@@ -84,6 +84,8 @@ if config["params"]["profiling"]["bgi_soap"]["do"]:
                 config["output"]["profiling"],
                 "profile/bgi_soap.merged.count.profile.tsv")
         log:
+            os.path.join(config["output"]["profiling"],
+                         "logs/profiling_bgi_soap_merge.log")
         threads:
             config["params"]["profiling"]["threads"]
         run:
@@ -135,30 +137,62 @@ if config["params"]["profiling"]["bowtie2"]["do"]:
             shell(
                 '''
                 bowtie2 \
-                --threads {threads} \
                 -x {params.index_prefix} \
+                --end-to-end \
+                --very-sensitive \
+                --phred33 \
+                --threads {threads} \
+                --seed 0 \
+                --time \
+                -k 2 \
+                --no-unal \
+                --no-discordant \
                 %s \
                 2> {log} | \
                 tee >(samtools flagstat \
                       -@{threads} - \
                       > {output.flagstat}) | \
-                samtools sort \
-                -@{threads} \
-                -T {output.bam} \
-                -O BAM -o {output.bam} -
+                samtools view -b -o {output.bam} -
                 ''' % \
                 "-1 {input.reads[0]} -2 {input.reads[1]}" if IS_PE \
                 else "-U {input.reads[0]}")
 
 
+    rule profiling_bowtie2_merge:
+        input:
+            bam = expand(os.path.join(
+                config["output"]["profiling"],
+                "profile/bowtie2/{sample}/{sample}.bowtie2.bam"),
+                   sample=SAMPLES.index.unique()),
+            taxonomy = config["params"]["profiling"]["index_taxonomy"]
+        output:
+            abun_profile = os.path.join(
+                config["output"]["profiling"],
+                "profile/bowtiew2.merged.abundance.profile.tsv"),
+            count_profile = os.path.join(
+                config["output"]["profiling"],
+                "profile/bowtie2.merged.count.profile.tsv")
+        log:
+            os.path.join(config["output"]["profiling"],
+                         "logs/profiling_bowtie2_merge.log")
+        threads:
+            config["params"]["profiling"]["threads"]
+        run:
+            metapi.profiler_init(input.taxonomy)
+
+            count_df, abun_df = metapi.get_all_abun_df(input.bam, threads, "bowtie2")
+            count_df.to_csv(output.count_profile, sep='\t', index=False)
+            abun_df.to_csv(output.abun_profile, sep='\t', index=False)
+
+
     rule profiling_bowtie2_all:
         input:
-            expand([
-                os.path.join(config["output"]["profiling"],
-                             "profile/bowtie2/{sample}/{sample}.bowtie2.flagstat"),
-                os.path.join(config["output"]["profiling"],
-                             "profile/bowtie2/{sample}/{sample}.bowtie2.sorted.bam")],
-                   sample=SAMPLES.index.unique())
+            os.path.join(
+                config["output"]["profiling"],
+                "profile/bowtie2.merged.abundance.profile.tsv"),
+            os.path.join(
+                config["output"]["profiling"],
+                "profile/bowtie2.merged.count.profile.tsv")
 
 else:
     rule profiling_bowtie2_all:
