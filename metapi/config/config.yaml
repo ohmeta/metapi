@@ -298,8 +298,8 @@ params:
     threads: 8
     bgi_soap:
       do: False
-      index_prefix: /ldfssz1/ST_META/share/User/zhujie/database/bgi_soap
-      index_taxonomy: /ldfssz1/ST_META/share/User/zhujie/database/bgi_soap/index_taxonomy
+      index_prefix: /ldfssz1/ST_META/share/User/zhujie/database/MAG_SET/bgi_soap
+      index_taxonomy: /ldfssz1/ST_META/share/User/zhujie/database/MAG_SET/index_taxonomy
       minimal_insert_size: 0
       maximal_insert_size: 1000
       report_repeat_hits: 1
@@ -307,6 +307,10 @@ params:
       align_seed: 30
       max_mismatch_num: 5
       identity: 0.95
+    bowtie2:
+      do: False
+      index_prefix: /ldfssz1/ST_META/share/User/zhujie/database/MAG_SET/bowtie2_index
+      index_taxonomy: /ldfssz1/ST_META/share/User/zhujie/database/MAG_SET/index_taxonomy
     metaphlan:
       do_v2: True
       do_v3: True

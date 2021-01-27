@@ -137,6 +137,8 @@ class metaconfig:
         "logs/10.dereplicate_gene_cdhit",
         "logs/11.profiling_bgi_soap",
         "logs/11.profiling_bgi_soap_merge",
+        "logs/11.profiling_bowtie2",
+        "logs/11.profiling_bowtie2_merge",
         "logs/11.profiling_metaphlan2",
         "logs/11.profiling_metaphlan2_merge",
         "logs/11.profiling_metaphlan3",
