@@ -61,11 +61,6 @@ def profiler_init(index_metadata):
     INDEX_METADATA__ = pd.read_csv(index_metadata, sep="\t")
 
 
-def profiler_init2(index_metadata):
-    global INDEX_METADATA__2
-    INDEX_METADATA__2 = pd.read_csv(index_metadata, sep="\t")
-
-
 def set_lineages_to(row, key, level):
     LINEAGES = [
         "superkingdom",
@@ -130,6 +125,8 @@ def get_mgs_id(row):
 
 
 def get_abun_df_bgi_soap(soap_file):
+    sample_id = os.path.basename(soap_file).split(".")[0]
+
     reads_count_dict = {}
     with gzip.open(soap_file, 'rt') as h:
         for line in h:
@@ -140,9 +137,37 @@ def get_abun_df_bgi_soap(soap_file):
                 reads_count_dict[ref_name] = 1
     reads_count_df = pd.DataFrame(list(reads_count_dict.items()), columns=[
                                   "reference_name", "reads_count"])
-    abun_df = reads_count_df.merge(INDEX_METADATA__2)
+    abun = reads_count_df.merge(INDEX_METADATA__)
 
-    return abun_df
+    '''
+    abun["count_by_len"] = abun["reads_count"] / abun["reference_length"]
+    abun["count_by_len_rate"] = abun["count_by_len"] / \
+        sum(abun["count_by_len"])
+
+    # geneset method 1
+    abun_df = abun.groupby("lineages_full")\
+                  .agg({"count_by_len_rate": "sum"})\
+                  .rename(columns={"count_by_len_rate": sample_id})
+    # geneset method 2
+    count_by_len_df = abun.groupby("lineages_full").agg(
+        {"count_by_len": "sum"})
+    count_by_len_df["count_by_len_rate"] = count_by_len_df["count_by_len"] / \
+        sum(count_by_len_df["count_by_len"])
+    abun_df = count_by_len_df.loc[:, ["count_by_len_rate"]]\
+                             .rename(columns={"count_by_len_rate": sample_id})
+    '''
+
+    # count method
+    abun_count = abun.groupby("lineages_full").agg(
+        {"reads_count": "sum"})
+    abun_count["count_rate"] = abun_count["reads_count"] / \
+        sum(abun_count["reads_count"])
+
+    abun_df = abun_count.loc[:, ["count_rate"]].rename(
+        columns={"count_rate": sample_id})
+    count_df = abun_count.loc[:, ["reads_count"]].rename(
+        columns={"reads_count": sample_id})
+    return count_df, abun_df
 
 
 def get_abun_df_hsx(abun_file):
@@ -209,6 +234,8 @@ def get_all_abun_df(abun_files, workers, method):
         func = get_abun_df_jgi
     elif method == "hsx":
         func = get_abun_df_hsx
+    elif method == "bgi_soap":
+        func = get_abun_df_bgi_soap
     else:
         print("unspoort method %s" % method)
 

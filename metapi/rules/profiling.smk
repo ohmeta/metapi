@@ -8,6 +8,9 @@ if config["params"]["profiling"]["bgi_soap"]["do"]:
                 "profile/bgi_soap/{sample}/{sample}.bgi_soap.soap.gz")
         log:
             os.path.join(config["output"]["profiling"], "logs/{sample}.bgi_soap.log")
+        benchmark:
+            os.path.join(config["output"]["profiling"],
+                         "benchmark/bgi_soap/{sample}.profiling.bgi_soap.benchmark.txt")
         params:
             index = config["params"]["profiling"]["bgi_soap"]["index_prefix"],
             minimal_insert_size = config["params"]["profiling"]["bgi_soap"]["minimal_insert_size"],
@@ -62,12 +65,39 @@ if config["params"]["profiling"]["bgi_soap"]["do"]:
             shell('''pigz {params.soap}''')
 
 
-    rule profiling_bgi_soap_all:
+    rule profiling_bgi_soap_merge:
         input:
-            expand(os.path.join(
+            soap_list = expand(os.path.join(
                 config["output"]["profiling"],
                 "profile/bgi_soap/{sample}/{sample}.bgi_soap.soap.gz"),
-                   sample=SAMPLES.index.unique())
+                   sample=SAMPLES.index.unique()),
+            taxonomy = config["params"]["profiling"]["bgi_soap"]["index_taxonomy"]
+        output:
+            abun_profile = os.path.join(
+                config["output"]["profiling"],
+                "profile/bgi_soap.merged.abundance.profile.tsv"),
+            count_profile = os.path.join(
+                config["output"]["profiling"],
+                "profile/bgi_soap.merged.count.profile.tsv")
+        log:
+        threads:
+            config["params"]["profiling"]["threads"]
+        run:
+            metapi.profiler_init(input.taxonomy)
+
+            count_df, abun_df = get_all_abun_df(input.soap_list, threads, "bgi_soap")
+            count_df.to_csv(output.count_profile, sep='\t', index=False)
+            abun_df.to_csv(output.abun_profile, sep='\t', index=False)
+
+
+    rule profiling_bgi_soap_all:
+        input:
+            os.path.join(
+                config["output"]["profiling"],
+                "profile/bgi_soap.merged.abundance.profile.tsv"),
+            os.path.join(
+                config["output"]["profiling"],
+                "profile/bgi_soap.merged.count.profile.tsv")
 
 else:
     rule profiling_bgi_soap_all:
