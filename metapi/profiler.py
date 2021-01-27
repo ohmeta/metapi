@@ -6,6 +6,8 @@ import os
 import sys
 import argparse
 import gzip
+import pysam
+import re
 
 
 def metaphlan_init(version):
@@ -170,6 +172,39 @@ def get_abun_df_bgi_soap(soap_file):
     return count_df, abun_df
 
 
+def get_abun_df_bowtie2(bam):
+    sample_id = os.path.basename(bam).split(".")[0]
+
+    reads_count_dict = {}
+    sam = pysam.AlignmentFile(bam, "rb")
+    for align in sam:
+        if not r.is_unmapped:
+            tmp_nm = r.get_tag("NM:i")
+            tmp_len = sum([int(i) for i in re.findall(
+                r"(\d+)(?:M|I|D)", r.cigarstring)])
+
+            if ((1 - tmp_nm / tmp_len)) >= 0.95:
+                if r.reference_name in reads_count_dict:
+                    reads_count_dict[r.reference_name] += 1
+                else:
+                    reads_count_dict[r.reference_name] = 1
+
+    reads_count_df = pd.DataFrame(list(reads_count_dict.items()), columns=[
+                                  "reference_name", "reads_count"])
+    abun = reads_count_df.merge(INDEX_METADATA__)
+
+    abun_count = abun.groupby("lineages_full").agg(
+        {"reads_count": "sum"})
+    abun_count["count_rate"] = abun_count["reads_count"] / \
+        sum(abun_count["reads_count"])
+
+    abun_df = abun_count.loc[:, ["count_rate"]].rename(
+        columns={"count_rate": sample_id})
+    count_df = abun_count.loc[:, ["reads_count"]].rename(
+        columns={"reads_count": sample_id})
+    return count_df, abun_df
+
+
 def get_abun_df_hsx(abun_file):
     sample_id = os.path.basename(abun_file).split(".")[0]
 
@@ -236,6 +271,8 @@ def get_all_abun_df(abun_files, workers, method):
         func = get_abun_df_hsx
     elif method == "bgi_soap":
         func = get_abun_df_bgi_soap
+    elif method == "bowtie2":
+        func = get_abun_df_bowtie2
     else:
         print("unspoort method %s" % method)
 
