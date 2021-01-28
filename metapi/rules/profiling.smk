@@ -116,14 +116,24 @@ if config["params"]["profiling"]["bowtie2"]["do"]:
             reads = assembly_input_with_short_reads,
             index = expand("{prefix}.{suffix}",
                            prefix=config["params"]["profiling"]["bowtie2"]["index_prefix"],
-                           suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
+                           suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"]),
+            taxonomy = config["params"]["profiling"]["index_taxonomy"]
         output:
             flagstat = os.path.join(
                 config["output"]["profiling"],
                 "profile/bowtie2/{sample}/{sample}.bowtie2.flagstat"),
             bam = os.path.join(
                 config["output"]["profiling"],
-                "profile/bowtie2/{sample}/{sample}.bowtie2.bam")
+                "profile/bowtie2/{sample}/{sample}.bowtie2.bam"),
+            bai = os.path.join(
+                config["output"]["profiling"],
+                "profile/bowtie2/{sample}/{sample}.bowtie2.bam.bai"),
+            count_profile = os.path.join(
+                config["output"]["profiling"],
+                "profile/bowtie2/{sample}/{sample}.bowtie2.count.tsv"),
+            abun_profile = os.path.join(
+                config["output"]["profiling"],
+                "profile/bowtie2/{sample}/{sample}.bowtie2.abun.tsv")
         log:
             os.path.join(config["output"]["profiling"], "logs/{sample}.bowtie2.log")
         benchmark:
@@ -157,14 +167,27 @@ if config["params"]["profiling"]["bowtie2"]["do"]:
                 "-1 {input.reads[0]} -2 {input.reads[1]}" if IS_PE \
                 else "-U {input.reads[0]}")
 
+            shell(
+                '''
+                samtools index -@{threads} {output.bam} {output.bai} 2>> {log}
+                ''')
+
+            metapi.profiler_init(input.taxonomy)
+            count_df, abun_df = metapi.get_abun_df_bowtie2(output.bam)
+            count_df.reset_index().to_csv(output.count_profile, sep='\t')
+            abun_df.reset_index().to_csv(output.abun_profile, sep='\t')
+
 
     rule profiling_bowtie2_merge:
         input:
-            bam = expand(os.path.join(
+            count_tsv_list = expand(os.path.join(
                 config["output"]["profiling"],
-                "profile/bowtie2/{sample}/{sample}.bowtie2.bam"),
-                   sample=SAMPLES.index.unique()),
-            taxonomy = config["params"]["profiling"]["index_taxonomy"]
+                "profile/bowtie2/{sample}/{sample}.bowtie2.count.tsv"),
+                                    sample=SAMPLES.index.unique()),
+            abun_tsv_list = expand(os.path.join(
+                config["output"]["profiling"],
+                "profile/bowtie2/{sample}/{sample}.bowtie2.abun.tsv"),
+                                   sample=SAMPLES.index.unique())
         output:
             abun_profile = os.path.join(
                 config["output"]["profiling"],
@@ -178,11 +201,29 @@ if config["params"]["profiling"]["bowtie2"]["do"]:
         threads:
             config["params"]["profiling"]["threads"]
         run:
-            metapi.profiler_init(input.taxonomy)
+            import concurrent.futures
 
-            count_df, abun_df = metapi.get_all_abun_df(input.bam, threads, "bowtie2")
-            count_df.to_csv(output.count_profile, sep='\t', index=False)
-            abun_df.to_csv(output.abun_profile, sep='\t', index=False)
+            def parse(tsv_file):
+                df = pd.read_csv(tsv_file, sep='\t').set_index("lineages_full")
+
+            count_list = []
+            abun_list = []
+
+            with concurrent.futures.ProcessPoolExecutor(max_workers=threads) as executor:
+                for count_df in executor.map(parse, input.count_tsv_list):
+                    if count_df is not None:
+                        count_list.append(count_df)
+
+            with concurrent.futures.ProcessPoolExecutor(max_workers=threads) as executor:
+                for abun_df in executor.map(parse, input.abun_tsv_list):
+                    if abun_df is not None:
+                        abun_list.append(abun_df)
+
+            count_df_ = pd.concat(count_list, axis=1).reset_index()
+            abun_df_ = pd.concat(abun_list, axis=1).reset_index()
+
+            count_df_.to_csv(output.count_profile, sep='\t', index=False)
+            abun_df_.to_csv(output.abun_profile, sep='\t', index=False)
 
 
     rule profiling_bowtie2_all:
