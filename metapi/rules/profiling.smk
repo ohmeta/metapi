@@ -124,10 +124,10 @@ if config["params"]["profiling"]["bowtie2"]["do"]:
                 "profile/bowtie2/{sample}/{sample}.bowtie2.flagstat"),
             bam = os.path.join(
                 config["output"]["profiling"],
-                "profile/bowtie2/{sample}/{sample}.bowtie2.bam"),
+                "profile/bowtie2/{sample}/{sample}.bowtie2.sorted.bam"),
             bai = os.path.join(
                 config["output"]["profiling"],
-                "profile/bowtie2/{sample}/{sample}.bowtie2.bam.bai"),
+                "profile/bowtie2/{sample}/{sample}.bowtie2.sorted.bam.bai"),
             count_profile = os.path.join(
                 config["output"]["profiling"],
                 "profile/bowtie2/{sample}/{sample}.bowtie2.count.tsv"),
@@ -162,7 +162,10 @@ if config["params"]["profiling"]["bowtie2"]["do"]:
                 tee >(samtools flagstat \
                       -@{threads} - \
                       > {output.flagstat}) | \
-                samtools view -b -o {output.bam} -
+                samtools sort \
+                -@{threads} \
+                -T {output.bam} \
+                -O BAM -o {output.bam} -
                 ''' % \
                 "-1 {input.reads[0]} -2 {input.reads[1]}" if IS_PE \
                 else "-U {input.reads[0]}")
