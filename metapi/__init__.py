@@ -35,6 +35,9 @@ from metapi.classifier import demultiplex
 
 from metapi.profiler import profiler_init
 from metapi.profiler import get_all_abun_df
+from metapi.profiler import get_abun_df_bgi_soap
+from metapi.profiler import get_abun_df_bowtie2
+from metapi.profiler import get_abun_df_jgi
 from metapi.profiler import get_profile
 from metapi.profiler import metaphlan_init
 from metapi.profiler import merge_metaphlan_tables
