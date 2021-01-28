@@ -177,8 +177,8 @@ if config["params"]["profiling"]["bowtie2"]["do"]:
 
             metapi.profiler_init(input.taxonomy)
             count_df, abun_df = metapi.get_abun_df_bowtie2(output.bam)
-            count_df.reset_index().to_csv(output.count_profile, sep='\t')
-            abun_df.reset_index().to_csv(output.abun_profile, sep='\t')
+            count_df.reset_index().to_csv(output.count_profile, sep='\t', index=False)
+            abun_df.reset_index().to_csv(output.abun_profile, sep='\t', index=False)
 
 
     rule profiling_bowtie2_merge:
