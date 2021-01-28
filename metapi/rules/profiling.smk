@@ -206,6 +206,7 @@ if config["params"]["profiling"]["bowtie2"]["do"]:
         run:
             def parse(tsv_file):
                 df = pd.read_csv(tsv_file, sep='\t').set_index("lineages_full")
+                return df
 
             count_list = [parse(i) for i in input.count_tsv_list]
             abun_list = [parse(i) for i in input.abun_tsv_list]
