@@ -224,7 +224,7 @@ if "metaspades" in ASSEMBLERS:
             20
         params:
             prefix = "{sample}",
-            memory = config["params"]["assembly"]["metaspades"]["memory"],
+            memory = str(config["params"]["assembly"]["metaspades"]["memory"]),
             kmers = "auto" \
                 if len(config["params"]["assembly"]["metaspades"]["kmers"]) == 0 \
                    else ",".join(config["params"]["assembly"]["metaspades"]["kmers"]),
@@ -247,8 +247,21 @@ if "metaspades" in ASSEMBLERS:
                          "logs/{sample}.metaspades.log")
         run:
             if IS_PE:
-                if os.path.exists(os.path.join(params.output_dir, "params.txt")):
-                    shell(
+                continue = False
+                error_correct = False if params.only_assembler == "" else True
+                params_file = os.path.join(params.output_dir, "params.txt")
+
+                if os.path.exists(params_file):
+                    spades_params = metapi.parse_spades_params(params_file)
+                    if spades_params is not None:
+                        if all([params.kmers == spades_params[0],
+                                params.memory == spades_params[1],
+                                str(threads) == spades_params[2],
+                                error_correct == spades_params[3]]):
+                            continue = True
+
+                if continue:
+                     shell(
                         '''
                         metaspades.py \
                         --continue \
@@ -391,7 +404,20 @@ if "spades" in ASSEMBLERS:
         log:
             os.path.join(config["output"]["assembly"], "logs/{sample}.spades.log")
         run:
-            if os.path.exists(os.path.join(params.output_dir, "params.txt")):
+            continue = False
+            error_correct = False if params.only_assembler == "" else True
+            params_file = os.path.join(params.output_dir, "params.txt")
+
+            if os.path.exists(params_file):
+                spades_params = metapi.parse_spades_params(params_file)
+                if spades_params is not None:
+                    if all([params.kmers == spades_params[0],
+                            params.memory == spades_params[1],
+                            str(threads) == spades_params[2],
+                            error_correct == spades_params[3]]):
+                        continue = True
+
+            if continue:
                 shell(
                     '''
                     spades.py \
