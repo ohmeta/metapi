@@ -247,7 +247,7 @@ if "metaspades" in ASSEMBLERS:
                          "logs/{sample}.metaspades.log")
         run:
             if IS_PE:
-                continue = False
+                continue_assembly = False
                 error_correct = False if params.only_assembler == "" else True
                 params_file = os.path.join(params.output_dir, "params.txt")
 
@@ -258,9 +258,9 @@ if "metaspades" in ASSEMBLERS:
                                 params.memory == spades_params[1],
                                 str(threads) == spades_params[2],
                                 error_correct == spades_params[3]]):
-                            continue = True
+                            continue_assembly = True
 
-                if continue:
+                if continue_assembly:
                      shell(
                         '''
                         metaspades.py \
@@ -404,7 +404,7 @@ if "spades" in ASSEMBLERS:
         log:
             os.path.join(config["output"]["assembly"], "logs/{sample}.spades.log")
         run:
-            continue = False
+            continue_assembly = False
             error_correct = False if params.only_assembler == "" else True
             params_file = os.path.join(params.output_dir, "params.txt")
 
@@ -415,9 +415,9 @@ if "spades" in ASSEMBLERS:
                             params.memory == spades_params[1],
                             str(threads) == spades_params[2],
                             error_correct == spades_params[3]]):
-                        continue = True
+                        continue_assembly = True
 
-            if continue:
+            if continue_assembly:
                 shell(
                     '''
                     spades.py \
