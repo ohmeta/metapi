@@ -96,7 +96,7 @@ params:
       only_assembler: False
       only_save_scaftigs: True
       link_scaffolds: True
-      memory: 20
+      memory: 81
       kmers: ["21", "33", "55", "77"]
       # K_MERS_RNA = [33, 49]
       # K_MERS_SHORT = [21, 33, 55]

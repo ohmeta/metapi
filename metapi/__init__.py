@@ -23,6 +23,7 @@ from metapi.qcer import qc_bar_plot
 
 from metapi.assembler import assembler_init
 from metapi.assembler import parse_assembly
+from metapi.assembler import parse_spades_params
 
 from metapi.aligner import flagstats_summary
 

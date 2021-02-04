@@ -171,7 +171,7 @@ assembly_idba_ud:
   error: "logs/04.{rule}/{rule}.{wildcards.sample}.e"
 
 assembly_metaspades:
-  mem: "20G"
+  mem: "81G"
   cores: 8
   output: "logs/04.{rule}/{rule}.{wildcards.sample}.o"
   error: "logs/04.{rule}/{rule}.{wildcards.sample}.e"
