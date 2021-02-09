@@ -215,7 +215,7 @@ params:
     vamb:
       do: True
       save_bam: False
-      min_contig: 1500
+      min_contig: 2000
       index_size: 12G
 
   predict:
