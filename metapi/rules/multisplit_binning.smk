@@ -176,7 +176,8 @@ if config["params"]["binning"]["vamb"]["do"]:
                 "bins/all.{assembler}.combined.out/vamb"),
             outdir_base = os.path.join(
                 config["output"]["multisplit_binning"],
-                "bins/all.{assembler}.combined.out/")
+                "bins/all.{assembler}.combined.out/"),
+            min_contig = config["params"]["binning"]["vamb"]["min_contig"]
         shell:
             '''
             rm -rf {params.outdir}
@@ -186,7 +187,7 @@ if config["params"]["binning"]["vamb"]["do"]:
             --outdir {params.outdir} \
             --fasta {input.scaftigs} \
             --jgi {input.matrix} \
-            -o C -m 2000 --minfasta 500000 \
+            -o C -m {params.min_contig} --minfasta 500000 \
             2> {log}
             '''
 
