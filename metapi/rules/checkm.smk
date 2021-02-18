@@ -101,7 +101,7 @@ if config["params"]["checkm"]["do"]:
             shell('''rm -rf {params.data_dir_temp}''')
 
 
-    def aggregate_checkm_report_input(wildcards):
+    def aggregate_checkm_output(wildcards):
         checkpoint_output = checkpoints.checkm_prepare.get(**wildcards).output.links_dir
 
         return expand(os.path.join(
@@ -116,7 +116,7 @@ if config["params"]["checkm"]["do"]:
    
     rule checkm_report:
         input:
-            aggregate_checkm_report_input
+            aggregate_checkm_output
         output:
             table = os.path.join(config["output"]["checkm"],
                                  "report/{assembler}_{binner_checkm}_checkm_table.tsv"),

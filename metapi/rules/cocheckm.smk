@@ -100,7 +100,7 @@ if config["params"]["checkm"]["do"]:
             shell('''rm -rf {params.data_dir_temp}''')
 
 
-    def aggregate_cocheckm_report_input(wildcards):
+    def aggregate_cocheckm_output(wildcards):
         checkpoint_output = checkpoints.cocheckm_prepare.get(**wildcards).output.links_dir
 
         return expand(os.path.join(
@@ -115,7 +115,7 @@ if config["params"]["checkm"]["do"]:
 
     rule cocheckm_report:
         input:
-            aggregate_cocheckm_report_input
+            aggregate_cocheckm_output
         output:
             table = os.path.join(config["output"]["cocheckm"],
                                  "report/{assembler_co}_{binner_checkm}_checkm_table.tsv"),
