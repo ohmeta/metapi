@@ -178,12 +178,15 @@ if config["params"]["binning"]["vamb"]["do"]:
                 config["output"]["multisplit_binning"],
                 "bins/all.{assembler}.combined.out/"),
             min_contig = config["params"]["binning"]["vamb"]["min_contig"]
+            cuda = "--cuda" if config["params"]["binning"]["vamb"]["cuda"] \
+                else ""
         shell:
             '''
             rm -rf {params.outdir}
             mkdir -p {params.outdir_base}
 
             vamb \
+            {params.cuda} \
             --outdir {params.outdir} \
             --fasta {input.scaftigs} \
             --jgi {input.matrix} \

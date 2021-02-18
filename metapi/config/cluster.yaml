@@ -385,6 +385,8 @@ binning_vamb_gen_abundance_matrix:
   error: "logs/06.{rule}/{rule}.{wildcards.assembler}.e"
 
 binning_vamb:
+  project: "P18Z10200N0127_gpu"
+  queue: "st_gpu1.q"
   mem: "1G"
   cores: 1
   output: "logs/06.{rule}/{rule}.{wildcards.assembler}.o"
