@@ -30,7 +30,7 @@ from metapi.aligner import flagstats_summary
 from metapi.binner import get_binning_info
 from metapi.binner import generate_bins
 
-from metapi.checkmer import checkm_report
+from metapi.checkmer import checkm_reporter
 
 from metapi.classifier import demultiplex
 

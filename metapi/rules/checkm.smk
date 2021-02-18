@@ -33,7 +33,7 @@ if config["params"]["checkm"]["do"]:
 
             if len(bin_list) > 0:
                 for batch_id in range(0, len(bin_list), params.batch_num):
-                    batch_dir = os.path.join(output[0], "bins_%d" % batch_id)
+                    batch_dir = os.path.join(output.links_dir, "bins_%d" % batch_id)
                     os.makedirs(batch_dir, exist_ok=True)
 
                     for bin_file in bin_list[batch_id:batch_id + params.batch_num]:
@@ -139,7 +139,7 @@ if config["params"]["checkm"]["do"]:
         run:
             import pandas as pd
 
-            df = metapi.checkm_report(input, output.table, threads)
+            df = metapi.checkm_reporter(input, output.table, threads)
 
             def get_bin_path(row):
                 bin_fa_path = os.path.realpath(

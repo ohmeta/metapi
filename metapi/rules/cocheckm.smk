@@ -138,7 +138,7 @@ if config["params"]["checkm"]["do"]:
         run:
             import pandas as pd
 
-            df = metapi.checkm_report(input, output.table, threads)
+            df = metapi.checkm_reporter(input, output.table, threads)
 
             def get_bin_path(row):
                 bin_fa_path = os.path.realpath(
