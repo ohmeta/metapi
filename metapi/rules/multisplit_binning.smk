@@ -204,7 +204,7 @@ if config["params"]["binning"]["vamb"]["do"]:
                                 "bins/{sample}.{{assembler}}.out/vamb"),
                    sample=SAMPLES.index.unique())
         params:
-            bins_from = config["output"]["mulisplit_binning"],
+            bins_from = config["output"]["multisplit_binning"],
             bins_to = config["output"]["binning"],
             assembler = "{assembler}"
         run:
