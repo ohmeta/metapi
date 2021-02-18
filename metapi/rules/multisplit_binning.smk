@@ -195,14 +195,56 @@ if config["params"]["binning"]["vamb"]["do"]:
             '''
 
 
+    rule binning_vamb_postprocess:
+        input:
+            os.path.join(config["output"]["multisplit_binning"],
+                         "bins/all.{assembler}.combined.out/vamb/bins")
+        output:
+            expand(os.path.join(config["output"]["binning"],
+                                "bins/{sample}.{{assembler}}.out/vamb"),
+                   sample=SAMPLES.index.unique())
+        params:
+            bins_from = config["output"]["mulisplit_binning"],
+            bins_to = config["output"]["binning"],
+            assembler = "{assembler}"
+        run:
+            from glob import glob
+            import os
+
+            count = 0
+            for i in SAMPLES.index.unique():
+                outdir = os.path.join(params.bins_dir, f"bins/{i}.{params.assembler}.out/vamb")
+                os.makedirs(outdir, exist_ok=True)
+
+                count_ = 0
+                count += 1
+                fna_list = sorted(glob(f'{input}/S{count}C*.fna'))
+                for fna in fna_list:
+                    count_ += 1
+                    fna_source = f"../../../../../{input}/{fna}"
+                    fna_dist = f"{i}.{params.assembler}.vamb.bin.{count_}.fa"
+                    shell(
+                        f'''
+                        pushd {params.outdir} && \
+                        ln -s {fna_source} {fna_dist} && \
+                        popd
+                        ''')
+
+
     rule binning_vamb_all:
         input:
-            expand(os.path.join(
-                config["output"]["multisplit_binning"],
-                "bins/all.{assembler}.combined.out/vamb/{results}"),
+            expand([
+                os.path.join(
+                    config["output"]["multisplit_binning"],
+                    "bins/all.{assembler}.combined.out/vamb/{results}"),
+                os.path.join(
+                    config["output"]["binning"],
+                    "bins/{sample}.{assembler}.out/vamb"
+                )],
                    assembler=ASSEMBLERS,
                    results=["clusters.tsv", "latent.npz", "lengths.npz",
-                            "log.txt", "model.pt", "mask.npz", "tnf.npz", "bins"])
+                            "log.txt", "model.pt", "mask.npz", "tnf.npz", "bins"],
+                   sample=SAMPLES.index.unique())
 
 else:
     rule binning_vamb_all:
