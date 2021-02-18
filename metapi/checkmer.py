@@ -51,7 +51,7 @@ def parse(checkm_table):
         return None
 
 
-def checkm_report(checkm_list, output, threads):
+def checkm_reporter(checkm_list, output, threads):
     df_list = []
     with concurrent.futures.ProcessPoolExecutor(max_workers=threads) as executor:
         for df in executor.map(parse, checkm_list):
