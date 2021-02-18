@@ -213,7 +213,7 @@ if config["params"]["binning"]["vamb"]["do"]:
 
             count = 0
             for i in SAMPLES.index.unique():
-                outdir = os.path.join(params.bins_dir, f"bins/{i}.{params.assembler}.out/vamb")
+                outdir = os.path.join(params.bins_to, f"bins/{i}.{params.assembler}.out/vamb")
                 os.makedirs(outdir, exist_ok=True)
 
                 count_ = 0
