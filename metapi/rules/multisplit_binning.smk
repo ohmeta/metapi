@@ -200,9 +200,10 @@ if config["params"]["binning"]["vamb"]["do"]:
             os.path.join(config["output"]["multisplit_binning"],
                          "bins/all.{assembler}.combined.out/vamb/bins")
         output:
-            expand(directory(os.path.join(config["output"]["binning"],
-                                "bins/{sample}.{{assembler}}.out/vamb")),
-                   sample=SAMPLES.index.unique())
+            directory(expand(
+                os.path.join(config["output"]["binning"],
+                             "bins/{sample}.{{assembler}}.out/vamb"),
+                sample=SAMPLES.index.unique()))
         params:
             bins_from = config["output"]["multisplit_binning"],
             bins_to = config["output"]["binning"],
