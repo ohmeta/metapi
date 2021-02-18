@@ -5,9 +5,12 @@ if config["params"]["checkm"]["do"]:
                 config["output"]["copredict"],
                 "bins_gene/{assembler_co}.{binner_checkm}.prodigal.out/all/done")
         output:
-            directory(os.path.join(
-                config["output"]["cocheckm"],
-                "bins_input/{assembler_co}.{binner_checkm}.links"))
+            links_dir = directory(os.path.join(config["output"]["cocheckm"],
+                                               "bins_input/{assembler_co}.{binner_checkm}.links")),
+            table_dir = directory(os.path.join(config["output"]["checkm"],
+                                               "table/{assembler_co}.{binner_checkm}.checkm_out")),
+            data_dir = directory(os.path.join(config["output"]["checkm"],
+                                              "data/{assembler_co}.{binner_checkm}.checkm_out"))
         params:
             suffix = "faa",
             batch_num = config["params"]["checkm"]["batch_num"]
@@ -16,8 +19,11 @@ if config["params"]["checkm"]["do"]:
             import glob
             import pprint
 
-            if os.path.exists(output[0]):
-                os.rmdir(output[0])
+            os.makedirs(output.table_dir, exist_ok=True)
+            os.makedirs(output.data_dir, exist_ok=True)
+
+            if os.path.exists(output.links_dir):
+                os.rmdir(output.links_dir)
 
             bin_list = []
             for i in input:
@@ -26,7 +32,7 @@ if config["params"]["checkm"]["do"]:
 
             if len(bin_list) > 0:
                 for batch_id in range(0, len(bin_list), params.batch_num):
-                    batch_dir = os.path.join(output[0], "bins_%d" % batch_id)
+                    batch_dir = os.path.join(output.links_dir, "bins_%d" % batch_id)
                     os.makedirs(batch_dir, exist_ok=True)
 
                     for bin_file in bin_list[batch_id:batch_id + params.batch_num]:
@@ -34,7 +40,7 @@ if config["params"]["checkm"]["do"]:
                                    os.path.join(batch_dir,
                                                 os.path.basename(bin_file)))
             else:
-                os.makedirs(os.path.join(output[0], "bins_0"), exist_ok=True)
+                os.makedirs(os.path.join(output.links_dir, "bins_0"), exist_ok=True)
 
 
     rule cocheckm_lineage_wf:
@@ -44,21 +50,19 @@ if config["params"]["checkm"]["do"]:
         output:
             table = os.path.join(
                 config["output"]["cocheckm"],
-                "table/bins_{batchid}/bins_{batchid}.{assembler_co}.{binner_checkm}.checkm.table.tsv"),
+                "table/{assembler_co}.{binner_checkm}.checkm_out/bins_{batchid}.{assembler_co}.{binner_checkm}.checkm.table.tsv"),
             data = os.path.join(
                 config["output"]["cocheckm"],
-                "data/bins_{batchid}/bins_{batchid}.{assembler_co}.{binner_checkm}.checkm.data.tar.gz")
+                "data/{assembler_co}.{binner_checkm}.checkm_out/bins_{batchid}.{assembler_co}.{binner_checkm}.checkm.data.tar.gz")
         wildcard_constraints:
             batchid="\d+"
         params:
             suffix = "faa",
             pplacer_threads = config["params"]["checkm"]["pplacer_threads"],
             reduced_tree = "--reduced_tree" if config["params"]["checkm"]["reduced_tree"] else "",
-            table_dir = os.path.join(config["output"]["cocheckm"], "table/bins_{batchid}"),
-            data_dir = os.path.join(config["output"]["cocheckm"], "data/bins_{batchid}"),
             data_dir_temp = os.path.join(
                 config["output"]["cocheckm"],
-                "data/bins_{batchid}/bins_{batchid}.{assembler_co}.{binner_checkm}")
+                "data/{assembler_co}.{binner_checkm}.checkm_out/bins_{batchid}.{assembler_co}.{binner_checkm}")
         log:
             os.path.join(
                 config["output"]["cocheckm"],
@@ -71,9 +75,6 @@ if config["params"]["checkm"]["do"]:
         run:
             import os
             import glob
-
-            os.makedirs(params.table_dir, exist_ok=True)
-            os.makedirs(params.data_dir, exist_ok=True)
 
             count = len(glob.glob(os.path.join(input[0], "*.%s" % params.suffix)))
 
@@ -100,11 +101,11 @@ if config["params"]["checkm"]["do"]:
 
 
     def aggregate_cocheckm_report_input(wildcards):
-        checkpoint_output = checkpoints.cocheckm_prepare.get(**wildcards).output[0]
+        checkpoint_output = checkpoints.cocheckm_prepare.get(**wildcards).output.links_dir
 
         return expand(os.path.join(
             config["output"]["cocheckm"],
-            "table/bins_{batchid}/bins_{batchid}.{assembler_co}.{binner_checkm}.checkm.table.tsv"),
+            "table/{assembler_co}.{binner_checkm}.checkm_out/bins_{batchid}.{assembler_co}.{binner_checkm}.checkm.table.tsv"),
                       assembler_co=wildcards.assembler_co,
                       binner_checkm=wildcards.binner_checkm,
                       batchid=list(set([i.split("/")[0] \
