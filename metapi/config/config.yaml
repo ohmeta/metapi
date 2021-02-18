@@ -199,7 +199,7 @@ params:
       no_original_data: False
       coverage_out: False
     graphbin:
-      do: True
+      do: false
       max_iteration: 100
       diff_threshold: 0.1
     dastools:
@@ -232,7 +232,7 @@ params:
 
   checkm:
     do: True
-    check_binners: ["metabat2", "dastools"]
+    check_binners: ["metabat2", "dastools", "vamb"]
     report: True
     threads: 8
     pplacer_threads: 1
