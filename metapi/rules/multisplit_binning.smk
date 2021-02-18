@@ -225,7 +225,7 @@ if config["params"]["binning"]["vamb"]["do"]:
                     fna_dist = f"{i}.{params.assembler}.vamb.bin.{count_}.fa"
                     shell(
                         f'''
-                        pushd {params.outdir} && \
+                        pushd {outdir} && \
                         ln -s {fna_source} {fna_dist} && \
                         popd
                         ''')
