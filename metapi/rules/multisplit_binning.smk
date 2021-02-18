@@ -221,7 +221,7 @@ if config["params"]["binning"]["vamb"]["do"]:
                 fna_list = sorted(glob(f'{input}/S{count}C*.fna'))
                 for fna in fna_list:
                     count_ += 1
-                    fna_source = f"../../../../../{input}/{fna}"
+                    fna_source = f"../../../../../{fna}"
                     fna_dist = f"{i}.{params.assembler}.vamb.bin.{count_}.fa"
                     shell(
                         f'''
