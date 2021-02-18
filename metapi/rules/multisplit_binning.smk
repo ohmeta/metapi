@@ -177,7 +177,7 @@ if config["params"]["binning"]["vamb"]["do"]:
             outdir_base = os.path.join(
                 config["output"]["multisplit_binning"],
                 "bins/all.{assembler}.combined.out/"),
-            min_contig = config["params"]["binning"]["vamb"]["min_contig"]
+            min_contig = config["params"]["binning"]["vamb"]["min_contig"],
             cuda = "--cuda" if config["params"]["binning"]["vamb"]["cuda"] \
                 else ""
         shell:
