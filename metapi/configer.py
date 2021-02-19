@@ -198,8 +198,8 @@ A metagenomics project has been created at %s
 
 if you want to create fresh conda environments:
 
-        metapi mag_wf --conda_create_envs_only
-        metapi gene_wf --conda_create_envs_only
+        metapi mag_wf --conda-create-envs-only
+        metapi gene_wf --conda-create-envs-only
 
 if you have environments:
 
