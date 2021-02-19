@@ -154,11 +154,11 @@ $ metapi mag_wf --help
 $ metapi init -d . -s samples.tsv -b trimming
 
 # create conda environments
-$ metapi mag_wf --conda_create_envs_only
+$ metapi mag_wf --conda-create-envs-only
 
 # run pipeline with conda
-# metapi mag_wf all --use_conda
-# metapi mag_wf all --use_conda --conda-prefix /path/to/your/default/envs/dir
+# metapi mag_wf all --use-conda
+# metapi mag_wf all --use-conda --conda-prefix /path/to/your/default/envs/dir
 
 # run raw_fastqc
 $ metapi mag_wf raw_fastqc_all --run
@@ -188,7 +188,7 @@ $ metapi mag_wf checkm_all --run
 $ metapi mag_wf classify_all --run
 
 # run MetaPhlAn2 profiling
-$ metapi mag_wf profiling_metaphlan2_all --run --use_conda --conda-prefix /ldfssz1/ST_META/share/User/zhujie/.conda/envs
+$ metapi mag_wf profiling_metaphlan2_all --run --use-conda --conda-prefix /ldfssz1/ST_META/share/User/zhujie/.conda/envs
 
 # run MetaPhlAn3 profiling
 $ metapi mag_wf profiling_metaphlan3_all --run
@@ -197,7 +197,7 @@ $ metapi mag_wf profiling_metaphlan3_all --run
 $ metapi mag_wf profiling_jgi_all --run
 
 # run HUMAnN2 profiling
-$ metapi mag_wf profiling_humann2_all --run --use_conda --conda-prefix /ldfssz1/ST_META/share/User/zhujie/.conda/envs
+$ metapi mag_wf profiling_humann2_all --run --use-conda --conda-prefix /ldfssz1/ST_META/share/User/zhujie/.conda/envs
 
 # run mag_wf all
 $ metapi mag_wf --run
