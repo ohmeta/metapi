@@ -68,7 +68,7 @@ $ metapi init --help
   arguments:
       -h, --help            show this help message and exit
       -d, --workdir WORKDIR
-                            project workdir, default: ./ (default: ./)
+                            project workdir (default: ./)
       -s, --samples SAMPLES
                             desired input:
                             samples list, tsv format required.
@@ -85,17 +85,100 @@ $ metapi init --help
                             pipeline starting point (default: trimming)
 ```
 
+### mag_wf
+
+```
+$ metapi mag_wf --help
+
+  usage: metapi mag_wf [-h] [-d WORKDIR] [--config CONFIG] [--cluster CLUSTER]
+                            [--cores CORES] [--jobs JOBS] [--list] [--run] [--debug]
+                            [--dry-run] [--qsub] [--wait WAIT] [--use-conda]
+                            [--conda-prefix CONDA_PREFIX] [--conda-create-envs-only]
+                            [TASK]
+
+  positional arguments:
+  TASK              pipeline end point. Allowed values are 
+       simulate_all, prepare_short_reads_all, prepare_long_reads_all,
+       prepare_reads_all,
+       raw_fastqc_all, raw_report_all, raw_all,
+       trimming_oas1_all, trimming_sickle_all,
+       trimming_fastp_all, trimming_report_all,
+       trimming_all,
+       rmhost_soap_all, rmhost_bwa_all, rmhost_bowtie2_all,
+       rmhost_report_all, rmhost_all, qcreport_all,
+       assebmly_megahit_all, assembly_idba_ud_all,
+       assembly_metaspades_all, assembly_spades_all,
+       assembly_plass_all, assembly_opera_ms_all,
+       assembly_metaquast_all, assembly_report_all,
+       single_assembly_all, coassembly_megahit_all,
+       coassembly_all, assembly_all,
+       alignment_base_depth_all, single_alignment_all,
+       coalignment_base_depth_all,
+       coalignment_all, alignment_all,
+       binning_metabat2_coverage_all, binning_metabat2_all,
+       binning_maxbin2_all, binning_concoct_all, binning_graphbin_all,
+       binning_dastools_all, binning_vamb_all,
+       binning_report_all, single_binning_all,
+       cobinning_metabat2_coverage_all, cobinning_metabat2_all,
+       cobinning_maxbin2_all, cobinning_concoct_all,
+       cobinning_graphbin_all, cobinning_dastools_all, 
+       cobinning_report_all, cobinning_all, binning_all,
+       predict_scaftigs_gene_prodigal_all, predict_scaftigs_gene_prokka_all,
+       predict_bins_gene_prodigal_all, predict_bins_gene_prokka_all,
+       single_predict_scaftigs_gene_all, single_predict_bins_gene_all,
+       copredict_scaftigs_gene_prodigal_all,
+       copredict_scaftigs_gene_prokka_all,
+       copredict_bins_gene_prodigal_all, copredict_bins_gene_prokka_all,
+       copredict_scafitgs_gene_all, copredict_bins_gene_all,
+       predict_scaftigs_gene_all, predict_bins_gene_all,
+       copredict_all, predict_all,
+       single_checkm_all, cocheckm_all, checkm_all,
+       dereplicate_mags_drep_all, dereplicate_mags_all,
+       classify_short_reads_kraken2_all,
+       single_classify_hmq_bins_gtdbtk_all,
+       coclassify_hmq_bins_gtdbtk_all, classify_hmq_bins_gtdbtk_all,
+       single_classify_all, coclassify_all, classify_all,
+       profiling_bgi_soap_all, profiling_bowtie2_all,
+       profiling_metaphlan2_all, profiling_metaphlan3_all,
+       profiling_jgi_all, profiling_bracken_all,
+       profiling_humann2_all, profiling_humann3_all,
+       profiling_all, upload_sequencing_all, upload_assembly_all, upload_all,
+       all (default: all)
+
+  optional arguments:
+  -h, --help            show this help message and exit
+  -d, --workdir WORKDIR
+                        project workdir (default: ./)
+  --config CONFIG       config.yaml (default: ./config.yaml)
+  --cluster CLUSTER     cluster.yaml (default: ./cluster.yaml)
+  --cores CORES         CPU cores (default: 8)
+  --jobs JOBS           qsub job numbers (default: 80)
+  --list                list pipeline rules
+  --run                 run pipeline
+  --debug               debug pipeline
+  --dry-run             dry run pipeline
+  --qsub                qsub pipeline
+  --wait WAIT           wait given seconds (default: 60)
+  --use-conda           use conda environment
+  --conda-prefix CONDA_PREFIX
+                        conda environment prefix
+                        (default: /ldfssz1/ST_META/share/User/zhujie/.conda/envs)
+  --conda-create-envs-only
+    conda create environments only
+```
+
 ### Example
 
 ```
 # init project
 $ metapi init -d . -s samples.tsv -b trimming
 
-# create conda environments (need connect to internet)
-$ metapi mag_wf --conda_create_envs_only
+# create conda environments
+$ metapi mag_wf --conda-create-envs-only
 
 # run pipeline with conda
-# metapi mag_wf all --use_conda
+# metapi mag_wf all --use-conda
+# metapi mag_wf all --use-conda --conda-prefix /path/to/your/default/envs/dir
 
 # run raw_fastqc
 $ metapi mag_wf raw_fastqc_all --run
@@ -125,7 +208,8 @@ $ metapi mag_wf checkm_all --run
 $ metapi mag_wf classify_all --run
 
 # run MetaPhlAn2 profiling
-$ metapi mag_wf profiling_metaphlan2_all --run --use_conda
+$ metapi mag_wf profiling_metaphlan2_all --run \
+  --use-conda --conda-prefix /ldfssz1/ST_META/share/User/zhujie/.conda/envs
 
 # run MetaPhlAn3 profiling
 $ metapi mag_wf profiling_metaphlan3_all --run
@@ -134,7 +218,8 @@ $ metapi mag_wf profiling_metaphlan3_all --run
 $ metapi mag_wf profiling_jgi_all --run
 
 # run HUMAnN2 profiling
-$ metapi mag_wf profiling_humann2_all --run --use_conda
+$ metapi mag_wf profiling_humann2_all --run \
+  --use-conda --conda-prefix /ldfssz1/ST_META/share/User/zhujie/.conda/envs
 
 # run mag_wf all
 $ metapi mag_wf --run

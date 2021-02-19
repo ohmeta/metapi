@@ -89,7 +89,7 @@ def main():
     args = parser.parse_args()
 
     checkm_list = [l.strip() for l in open(args.checkm_list, "r")]
-    checkm_report(checkm_list, args.output, args.threads)
+    checkm_reporter(checkm_list, args.output, args.threads)
 
 
 if __name__ == "__main__":

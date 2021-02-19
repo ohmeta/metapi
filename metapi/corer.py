@@ -177,6 +177,8 @@ def run_snakemake(args, unknown, snakefile, workflow):
 
         if args.use_conda:
             cmd += ["--use-conda"]
+            if args.conda_prefix is not None:
+                cmd += ["--conda-prefix", args.conda_prefix]
 
         if args.list:
             cmd += ["--list"]
@@ -224,7 +226,8 @@ def init(args, unknown):
 
         for env_name in conf["envs"]:
             conf["envs"][env_name] = os.path.join(
-                os.path.realpath(args.workdir), f"envs/{env_name}.yaml")
+                os.path.realpath(args.workdir), f"envs/{env_name}.yaml"
+            )
 
         if args.begin:
             conf["params"]["begin"] = args.begin
@@ -265,14 +268,12 @@ def init(args, unknown):
 
 
 def mag_wf(args, unknown):
-    snakefile = os.path.join(os.path.dirname(
-        __file__), "snakefiles/mag_wf.smk")
+    snakefile = os.path.join(os.path.dirname(__file__), "snakefiles/mag_wf.smk")
     run_snakemake(args, unknown, snakefile, "mag_wf")
 
 
 def gene_wf(args, unknown):
-    snakefile = os.path.join(os.path.dirname(
-        __file__), "snakefiles/gene_wf.smk")
+    snakefile = os.path.join(os.path.dirname(__file__), "snakefiles/gene_wf.smk")
     run_snakemake(args, unknown, snakefile, "gene_wf")
 
 
@@ -287,8 +288,7 @@ def snakemake_summary(snakefile, configfile, task):
         task,
         "--summary",
     ]
-    cmd_out = subprocess.Popen(
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    cmd_out = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     summary = pd.read_csv(StringIO(cmd_out.stdout.read().decode()), sep="\t")
     return summary
 
@@ -309,14 +309,13 @@ def sync(args, unknown):
     count = -1
     for i in range(0, len(samples_index), args.split_num):
         count += 1
-        outdir = os.path.abspath(os.path.join(
-            args.outdir, args.name + f"_{count}"))
+        outdir = os.path.abspath(os.path.join(args.outdir, args.name + f"_{count}"))
         os.makedirs(outdir, exist_ok=True)
         samples_file = os.path.join(outdir, f"samples_{count}.tsv")
         config_file = os.path.join(outdir, "config.yaml")
 
         samples = samples_df.loc[
-            samples_index[i: i + args.split_num],
+            samples_index[i : i + args.split_num],
         ]
         samples.to_csv(samples_file, sep="\t", index=False)
         conf["params"]["samples"] = samples_file
@@ -325,22 +324,24 @@ def sync(args, unknown):
         summary = snakemake_summary(snakefile, config_file, args.task)
         summary_ = summary_df[summary_df.output_file.isin(summary.output_file)]
         sync_sh = os.path.join(
-            args.workdir, f"sync-{args.workflow}-{args.task}_{count}.sh")
-        with open(sync_sh, 'w') as oh:
+            args.workdir, f"sync-{args.workflow}-{args.task}_{count}.sh"
+        )
+        with open(sync_sh, "w") as oh:
             print(f"generating {sync_sh}")
             for output_file in summary_["output_file"]:
                 if output_file != "-" and (not pd.isna(output_file)):
                     output_file_path = os.path.join(args.workdir, output_file)
                     oh.write(
-                        f"rsync --archive --relative --progress {output_file_path} {outdir}\n")
+                        f"rsync --archive --relative --progress {output_file_path} {outdir}\n"
+                    )
             for log_file in summary_["log-file(s)"]:
                 if log_file != "-" and (not pd.isna(log_file)):
                     log_file_path = os.path.join(args.workdir, log_file)
                     oh.write(
-                        f"rsync --archive --relative --progress {log_file_path} {outdir}\n")
+                        f"rsync --archive --relative --progress {log_file_path} {outdir}\n"
+                    )
 
-    print(
-        f"please change current directory to {args.workdir} to run sync script")
+    print(f"please change current directory to {args.workdir} to run sync script")
 
 
 def main():
@@ -379,7 +380,7 @@ def main():
         metavar="WORKDIR",
         type=str,
         default="./",
-        help="project workdir, default: ./",
+        help="project workdir",
     )
 
     run_parser = argparse.ArgumentParser(add_help=False)
@@ -387,19 +388,19 @@ def main():
         "--config",
         type=str,
         default="./config.yaml",
-        help="config.yaml, default: ./config.yaml",
+        help="config.yaml",
     )
     run_parser.add_argument(
         "--cluster",
         type=str,
         default="./cluster.yaml",
-        help="cluster.yaml, default: ./cluster.yaml",
+        help="cluster.yaml",
     )
     run_parser.add_argument(
-        "--cores", type=int, default=8, help="CPU cores, default: 8"
+        "--cores", type=int, default=8, help="CPU cores"
     )
     run_parser.add_argument(
-        "--jobs", type=int, default=80, help="qsub job numbers, default: 80"
+        "--jobs", type=int, default=80, help="qsub job numbers"
     )
     run_parser.add_argument(
         "--list",
@@ -420,8 +421,9 @@ def main():
         help="debug pipeline",
     )
     run_parser.add_argument(
-        "--dry_run",
+        "--dry-run",
         default=False,
+        dest="dry_run",
         action="store_true",
         help="dry run pipeline",
     )
@@ -432,20 +434,30 @@ def main():
         help="qsub pipeline",
     )
     run_parser.add_argument(
-        "--wait", type=int, default=60, help="wait given seconds, default: 60"
+        "--wait", type=int, default=60, help="wait given seconds"
     )
     run_parser.add_argument(
-        "--use_conda", default=False, action="store_true", help="use conda environment"
-    )
-    run_parser.add_argument(
-        "--conda_create_envs_only",
+        "--use-conda",
         default=False,
+        dest="use_conda",
+        action="store_true",
+        help="use conda environment",
+    )
+    run_parser.add_argument(
+        "--conda-prefix",
+        default="/ldfssz1/ST_META/share/User/zhujie/.conda/envs",
+        dest="conda_prefix",
+        help="conda environment prefix"
+    )
+    run_parser.add_argument(
+        "--conda-create-envs-only",
+        default=False,
+        dest="conda_create_envs_only",
         action="store_true",
         help="conda create environments only",
     )
 
-    subparsers = parser.add_subparsers(
-        title="available subcommands", metavar="")
+    subparsers = parser.add_subparsers(title="available subcommands", metavar="")
     parser_init = subparsers.add_parser(
         "init",
         formatter_class=metapi.custom_help_formatter,
@@ -511,8 +523,7 @@ if begin from simulate:
         type=str,
         default="all",
         choices=WORKFLOWS_MAG,
-        help="pipeline end point. Allowed values are " +
-        ", ".join(WORKFLOWS_MAG),
+        help="pipeline end point. Allowed values are " + ", ".join(WORKFLOWS_MAG),
     )
     parser_mag_wf.set_defaults(func=mag_wf)
 
@@ -523,8 +534,7 @@ if begin from simulate:
         type=str,
         default="all",
         choices=WORKFLOWS_GENE,
-        help="pipeline end point. Allowed values are " +
-        ", ".join(WORKFLOWS_GENE),
+        help="pipeline end point. Allowed values are " + ", ".join(WORKFLOWS_GENE),
     )
     parser_gene_wf.set_defaults(func=gene_wf)
 
@@ -549,15 +559,18 @@ if begin from simulate:
         "--config",
         type=str,
         default="./config.yaml",
-        help="config.yaml, default: ./config.yaml",
+        help="config.yaml",
     )
-    parser_sync.add_argument(
-        "--name", type=str, required=True, help="project basename")
+    parser_sync.add_argument("--name", type=str, required=True, help="project basename")
     parser_sync.add_argument(
         "--outdir", type=str, required=True, help="sync to a directory"
     )
     parser_sync.add_argument(
-        "--split_num", type=int, default=1, help="split project to sync directory"
+        "--split-num",
+        type=int,
+        default=1,
+        dest="split_num",
+        help="split project to sync directory",
     )
     parser_sync.set_defaults(func=sync)
 

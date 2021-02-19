@@ -260,7 +260,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"]:
             avoid_disqm = "--avoid_disqm" \
                 if config["params"]["profiling"]["metaphlan"]["avoid_disqm"] \
                    else "",
-            stat_q = config["params"]["profiling"]["metaphlan"]["stat_q"],
+            stat_q = config["params"]["profiling"]["metaphlan"]["stat_q_v2"],
             stat = config["params"]["profiling"]["metaphlan"]["stat"],
             analysis_type = config["params"]["profiling"]["metaphlan"]["analysis_type"],
             bowtie2out = os.path.join(
@@ -399,7 +399,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
             avoid_disqm = "--avoid_disqm" \
                 if config["params"]["profiling"]["metaphlan"]["avoid_disqm"] \
                    else "",
-            stat_q = config["params"]["profiling"]["metaphlan"]["stat_q"],
+            stat_q = config["params"]["profiling"]["metaphlan"]["stat_q_v3"],
             stat = config["params"]["profiling"]["metaphlan"]["stat"],
             analysis_type = config["params"]["profiling"]["metaphlan"]["analysis_type"],
             no_unknown_estimation = "--no_unknown_estimation" \
