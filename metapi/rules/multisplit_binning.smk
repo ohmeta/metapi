@@ -146,14 +146,21 @@ if config["params"]["binning"]["vamb"]["do"]:
             '''
 
 
+    rule binning_vamb_prepare_all:
+        input:
+            expand([
+                os.path.join(
+                    config["output"]["multisplit_binning"],
+                    "scaftigs/all.{assembler}.combined.out/all.{assembler}.combined.scaftigs.fa.gz"),
+                os.path.join(
+                    config["output"]["multisplit_binning"],
+                    "matrix/all.{assembler}.align2combined_scaftigs.jgi.abundance.matrix.tsv")],
+                   assembler=ASSEMBLER)
+
+
     rule binning_vamb:
         input:
-            scaftigs = os.path.join(
-                config["output"]["multisplit_binning"],
-                "scaftigs/all.{assembler}.combined.out/all.{assembler}.combined.scaftigs.fa.gz"),
-            matrix = os.path.join(
-                config["output"]["multisplit_binning"],
-                "matrix/all.{assembler}.align2combined_scaftigs.jgi.abundance.matrix.tsv")
+            rules.binning_vamb_prepare_all.input
         output:
             os.path.join(config["output"]["multisplit_binning"],
                          "bins/all.{assembler}.combined.out/vamb/clusters.tsv"),
@@ -192,8 +199,8 @@ if config["params"]["binning"]["vamb"]["do"]:
             vamb \
             {params.cuda} \
             --outdir {params.outdir} \
-            --fasta {input.scaftigs} \
-            --jgi {input.matrix} \
+            --fasta {input[0]} \
+            --jgi {input[1]} \
             -o C -m {params.min_contig} --minfasta 500000 \
             2> {log}
             '''
@@ -252,12 +259,16 @@ if config["params"]["binning"]["vamb"]["do"]:
                    sample=SAMPLES.index.unique())
 
 else:
+    rule binning_vamb_prepare_all:
+        input:
+
     rule binning_vamb_all:
         input:
 
 
 rule multisplit_binning_all:
     input:
+        rules.binning_vamb_prepare.input,
         rules.binning_vamb_all.input
 
 
