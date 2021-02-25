@@ -256,6 +256,14 @@ def init(args, unknown):
         if args.samples:
             conf["params"]["samples"] = args.samples
 
+        if conf["params"]["binning"]["vamb"]["cuda"]:
+            cluster["binning_vamb"]["project"] = "P18Z10200N0127_gpu"
+            cluster["binning_vamb"]["queue"] = "st_gpu1.q"
+            print("When do binning using vamb and cuda, please use gpu queue")
+        else:
+            cluster["binning_vamb"]["project"] = "P18Z10200N0127"
+            cluster["binning_vamb"]["queue"] = "st.q"
+
         metapi.update_config(
             project.config_file, project.new_config_file, conf, remove=False
         )
