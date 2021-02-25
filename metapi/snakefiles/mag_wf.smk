@@ -190,6 +190,7 @@ localrules: \
     binning_concoct_all, \
     binning_graphbin_all, \
     binning_dastools_all, \
+    binning_vamb_prepare_all, \
     binning_vamb_all, \
     binning_report_all, \
     single_binning_all, \
