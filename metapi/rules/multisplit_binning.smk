@@ -268,7 +268,7 @@ else:
 
 rule multisplit_binning_all:
     input:
-        rules.binning_vamb_prepare.input,
+        rules.binning_vamb_prepare_all.input,
         rules.binning_vamb_all.input
 
 
