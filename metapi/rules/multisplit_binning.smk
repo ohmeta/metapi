@@ -155,7 +155,7 @@ if config["params"]["binning"]["vamb"]["do"]:
                 os.path.join(
                     config["output"]["multisplit_binning"],
                     "matrix/all.{assembler}.align2combined_scaftigs.jgi.abundance.matrix.tsv")],
-                   assembler=ASSEMBLER)
+                   assembler=ASSEMBLERS)
 
 
     rule binning_vamb:
