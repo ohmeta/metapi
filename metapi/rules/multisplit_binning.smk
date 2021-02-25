@@ -181,6 +181,8 @@ if config["params"]["binning"]["vamb"]["do"]:
         log:
             os.path.join(config["output"]["multisplit_binning"],
                          "logs/binning/all.{assembler}.vamb.binning.log")
+        threads:
+            config["params"]["binning"]["threads"]
         params:
             outdir = os.path.join(
                 config["output"]["multisplit_binning"],
@@ -191,19 +193,26 @@ if config["params"]["binning"]["vamb"]["do"]:
             min_contig = config["params"]["binning"]["vamb"]["min_contig"],
             cuda = "--cuda" if config["params"]["binning"]["vamb"]["cuda"] \
                 else ""
-        shell:
-            '''
-            rm -rf {params.outdir}
-            mkdir -p {params.outdir_base}
+        run:
+            shell(
+                '''
+                rm -rf {params.outdir}
+                mkdir -p {params.outdir_base}
+                ''')
 
-            vamb \
-            {params.cuda} \
-            --outdir {params.outdir} \
-            --fasta {input[0]} \
-            --jgi {input[1]} \
-            -o C -m {params.min_contig} --minfasta 500000 \
-            2> {log}
-            '''
+            shell(
+                '''
+                vamb \
+                {params.cuda} \
+                -p %s \
+                --outdir {params.outdir} \
+                --fasta {input[0]} \
+                --jgi {input[1]} \
+                -o C \
+                -m {params.min_contig} \
+                --minfasta 500000 \
+                2> {log}
+                ''' % threads if not params.cuda else "1")
 
 
     rule binning_vamb_postprocess:
