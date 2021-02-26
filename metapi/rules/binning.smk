@@ -827,5 +827,4 @@ rule single_binning_all:
         rules.binning_maxbin2_all.input,
         rules.binning_concoct_all.input,
         rules.binning_graphbin_all.input,
-        rules.binning_dastools_all.input,
-        rules.binning_report_all.input
+        rules.binning_dastools_all.input

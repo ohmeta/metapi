@@ -284,5 +284,6 @@ rule multisplit_binning_all:
 rule binning_all:
     input:
         rules.single_binning_all.input,
-        rules.cobinning_all.input,
-        rules.multisplit_binning_all.input
+        rules.multisplit_binning_all.input,
+        rules.binning_report_all.input,
+        rules.cobinning_all.input
