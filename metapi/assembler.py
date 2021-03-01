@@ -6,10 +6,10 @@ from metapi import tooler
 
 
 def parse_spades_params(params_file):
-    with open(params_file, 'r') as ih:
+    with open(params_file, "r") as ih:
         cmd = ih.readline().strip()
 
-        matches = re.match(r'.*-k\t(.*?)\t--memory\t(\d+)\t--threads\t(\d+).*', cmd)
+        matches = re.match(r".*-k\t(.*?)\t--memory\t(\d+)\t--threads\t(\d+).*", cmd)
         if matches:
             kmers = str(matches.group(1))
             memory = str(matches.group(2))
@@ -83,8 +83,8 @@ def cumulative_len(x):
     return len_y
 
 
-def parse_assembly(stats_file, min_length):
-    df_ = tooler.parse(stats_file).query('length >= %d' % min_length)
+def parse_assembly(input_tuple):
+    df_ = tooler.parse(input_tuple[0]).query("length >= %d" % input_tuple[1])
     if df_ is not None:
         df = (
             df_.groupby(GROUP_BY_)
@@ -112,7 +112,6 @@ def parse_assembly(stats_file, min_length):
         for i in range(0, 21):
             df[("length", N_[i])] = df.apply(lambda x: x[("length", "Nx")][i], axis=1)
 
-
         for i in range(0, len(CONTIGS_LENGTH_RANGES__) - 1):
             len_tuple = CONTIGS_LENGTH_RANGES__[i]
             LEN_LIST.append(len_tuple[0])
@@ -131,8 +130,7 @@ def parse_assembly(stats_file, min_length):
         LEN_LIST = sorted(list(set(LEN_LIST)))
         for i in range(0, len(LEN_LIST)):
             df[("length", ">=%d" % LEN_LIST[i])] = df.apply(
-                lambda x: sum(x[("length", "cal_len_range")][i:]),
-                axis=1
+                lambda x: sum(x[("length", "cal_len_range")][i:]), axis=1
             )
         return df
     else:
