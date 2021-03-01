@@ -771,6 +771,7 @@ if len(BINNERS_CHECKM) != 0:
                 config["output"]["cobinning"],
                 "report/assembly_stats_{assembler_co}_{binner_checkm}.tsv")
         params:
+            min_length = config["params"]["assembly"]["report"]["min_length"],
             len_ranges = config["params"]["assembly"]["report"]["len_ranges"]
         threads:
             config["params"]["binning"]["threads"]
@@ -783,7 +784,8 @@ if len(BINNERS_CHECKM) != 0:
             if len(comp_list) != 0:
                 metapi.assembler_init(params.len_ranges,
                                       ["sample_id", "bin_id", "assembler", "binner"])
-                metapi.merge(comp_list, metapi.parse_assembly,
+                comp_list_ = [(j, params.min_length) for j in comp_list]
+                metapi.merge(comp_list_, metapi.parse_assembly,
                              threads, output=output.summary)
             else:
                 shell('''touch {output.summary}''')

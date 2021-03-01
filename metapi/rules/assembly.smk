@@ -804,12 +804,14 @@ if len(ASSEMBLERS) != 0:
                 config["output"]["assembly"],
                 "report/assembly_stats_{assembler}.tsv")
         params:
+            min_length = config["params"]["assembly"]["report"]["min_length"],
             len_ranges = config["params"]["assembly"]["report"]["len_ranges"]
         threads:
             config["params"]["assembly"]["threads"]
         run:
+            comp_list = [(i, params.min_length) for i in input.comp_list]
             metapi.assembler_init(params.len_ranges, ["sample_id", "assembler"])
-            metapi.merge(input.comp_list, metapi.parse_assembly,
+            metapi.merge(comp_list, metapi.parse_assembly,
                          threads, output=output.summary)
 
 

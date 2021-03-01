@@ -138,6 +138,7 @@ params:
 
     report:
       threads: 8
+      min_length: 500 # calculate Nx from min length
       len_ranges: [0, 1000, 1500, 2000, 2500, 3000]
 
   coassembly:
