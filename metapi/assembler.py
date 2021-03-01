@@ -83,8 +83,8 @@ def cumulative_len(x):
     return len_y
 
 
-def parse_assembly(stats_file):
-    df_ = tooler.parse(stats_file)
+def parse_assembly(stats_file, min_length):
+    df_ = tooler.parse(stats_file).query('length >= %d' % min_length)
     if df_ is not None:
         df = (
             df_.groupby(GROUP_BY_)
