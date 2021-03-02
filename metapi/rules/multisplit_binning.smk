@@ -192,27 +192,25 @@ if config["params"]["binning"]["vamb"]["do"]:
                 "bins/all.{assembler}.combined.out/"),
             min_contig = config["params"]["binning"]["vamb"]["min_contig"],
             cuda = "--cuda" if config["params"]["binning"]["vamb"]["cuda"] \
-                else ""
-        run:
-            shell(
-                '''
-                rm -rf {params.outdir}
-                mkdir -p {params.outdir_base}
-                ''')
+                else "",
+            threads = "1" if config["params"]["binning"]["vamb"]["cuda"] \
+                else config["params"]["binning"]["threads"]
+        shell:
+            '''
+            rm -rf {params.outdir}
+            mkdir -p {params.outdir_base}
 
-            shell(
-                '''
-                vamb \
-                {params.cuda} \
-                -p %s \
-                --outdir {params.outdir} \
-                --fasta {input[0]} \
-                --jgi {input[1]} \
-                -o C \
-                -m {params.min_contig} \
-                --minfasta 500000 \
-                2> {log}
-                ''' % "1" if (params.cuda == "") else str(threads))
+            vamb \
+            {params.cuda} \
+            -p {params.threads} \
+            --outdir {params.outdir} \
+            --fasta {input[0]} \
+            --jgi {input[1]} \
+            -o C \
+            -m {params.min_contig} \
+            --minfasta 500000 \
+            2> {log}
+            '''
 
 
     rule binning_vamb_postprocess:
