@@ -212,7 +212,7 @@ if config["params"]["binning"]["vamb"]["do"]:
                 -m {params.min_contig} \
                 --minfasta 500000 \
                 2> {log}
-                ''' % threads if not params.cuda else "1")
+                ''' % 1 if (params.cuda == "") else threads)
 
 
     rule binning_vamb_postprocess:
