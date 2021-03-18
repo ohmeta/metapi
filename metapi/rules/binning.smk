@@ -1,139 +1,145 @@
-rule binning_metabat2_coverage:
-    input:
-        scaftigs = os.path.join(
-            config["output"]["assembly"],
-            "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
-        bam = os.path.join(
-            config["output"]["alignment"],
-            "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam"),
-        bai = os.path.join(
-            config["output"]["alignment"],
-            "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam.bai")
-    output:
-        coverage = os.path.join(
-            config["output"]["binning"],
-            "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.coverage")
-    priority:
-        30
-    log:
-        os.path.join(config["output"]["binning"],
-                     "logs/coverage/{sample}.{assembler}.metabat2.coverage.log")
-    params:
-        percent_identity = config["params"]["binning"]["metabat2"]["percent_identity"],
-        min_map_qual = config["params"]["binning"]["metabat2"]["min_map_qual"],
-        output_paired_contigs = "--pairedContigs %s" % \
-            os.path.join(
+if config["params"]["binning"]["metabat2"]["do"]:
+    rule binning_metabat2_coverage:
+        input:
+            scaftigs = os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
+            bam = os.path.join(
+                config["output"]["alignment"],
+                "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam"),
+            bai = os.path.join(
+                config["output"]["alignment"],
+                "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam.bai")
+        output:
+            coverage = os.path.join(
                 config["output"]["binning"],
-                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.paired_contigs") \
-                if config["params"]["binning"]["metabat2"]["output_paired_contigs"] \
-                   else "",
-        output_gc = "--outputGC %s" % \
-            os.path.join(
+                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.coverage")
+        priority:
+            30
+        log:
+            os.path.join(config["output"]["binning"],
+                         "logs/coverage/{sample}.{assembler}.metabat2.coverage.log")
+        params:
+            percent_identity = config["params"]["binning"]["metabat2"]["percent_identity"],
+            min_map_qual = config["params"]["binning"]["metabat2"]["min_map_qual"],
+            output_paired_contigs = "--pairedContigs %s" % \
+                os.path.join(
+                    config["output"]["binning"],
+                    "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.paired_contigs") \
+                    if config["params"]["binning"]["metabat2"]["output_paired_contigs"] \
+                       else "",
+            output_gc = "--outputGC %s" % \
+                os.path.join(
+                    config["output"]["binning"],
+                    "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.gc") \
+                    if config["params"]["binning"]["metabat2"]["output_gc"] \
+                       else "",
+            output_gc_window = "--gcWindow %s" % \
+                os.path.join(
+                    config["output"]["binning"],
+                    "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.gc_window") \
+                    if config["params"]["binning"]["metabat2"]["output_gc_window"] \
+                       else "",
+            output_dir = os.path.join(config["output"]["binning"],
+                                      "coverage/{sample}.{assembler}.out")
+        shell:
+            '''
+            jgi_summarize_bam_contig_depths \
+            --outputDepth {output.coverage} \
+            --percentIdentity {params.percent_identity} \
+            --minMapQual {params.min_map_qual} \
+            {params.output_paired_contigs} \
+            {params.output_gc} \
+            {params.output_gc_window} \
+            {input.bam} \
+            2> {log}
+            '''
+
+
+    rule binning_metabat2_coverage_all:
+        input:
+            expand(os.path.join(
                 config["output"]["binning"],
-                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.gc") \
-                if config["params"]["binning"]["metabat2"]["output_gc"] \
-                   else "",
-        output_gc_window = "--gcWindow %s" % \
-            os.path.join(
+                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.coverage"),
+                   assembler=ASSEMBLERS,
+                   sample=SAMPLES.index.unique())
+
+
+    rule binning_metabat2:
+        input:
+            scaftigs = os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
+            coverage = os.path.join(
                 config["output"]["binning"],
-                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.gc_window") \
-                if config["params"]["binning"]["metabat2"]["output_gc_window"] \
-                   else "",
-        output_dir = os.path.join(config["output"]["binning"],
-                                  "coverage/{sample}.{assembler}.out")
-    shell:
-        '''
-        jgi_summarize_bam_contig_depths \
-        --outputDepth {output.coverage} \
-        --percentIdentity {params.percent_identity} \
-        --minMapQual {params.min_map_qual} \
-        {params.output_paired_contigs} \
-        {params.output_gc} \
-        {params.output_gc_window} \
-        {input.bam} \
-        2> {log}
-        '''
-
-
-rule binning_metabat2_coverage_all:
-    input:
-        expand(os.path.join(
-            config["output"]["binning"],
-            "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.coverage"),
-               assembler=ASSEMBLERS,
-               sample=SAMPLES.index.unique())
-
-
-rule binning_metabat2:
-    input:
-        scaftigs = os.path.join(
-            config["output"]["assembly"],
-            "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
-        coverage = os.path.join(
-            config["output"]["binning"],
-            "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.coverage")
-    output:
-        bins_dir = directory(os.path.join(config["output"]["binning"],
-                                          "bins/{sample}.{assembler}.out/metabat2"))
-    priority:
-        30
-    log:
-        os.path.join(config["output"]["binning"],
-                     "logs/binning/{sample}.{assembler}.metabat2.binning.log")
-    benchmark:
-        os.path.join(config["output"]["binning"],
-                     "benchmark/metabat2/{sample}.{assembler}.metabat2.benchmark.txt")
-    params:
-        bin_prefix = os.path.join(
-            config["output"]["binning"],
-            "bins/{sample}.{assembler}.out/metabat2/{sample}.{assembler}.metabat2.bin"),
-        min_contig = config["params"]["binning"]["metabat2"]["min_contig"],
-        max_p = config["params"]["binning"]["metabat2"]["maxP"],
-        min_s = config["params"]["binning"]["metabat2"]["minS"],
-        max_edges = config["params"]["binning"]["metabat2"]["maxEdges"],
-        p_tnf = config["params"]["binning"]["metabat2"]["pTNF"],
-        no_add = "--noAdd" if config["params"]["binning"]["metabat2"]["noAdd"] else "",
-        min_cv = config["params"]["binning"]["metabat2"]["minCV"],
-        min_cv_sum = config["params"]["binning"]["metabat2"]["minCVSum"],
-        min_cls_size = config["params"]["binning"]["metabat2"]["minClsSize"],
-        save_cls = "--saveCls" \
-            if config["params"]["binning"]["metabat2"]["saveCls"] else "",
-        seed = config["params"]["binning"]["metabat2"]["seed"]
-    threads:
-        config["params"]["binning"]["threads"]
-    shell:
-        '''
-        metabat2 \
-        --inFile {input.scaftigs} \
-        --abdFile {input.coverage} \
-        --outFile {params.bin_prefix} \
-        --minContig {params.min_contig} \
-        --maxP {params.max_p} \
-        --minS {params.min_s} \
-        --maxEdges {params.max_edges} \
-        --pTNF {params.p_tnf} \
-        {params.no_add} \
-        --minCV {params.min_cv} \
-        --minCVSum {params.min_cv_sum} \
-        {params.save_cls} \
-        --seed {params.seed} \
-        --numThreads {threads} \
-        --verbose > {log}
-        '''
-
-
-rule binning_metabat2_all:
-    input:
-        expand(
-            os.path.join(
+                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.coverage")
+        output:
+            bins_dir = directory(os.path.join(config["output"]["binning"],
+                                              "bins/{sample}.{assembler}.out/metabat2"))
+        priority:
+            30
+        log:
+            os.path.join(config["output"]["binning"],
+                         "logs/binning/{sample}.{assembler}.metabat2.binning.log")
+        benchmark:
+            os.path.join(config["output"]["binning"],
+                         "benchmark/metabat2/{sample}.{assembler}.metabat2.benchmark.txt")
+        params:
+            bin_prefix = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/metabat2"),
-            assembler=ASSEMBLERS,
-            sample=SAMPLES.index.unique()),
+                "bins/{sample}.{assembler}.out/metabat2/{sample}.{assembler}.metabat2.bin"),
+            min_contig = config["params"]["binning"]["metabat2"]["min_contig"],
+            max_p = config["params"]["binning"]["metabat2"]["maxP"],
+            min_s = config["params"]["binning"]["metabat2"]["minS"],
+            max_edges = config["params"]["binning"]["metabat2"]["maxEdges"],
+            p_tnf = config["params"]["binning"]["metabat2"]["pTNF"],
+            no_add = "--noAdd" if config["params"]["binning"]["metabat2"]["noAdd"] else "",
+            min_cv = config["params"]["binning"]["metabat2"]["minCV"],
+            min_cv_sum = config["params"]["binning"]["metabat2"]["minCVSum"],
+            min_cls_size = config["params"]["binning"]["metabat2"]["minClsSize"],
+            save_cls = "--saveCls" \
+                if config["params"]["binning"]["metabat2"]["saveCls"] else "",
+            seed = config["params"]["binning"]["metabat2"]["seed"]
+        threads:
+            config["params"]["binning"]["threads"]
+        shell:
+            '''
+            metabat2 \
+            --inFile {input.scaftigs} \
+            --abdFile {input.coverage} \
+            --outFile {params.bin_prefix} \
+            --minContig {params.min_contig} \
+            --maxP {params.max_p} \
+            --minS {params.min_s} \
+            --maxEdges {params.max_edges} \
+            --pTNF {params.p_tnf} \
+            {params.no_add} \
+            --minCV {params.min_cv} \
+            --minCVSum {params.min_cv_sum} \
+            {params.save_cls} \
+            --seed {params.seed} \
+            --numThreads {threads} \
+            --verbose > {log}
+            '''
 
-        rules.binning_metabat2_coverage_all.input,
-        rules.single_assembly_all.input
+
+    rule binning_metabat2_all:
+        input:
+            expand(
+                os.path.join(
+                    config["output"]["binning"],
+                    "bins/{sample}.{assembler}.out/metabat2"),
+                assembler=ASSEMBLERS,
+                sample=SAMPLES.index.unique()),
+
+            rules.binning_metabat2_coverage_all.input,
+            rules.single_assembly_all.input
        
+else:
+    rule binning_metabat2_all:
+        input:
+
+
 
 if config["params"]["binning"]["maxbin2"]["do"]:
     rule binning_maxbin2_coverage:
