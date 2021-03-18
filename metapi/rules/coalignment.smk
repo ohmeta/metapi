@@ -133,14 +133,19 @@ rule coalignment_report:
         metapi.flagstats_summary(input_list, output_str, 2)
 
 
+rule coalignment_report_all:
+    input:
+        expand(
+            os.path.join(
+                config["output"]["coalignment"],
+                "report/alignment_flagstat_{assembler_co}.tsv"),
+            assembler_co=ASSEMBLERS_CO)
+ 
+
 rule coalignment_all:
     input:
-        expand(os.path.join(
-            config["output"]["coalignment"],
-            "report/alignment_flagstat_{assembler_co}.tsv"),
-               assembler_co=ASSEMBLERS_CO,
-               sample=SAMPLES.index.unique()),
         rules.coalignment_base_depth_all.input,
+        rules.coalignment_report_all.input,
 
         rules.coassembly_all.input
 

@@ -133,6 +133,7 @@ if config["params"]["binning"]["metabat2"]["do"]:
                 sample=SAMPLES.index.unique()),
 
             rules.binning_metabat2_coverage_all.input,
+            rules.single_alignment_all.input,
             rules.single_assembly_all.input
        
 else:
@@ -250,6 +251,7 @@ if config["params"]["binning"]["maxbin2"]["do"]:
                 assembler=ASSEMBLERS,
                 sample=SAMPLES.index.unique()),
 
+            rules.single_alignment_all.input,
             rules.single_assembly_all.input
 
 else:
@@ -462,6 +464,7 @@ if config["params"]["binning"]["concoct"]["do"]:
                    assembler=ASSEMBLERS,
                    sample=SAMPLES.index.unique()),
 
+            rules.single_alignment_all.input,
             rules.single_assembly_all.input
 
 else:
@@ -594,6 +597,7 @@ if config["params"]["binning"]["graphbin"]["do"]:
                    assembler=ASSEMBLERS,
                    sample=SAMPLES.index.unique()),
 
+            rules.single_alignment_all.input,
             rules.single_assembly_all.input
 
 else:

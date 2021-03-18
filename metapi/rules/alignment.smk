@@ -133,13 +133,18 @@ rule alignment_report:
         metapi.flagstats_summary(input_list, output_str, 2)
 
 
+rule alignment_report_all:
+    input:
+        expand(
+            os.path.join(
+                config["output"]["alignment"],
+                "report/alignment_flagstat_{assembler}.tsv"),
+            assembler=ASSEMBLERS)
+
+
 rule single_alignment_all:
     input:
-        expand(os.path.join(
-            config["output"]["alignment"],
-            "report/alignment_flagstat_{assembler}.tsv"),
-               assembler=ASSEMBLERS,
-               sample=SAMPLES.index.unique()),
         rules.alignment_base_depth_all.input,
+        rules.alignment_report_all.input,
 
-        rules.assembly_all.input
+        rules.single_assembly_all.input

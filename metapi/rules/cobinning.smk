@@ -133,6 +133,7 @@ rule cobinning_metabat2_all:
             assembler_co=ASSEMBLERS_CO),
 
         rules.cobinning_metabat2_coverage_all.input,
+        rules.coalignment_all.input,
         rules.coassembly_all.input
 
 
@@ -244,6 +245,7 @@ if config["params"]["binning"]["maxbin2"]["do"]:
                     "bins/all.{assembler_co}.out/maxbin2"),
                 assembler_co=ASSEMBLERS_CO),
 
+            rules.coalignment_all.input,
             rules.coassembly_all.input
 
 else:
@@ -440,6 +442,7 @@ if config["params"]["binning"]["concoct"]["do"]:
                 "bins/all.{assembler_co}.out/concoct"),
                    assembler_co=ASSEMBLERS_CO),
 
+            rules.coalignment_all.input,
             rules.coassembly_all.input
 
 else:
@@ -571,6 +574,7 @@ if config["params"]["binning"]["graphbin"]["do"]:
                    binner_graphbin=BINNERS_GRAPHBIN,
                    assembler_co=ASSEMBLERS_CO),
 
+            rules.coalignment_all.input,
             rules.coassembly_all.input
 
 else:
