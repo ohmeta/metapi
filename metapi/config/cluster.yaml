@@ -125,6 +125,19 @@ rmhost_bowtie2_index:
   error: "logs/02.{rule}/{rule}.e"
 
 rmhost_bowtie2:
+  mem: "4G"
+  cores: 8
+  output: "logs/02.{rule}/{rule}.{wildcards.sample}.o"
+  error: "logs/02.{rule}/{rule}.{wildcards.sample}.e"
+
+rmhost_minimap2_index:
+  queue: "st.q"
+  mem: "1G"
+  cores: 1
+  output: "logs/02.{rule}/{rule}.o"
+  error: "logs/02.{rule}/{rule}.e"
+
+rmhost_minimap2:
   mem: "6G"
   cores: 8
   output: "logs/02.{rule}/{rule}.{wildcards.sample}.o"

@@ -217,8 +217,8 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                         -@{threads} \
                         -c {params.compression} \
                         -N -f 12 -F 256 \
-                        -1 {output.reads} \
-                        -2 {output.r2} - \
+                        -1 {output.reads[0]} \
+                        -2 {output.reads[1]} - \
                         2> {log}
                         ''')
             else:
@@ -434,6 +434,152 @@ else:
         input:
 
 
+
+if config["params"]["rmhost"]["minimap2"]["do"]:
+    rule rmhost_minimap2_index:
+        input:
+            config["params"]["rmhost"]["host_fasta"]
+        output:
+            config["params"]["rmhost"]["minimap2"]["index"]
+        params:
+            split_size = config["params"]["rmhost"]["minimap2"]["split_size"]
+        shell:
+            '''
+            minimap2 -I {params.split_size} -d {output} {intput}
+            ''' 
+
+
+    rule rmhost_minimap2:
+        input:
+            reads = lambda wildcards: rmhost_input(wildcards),
+            index = config["params"]["rmhost"]["minimap2"]["index"] 
+        output:
+            flagstat = os.path.join(config["output"]["rmhost"],
+                                    "report/flagstat/{sample}.align2host.flagstat"),
+            reads = expand(os.path.join(
+                config["output"]["rmhost"],
+                "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                           read=[".1", ".2"] if IS_PE else "") \
+                           if config["params"]["rmhost"]["save_reads"] else \
+                              temp(expand(os.path.join(
+                                  config["output"]["rmhost"],
+                                  "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                                          read=[".1", ".2"] if IS_PE else ""))
+        log:
+            os.path.join(config["output"]["rmhost"], "logs/{sample}.minimap2.log")
+        benchmark:
+            os.path.join(config["output"]["rmhost"],
+                         "benchmark/minimap2/{sample}.minimap2.txt")
+        priority:
+            10
+        params:
+            preset = config["params"]["rmhost"]["minimap2"]["preset"],
+            compression = config["params"]["rmhost"]["compression"],
+            bam = os.path.join(config["output"]["rmhost"],
+                               "bam/{sample}/{sample}.align2host.sorted.bam")
+        threads:
+            config["params"]["rmhost"]["threads"]
+        run:
+            if IS_PE:
+                if config["params"]["rmhost"]["save_bam"]:
+                    shell("mkdir -p %s" % os.path.dirname(params.bam))
+                    shell(
+                        '''
+                        minimap2 \
+                        -t {threads} \
+                        -ax {params.preset} \
+                        {input.index} \
+                        {input.reads[0]} {input.reads[1]} | \
+                        tee >(samtools flagstat \
+                              -@{threads} - \
+                              > {output.flagstat}) | \
+                        tee >(samtools fastq \
+                              -@{threads} \
+                              -c {params.compression} \
+                              -N -f 12 -F 256 \
+                              -1 {output.reads[0]} \
+                              -2 {output.reads[1]} -) | \
+                        samtools sort \
+                        -@{threads} \
+                        -T {params.bam} \
+                        -O BAM -o {params.bam} - \
+                        2> {log}
+                        ''')
+                else:
+                    shell(
+                        '''
+                        minimap2 \
+                        -t {threads} \
+                        -ax {params.preset} \
+                        {input.index} \
+                        {input.reads[0]} {input.reads[1]} | \
+                        tee >(samtools flagstat \
+                              -@{threads} - \
+                              > {output.flagstat}) | \
+                        samtools fastq \
+                        -@{threads} \
+                        -c {params.compression} \
+                        -N -f 12 -F 256 \
+                        -1 {output.reads[0]} \
+                        -2 {output.reads[1]} - \
+                        2> {log}
+                        ''')
+            else:
+                if config["params"]["rmhost"]["save_bam"]:
+                    shell('''mkdir -p %s''' % os.path.dirname(params.bam))
+                    shell(
+                        '''
+                        minimap2 \
+                        -t {threads} \
+                        {input.index} \
+                        {input.reads[0]} | \
+                        tee >(samtools flagstat \
+                              -@{threads} - \
+                              > {output.flagstat}) | \
+                        tee >(samtools fastq \
+                              -@{threads} \
+                              -c {params.compression} \
+                              -N -f 4 -F 256 - | \
+                              pigz -c -p {threads} \
+                              > {output.reads[0]}) | \
+                        samtools sort \
+                        -@{threads} \
+                        -T {params.bam} \
+                        -O BAM -o {params.bam} - \
+                        2> {log}
+                        ''')
+                else:
+                    shell(
+                        '''
+                        minimap2 \
+                        -t {threads} \
+                        {input.index} \
+                        {input.reads[0]} | \
+                        tee >(samtools flagstat \
+                              -@{threads} - \
+                              > {output.flagstat}) | \
+                        samtools fastq \
+                        -@{threads} \
+                        -c {params.compression} \
+                        -N -f 4 -F 256 - | \
+                        pigz -c -p {threads} \
+                        > {output.reads[0]} \
+                        2> {log}
+                        ''')
+
+
+    rule rmhost_minimap2_all:
+        input:
+            expand(
+                os.path.join(config["output"]["rmhost"],
+                             "report/flagstat/{sample}.align2host.flagstat"),
+                   sample=SAMPLES.index.unique())
+
+else:
+    rule rmhost_minimap2_all:
+        input:
+
+
 if RMHOST_DO and config["params"]["qcreport"]["do"]:
     rule rmhost_report:
         input:
@@ -496,6 +642,7 @@ rule rmhost_all:
         rules.rmhost_bwa_all.input,
         rules.rmhost_bowtie2_all.input,
         rules.rmhost_soap_all.input,
+        rules.rmhost_minimap2_all.input,
         rules.rmhost_report_all.input,
 
         rules.trimming_all.input

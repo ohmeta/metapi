@@ -67,6 +67,12 @@ params:
       do: True
       index_prefix: /ldfssz1/ST_META/share/User/zhujie/database/galaxy_indexes/hg38/hg38full/bowtie2_index/hg38full
       presets: "--very-sensitive"
+    minimap2:
+      do: False
+      split_size: 4G
+      preset: sr
+      index: /ldfssz1/ST_META/share/User/zhujie/database/galaxy_indexes/hg38/hg38full/minimap2_index/hg38full.mmi
+
   qcreport:
     do: True
     seqkit:
