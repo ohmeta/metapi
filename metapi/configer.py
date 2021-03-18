@@ -55,6 +55,7 @@ class metaconfig:
         "logs/02.rmhost_bowtie2",
         "logs/02.rmhost_minimap2_index",
         "logs/02.rmhost_minimap2",
+        "logs/02.rmhost_alignment_report",
         "logs/02.rmhost_report",
         "logs/02.rmhost_report_merge",
         "logs/03.qcreport_summary",

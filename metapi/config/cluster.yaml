@@ -143,6 +143,12 @@ rmhost_minimap2:
   output: "logs/02.{rule}/{rule}.{wildcards.sample}.o"
   error: "logs/02.{rule}/{rule}.{wildcards.sample}.e"
 
+rmhost_alignment_report:
+  mem: "513M"
+  cores: 1
+  output: "logs/02.{rule}/{rule}.o"
+  error: "logs/02.{rule}/{rule}.e"
+
 rmhost_report:
   queue: "st_short.q"
   mem: "1G"

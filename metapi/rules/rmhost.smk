@@ -267,18 +267,6 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                         ''')
 
 
-    rule rmhost_bwa_all:
-        input:
-            expand(
-                os.path.join(config["output"]["rmhost"],
-                             "report/flagstat/{sample}.align2host.flagstat"),
-                   sample=SAMPLES.index.unique())
-
-else:
-    rule rmhost_bwa_all:
-        input:
-
-
 if config["params"]["rmhost"]["bowtie2"]["do"]:
     rule rmhost_bowtie2_index:
         input:
@@ -422,19 +410,6 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                         ''')
 
 
-    rule rmhost_bowtie2_all:
-        input:
-            expand(
-                os.path.join(config["output"]["rmhost"],
-                             "report/flagstat/{sample}.align2host.flagstat"),
-                   sample=SAMPLES.index.unique())
-
-else:
-    rule rmhost_bowtie2_all:
-        input:
-
-
-
 if config["params"]["rmhost"]["minimap2"]["do"]:
     rule rmhost_minimap2_index:
         input:
@@ -568,17 +543,51 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                         ''')
 
 
-    rule rmhost_minimap2_all:
+if RMHOST_DO and (not config["params"]["rmhost"]["soap"]["do"]):
+    rule rmhost_alignment_report:
         input:
             expand(
                 os.path.join(config["output"]["rmhost"],
                              "report/flagstat/{sample}.align2host.flagstat"),
-                   sample=SAMPLES.index.unique())
+                sample=SAMPLES.index.unique())
+        output:
+            os.path.join(config["output"]["rmhost"],
+                         "report/rmhost_align2host_stats.tsv")
+        run:
+            input_list = [str(i) for i in input]
+            output_str = str(output)
+            metapi.flagstats_summary(input_list, output_str, 2)
 
+
+if config["params"]["rmhost"]["bwa"]["do"]:
+    rule rmhost_bwa_all:
+        input:
+            os.path.join(config["output"]["rmhost"],
+                         "report/rmhost_align2host_stats.tsv")
+else:
+    rule rmhost_bwa_all:
+        input:
+
+
+if config["params"]["rmhost"]["bowtie2"]["do"]:
+    rule rmhost_bowtie2_all:
+        input:
+            os.path.join(config["output"]["rmhost"],
+                         "report/rmhost_align2host_stats.tsv")
+else:
+    rule rmhost_bowtie2_all:
+        input:
+
+
+if config["params"]["rmhost"]["bwa"]["do"]:
+    rule rmhost_minimap2_all:
+        input:
+            os.path.join(config["output"]["rmhost"],
+                         "report/rmhost_align2host_stats.tsv")
 else:
     rule rmhost_minimap2_all:
         input:
-
+ 
 
 if RMHOST_DO and config["params"]["qcreport"]["do"]:
     rule rmhost_report:
@@ -586,7 +595,7 @@ if RMHOST_DO and config["params"]["qcreport"]["do"]:
             lambda wildcards: get_reads(wildcards, "rmhost")
         output:
             os.path.join(config["output"]["rmhost"],
-                              "report/stats/{sample}_rmhost_stats.tsv")
+                         "report/stats/{sample}_rmhost_stats.tsv")
         priority:
             25
         params:
@@ -627,6 +636,7 @@ if RMHOST_DO and config["params"]["qcreport"]["do"]:
             config["params"]["qcreport"]["seqkit"]["threads"]
         run:
             metapi.merge(input, metapi.parse, threads, output=output[0])
+
 
     rule rmhost_report_all:
         input:
