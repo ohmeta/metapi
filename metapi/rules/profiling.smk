@@ -300,7 +300,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"]:
             expand(
                 os.path.join(
                     config["output"]["profiling"],
-                    "profile/metaphlan2.merge.abundance.profile.{level}.tsv"),
+                    "profile/metaphlan2.merged.abundance.profile.{level}.tsv"),
                 level=["all", "strain", "species", "genus", "family",
                        "order", "class", "phylum", "superkingdom"])
         threads:
@@ -417,7 +417,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
             expand(
                 os.path.join(
                     config["output"]["profiling"],
-                    "profile/metaphlan3.merge.abundance.profile.{level}.tsv"),
+                    "profile/metaphlan3.merged.abundance.profile.{level}.tsv"),
                 level=["all", "strain", "species", "genus", "family",
                        "order", "class", "phylum", "superkingdom"])
         threads:
