@@ -402,8 +402,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
             stat_q = config["params"]["profiling"]["metaphlan"]["stat_q_v3"],
             stat = config["params"]["profiling"]["metaphlan"]["stat"],
             analysis_type = config["params"]["profiling"]["metaphlan"]["analysis_type"],
-            no_unknown_estimation = "--no_unknown_estimation" \
-                if config["params"]["profiling"]["metaphlan"]["no_unknown_estimation"] \
+            unknown_estimation = "--unknown_estimation" \
+                if config["params"]["profiling"]["metaphlan"]["unknown_estimation"] \
                    else "",
             map_out = "--no_map" if config["params"]["profiling"]["metaphlan"]["no_map"] \
                 else "--bowtie2out %s" % os.path.join(
@@ -441,7 +441,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
             --stat_q {params.stat_q} \
             --stat {params.stat} \
             -t {params.analysis_type} \
-            {params.no_unknown_estimation} \
+            {params.unknown_estimation} \
             --output_file {output} \
             --sample_id {params.sample_id} \
             {params.legacy_output} \

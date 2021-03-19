@@ -341,7 +341,7 @@ params:
       stat_q_v2: "0.1"
       stat_q_v3: "0.2"
       stat: "tavg_g"
-      no_unknown_estimation: False
+      unknown_estimation: True
       read_min_len: 70
       save_bowtie2out: False
       legacy_output: False
