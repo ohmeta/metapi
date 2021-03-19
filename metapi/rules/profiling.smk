@@ -490,30 +490,31 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
         run:
            metapi.metaphlan_init(3)
            profile_df = metapi.merge_metaphlan_tables(input, threads,
-                                                      output=output.abundance_profile)
+                                                      output=output.abundance_profile)\
+                              .reset_index().set_index("clade_name")
 
-           profile_df.filter(regex='t__\w*$', axis=0).reset_index()\
+           profile_df.filter(regex='UNKNOWN|t__\w*$', axis=0).reset_index()\
                      .to_csv(output.abundance_profile_t, sep="\t", index=False)
 
-           profile_df.filter(regex='s__\w*$', axis=0).reset_index()\
+           profile_df.filter(regex='UNKNOWN|s__\w*$', axis=0).reset_index()\
                      .to_csv(output.abundance_profile_s, sep="\t", index=False)
 
-           profile_df.filter(regex='g__\w*$', axis=0).reset_index()\
+           profile_df.filter(regex='UNKNOWN|g__\w*$', axis=0).reset_index()\
                      .to_csv(output.abundance_profile_g, sep="\t", index=False)
 
-           profile_df.filter(regex='f__\w*$', axis=0).reset_index()\
+           profile_df.filter(regex='UNKNOWN|f__\w*$', axis=0).reset_index()\
                      .to_csv(output.abundance_profile_f, sep="\t", index=False)
 
-           profile_df.filter(regex='o__\w*$', axis=0).reset_index()\
+           profile_df.filter(regex='UNKNOWN|o__\w*$', axis=0).reset_index()\
                      .to_csv(output.abundance_profile_o, sep="\t", index=False)
 
-           profile_df.filter(regex='c__\w*$', axis=0).reset_index()\
+           profile_df.filter(regex='UNKNOWN|c__\w*$', axis=0).reset_index()\
                      .to_csv(output.abundance_profile_c, sep="\t", index=False)
 
-           profile_df.filter(regex='p__\w*$', axis=0).reset_index()\
+           profile_df.filter(regex='UNKNOWN|p__\w*$', axis=0).reset_index()\
                      .to_csv(output.abundance_profile_p, sep="\t", index=False)
 
-           profile_df.filter(regex='k__\w*$', axis=0).reset_index()\
+           profile_df.filter(regex='UNKNOWN|k__\w*$', axis=0).reset_index()\
                      .to_csv(output.abundance_profile_k, sep="\t", index=False)
 
 
