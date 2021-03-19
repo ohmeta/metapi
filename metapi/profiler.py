@@ -52,10 +52,20 @@ def merge_metaphlan_tables(table_files, workers, **kwargs):
             if abun_df is not None:
                 abun_list.append(abun_df)
 
-    abun_df_ = pd.concat(abun_list, axis=1).fillna(0)
+    abun_df_ = pd.concat(abun_list, axis=1).fillna(0)\
+                 .reset_index().set_index("clade_name")
     if "output" in kwargs:
         abun_df_.reset_index().to_csv(kwargs["output"], sep="\t", index=False)
-    return abun_df_
+
+    df_list = []
+    for i in ["t", "s", "g", "f", "o", "c", "p", "k"]:
+        profile_df = pd.DataFrame()
+        if METAPHLAN_VERSION == 2:
+            profile_df = abun_df_.filter(regex=f"{i}__\w*$", axis=0).reset_index() 
+        elif METAPHLAN_VERSION == 3:
+            profile_df = abun_df_.filter(regex=f"UNKNOWN|{i}__\w*$", axis=0).reset_index()
+        df_list.append(profile_df)
+    return [abun_df_.reset_index()] + df_list
 
 
 def profiler_init(index_metadata):
