@@ -579,7 +579,7 @@ else:
         input:
 
 
-if config["params"]["rmhost"]["bwa"]["do"]:
+if config["params"]["rmhost"]["minimap2"]["do"]:
     rule rmhost_minimap2_all:
         input:
             os.path.join(config["output"]["rmhost"],
