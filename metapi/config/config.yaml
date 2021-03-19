@@ -67,6 +67,12 @@ params:
       do: True
       index_prefix: /ldfssz1/ST_META/share/User/zhujie/database/galaxy_indexes/hg38/hg38full/bowtie2_index/hg38full
       presets: "--very-sensitive"
+    minimap2:
+      do: False
+      split_size: 4G
+      preset: sr
+      index: /ldfssz1/ST_META/share/User/zhujie/database/galaxy_indexes/hg38/hg38full/minimap2_index/hg38full.mmi
+
   qcreport:
     do: True
     seqkit:
@@ -335,7 +341,7 @@ params:
       stat_q_v2: "0.1"
       stat_q_v3: "0.2"
       stat: "tavg_g"
-      no_unknown_estimation: False
+      unknown_estimation: True
       read_min_len: 70
       save_bowtie2out: False
       legacy_output: False

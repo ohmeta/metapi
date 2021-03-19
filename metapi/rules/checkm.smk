@@ -189,7 +189,8 @@ if config["params"]["checkm"]["do"]:
                 binner_checkm=BINNERS_CHECKM),
 
             rules.predict_bins_gene_prodigal_all.input,
-            rules.binning_all.input,
+            rules.single_binning_all.input,
+            rules.multisplit_binning_all.input
 
 else:
     rule single_checkm_all:

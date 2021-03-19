@@ -26,9 +26,10 @@ HAVE_LONG = True \
 
 
 RMHOST_DO = True \
-    if config["params"]["rmhost"]["bwa"]["do"] or \
+    if config["params"]["rmhost"]["soap"]["do"] or \ 
+       config["params"]["rmhost"]["bwa"]["do"] or \
        config["params"]["rmhost"]["bowtie2"]["do"] or \
-       config["params"]["rmhost"]["soap"]["do"] \
+       config["params"]["rmhost"]["minimap2"]["do"] \
        else False
 
 
@@ -164,6 +165,7 @@ localrules: \
     rmhost_soap_all, \
     rmhost_bwa_all, \
     rmhost_bowtie2_all, \
+    rmhost_minimap2_all, \
     rmhost_report_all, \
     rmhost_all, \
     qcreport_all, \
@@ -181,7 +183,9 @@ localrules: \
     assembly_all, \
     alignment_base_depth_all, \
     coalignment_base_depth_all, \
+    alignment_report_all, \
     single_alignment_all, \
+    coalignment_report_all, \
     coalignment_all, \
     alignment_all, \
     binning_metabat2_coverage_all, \
