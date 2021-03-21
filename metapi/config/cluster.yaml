@@ -391,6 +391,12 @@ binning_vamb_align_scaftigs:
   output: "logs/06.{rule}/{rule}.{wildcards.assembler}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.assembler}.e"
 
+binning_vamb_align_scaftigs_report:
+  mem: "512M"
+  cores: 2
+  output: "logs/06.{rule}/{rule}.{wildcards.assembler}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembler}.e"
+
 binning_vamb_coverage:
   mem: "1G"
   cores: 8

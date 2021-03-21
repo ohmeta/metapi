@@ -97,6 +97,22 @@ if config["params"]["binning"]["vamb"]["do"]:
             samtools sort -@{threads} -T {output.bam} -O BAM -o {output.bam} -
             '''
 
+    rule binning_vamb_align_scaftigs_report:
+        input:
+            expand(
+                os.path.join(
+                    config["output"]["multisplit_binning"],
+                    "report/flagstat_minimap2/{sample}.{assembler}.align2combined_scaftigs.flagstat"),
+                sample=SAMPLES.index.unique(),
+                assembler=ASSEMBLERS)
+        output:
+            os.path.join(config["output"]["multisplit_binning"],
+                         "report/alignment_flagstat_{assembler}.tsv")
+        run:
+            input_list = [str(i) for i in input]
+            output_str = str(output)
+            metapi.flagstats_summary(input_list, output_str, 2)
+
 
     rule binning_vamb_coverage:
         input:
@@ -154,8 +170,12 @@ if config["params"]["binning"]["vamb"]["do"]:
                     "scaftigs/all.{assembler}.combined.out/all.{assembler}.combined.scaftigs.fa.gz"),
                 os.path.join(
                     config["output"]["multisplit_binning"],
-                    "matrix/all.{assembler}.align2combined_scaftigs.jgi.abundance.matrix.tsv")],
-                   assembler=ASSEMBLERS)
+                    "matrix/all.{assembler}.align2combined_scaftigs.jgi.abundance.matrix.tsv"),
+                os.path.join(
+                    config["output"]["multisplit_binning"],
+                    "report/alignment_flagstat_{assembler}.tsv"
+                )],
+                assembler=ASSEMBLERS)
 
 
     rule binning_vamb:

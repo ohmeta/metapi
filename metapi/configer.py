@@ -95,6 +95,7 @@ class metaconfig:
         "logs/06.binning_vamb_dict_scaftigs",
         "logs/06.binning_vamb_index_scaftigs",
         "logs/06.binning_vamb_align_scaftigs",
+        "logs/06.binning_vamb_align_scaftigs_report",
         "logs/06.binning_vamb_coverage",
         "logs/06.binning_vamb_gen_abundance_matrix",
         "logs/06.binning_vamb",
