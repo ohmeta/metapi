@@ -9,6 +9,10 @@ if config["params"]["binning"]["vamb"]["do"]:
             os.path.join(
                 config["output"]["multisplit_binning"],
                 "scaftigs/all.{assembler}.combined.out/all.{assembler}.combined.scaftigs.fa.gz")
+        benchmark:
+            os.path.join(
+                config["output"]["multisplit_binning"],
+                "benchmark/binning_vamb_combine_scaftigs.{assembler}.benchmark.txt")
         log:
             os.path.join(
                 config["output"]["multisplit_binning"],
@@ -30,6 +34,10 @@ if config["params"]["binning"]["vamb"]["do"]:
             os.path.join(
                 config["output"]["multisplit_binning"],
                 "index/all.{assembler}.combined.out/all.{assembler}.combined.scaftigs.dict")
+        benchmark:
+            os.path.join(
+                config["output"]["multisplit_binning"],
+                "benchmark/binning_vamb_dict_scaftigs.{assembler}.benchmark.txt")
         log:
             os.path.join(config["output"]["multisplit_binning"],
                          "logs/binning_vamb_dict_scaftigs_{assembler}.log")
@@ -48,6 +56,10 @@ if config["params"]["binning"]["vamb"]["do"]:
             os.path.join(
                 config["output"]["multisplit_binning"],
                 "index/all.{assembler}.combined.out/all.{assembler}.combined.scaftigs.minimap2.mmi")
+        benchmark:
+            os.path.join(
+                config["output"]["multisplit_binning"],
+                "benchmark/binning_vamb_index_scaftigs.{assembler}.benchmark.txt")
         log:
             os.path.join(config["output"]["multisplit_binning"],
                          "logs/binning_vamb_index_scaftigs_{assembler}.log")
@@ -79,9 +91,12 @@ if config["params"]["binning"]["vamb"]["do"]:
                    temp(os.path.join(
                        config["output"]["multisplit_binning"],
                        "bam/all.{assembler}.combined.out/{sample}.minimap2.out/{sample}.align2combined_scaftigs.sorted.bam"))
+        benchmark:
+            os.path.join(config["output"]["multisplit_binning"],
+                         "benchmark/minimap2/{sample}.{assembler}.minimap2.benchmark.txt")
         log:
             os.path.join(config["output"]["multisplit_binning"],
-                         "logs/alignment_multisplit/{sample}.{assembler}.align.reads2combined_scaftigs.log")
+                         "logs/alignment/{sample}.{assembler}.align.reads2combined_scaftigs.log")
         threads:
             config["params"]["alignment"]["threads"]
         shell:
@@ -126,6 +141,10 @@ if config["params"]["binning"]["vamb"]["do"]:
             cut_jgi = os.path.join(
                 config["output"]["multisplit_binning"],
                 "coverage/{sample}.{assembler}.out/{sample}.align2combined_scaftigs.cut.jgi")
+        benchmark:
+            os.path.join(
+                config["output"]["multisplit_binning"],
+                "benchmark/jgi_summarize_bam_contig_depths/{sample}.{assembler}.jgi_summarize_bam_contig_depths.benchmark.txt")
         log:
             os.path.join(config["output"]["multisplit_binning"],
                          "logs/coverage/{sample}.{assembler}.align2combined_scaftigs.jgi.coverage.log")
@@ -151,6 +170,10 @@ if config["params"]["binning"]["vamb"]["do"]:
         output:
             os.path.join(config["output"]["multisplit_binning"],
                          "matrix/all.{assembler}.align2combined_scaftigs.jgi.abundance.matrix.tsv")
+        benchmark:
+            os.path.join(
+                config["output"]["multisplit_binning"],
+                "benchmark/binning_vamb_gen_abundance_matrix.{assembler}.benchmark.txt")
         log:
             os.path.join(config["output"]["multisplit_binning"],
                          "logs/coverage/binning_vamb_gen_abundance_matrix_{assembler}.log")
@@ -198,6 +221,9 @@ if config["params"]["binning"]["vamb"]["do"]:
                          "bins/all.{assembler}.combined.out/vamb/tnf.npz"),
             directory(os.path.join(config["output"]["multisplit_binning"],
                                    "bins/all.{assembler}.combined.out/vamb/bins"))
+        benchmark:
+            os.path.join(config["output"]["multisplit_binning"],
+                         "benchmark/vamb/{assembler}.vamb.benchmark.txt")
         log:
             os.path.join(config["output"]["multisplit_binning"],
                          "logs/binning/all.{assembler}.vamb.binning.log")
@@ -242,6 +268,9 @@ if config["params"]["binning"]["vamb"]["do"]:
                 os.path.join(config["output"]["binning"],
                              "bins/{sample}.{{assembler}}.out/vamb"),
                 sample=SAMPLES.index.unique()))
+        benchmark:
+            os.path.join(config["output"]["multisplit_binning"],
+                         "benchmark/binning_vamb_postprocess.{assembler}.benchmark.txt")
         params:
             bins_from = config["output"]["multisplit_binning"],
             bins_to = config["output"]["binning"],

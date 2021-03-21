@@ -1,14 +1,16 @@
-<div align=center><img width="500" height="280" src="https://raw.githubusercontent.com/yangfangming/metapi/dev/docs/logo.svg"/></div>
-
-# metapi
-
 [![bioconda-badge](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io)
 [![ohmeta-badge](https://img.shields.io/badge/install%20with-ohmeta-brightgreen.svg?style=flat)](http://anaconda.org/ohmeta)
 [![PyPI version](https://badge.fury.io/py/metapi.svg)](https://badge.fury.io/py/metapi)
 [![star this repo](http://githubbadges.com/star.svg?user=ohmeta&repo=metapi&style=flat)](https://github.com/ohmeta/metapi)
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/metapi/badges/downloads.svg)](https://anaconda.org/bioconda/metapi)
 
+<div align=center><img width="500" height="280" src="docs/logo.svg"/></div>
+
 A general metagenomics data mining system focus on robust microbiome research.
+
+## Overview
+### MAG workflow
+<div align=center><img width="600" height="800" src="docs/mag_workflow.svg"></div>
 
 ## Installation
 
