@@ -30,11 +30,17 @@ params:
       sickle_pe: ""
       length_cutoff: 51
       quality_cutoff: 20
-    fastp:
+    fastp: # recommand
       do: True
       threads: 4
-      disable_adapter_trimming: False
       use_slide_window: True
+      disable_adapter_trimming: False
+      detect_adapter_for_se: True # If activated, adapter_sequence will not used
+      detect_adapter_for_pe: True # If activated, adapter_sequence and adapter_sequence_r2 will not used
+      adapter_sequence:    "AAGTCGGAGGCCAAGCGGTCTTAGGAAGACAA"            # MGI adapter 3
+                           # "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"         # eg: Illumina TruSeq adapter 3
+      adapter_sequence_r2: "AAGTCGGATCGTAGCCATGTCGTTCTGTGAGCCAAGGAGTTG"  # MGI adapter 5
+                           # "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"         # eg: Illumina TruSeq adapter 5
       compression: 6
       cut_front_window_size: 4
       cut_front_mean_quality: 20
