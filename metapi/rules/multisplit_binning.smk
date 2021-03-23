@@ -284,19 +284,27 @@ if config["params"]["binning"]["vamb"]["do"]:
                 outdir = os.path.join(params.bins_to, f"bins/{i}.{params.assembler}.out/vamb")
                 os.makedirs(outdir, exist_ok=True)
 
-                count_ = 0
                 count += 1
                 fna_list = sorted(glob(f'{input}/S{count}C*.fna'))
+
+                # link method
+                #count_ = 0
+                #for fna in fna_list:
+                #    count_ += 1
+                #    fna_source = f"../../../../../{fna}"
+                #    fna_dist = f"{i}.{params.assembler}.vamb.bin.{count_}.fa"
+                #    shell(
+                #        f'''
+                #        pushd {outdir} && \
+                #        ln -s {fna_source} {fna_dist} && \
+                #        popd
+                #        ''')
+
+                # copy method, rename 
                 for fna in fna_list:
-                    count_ += 1
-                    fna_source = f"../../../../../{fna}"
-                    fna_dist = f"{i}.{params.assembler}.vamb.bin.{count_}.fa"
-                    shell(
-                        f'''
-                        pushd {outdir} && \
-                        ln -s {fna_source} {fna_dist} && \
-                        popd
-                        ''')
+                    bin_id = os.path.basename(fna).split(".")[0]
+                    fna_dist = os.path.join(outdir, f"{i}.{params.assembler}.vamb.bin.{bin_id}.fa")
+                    shell(f'''cat {fna} | seqkit replace -p "^S\d+C" > {fna_dist}''')
 
 
     rule binning_vamb_all:

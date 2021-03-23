@@ -698,18 +698,20 @@ if config["params"]["binning"]["dastools"]["do"]:
                     --megabin_penalty {params.megabin_penalty} \
                     --threads {threads} --debug > {log} 2>&1
 
-                    exitcode=$?
-                    if [ $exitcode -eq 1 ]
-                    then
-                        grep -oEi 'Aborting' {log}
-                        grepcode=$?
-                        if [ $grepcode -eq 0 ]
-                        then
-                            exit 0
-                        else
-                            exit $exitcode
-                        fi
-                    fi
+                    #TODO
+                    # how to fix?
+                    #exitcode=$?
+                    #if [ $exitcode -eq 1 ]
+                    #then
+                    #    grep -oEi 'Aborting' {log}
+                    #    grepcode=$?
+                    #    if [ $grepcode -eq 0 ]
+                    #    then
+                    #        exit 0
+                    #    else
+                    #        exit $exitcode
+                    #    fi
+                    #fi
                     ''' % (",".join(tsv_list), ",".join(binners)))
 
                 shell('''rm -rf {output.bins_dir}/scaftigs.fasta''')

@@ -78,6 +78,8 @@ if config["params"]["binning"]["maxbin2"]["do"]:
     BINNERS_TOTAL += ["maxbin2"]
 if config["params"]["binning"]["concoct"]["do"]:
     BINNERS_TOTAL += ["concoct"]
+if config["params"]["binning"]["vamb"]["do"]:
+    BINNERS_TOTAL += ["vamb"]
 
 if config["params"]["binning"]["graphbin"]["do"]:
     BINNERS_GRAPHBIN = BINNERS_TOTAL.copy()
@@ -90,8 +92,6 @@ else:
 if config["params"]["binning"]["dastools"]["do"]:
     BINNERS_TOTAL.append("dastools")
 
-if config["params"]["binning"]["vamb"]["do"]:
-    BINNERS_TOTAL.append("vamb")
 
 BINNERS_CHECKM = config["params"]["checkm"]["check_binners"]
 
