@@ -14,7 +14,7 @@ params:
     threads: 8
     save_reads: True
     fastqc:
-      do: True
+      do: False
 
   trimming:
     save_reads: False
