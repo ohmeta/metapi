@@ -235,7 +235,13 @@ else:
 if config["params"]["profiling"]["metaphlan"]["do_v2"]:
     rule profiling_metaphlan2:
         input:
-            assembly_input_with_short_reads
+            reads = assembly_input_with_short_reads
+            index_mp2 = expand(
+                os.path.join(
+                    config["params"]["profiling"]["metaphlan"]["bowtie2db"],
+                    "{mpa_name}.{suffix}"),
+                mpa_name = config["params"]["profiling"]["metaphlan"]["index_v2"],
+                suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2", "pkl"])
         output:
            profile = protected(os.path.join(
                config["output"]["profiling"],
@@ -272,7 +278,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"]:
         shell:
             '''
             python {params.wrapper_dir}/metaphlan2_wrapper.py \
-            --input {input} \
+            --input {input.reads} \
             --analysis_type {params.analysis_type} \
             --input_type multifastq \
             --bowtie2db {params.bowtie2db} \
@@ -330,81 +336,195 @@ else:
 
 
 if config["params"]["profiling"]["metaphlan"]["do_v3"]:
-    rule profiling_metaphlan3:
-        input:
-            assembly_input_with_short_reads
-        output:
-           protected(os.path.join(
-               config["output"]["profiling"],
-               "profile/metaphlan3/{sample}/{sample}.metaphlan3.abundance.profile.tsv"))
-        log:
-            os.path.join(config["output"]["profiling"], "logs/{sample}.metaphlan3.log")
-        benchmark:
-            os.path.join(config["output"]["profiling"],
-                         "benchmark/metaphlan3/{sample}.metaphlan3.benchmark.txt")
-        conda:
-            config["envs"]["biobakery"]
-        params:
-            sample_id = "{sample}",
-            read_min_len = config["params"]["profiling"]["metaphlan"]["read_min_len"],
-            bowtie2db = config["params"]["profiling"]["metaphlan"]["bowtie2db"],
-            index = config["params"]["profiling"]["metaphlan"]["index_v3"],
-            bowtie2_presets = config["params"]["profiling"]["metaphlan"]["bowtie2_presets"],
-            min_cu_len = config["params"]["profiling"]["metaphlan"]["min_cu_len"],
-            taxonomic_level = config["params"]["profiling"]["metaphlan"]["taxonomic_level"],
-            avoid_disqm = "--avoid_disqm" \
-                if config["params"]["profiling"]["metaphlan"]["avoid_disqm"] \
-                   else "",
-            stat_q = config["params"]["profiling"]["metaphlan"]["stat_q_v3"],
-            stat = config["params"]["profiling"]["metaphlan"]["stat"],
-            analysis_type = config["params"]["profiling"]["metaphlan"]["analysis_type"],
-            unknown_estimation = "--unknown_estimation" \
-                if config["params"]["profiling"]["metaphlan"]["unknown_estimation"] \
-                   else "",
-            map_out = "--no_map" if config["params"]["profiling"]["metaphlan"]["no_map"] \
-                else "--bowtie2out %s" % os.path.join(
+    if not config["params"]["profiling"]["metaphlan"]["do_v3_one_way"]:
+        rule profiling_metaphlan3:
+            input:
+                reads = assembly_input_with_short_reads,
+                index_mp3 = expand(
+                    os.path.join(
+                        config["params"]["profiling"]["metaphlan"]["bowtie2db"],
+                        "{mpa_name}.{suffix}"),
+                    mpa_name = config["params"]["profiling"]["metaphlan"]["index_v3"],
+                    suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2", "pkl"])
+            output:
+               protected(os.path.join(
+                   config["output"]["profiling"],
+                   "profile/metaphlan3/{sample}/{sample}.metaphlan3.abundance.profile.tsv"))
+            log:
+                os.path.join(config["output"]["profiling"], "logs/{sample}.metaphlan3.log")
+            benchmark:
+                os.path.join(config["output"]["profiling"],
+                            "benchmark/metaphlan3/{sample}.metaphlan3.benchmark.txt")
+            conda:
+                config["envs"]["biobakery"]
+            params:
+                sample_id = "{sample}",
+                read_min_len = config["params"]["profiling"]["metaphlan"]["read_min_len"],
+                bowtie2db = config["params"]["profiling"]["metaphlan"]["bowtie2db"],
+                index = config["params"]["profiling"]["metaphlan"]["index_v3"],
+                bowtie2_presets = config["params"]["profiling"]["metaphlan"]["bowtie2_presets"],
+                min_cu_len = config["params"]["profiling"]["metaphlan"]["min_cu_len"],
+                taxonomic_level = config["params"]["profiling"]["metaphlan"]["taxonomic_level"],
+                avoid_disqm = "--avoid_disqm" \
+                    if config["params"]["profiling"]["metaphlan"]["avoid_disqm"] \
+                    else "",
+                stat_q = config["params"]["profiling"]["metaphlan"]["stat_q_v3"],
+                stat = config["params"]["profiling"]["metaphlan"]["stat"],
+                analysis_type = config["params"]["profiling"]["metaphlan"]["analysis_type"],
+                unknown_estimation = "--unknown_estimation" \
+                    if config["params"]["profiling"]["metaphlan"]["unknown_estimation"] \
+                    else "",
+                map_out = "--no_map" if config["params"]["profiling"]["metaphlan"]["no_map"] \
+                    else "--bowtie2out %s" % os.path.join(
                         config["output"]["profiling"],
                         "profile/metaphlan3/{sample}/{sample}.metaphlan3.bowtie2.bz2"),
-            biom_out = "--biom %s" % os.path.join(
-                config["output"]["profiling"],
-                "profile/metaphlan3/{sample}/{sample}.metaphlan3.abundance.profile.biom") \
-                if config["params"]["profiling"]["metaphlan"]["biom"] \
-                   else "",
-            legacy_output = "--legacy-output" \
-                if config["params"]["profiling"]["metaphlan"]["legacy_output"] \
-                   else "",
-            cami_format_output = "--CAMI_format_output" \
-                if config["params"]["profiling"]["metaphlan"]["cami_format_output"] \
-                   else ""
-        threads:
-            config["params"]["profiling"]["threads"]
-        shell:
-            '''
-            reads=$(python -c "import sys; print(','.join(sys.argv[1:]))" {input})
+                biom_out = "--biom %s" % os.path.join(
+                    config["output"]["profiling"],
+                    "profile/metaphlan3/{sample}/{sample}.metaphlan3.abundance.profile.biom") \
+                    if config["params"]["profiling"]["metaphlan"]["biom"] \
+                    else "",
+                legacy_output = "--legacy-output" \
+                    if config["params"]["profiling"]["metaphlan"]["legacy_output"] \
+                    else "",
+                cami_format_output = "--CAMI_format_output" \
+                    if config["params"]["profiling"]["metaphlan"]["cami_format_output"] \
+                    else ""
+            threads:
+                config["params"]["profiling"]["threads"]
+            shell:
+                '''
+                reads=$(python -c "import sys; print(','.join(sys.argv[1:]))" {input.reads})
 
-            metaphlan \
-            $reads \
-            --input_type fastq \
-            --read_min_len {params.read_min_len} \
-            --nproc {threads} \
-            {params.map_out} \
-            --bowtie2db {params.bowtie2db} \
-            --index {params.index} \
-            --bt2_ps {params.bowtie2_presets} \
-            --min_cu_len {params.min_cu_len} \
-            --tax_lev {params.taxonomic_level} \
-            {params.avoid_disqm} \
-            --stat_q {params.stat_q} \
-            --stat {params.stat} \
-            -t {params.analysis_type} \
-            {params.unknown_estimation} \
-            --output_file {output} \
-            --sample_id {params.sample_id} \
-            {params.legacy_output} \
-            {params.cami_format_output} \
-            {params.biom_out} \
-            2> {log}
-            '''
+                metaphlan \
+                $reads \
+                --input_type fastq \
+                --read_min_len {params.read_min_len} \
+                --nproc {threads} \
+                {params.map_out} \
+                --bowtie2db {params.bowtie2db} \
+                --index {params.index} \
+                --bt2_ps {params.bowtie2_presets} \
+                --min_cu_len {params.min_cu_len} \
+                --tax_lev {params.taxonomic_level} \
+                {params.avoid_disqm} \
+                --stat_q {params.stat_q} \
+                --stat {params.stat} \
+                -t {params.analysis_type} \
+                {params.unknown_estimation} \
+                --output_file {output} \
+                --sample_id {params.sample_id} \
+                {params.legacy_output} \
+                {params.cami_format_output} \
+                {params.biom_out} \
+                2> {log}
+                '''
+    else:
+        rule profiling_metaphlan3:
+            input:
+                reads = lambda wildcards: get_reads(wildcards, "raw"),
+                index_mp3 = expand(
+                    os.path.join(
+                        config["params"]["profiling"]["metaphlan"]["bowtie2db"],
+                        "{mpa_name}.{suffix}"),
+                    mpa_name = config["params"]["profiling"]["metaphlan"]["index_v3"],
+                    suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2", "pkl"]),
+                index_host = expand("{prefix}.{suffix}",
+                    prefix=config["params"]["rmhost"]["bwa"]["index_prefix"],
+                    suffix=["amb", "ann", "bwt", "pac", "sa"])
+            output:
+                profile = protected(os.path.join(
+                    config["output"]["profiling"],
+                    "profile/metaphlan3/{sample}/{sample}.metaphlan3.abundance.profile.tsv")),
+                html = os.path.join(config["output"]["profiling"],
+                                    "stats_preprocess/{sample}/{sample}.fastp.html"),
+                json = os.path.join(config["output"]["profiling"],
+                                    "stats_preprocess/{sample}/{sample}.fastp.json")
+                flagstat_rmhost = os.path.join(config["output"]["profiling"],
+                                    "stats_preprocess/{sample}/{sample}.rmhost.flagstat")
+            log:
+                os.path.join(config["output"]["profiling"],
+                             "logs/{sample}.trimming.rmhost.metaphlan3.log")
+            benchmark:
+                os.path.join(config["output"]["profiling"],
+                            "benchmark/metaphlan3/{sample}.metaphlan3.benchmark.txt")
+            conda:
+                config["envs"]["biobakery"]
+            params:
+                bwa = "bwa-mem2" if config["params"]["rmhost"]["bwa"]["algorithms"] == "mem2" else "bwa",
+                minimum_seed_length = config["params"]["rmhost"]["bwa"]["minimum_seed_length"],
+                host_prefix = config["params"]["rmhost"]["bwa"]["index_prefix"],
+                sample_id = "{sample}",
+                read_min_len = config["params"]["profiling"]["metaphlan"]["read_min_len"],
+                bowtie2db = config["params"]["profiling"]["metaphlan"]["bowtie2db"],
+                index = config["params"]["profiling"]["metaphlan"]["index_v3"],
+                bowtie2_presets = config["params"]["profiling"]["metaphlan"]["bowtie2_presets"],
+                min_cu_len = config["params"]["profiling"]["metaphlan"]["min_cu_len"],
+                taxonomic_level = config["params"]["profiling"]["metaphlan"]["taxonomic_level"],
+                avoid_disqm = "--avoid_disqm" \
+                    if config["params"]["profiling"]["metaphlan"]["avoid_disqm"] \
+                    else "",
+                stat_q = config["params"]["profiling"]["metaphlan"]["stat_q_v3"],
+                stat = config["params"]["profiling"]["metaphlan"]["stat"],
+                analysis_type = config["params"]["profiling"]["metaphlan"]["analysis_type"],
+                unknown_estimation = "--unknown_estimation" \
+                    if config["params"]["profiling"]["metaphlan"]["unknown_estimation"] \
+                    else "",
+                map_out = "--no_map" if config["params"]["profiling"]["metaphlan"]["no_map"] \
+                    else "--bowtie2out %s" % os.path.join(
+                        config["output"]["profiling"],
+                        "profile/metaphlan3/{sample}/{sample}.metaphlan3.bowtie2.bz2"),
+                biom_out = "--biom %s" % os.path.join(
+                    config["output"]["profiling"],
+                    "profile/metaphlan3/{sample}/{sample}.metaphlan3.abundance.profile.biom") \
+                    if config["params"]["profiling"]["metaphlan"]["biom"] \
+                    else "",
+                legacy_output = "--legacy-output" \
+                    if config["params"]["profiling"]["metaphlan"]["legacy_output"] \
+                    else "",
+                cami_format_output = "--CAMI_format_output" \
+                    if config["params"]["profiling"]["metaphlan"]["cami_format_output"] \
+                    else ""
+            threads:
+                config["params"]["profiling"]["threads"]
+            run:
+                if TRIMMING_DO and RMHOST_DO:
+                    shell('''date > {log}''')
+                    shell(
+                        '''
+                        fastp %s %s --thread {threads} \
+                        --stdout --json {output.json} --html {output.html} 2>> {log} | \
+                        {params.bwa} mem -p -t {threads} \
+                        -k {params.minimum_seed_length} {params.host_prefix} - 2>> {log} | \
+                            tee >(samtools flagstat \
+                                  -@{threads} - \
+                                  > {output.flagstat_rmhost}) | \
+                        samtools fastq -@{threads} -N -f 12 -F 256 - |
+                        metaphlan \
+                        --input_type fastq \
+                        --read_min_len {params.read_min_len} \
+                        --nproc {threads} \
+                        {params.map_out} \
+                        --bowtie2db {params.bowtie2db} \
+                        --index {params.index} \
+                        --bt2_ps {params.bowtie2_presets} \
+                        --min_cu_len {params.min_cu_len} \
+                        --tax_lev {params.taxonomic_level} \
+                        {params.avoid_disqm} \
+                        --stat_q {params.stat_q} \
+                        --stat {params.stat} \
+                        -t {params.analysis_type} \
+                        {params.unknown_estimation} \
+                        --output_file {output} \
+                        --sample_id {params.sample_id} \
+                        {params.legacy_output} \
+                        {params.cami_format_output} \
+                        {params.biom_out} \
+                        2>> {log}
+                        ''' % (
+                            "--in1 {input.reads[0]} --in2 {input.reads[1]}" if IS_PE else "--in1 {input.reads[0]}",
+                            f"{ADAPTER_OPERATION}"
+                        ))
+                    shell('''date >> {log}''')
 
 
     rule profiling_metaphlan3_merge:
@@ -535,7 +655,7 @@ if config["params"]["profiling"]["jgi"]["do"]:
                 flagstat_profiling = os.path.join(config["output"]["profiling"],
                                     "stats_preprocess/{sample}/{sample}.profiling.flagstat")
             log:
-                os.path.join(config["output"]["profiling"], "logs/{sample}.jgi.log")
+                os.path.join(config["output"]["profiling"], "logs/{sample}.trimming.rmhost.jgi.log")
             benchmark:
                 os.path.join(config["output"]["profiling"],
                              "benchmark/jgi_2/{sample}.jgi.benchmark.txt")
@@ -600,8 +720,7 @@ if config["params"]["profiling"]["jgi"]["do"]:
                             f"{ADAPTER_OPERATION}",
                             "--interleaved" if IS_PE else "",
                             "--interleaved" if IS_PE else ""
-                        )
-                    )
+                        ))
                     shell('''pigz --processes {threads} {params.coverage}''')
                     shell('''rm -rf {params.temp_dir}''')
                     shell('''echo "jgi profiling done" >> {log}''')

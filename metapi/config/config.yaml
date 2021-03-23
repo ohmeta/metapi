@@ -329,6 +329,7 @@ params:
     metaphlan:
       do_v2: True
       do_v3: True
+      do_v3_one_way: False
       bowtie2db: /ldfssz1/ST_META/share/User/zhujie/database/metaphlan
       index_v2: "v20_m200"
       index_v3: "mpa_v30_CHOCOPhlAn_201901"
