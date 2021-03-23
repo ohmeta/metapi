@@ -33,7 +33,7 @@ params:
     fastp:
       do: True
       threads: 4
-      disable_adapter_trimming: True
+      disable_adapter_trimming: False
       use_slide_window: True
       compression: 6
       cut_front_window_size: 4
