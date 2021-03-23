@@ -437,7 +437,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                                     "stats_preprocess/{sample}/{sample}.rmhost.flagstat")
             log:
                 os.path.join(config["output"]["profiling"],
-                             "logs/{sample}.trimming.rmhost.metaphlan3.log")
+                             "logs/metaphlan3/{sample}.metaphlan3.log")
             benchmark:
                 os.path.join(config["output"]["profiling"],
                             "benchmark/metaphlan3/{sample}.metaphlan3.benchmark.txt")
@@ -447,6 +447,10 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                 bwa = "bwa-mem2" if config["params"]["rmhost"]["bwa"]["algorithms"] == "mem2" else "bwa",
                 minimum_seed_length = config["params"]["rmhost"]["bwa"]["minimum_seed_length"],
                 host_prefix = config["params"]["rmhost"]["bwa"]["index_prefix"],
+                trimming_log = os.path.join(config["output"]["profiling"],
+                                            "logs/fastp/{sample}.fastp.log"),
+                rmhost_log = os.path.join(config["output"]["profiling"],
+                                          "logs/bwa/{sample}.bwa.log"),
                 sample_id = "{sample}",
                 read_min_len = config["params"]["profiling"]["metaphlan"]["read_min_len"],
                 bowtie2db = config["params"]["profiling"]["metaphlan"]["bowtie2db"],
@@ -481,18 +485,20 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
             threads:
                 config["params"]["profiling"]["threads"]
             run:
+                shell(f'''mkdir -p {os.path.dirname(params.trimming_log)}''')
+                shell(f'''mkdir -p {os.path.dirname(params.rmhost_log)}''')
                 if TRIMMING_DO and RMHOST_DO:
                     shell('''date > {log}''')
                     shell(
                         '''
                         fastp %s %s --thread {threads} \
-                        --stdout --json {output.json} --html {output.html} 2>> {log} | \
+                        --stdout --json {output.json} --html {output.html} 2> {params.trimming_log} | \
                         {params.bwa} mem -p -t {threads} \
-                        -k {params.minimum_seed_length} {params.host_prefix} - 2>> {log} | \
+                        -k {params.minimum_seed_length} {params.host_prefix} - 2> {params.rmhost_log} | \
                             tee >(samtools flagstat \
                                   -@{threads} - \
                                   > {output.flagstat_rmhost}) | \
-                        samtools fastq -@{threads} -N -f 12 -F 256 - |
+                        samtools fastq -@{threads} -N -f 12 -F 256 - | \
                         metaphlan \
                         --input_type fastq \
                         --read_min_len {params.read_min_len} \
@@ -508,7 +514,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                         --stat {params.stat} \
                         -t {params.analysis_type} \
                         {params.unknown_estimation} \
-                        --output_file {output} \
+                        --output_file {output.profile} \
                         --sample_id {params.sample_id} \
                         {params.legacy_output} \
                         {params.cami_format_output} \
