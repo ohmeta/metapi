@@ -132,7 +132,7 @@ ADAPTER_OPERATION = ""
 adapter_sequence = config["params"]["trimming"]["fastp"]["adapter_sequence"]
 adapter_sequence_r2 = config["params"]["trimming"]["fastp"]["adapter_sequence_r2"]
 
-if config["params"]["trimming"]["fastp"]["disable_apdater_trimming"]:
+if config["params"]["trimming"]["fastp"]["disable_adapter_trimming"]:
     adapter_operation = "--disable_adapter_trimming"
 else:
     if IS_PE:
@@ -140,11 +140,11 @@ else:
             ADAPTER_OPERATION = "--detect_adapter_for_pe"
         else:
             ADAPTER_OPERATION = f'''--adapter_sequence {adapter_sequence} --adapter_sequence_r2 {adapter_sequence_r2}'''
+    else:
+        if config["params"]["trimming"]["fastp"]["detect_adapter_for_se"]:
+            ADAPTER_OPERATION = ""
         else:
-            if config["params"]["trimming"]["fastp"]["detect_adapter_for_se"]:
-                ADAPTER_OPERATION = ""
-            else:
-                ADAPTER_OPERATION = f'''--adapter_sequence {adapter_sequence}'''
+            ADAPTER_OPERATION = f'''--adapter_sequence {adapter_sequence}'''
 
 
 if config["params"]["trimming"]["fastp"]["do"]:

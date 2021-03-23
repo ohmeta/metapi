@@ -8,7 +8,7 @@ rule alignment_scaftigs_index:
             os.path.join(
                 config["output"]["alignment"],
                 "index/{{sample}}.{{assembler}}.out/{{sample}}.{{assembler}}.scaftigs.fa.gz.{suffix}"),
-            suffix=["amb", "ann", "bwt", "pac", "sa"]))
+            suffix=BWA_INDEX_SUFFIX))
     log:
         os.path.join(
             config["output"]["alignment"],
@@ -30,7 +30,7 @@ rule alignment_reads_scaftigs:
         index = expand(os.path.join(
             config["output"]["alignment"],
             "index/{{sample}}.{{assembler}}.out/{{sample}}.{{assembler}}.scaftigs.fa.gz.{suffix}"),
-                       suffix=["amb", "ann", "bwt", "pac", "sa"])
+                       suffix=BWA_INDEX_SUFFIX)
     output:
         flagstat = os.path.join(
             config["output"]["alignment"],

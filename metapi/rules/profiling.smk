@@ -236,12 +236,6 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"]:
     rule profiling_metaphlan2:
         input:
             reads = assembly_input_with_short_reads
-            index_mp2 = expand(
-                os.path.join(
-                    config["params"]["profiling"]["metaphlan"]["bowtie2db"],
-                    "{mpa_name}.{suffix}"),
-                mpa_name = config["params"]["profiling"]["metaphlan"]["index_v2"],
-                suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2", "pkl"])
         output:
            profile = protected(os.path.join(
                config["output"]["profiling"],
@@ -430,7 +424,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                     suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2", "pkl"]),
                 index_host = expand("{prefix}.{suffix}",
                     prefix=config["params"]["rmhost"]["bwa"]["index_prefix"],
-                    suffix=["amb", "ann", "bwt", "pac", "sa"])
+                    suffix=BWA_INDEX_SUFFIX)
             output:
                 profile = protected(os.path.join(
                     config["output"]["profiling"],
@@ -438,7 +432,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                 html = os.path.join(config["output"]["profiling"],
                                     "stats_preprocess/{sample}/{sample}.fastp.html"),
                 json = os.path.join(config["output"]["profiling"],
-                                    "stats_preprocess/{sample}/{sample}.fastp.json")
+                                    "stats_preprocess/{sample}/{sample}.fastp.json"),
                 flagstat_rmhost = os.path.join(config["output"]["profiling"],
                                     "stats_preprocess/{sample}/{sample}.rmhost.flagstat")
             log:
@@ -447,8 +441,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
             benchmark:
                 os.path.join(config["output"]["profiling"],
                             "benchmark/metaphlan3/{sample}.metaphlan3.benchmark.txt")
-            conda:
-                config["envs"]["biobakery"]
+            #conda:
+            #    config["envs"]["biobakery"]
             params:
                 bwa = "bwa-mem2" if config["params"]["rmhost"]["bwa"]["algorithms"] == "mem2" else "bwa",
                 minimum_seed_length = config["params"]["rmhost"]["bwa"]["minimum_seed_length"],
@@ -549,17 +543,27 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                df_list[i].to_csv(output[i], sep='\t', index=False)
 
 
-    rule profiling_metaphlan3_all:
-        input:
-            expand(
-                os.path.join(
-                    config["output"]["profiling"],
-                    "profile/metaphlan3.merged.abundance.profile.{level}.tsv"),
-                level=["all", "superkingdom", "phylum", "class",
-                       "order", "family", "genus", "species", "strain"]),
-
-            rules.rmhost_all.input,
-            rules.qcreport_all.input
+    if config["params"]["profiling"]["metaphlan"]["do_v3_one_way"]:
+        rule profiling_metaphlan3_all:
+            input:
+                expand(
+                    os.path.join(
+                        config["output"]["profiling"],
+                        "profile/metaphlan3.merged.abundance.profile.{level}.tsv"),
+                    level=["all", "superkingdom", "phylum", "class",
+                           "order", "family", "genus", "species", "strain"])
+    else:
+        rule profiling_metaphlan3_all:
+            input:
+                expand(
+                    os.path.join(
+                        config["output"]["profiling"],
+                        "profile/metaphlan3.merged.abundance.profile.{level}.tsv"),
+                    level=["all", "superkingdom", "phylum", "class",
+                           "order", "family", "genus", "species", "strain"]),
+                
+                rules.rmhost_all.input,
+                rules.qcreport_all.input
 
 else:
     rule profiling_metaphlan3_all:
@@ -649,7 +653,7 @@ if config["params"]["profiling"]["jgi"]["do"]:
                 html = os.path.join(config["output"]["profiling"],
                                     "stats_preprocess/{sample}/{sample}.fastp.html"),
                 json = os.path.join(config["output"]["profiling"],
-                                    "stats_preprocess/{sample}/{sample}.fastp.json")
+                                    "stats_preprocess/{sample}/{sample}.fastp.json"),
                 flagstat_rmhost = os.path.join(config["output"]["profiling"],
                                     "stats_preprocess/{sample}/{sample}.rmhost.flagstat"),
                 flagstat_profiling = os.path.join(config["output"]["profiling"],

@@ -125,6 +125,9 @@ else:
         input:
 
 
+BWA_INDEX_SUFFIX = ["0123", "amb", "ann", "bwt.2bit.64", "pac"] if config["params"]["rmhost"]["bwa"]["algorithms"] == "mem2" \
+else ["amb", "ann", "bwt", "pac", "sa"]
+
 if config["params"]["rmhost"]["bwa"]["do"]:
     rule rmhost_bwa_index:
         input:
@@ -132,7 +135,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
         output:
             expand("{prefix}.{suffix}",
                    prefix=config["params"]["rmhost"]["bwa"]["index_prefix"],
-                   suffix=["amb", "ann", "bwt", "pac", "sa"])
+                   suffix=BWA_INDEX_SUFFIX)
         benchmark:
             os.path.join(config["output"]["rmhost"],
                          "benchmark/bwa.index.benchmark.txt")
@@ -153,7 +156,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
             reads = lambda wildcards: rmhost_input(wildcards),
             index = expand("{prefix}.{suffix}",
                            prefix=config["params"]["rmhost"]["bwa"]["index_prefix"],
-                           suffix=["amb", "ann", "bwt", "pac", "sa"])
+                           suffix=BWA_INDEX_SUFFIX)
         output:
             flagstat = os.path.join(config["output"]["rmhost"],
                                     "report/flagstat/{sample}.align2host.flagstat"),
