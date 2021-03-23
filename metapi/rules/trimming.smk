@@ -128,6 +128,25 @@ else:
         input:
 
 
+ADAPTER_OPERATION = ""
+adapter_sequence = config["params"]["trimming"]["fastp"]["adapter_sequence"]
+adapter_sequence_r2 = config["params"]["trimming"]["fastp"]["adapter_sequence_r2"]
+
+if config["params"]["trimming"]["fastp"]["disable_apdater_trimming"]:
+    adapter_operation = "--disable_adapter_trimming"
+else:
+    if IS_PE:
+        if config["params"]["trimming"]["fastp"]["detect_adapter_for_pe"]:
+            ADAPTER_OPERATION = "--detect_adapter_for_pe"
+        else:
+            ADAPTER_OPERATION = f'''--adapter_sequence {adapter_sequence} --adapter_sequence_r2 {adapter_sequence_r2}'''
+        else:
+            if config["params"]["trimming"]["fastp"]["detect_adapter_for_se"]:
+                ADAPTER_OPERATION = ""
+            else:
+                ADAPTER_OPERATION = f'''--adapter_sequence {adapter_sequence}'''
+
+
 if config["params"]["trimming"]["fastp"]["do"]:
     rule trimming_fastp:
         input:
@@ -158,12 +177,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
             cut_right_window_size = config["params"]["trimming"]["fastp"]["cut_right_window_size"],
             cut_right_mean_quality = config["params"]["trimming"]["fastp"]["cut_right_mean_quality"],
             length_required = config["params"]["trimming"]["fastp"]["length_required"],
-            n_base_limit = config["params"]["trimming"]["fastp"]["n_base_limit"],
-            disable_adapter_trimming = config["params"]["trimming"]["fastp"]["disable_adapter_trimming"],
-            detect_adapter_for_se = config["params"]["trimming"]["fastp"]["detect_adapter_for_se"],
-            detect_adapter_for_pe = config["params"]["trimming"]["fastp"]["detect_adapter_for_pe"],
-            adapter_sequence = config["params"]["trimming"]["fastp"]["adapter_sequence"],
-            adapter_sequence_r2 = config["params"]["trimming"]["fastp"]["adapter_sequence_r2"]
+            n_base_limit = config["params"]["trimming"]["fastp"]["n_base_limit"]
         log:
             os.path.join(config["output"]["trimming"], "logs/{sample}.fastp.log")
         benchmark:
@@ -172,21 +186,6 @@ if config["params"]["trimming"]["fastp"]["do"]:
         threads:
             config["params"]["trimming"]["fastp"]["threads"]
         run:
-            adapter_operation = ""
-            if params.disable_adapter_trimming:
-                adapter_operation = "--disable_adapter_trimming"
-            else:
-                if IS_PE:
-                    if params.detect_adapter_for_pe:
-                        adapter_operation = "--detect_adapter_for_pe"
-                    else:
-                        adapter_operation = f"--adapter_sequence {params.adapter_sequence} --adapter_sequence_r2 {params.adapter_sequence_r2}"
-                else:
-                    if params.detect_adapter_for_se:
-                        adapter_operation = ""
-                    else:
-                        adapter_operation = "--adapter_sequence {params.adapter_sequence}"
-
             if IS_PE:
                 if config["params"]["trimming"]["fastp"]["use_slide_window"]:
                     shell(
@@ -197,7 +196,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
                         --out1 {output.reads[0]} \
                         --out2 {output.reads[1]} \
                         --compression {params.compression} \
-                        {adapter_operation} \
+                        {ADAPTER_OPERATION} \
                         --cut_front \
                         --cut_right \
                         --cut_front_window_size {params.cut_front_window_size} \
@@ -219,7 +218,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
                         --out1 {output.reads[0]} \
                         --out2 {output.reads[1]} \
                         --compression {params.compression} \
-                        {adapter_operation} \
+                        {ADAPTER_OPERATION} \
                         --cut_front \
                         --cut_tail \
                         --cut_front_window_size {params.cut_front_window_size} \
@@ -240,7 +239,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
                         --in1 {input[0]} \
                         --out1 {output.reads[0]} \
                         --compression {params.compression} \
-                        {adapter_operation} \
+                        {ADAPTER_OPERATION} \
                         --cut_front \
                         --cut_right \
                         --cut_front_window_size {params.cut_front_window_size} \
@@ -260,7 +259,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
                         --in1 {input[0]} \
                         --out1 {output.reads[0]} \
                         --compression {params.compression} \
-                        {adapter_operation} \
+                        {ADAPTER_OPERATION} \
                         --cut_front \
                         --cut_tail \
                         --cut_front_window_size {params.cut_front_window_size} \
