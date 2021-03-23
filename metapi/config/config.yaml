@@ -37,10 +37,10 @@ params:
       disable_adapter_trimming: False
       detect_adapter_for_se: True # If activated, adapter_sequence will not used
       detect_adapter_for_pe: True # If activated, adapter_sequence and adapter_sequence_r2 will not used
-      adapter_sequence:    "AAGTCGGAGGCCAAGCGGTCTTAGGAAGACAA"            # MGI adapter 3
-                           # "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"         # eg: Illumina TruSeq adapter 3
-      adapter_sequence_r2: "AAGTCGGATCGTAGCCATGTCGTTCTGTGAGCCAAGGAGTTG"  # MGI adapter 5
-                           # "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"         # eg: Illumina TruSeq adapter 5
+      adapter_sequence: "AAGTCGGAGGCCAAGCGGTCTTAGGAAGACAA" # MGI adapter 3
+      adapter_sequence_r2: "AAGTCGGATCGTAGCCATGTCGTTCTGTGAGCCAAGGAGTTG" # MGI adapter 5
+      # "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"         # eg: Illumina TruSeq adapter 3
+      # "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"         # eg: Illumina TruSeq adapter 5
       compression: 6
       cut_front_window_size: 4
       cut_front_mean_quality: 20
@@ -69,6 +69,8 @@ params:
       do: False
       algorithms: "mem" # "mem2"
       index_prefix: /ldfssz1/ST_META/share/User/zhujie/database/galaxy_indexes/hg38/hg38full/bwa_index/hg38full.fa
+      # /ldfssz1/ST_META/share/User/zhujie/database/galaxy_indexes/hg38/hg38full/bwa_mem2_index/hg38full.fa
+      # /ldfssz1/ST_META/share/User/zhujie/database/mouse/GRCm39/bwa_mem2_index/GRCm39.fna
       minimum_seed_length: 23
     bowtie2:
       do: True
@@ -217,6 +219,12 @@ params:
       do: false
       max_iteration: 100
       diff_threshold: 0.1
+    vamb:
+      do: True
+      cuda: True
+      save_bam: False
+      min_contig: 2000
+      index_size: 12G
     dastools:
       do: True
       search_engine: "diamond"
@@ -227,12 +235,6 @@ params:
       score_threshold: 0.5
       duplicate_penalty: 0.6
       megabin_penalty: 0.5
-    vamb:
-      do: True
-      cuda: True
-      save_bam: False
-      min_contig: 2000
-      index_size: 12G
 
   predict:
     threads: 8
@@ -392,15 +394,10 @@ params:
       normalize_method: "relab"
       regroup_method: "sum"
       map_database:
-        [
-          "uniref90_go",
-          "uniref90_ko",
-          "uniref90_eggnog",
-          "uniref90_pfam"
-        #  "uniref90_level4ec",
-        #  "uniref90_infogo1000",
-        #  "uniref90_rxn",
-        ]
+        ["uniref90_go", "uniref90_ko", "uniref90_eggnog", "uniref90_pfam"]
+      #  "uniref90_level4ec",
+      #  "uniref90_infogo1000",
+      #  "uniref90_rxn",
       update_config: True
       database_utility_mapping: /ldfssz1/ST_META/share/User/zhujie/database/humann/utility_mapping
       database_utility_mapping_v3: /ldfssz1/ST_META/share/User/zhujie/database/humann/utility_mapping_v3
@@ -484,5 +481,5 @@ upload:
 envs:
   bioenv3.7: "envs/bioenv3.7.yaml"
   bioenv3.6: "envs/bioenv3.6.yaml" # drep
-  bioenv2: "envs/bioenv2.yaml"     # metaphlan2, humann2
+  bioenv2: "envs/bioenv2.yaml" # metaphlan2, humann2
   biobakery: "envs/biobakery.yaml" # metaphlan3, humann3
