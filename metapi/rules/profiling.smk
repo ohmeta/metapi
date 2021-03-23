@@ -523,9 +523,17 @@ if config["params"]["profiling"]["jgi"]["do"]:
                     suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"]) \
                     if RMHOST_DO else ""
             output:
-                protected(os.path.join(
+                coverage = protected(os.path.join(
                     config["output"]["profiling"],
-                    "profile/jgi/{sample}/{sample}.jgi.coverage.gz"))
+                    "profile/jgi/{sample}/{sample}.jgi.coverage.gz")),
+                html = os.path.join(config["output"]["profiling"],
+                                    "stats_preprocess/{sample}/{sample}.fastp.html"),
+                json = os.path.join(config["output"]["profiling"],
+                                    "stats_preprocess/{sample}/{sample}.fastp.json")
+                flagstat_rmhost = os.path.join(config["output"]["profiling"],
+                                    "stats_preprocess/{sample}/{sample}.rmhost.flagstat"),
+                flagstat_profiling = os.path.join(config["output"]["profiling"],
+                                    "stats_preprocess/{sample}/{sample}.profiling.flagstat")
             log:
                 os.path.join(config["output"]["profiling"], "logs/{sample}.jgi.log")
             benchmark:
@@ -534,8 +542,6 @@ if config["params"]["profiling"]["jgi"]["do"]:
             threads:
                 config["params"]["profiling"]["threads"]
             params:
-                adapter_trimming = '--disable_adapter_trimming' \
-                    if config["params"]["trimming"]["fastp"]["disable_adapter_trimming"] else "",
                 index_prefix = config["params"]["profiling"]["jgi"]["index_prefix"],
                 host_prefix = config["params"]["rmhost"]["bowtie2"]["index_prefix"],
                 memory_limit = config["params"]["profiling"]["jgi"]["memory_limit"],
@@ -552,9 +558,12 @@ if config["params"]["profiling"]["jgi"]["do"]:
                     shell('''date > {log}''')
                     shell(
                         '''
-                        fastp %s {params.adapter_trimming} --thread {threads} \
-                        --stdout --json /dev/null --html /dev/null 2>> {log} | \
+                        fastp %s %s --thread {threads} \
+                        --stdout --json {output.json} --html {output.html} 2>> {log} | \
                         bowtie2 --threads {threads} -x {params.host_prefix} %s - 2>> {log} | \
+                            tee >(samtools flagstat \
+                                  -@{threads} - \
+                                  > {output.flagstat_rmhost}) | \
                         samtools fastq -@{threads} -N -f 12 -F 256 - |
                         bowtie2 \
                         -x {params.index_prefix} \
@@ -570,6 +579,9 @@ if config["params"]["profiling"]["jgi"]["do"]:
                         --no-discordant \
                         -X {params.fragment} \
                         2>> {log} | \
+                            tee >(samtools flagstat \
+                                  -@{threads} - \
+                                  > {output.flagstat_profiling}) | \
                         sambamba view -q --nthreads {threads} \
                         --compression-level {params.compression_level} \
                         --format bam \
@@ -585,6 +597,7 @@ if config["params"]["profiling"]["jgi"]["do"]:
                         2>> {log}
                         ''' % (
                             "--in1 {input.reads[0]} --in2 {input.reads[1]}" if IS_PE else "--in1 {input.reads[0]}",
+                            f"{ADAPTER_OPERATION}",
                             "--interleaved" if IS_PE else "",
                             "--interleaved" if IS_PE else ""
                         )
