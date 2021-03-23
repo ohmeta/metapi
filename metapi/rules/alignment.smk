@@ -14,12 +14,13 @@ rule alignment_scaftigs_index:
             config["output"]["alignment"],
             "logs/index/{sample}.{assembler}.scaftigs.index.log")
     params:
+        bwa = "bwa-mem2" if config["params"]["alignment"]["algorithms"] == "mem2" else "bwa",
         output_prefix = os.path.join(
             config["output"]["alignment"],
             "index/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz")
     shell:
         '''
-        bwa index {input.scaftigs} -p {params.output_prefix} 2> {log}
+        {params.bwa} index {input.scaftigs} -p {params.output_prefix} 2> {log}
         '''
 
 
@@ -45,6 +46,7 @@ rule alignment_reads_scaftigs:
         os.path.join(config["output"]["alignment"],
                      "benchmark/alignment/{sample}.{assembler}.align.reads2scaftigs.benchmark.txt")
     params:
+        bwa = "bwa-mem2" if config["params"]["alignment"]["algorithms"] == "mem2" else "bwa",
         index_prefix = os.path.join(
             config["output"]["alignment"],
             "index/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz")
@@ -54,7 +56,7 @@ rule alignment_reads_scaftigs:
         '''
         rm -rf {output.bam}*
 
-        bwa mem \
+        {params.bwa} mem \
         -t {threads} \
         {params.index_prefix} \
         {input.reads} 2> {log} |

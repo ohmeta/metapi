@@ -61,6 +61,7 @@ params:
       identity: 0.9
     bwa:
       do: False
+      algorithms: "mem" # "mem2"
       index_prefix: /ldfssz1/ST_META/share/User/zhujie/database/galaxy_indexes/hg38/hg38full/bwa_index/hg38full.fa
       minimum_seed_length: 23
     bowtie2:
@@ -159,6 +160,7 @@ params:
   alignment:
     do: True
     threads: 8
+    algorithms: "mem" # mem2
     cal_base_depth: False
     report: True
 

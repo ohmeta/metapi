@@ -133,14 +133,18 @@ if config["params"]["rmhost"]["bwa"]["do"]:
             expand("{prefix}.{suffix}",
                    prefix=config["params"]["rmhost"]["bwa"]["index_prefix"],
                    suffix=["amb", "ann", "bwt", "pac", "sa"])
+        benchmark:
+            os.path.join(config["output"]["rmhost"],
+                         "benchmark/bwa.index.benchmark.txt")
         log:
             os.path.join(config["output"]["rmhost"],
                          "logs/build_host_index_for_bwa.log")
         params:
-            index_prefix = config["params"]["rmhost"]["bwa"]["index_prefix"]
+            index_prefix = config["params"]["rmhost"]["bwa"]["index_prefix"],
+            bwa = "bwa-mem2" if config["params"]["rmhost"]["bwa"]["algorithms"] == "mem2" else "bwa"
         shell:
             '''
-            bwa index {input} -p {params.index_prefix} 2> {log}
+            {params.bwa} index -p {params.index_prefix} {input} 2> {log}
             '''
 
 
@@ -170,6 +174,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
             10
         params:
             compression = config["params"]["rmhost"]["compression"],
+            bwa = "bwa-mem2" if config["params"]["rmhost"]["bwa"]["algorithms"] == "mem2" else "bwa",
             minimum_seed_length = config["params"]["rmhost"]["bwa"]["minimum_seed_length"],
             index_prefix = config["params"]["rmhost"]["bwa"]["index_prefix"],
             bam = os.path.join(config["output"]["rmhost"],
@@ -182,7 +187,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     shell("mkdir -p %s" % os.path.dirname(params.bam))
                     shell(
                         '''
-                        bwa mem \
+                        {params.bwa} mem \
                         -k {params.minimum_seed_length} \
                         -t {threads} \
                         {params.index_prefix} \
@@ -205,7 +210,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                 else:
                     shell(
                         '''
-                        bwa mem \
+                        {params.bwa} mem \
                         -k {params.minimum_seed_length} \
                         -t {threads} \
                         {params.index_prefix} \
@@ -226,7 +231,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     shell('''mkdir -p %s''' % os.path.dirname(params.bam))
                     shell(
                         '''
-                        bwa mem \
+                        {params.bwa} mem \
                         -k {params.minimum_seed_length} \
                         -t {threads} \
                         {params.index_prefix} \
@@ -249,7 +254,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                 else:
                     shell(
                         '''
-                        bwa mem \
+                        {params.bwa} mem \
                         -k {params.minimum_seed_length} \
                         -t {threads} \
                         {params.index_prefix} \
