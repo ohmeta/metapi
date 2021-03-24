@@ -54,7 +54,7 @@ WORKFLOWS_MAG = [
     "binning_metabat2_all",
     "binning_maxbin2_all",
     "binning_concoct_all",
-    "binning_graphbin_all",
+    "binning_graphbin2_all",
     "binning_dastools_all",
     "binning_vamb_prepare_all",
     "binning_vamb_all",
@@ -64,7 +64,7 @@ WORKFLOWS_MAG = [
     "cobinning_metabat2_all",
     "cobinning_maxbin2_all",
     "cobinning_concoct_all",
-    "cobinning_graphbin_all",
+    "cobinning_graphbin2_all",
     "cobinning_dastools_all",
     "cobinning_report_all",
     "cobinning_all",
@@ -281,12 +281,14 @@ def init(args, unknown):
 
 
 def mag_wf(args, unknown):
-    snakefile = os.path.join(os.path.dirname(__file__), "snakefiles/mag_wf.smk")
+    snakefile = os.path.join(os.path.dirname(
+        __file__), "snakefiles/mag_wf.smk")
     run_snakemake(args, unknown, snakefile, "mag_wf")
 
 
 def gene_wf(args, unknown):
-    snakefile = os.path.join(os.path.dirname(__file__), "snakefiles/gene_wf.smk")
+    snakefile = os.path.join(os.path.dirname(
+        __file__), "snakefiles/gene_wf.smk")
     run_snakemake(args, unknown, snakefile, "gene_wf")
 
 
@@ -301,7 +303,8 @@ def snakemake_summary(snakefile, configfile, task):
         task,
         "--summary",
     ]
-    cmd_out = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    cmd_out = subprocess.Popen(
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     summary = pd.read_csv(StringIO(cmd_out.stdout.read().decode()), sep="\t")
     return summary
 
@@ -322,13 +325,14 @@ def sync(args, unknown):
     count = -1
     for i in range(0, len(samples_index), args.split_num):
         count += 1
-        outdir = os.path.abspath(os.path.join(args.outdir, args.name + f"_{count}"))
+        outdir = os.path.abspath(os.path.join(
+            args.outdir, args.name + f"_{count}"))
         os.makedirs(outdir, exist_ok=True)
         samples_file = os.path.join(outdir, f"samples_{count}.tsv")
         config_file = os.path.join(outdir, "config.yaml")
 
         samples = samples_df.loc[
-            samples_index[i : i + args.split_num],
+            samples_index[i: i + args.split_num],
         ]
         samples.to_csv(samples_file, sep="\t", index=False)
         conf["params"]["samples"] = samples_file
@@ -354,7 +358,8 @@ def sync(args, unknown):
                         f"rsync --archive --relative --progress {log_file_path} {outdir}\n"
                     )
 
-    print(f"please change current directory to {args.workdir} to run sync script")
+    print(
+        f"please change current directory to {args.workdir} to run sync script")
 
 
 def main():
@@ -470,7 +475,8 @@ def main():
         help="conda create environments only",
     )
 
-    subparsers = parser.add_subparsers(title="available subcommands", metavar="")
+    subparsers = parser.add_subparsers(
+        title="available subcommands", metavar="")
     parser_init = subparsers.add_parser(
         "init",
         formatter_class=metapi.custom_help_formatter,
@@ -536,7 +542,8 @@ if begin from simulate:
         type=str,
         default="all",
         choices=WORKFLOWS_MAG,
-        help="pipeline end point. Allowed values are " + ", ".join(WORKFLOWS_MAG),
+        help="pipeline end point. Allowed values are " +
+        ", ".join(WORKFLOWS_MAG),
     )
     parser_mag_wf.set_defaults(func=mag_wf)
 
@@ -547,7 +554,8 @@ if begin from simulate:
         type=str,
         default="all",
         choices=WORKFLOWS_GENE,
-        help="pipeline end point. Allowed values are " + ", ".join(WORKFLOWS_GENE),
+        help="pipeline end point. Allowed values are " +
+        ", ".join(WORKFLOWS_GENE),
     )
     parser_gene_wf.set_defaults(func=gene_wf)
 
@@ -574,7 +582,8 @@ if begin from simulate:
         default="./config.yaml",
         help="config.yaml",
     )
-    parser_sync.add_argument("--name", type=str, required=True, help="project basename")
+    parser_sync.add_argument(
+        "--name", type=str, required=True, help="project basename")
     parser_sync.add_argument(
         "--outdir", type=str, required=True, help="sync to a directory"
     )

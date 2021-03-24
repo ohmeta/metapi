@@ -7,18 +7,15 @@ import pandas as pd
 
 
 def get_binning_info(bins_dir, cluster_file, bin_suffix, assembler):
-    with os.scandir(bins_dir) as itr, open(cluster_file, "w") as oh:
-        for entry in itr:
-            bin_id, suffix = os.path.splitext(entry.name)
-            if suffix == "." + bin_suffix:
-                cluster_num = bin_id.split(".")[-1]
-                bin_fa = os.path.join(bins_dir, entry.name)
-                for seq in SeqIO.parse(bin_fa, "fasta"):
-                    if assembler.lower() == "spades" or \
-                       assembler.lower() == "metaspades" or \
-                       assembler.lower() == "megahit":
-                        oh.write("%s,%s\n" % ("_".join(seq.id.split("_")[:2]),
-                                              cluster_num))
+    if assembler.lower() in ["spades", "metaspades", "megahit"]:
+        with os.scandir(bins_dir) as itr, open(cluster_file, "w") as oh:
+            for entry in itr:
+                bin_id, suffix = os.path.splitext(entry.name)
+                if suffix == "." + bin_suffix:
+                    cluster_num = bin_id.split(".")[-1]
+                    bin_fa = os.path.join(bins_dir, entry.name)
+                    for seq in SeqIO.parse(bin_fa, "fasta"):
+                        oh.write(f"{seq.id},{cluster_num}\n")
 
 
 def generate_bins(cluster_file, scaftigs, prefix, suffix):
@@ -30,7 +27,7 @@ def generate_bins(cluster_file, scaftigs, prefix, suffix):
 
     df = pd.read_csv(cluster_file, names=["scaftigs_id", "bin_id"])\
            .astype({"scaftigs_id": str,
-                     "bin_id": str})\
+                    "bin_id": str})\
            .set_index("bin_id")
 
     for i in df.index.unique():

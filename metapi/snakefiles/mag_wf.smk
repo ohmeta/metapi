@@ -81,11 +81,11 @@ if config["params"]["binning"]["concoct"]["do"]:
 if config["params"]["binning"]["vamb"]["do"]:
     BINNERS_TOTAL += ["vamb"]
 
-if config["params"]["binning"]["graphbin"]["do"]:
+if config["params"]["binning"]["graphbin2"]["do"]:
     BINNERS_GRAPHBIN = BINNERS_TOTAL.copy()
     for i in BINNERS_GRAPHBIN:
-        BINNERS_TOTAL.append(i + "_graphbin")
-        BINNERS_DASTOOLS.append(i + "_graphbin")
+        BINNERS_TOTAL.append(i + "_graphbin2")
+        BINNERS_DASTOOLS.append(i + "_graphbin2")
 else:
     BINNERS_DASTOOLS = BINNERS_TOTAL.copy()
 
@@ -192,7 +192,7 @@ localrules: \
     binning_metabat2_all, \
     binning_maxbin2_all, \
     binning_concoct_all, \
-    binning_graphbin_all, \
+    binning_graphbin2_all, \
     binning_dastools_all, \
     binning_vamb_prepare_all, \
     binning_vamb_all, \
@@ -202,7 +202,7 @@ localrules: \
     cobinning_metabat2_all, \
     cobinning_maxbin2_all, \
     cobinning_concoct_all, \
-    cobinning_graphbin_all, \
+    cobinning_graphbin2_all, \
     cobinning_dastools_all, \
     cobinning_report_all, \
     cobinning_all, \

@@ -330,19 +330,19 @@ binning_concoct:
   output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
-binning_graphbin_prepare_assembly:
+binning_graphbin2_prepare_assembly:
   mem: "512M"
   cores: 1
   output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
 
-binning_graphbin_prepare_binned:
+binning_graphbin2_prepare_binned:
   mem: "512M"
   cores: 1
   output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_graphbin}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_graphbin}.e"
 
-binning_graphbin:
+binning_graphbin2:
   mem: "512M"
   cores: 1
   output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
@@ -456,19 +456,19 @@ cobinning_concoct:
   output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.e"
 
-cobinning_graphbin_prepare_assembly:
+cobinning_graphbin2_prepare_assembly:
   mem: "512M"
   cores: 1
   output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.e"
 
-cobinning_graphbin_prepare_binned:
+cobinning_graphbin2_prepare_binned:
   mem: "512M"
   cores: 1
   output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_graphbin}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_graphbin}.e"
 
-cobinning_graphbin:
+cobinning_graphbin2:
   mem: "512M"
   cores: 1
   output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.o"

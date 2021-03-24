@@ -472,8 +472,8 @@ else:
         input:
 
 
-if config["params"]["binning"]["graphbin"]["do"]:
-    rule binning_graphbin_prepare_assembly:
+if config["params"]["binning"]["graphbin2"]["do"]:
+    rule binning_graphbin2_prepare_assembly:
         input:
             scaftigs = os.path.join(
                 config["output"]["assembly"],
@@ -484,10 +484,10 @@ if config["params"]["binning"]["graphbin"]["do"]:
         output:
              scaftigs = temp(os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/graphbin/scaftigs.fa")),
+                "bins/{sample}.{assembler}.out/graphbin2/scaftigs.fa")),
              gfa = temp(os.path.join(
                  config["output"]["binning"],
-                 "bins/{sample}.{assembler}.out/graphbin/scaftigs.gfa"))
+                 "bins/{sample}.{assembler}.out/graphbin2/scaftigs.gfa"))
         shell:
             '''
             pigz -dc {input.scaftigs} > {output.scaftigs}
@@ -495,7 +495,7 @@ if config["params"]["binning"]["graphbin"]["do"]:
             '''
 
            
-    rule binning_graphbin_prepare_binned:
+    rule binning_graphbin2_prepare_binned:
         input:
             bins_dir = os.path.join(
                 config["output"]["binning"],
@@ -503,7 +503,7 @@ if config["params"]["binning"]["graphbin"]["do"]:
         output:
             binned = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/graphbin/{sample}.{assembler}.{binner_graphbin}.graphbin.csv")
+                "bins/{sample}.{assembler}.out/graphbin2/{sample}.{assembler}.{binner_graphbin}.graphbin2.csv")
         params:
             suffix = config["params"]["binning"]["bin_suffix"],
             assembler = "{assembler}"
@@ -514,24 +514,24 @@ if config["params"]["binning"]["graphbin"]["do"]:
                                     params.assembler)
 
 
-    rule binning_graphbin:
+    rule binning_graphbin2:
         input:
             scaftigs = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/graphbin/scaftigs.fa"),
+                "bins/{sample}.{assembler}.out/graphbin2/scaftigs.fa"),
             gfa = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/graphbin/scaftigs.gfa"),
+                "bins/{sample}.{assembler}.out/graphbin2/scaftigs.gfa"),
             binned = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/graphbin/{sample}.{assembler}.{binner_graphbin}.graphbin.csv")
+                "bins/{sample}.{assembler}.out/graphbin2/{sample}.{assembler}.{binner_graphbin}.graphbin2.csv")
         output:
             directory(os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/{binner_graphbin}_graphbin"))
+                "bins/{sample}.{assembler}.out/{binner_graphbin}_graphbin2"))
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/binning/{sample}.{assembler}.{binner_graphbin}.graphbin.refine.log")
+                         "logs/binning/{sample}.{assembler}.{binner_graphbin}.graphbin2.refine.log")
         benchmark:
             os.path.join(config["output"]["binning"],
                          "benchmark/{binner_graphbin}/{sample}.{assembler}.{binner_graphbin}.benchmark.txt")
@@ -539,13 +539,13 @@ if config["params"]["binning"]["graphbin"]["do"]:
             assembler = "{assembler}",
             prefix = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/{binner_graphbin}_graphbin/{sample}.{assembler}.{binner_graphbin}_graphbin.bin"),
+                "bins/{sample}.{assembler}.out/{binner_graphbin}_graphbin2/{sample}.{assembler}.{binner_graphbin}_graphbin2.bin"),
             suffix = config["params"]["binning"]["bin_suffix"],
             paths = os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.paths.gz"),
-            max_iteration = config["params"]["binning"]["graphbin"]["max_iteration"],
-            diff_threshold = config["params"]["binning"]["graphbin"]["diff_threshold"]
+            max_iteration = config["params"]["binning"]["graphbin2"]["max_iteration"],
+            diff_threshold = config["params"]["binning"]["graphbin2"]["diff_threshold"]
         run:
             import pandas as pd
             import os
@@ -556,43 +556,46 @@ if config["params"]["binning"]["graphbin"]["do"]:
 
             if not df.empty:
                 if params.assembler == "metaspades" or params.assembler == "spades":
-                    shell('''pigz -p {threads} -dc {params.paths} > {output}/scaftigs.paths''')
                     shell(
                         '''
-                        graphbin \
+                        pigz -p {threads} -dc {params.paths} > {output}/scaftigs.paths
+
+                        graphbin2 \
                         --assembler spades \
+                        --contigs {input.scaftigs} \
                         --graph {input.gfa} \
-                        --binned {input.binned} \
                         --paths {output}/scaftigs.paths \
+                        --binned {input.binned} \
                         --max_iteration {params.max_iteration} \
                         --diff_threshold {params.diff_threshold} \
                         --output {output} > {log} 2>&1
+
+                        rm -rf {output}/scaftigs.paths
                         ''')
-                    shell('''rm -rf {output}/scaftigs.paths''')
                 else:
                     shell(
                         '''
-                        graphbin \
+                        graphbin2 \
                         --assembler {params.assembler} \
-                        --graph {input.gfa} \
                         --contigs {input.scaftigs} \
+                        --graph {input.gfa} \
                         --binned {input.binned} \
                         --max_iteration {params.max_iteration} \
                         --diff_threshold {params.diff_threshold} \
                         --output {output} > {log} 2>&1
                         ''')
 
-                metapi.generate_bins("%s/graphbin_output.csv" % output[0],
+                metapi.generate_bins("%s/graphbin2_output.csv" % output[0],
                                      input.scaftigs,
                                      params.prefix,
                                      params.suffix)
 
 
-    rule binning_graphbin_all:
+    rule binning_graphbin2_all:
         input:
             expand(os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/{binner_graphbin}_graphbin"),
+                "bins/{sample}.{assembler}.out/{binner_graphbin}_graphbin2"),
                    binner_graphbin=BINNERS_GRAPHBIN,
                    assembler=ASSEMBLERS,
                    sample=SAMPLES.index.unique()),
@@ -601,7 +604,7 @@ if config["params"]["binning"]["graphbin"]["do"]:
             rules.single_assembly_all.input
 
 else:
-    rule binning_graphbin_all:
+    rule binning_graphbin2_all:
         input:
 
 
@@ -650,6 +653,7 @@ if config["params"]["binning"]["dastools"]["do"]:
             import glob
             import os
 
+            shell('''rm -rf {output.bins_dir}''')
             shell('''mkdir -p {output.bins_dir}''')
 
             binners = []
@@ -697,7 +701,8 @@ if config["params"]["binning"]["dastools"]["do"]:
                     --duplicate_penalty {params.duplicate_penalty} \
                     --megabin_penalty {params.megabin_penalty} \
                     --threads {threads} --debug > {log} 2>&1
-
+                    ''' % (",".join(tsv_list), ",".join(binners)))
+                    
                     #TODO
                     # how to fix?
                     #exitcode=$?
@@ -712,7 +717,6 @@ if config["params"]["binning"]["dastools"]["do"]:
                     #        exit $exitcode
                     #    fi
                     #fi
-                    ''' % (",".join(tsv_list), ",".join(binners)))
 
                 shell('''rm -rf {output.bins_dir}/scaftigs.fasta''')
 
@@ -840,5 +844,5 @@ rule single_binning_all:
         rules.binning_metabat2_all.input,
         rules.binning_maxbin2_all.input,
         rules.binning_concoct_all.input,
-        rules.binning_graphbin_all.input,
+        rules.binning_graphbin2_all.input,
         rules.binning_dastools_all.input

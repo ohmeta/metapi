@@ -450,8 +450,8 @@ else:
         input:
 
 
-if config["params"]["binning"]["graphbin"]["do"]:
-    rule cobinning_graphbin_prepare_assembly:
+if config["params"]["binning"]["graphbin2"]["do"]:
+    rule cobinning_graphbin2_prepare_assembly:
         input:
             scaftigs = os.path.join(
                 config["output"]["coassembly"],
@@ -462,10 +462,10 @@ if config["params"]["binning"]["graphbin"]["do"]:
         output:
              scaftigs = temp(os.path.join(
                 config["output"]["cobinning"],
-                "bins/all.{assembler_co}.out/graphbin/scaftigs.fa")),
+                "bins/all.{assembler_co}.out/graphbin2/scaftigs.fa")),
              gfa = temp(os.path.join(
                  config["output"]["cobinning"],
-                 "bins/all.{assembler_co}.out/graphbin/scaftigs.gfa"))
+                 "bins/all.{assembler_co}.out/graphbin2/scaftigs.gfa"))
         shell:
             '''
             pigz -dc {input.scaftigs} > {output.scaftigs}
@@ -473,7 +473,7 @@ if config["params"]["binning"]["graphbin"]["do"]:
             '''
 
 
-    rule cobinning_graphbin_prepare_binned:
+    rule cobinning_graphbin2_prepare_binned:
         input:
             bins_dir = os.path.join(
                 config["output"]["cobinning"],
@@ -481,7 +481,7 @@ if config["params"]["binning"]["graphbin"]["do"]:
         output:
             binned = os.path.join(
                 config["output"]["cobinning"],
-                "bins/all.{assembler_co}.out/graphbin/all.{assembler_co}.{binner_graphbin}.graphbin.csv")
+                "bins/all.{assembler_co}.out/graphbin2/all.{assembler_co}.{binner_graphbin}.graphbin2.csv")
         params:
             suffix = config["params"]["binning"]["bin_suffix"],
             assembler_co = "{assembler_co}"
@@ -492,38 +492,38 @@ if config["params"]["binning"]["graphbin"]["do"]:
                                     params.assembler_co)
 
 
-    rule cobinning_graphbin:
+    rule cobinning_graphbin2:
         input:
             scaftigs = os.path.join(
                 config["output"]["cobinning"],
-                "bins/all.{assembler_co}.out/graphbin/scaftigs.fa"),
+                "bins/all.{assembler_co}.out/graphbin2/scaftigs.fa"),
             gfa = os.path.join(
                 config["output"]["cobinning"],
-                "bins/all.{assembler_co}.out/graphbin/scaftigs.gfa"),
+                "bins/all.{assembler_co}.out/graphbin2/scaftigs.gfa"),
             binned = os.path.join(
                 config["output"]["cobinning"],
-                "bins/all.{assembler_co}.out/graphbin/all.{assembler_co}.{binner_graphbin}.graphbin.csv")
+                "bins/all.{assembler_co}.out/graphbin2/all.{assembler_co}.{binner_graphbin}.graphbin2.csv")
         output:
             directory(os.path.join(
                 config["output"]["cobinning"],
-                "bins/all.{assembler_co}.out/{binner_graphbin}_graphbin"))
+                "bins/all.{assembler_co}.out/{binner_graphbin}_graphbin2"))
         log:
             os.path.join(config["output"]["cobinning"],
-                         "logs/binning/all.{assembler_co}.{binner_graphbin}.graphbin.refine.log")
+                         "logs/binning/all.{assembler_co}.{binner_graphbin}.graphbin2.refine.log")
         benchmark:
             os.path.join(config["output"]["cobinning"],
-                         "benchmark/binning/all.{assembler_co}.{binner_graphbin}.graphbin.refine.benchmark.txt")
+                         "benchmark/binning/all.{assembler_co}.{binner_graphbin}.graphbin2.refine.benchmark.txt")
         params:
             assembler_co = "{assembler_co}",
             prefix = os.path.join(
                 config["output"]["cobinning"],
-                "bins/all.{assembler_co}.out/{binner_graphbin}_graphbin/all.{assembler_co}.{binner_graphbin}_graphbin.bin"),
+                "bins/all.{assembler_co}.out/{binner_graphbin}_graphbin2/all.{assembler_co}.{binner_graphbin}_graphbin2.bin"),
             suffix = config["params"]["binning"]["bin_suffix"],
             paths = os.path.join(
                 config["output"]["coassembly"],
                 "scaftigs/all.{assembler_co}.out/all.{assembler_co}.scaftigs.paths.gz"),
-            max_iteration = config["params"]["binning"]["graphbin"]["max_iteration"],
-            diff_threshold = config["params"]["binning"]["graphbin"]["diff_threshold"]
+            max_iteration = config["params"]["binning"]["graphbin2"]["max_iteration"],
+            diff_threshold = config["params"]["binning"]["graphbin2"]["diff_threshold"]
         run:
             import pandas as pd
             import os
@@ -537,40 +537,44 @@ if config["params"]["binning"]["graphbin"]["do"]:
                     shell('''pigz -p {threads} -dc {params.paths} > {output}/scaftigs.paths''')
                     shell(
                         '''
-                        graphbin \
+                        pigz -p {threads} -dc {params.paths} > {output}/scaftigs.paths
+
+                        graphbin2 \
                         --assembler spades \
+                        --contigs {input.scaftigs} \
                         --graph {input.gfa} \
                         --binned {input.binned} \
                         --paths {output}/scaftigs.paths \
                         --max_iteration {params.max_iteration} \
                         --diff_threshold {params.diff_threshold} \
                         --output {output} > {log} 2>&1
+
+                        rm -rf {output}/scaftigs.paths
                         ''')
-                    shell('''rm -rf {output}/scaftigs.paths''')
                 else:
                     shell(
                         '''
-                        graphbin \
+                        graphbin2 \
                         --assembler {params.assembler_co} \
-                        --graph {input.gfa} \
                         --contigs {input.scaftigs} \
+                        --graph {input.gfa} \
                         --binned {input.binned} \
                         --max_iteration {params.max_iteration} \
                         --diff_threshold {params.diff_threshold} \
                         --output {output} > {log} 2>&1
                         ''')
 
-                metapi.generate_bins("%s/graphbin_output.csv" % output[0],
+                metapi.generate_bins("%s/graphbin2_output.csv" % output[0],
                                      input.scaftigs,
                                      params.prefix,
                                      params.suffix)
 
 
-    rule cobinning_graphbin_all:
+    rule cobinning_graphbin2_all:
         input:
             expand(os.path.join(
                 config["output"]["cobinning"],
-                "bins/all.{assembler_co}.out/{binner_graphbin}_graphbin"),
+                "bins/all.{assembler_co}.out/{binner_graphbin}_graphbin2"),
                    binner_graphbin=BINNERS_GRAPHBIN,
                    assembler_co=ASSEMBLERS_CO),
 
@@ -578,7 +582,7 @@ if config["params"]["binning"]["graphbin"]["do"]:
             rules.coassembly_all.input
 
 else:
-    rule cobinning_graphbin_all:
+    rule cobinning_graphbin2_all:
         input:
 
 
@@ -813,6 +817,6 @@ rule cobinning_all:
         rules.cobinning_metabat2_all.input,
         rules.cobinning_maxbin2_all.input,
         rules.cobinning_concoct_all.input,
-        rules.cobinning_graphbin_all.input,
+        rules.cobinning_graphbin2_all.input,
         rules.cobinning_dastools_all.input,
         rules.cobinning_report_all.input

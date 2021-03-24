@@ -118,12 +118,12 @@ $ metapi mag_wf --help
        coalignment_base_depth_all,
        coalignment_all, alignment_all,
        binning_metabat2_coverage_all, binning_metabat2_all,
-       binning_maxbin2_all, binning_concoct_all, binning_graphbin_all,
+       binning_maxbin2_all, binning_concoct_all, binning_graphbin2_all,
        binning_dastools_all, binning_vamb_all,
        binning_report_all, single_binning_all,
        cobinning_metabat2_coverage_all, cobinning_metabat2_all,
        cobinning_maxbin2_all, cobinning_concoct_all,
-       cobinning_graphbin_all, cobinning_dastools_all, 
+       cobinning_graphbin2_all, cobinning_dastools_all, 
        cobinning_report_all, cobinning_all, binning_all,
        predict_scaftigs_gene_prodigal_all, predict_scaftigs_gene_prokka_all,
        predict_bins_gene_prodigal_all, predict_bins_gene_prokka_all,
@@ -241,70 +241,70 @@ Note: The fastq need gzip compress.
 
   - `Paired-end reads`
 
-  | id  |    fq1     |    fq2     |
-  | :-: | :--------: | :--------: |
-  | s1  | aa.1.fq.gz | aa.2.fq.gz |
-  | s2  | bb.1.fq.gz | bb.2.fq.gz |
-  | s2  | cc.1.fq.gz | cc.2.fq.gz |
-  | s3  | dd.1.fq.gz | dd.2.fq.gz |
+  |  id   |    fq1     |    fq2     |
+  | :---: | :--------: | :--------: |
+  |  s1   | aa.1.fq.gz | aa.2.fq.gz |
+  |  s2   | bb.1.fq.gz | bb.2.fq.gz |
+  |  s2   | cc.1.fq.gz | cc.2.fq.gz |
+  |  s3   | dd.1.fq.gz | dd.2.fq.gz |
 
   - `Paired-end reads(interleaved)`
 
-  | id  |     fq1     | fq2 |
-  | :-: | :---------: | :-: |
-  | s1  | aa.12.fq.gz |     |
-  | s2  | bb.12.fq.gz |     |
-  | s2  | cc.12.fq.gz |     |
-  | s3  | dd.12.fq.gz |     |
+  |  id   |     fq1     |  fq2  |
+  | :---: | :---------: | :---: |
+  |  s1   | aa.12.fq.gz |       |
+  |  s2   | bb.12.fq.gz |       |
+  |  s2   | cc.12.fq.gz |       |
+  |  s3   | dd.12.fq.gz |       |
 
 * `Paired-end reads with long reads`
 
-| id  |    fq1     |    fq2     |    fq_long    |
-| :-: | :--------: | :--------: | :-----------: |
-| s1  | aa.1.fq.gz | aa.2.fq.gz | aa.long.fq.gz |
-| s2  | bb.1.fq.gz | bb.2.fq.gz | bb.long.fq.gz |
-| s2  | cc.1.fq.gz | cc.2.fq.gz | cc.long.fq.gz |
-| s3  | dd.1.fq.gz | dd.2.fq.gz | dd.long.fq.gz |
+|  id   |    fq1     |    fq2     |    fq_long    |
+| :---: | :--------: | :--------: | :-----------: |
+|  s1   | aa.1.fq.gz | aa.2.fq.gz | aa.long.fq.gz |
+|  s2   | bb.1.fq.gz | bb.2.fq.gz | bb.long.fq.gz |
+|  s2   | cc.1.fq.gz | cc.2.fq.gz | cc.long.fq.gz |
+|  s3   | dd.1.fq.gz | dd.2.fq.gz | dd.long.fq.gz |
 
 - `Paired-end reads(interleaved) with long reads`
 
-| id  |     fq1     | fq2 |    fq_long    |
-| :-: | :---------: | :-: | :-----------: |
-| s1  | aa.12.fq.gz |     | aa.long.fq.gz |
-| s2  | bb.12.fq.gz |     | bb.long.fq.gz |
-| s2  | cc.12.fq.gz |     | cc.long.fq.gz |
-| s3  | dd.12.fq.gz |     | dd.long.fq.gz |
+|  id   |     fq1     |  fq2  |    fq_long    |
+| :---: | :---------: | :---: | :-----------: |
+|  s1   | aa.12.fq.gz |       | aa.long.fq.gz |
+|  s2   | bb.12.fq.gz |       | bb.long.fq.gz |
+|  s2   | cc.12.fq.gz |       | cc.long.fq.gz |
+|  s3   | dd.12.fq.gz |       | dd.long.fq.gz |
 
 - `Single-end reads`
 
-| id  |    fq1     | fq2 |
-| :-: | :--------: | :-: |
-| s1  | aa.1.fq.gz |     |
-| s2  | bb.1.fq.gz |     |
-| s2  | cc.1.fq.gz |     |
-| s3  | dd.1.fq.gz |     |
+|  id   |    fq1     |  fq2  |
+| :---: | :--------: | :---: |
+|  s1   | aa.1.fq.gz |       |
+|  s2   | bb.1.fq.gz |       |
+|  s2   | cc.1.fq.gz |       |
+|  s3   | dd.1.fq.gz |       |
 
 - `SRA (only support paired-end reads)` :
 
 SRA can be dumpped to Paired-end fastq reads
 
-| id  |  sra   |
-| :-: | :----: |
-| s1  | aa.sra |
-| s2  | bb.sra |
-| s2  | cc.sra |
-| s3  | dd.sra |
+|  id   |  sra   |
+| :---: | :----: |
+|  s1   | aa.sra |
+|  s2   | bb.sra |
+|  s2   | cc.sra |
+|  s3   | dd.sra |
 
 - begin from simulate, only support paired-end reads
 
-  | id  | genome | abundance | reads_num | model |
-  | :-: | :----: | :-------: | :-------: | :---: |
-  | s1  | g1.fa  |    1.0    |    1M     | hiseq |
-  | s2  | g1.fa  |    0.5    |    2M     | hiseq |
-  | s2  | g2.fa  |    0.5    |    2M     | hiseq |
-  | s3  | g1.fa  |    0.2    |    3M     | hiseq |
-  | s3  | g2.fa  |    0.3    |    3M     | hiseq |
-  | s3  | g3.fa  |    0.5    |    3M     | hiseq |
+  |  id   | genome | abundance | reads_num | model |
+  | :---: | :----: | :-------: | :-------: | :---: |
+  |  s1   | g1.fa  |    1.0    |    1M     | hiseq |
+  |  s2   | g1.fa  |    0.5    |    2M     | hiseq |
+  |  s2   | g2.fa  |    0.5    |    2M     | hiseq |
+  |  s3   | g1.fa  |    0.2    |    3M     | hiseq |
+  |  s3   | g2.fa  |    0.3    |    3M     | hiseq |
+  |  s3   | g3.fa  |    0.5    |    3M     | hiseq |
 
 It means:
 
