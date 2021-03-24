@@ -30,15 +30,17 @@ rule alignment_reads_scaftigs:
         index = expand(os.path.join(
             config["output"]["alignment"],
             "index/{{sample}}.{{assembler}}.out/{{sample}}.{{assembler}}.scaftigs.fa.gz.{suffix}"),
-                       suffix=BWA_INDEX_SUFFIX)
+            suffix=BWA_INDEX_SUFFIX)
     output:
         flagstat = os.path.join(
             config["output"]["alignment"],
             "report/flagstat/{sample}.{assembler}.align2scaftigs.flagstat"),
-        bam = temp(
-            os.path.join(
-                config["output"]["alignment"],
-                "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam"))
+        bam = temp(os.path.join(
+            config["output"]["alignment"],
+            "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam")),
+        bai = temp(os.path.join(
+            config["output"]["alignment"],
+            "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam.bai"))
     log:
         os.path.join(config["output"]["alignment"],
                      "logs/alignment/{sample}.{assembler}.align.reads2scaftigs.log")
@@ -67,28 +69,10 @@ rule alignment_reads_scaftigs:
         -@{threads} \
         -T {output.bam} \
         -O BAM -o {output.bam} -
+
+        samtools index -@{threads} {output.bam} {output.bai} 2>> {log}
         '''
 
-
-rule alignment_bam_index:
-    input:
-        os.path.join(
-            config["output"]["alignment"],
-            "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam")
-    output:
-        temp(
-            os.path.join(
-                config["output"]["alignment"],
-                "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam.bai"))
-    log:
-        os.path.join(config["output"]["alignment"],
-                     "logs/{sample}.{assembler}.bam.index.log")
-    threads:
-        config["params"]["alignment"]["threads"]
-    shell:
-        '''
-        samtools index -@{threads} {input} {output} 2> {log}
-        '''
 
 if config["params"]["alignment"]["cal_base_depth"]:
     rule alignment_base_depth:

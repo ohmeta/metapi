@@ -271,19 +271,6 @@ coalignment_reads_scaftigs:
   output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler_co}.o"
   error: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler_co}.e"
 
-alignment_bam_index:
-  queue: "st_short.q"
-  mem: "512M"
-  cores: 8
-  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.o"
-  error: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.e"
-
-coalignment_bam_index:
-  mem: "512M"
-  cores: 8
-  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler_co}.o"
-  error: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler_co}.e"
-
 alignment_base_depth:
   mem: "512M"
   cores: 1

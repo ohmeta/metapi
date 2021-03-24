@@ -37,7 +37,12 @@ rule coalignment_reads_scaftigs:
         bam = temp(
             os.path.join(
                 config["output"]["coalignment"],
-                "bam/{sample}.{assembler_co}.out/{sample}.{assembler_co}.align2scaftigs.sorted.bam"))
+                "bam/{sample}.{assembler_co}.out/{sample}.{assembler_co}.align2scaftigs.sorted.bam")),
+        bai = temp(
+            os.path.join(
+                config["output"]["coalignment"],
+                "bam/{sample}.{assembler_co}.out/{sample}.{assembler_co}.align2scaftigs.sorted.bam.bai"))
+ 
     log:
         os.path.join(config["output"]["coalignment"],
                      "logs/alignment/{sample}.{assembler_co}.align.reads2scaftigs.log")
@@ -65,28 +70,10 @@ rule coalignment_reads_scaftigs:
         -@{threads} \
         -T {output.bam} \
         -O BAM -o {output.bam} -
+
+        samtools index -@{threads} {output.bam} {output.bai} 2>> {log}
         '''
 
-
-rule coalignment_bam_index:
-    input:
-        os.path.join(
-            config["output"]["coalignment"],
-            "bam/{sample}.{assembler_co}.out/{sample}.{assembler_co}.align2scaftigs.sorted.bam")
-    output:
-        temp(
-            os.path.join(
-                config["output"]["coalignment"],
-                "bam/{sample}.{assembler_co}.out/{sample}.{assembler_co}.align2scaftigs.sorted.bam.bai"))
-    log:
-        os.path.join(config["output"]["coalignment"],
-                     "logs/{sample}.{assembler_co}.bam.index.log")
-    threads:
-        config["params"]["alignment"]["threads"]
-    shell:
-        '''
-        samtools index -@{threads} {input} {output} 2> {log}
-        '''
 
 if config["params"]["alignment"]["cal_base_depth"]:
     rule coalignment_base_depth:

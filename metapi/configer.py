@@ -75,8 +75,6 @@ class metaconfig:
         "logs/05.coalignment_scaftigs_index",
         "logs/05.alignment_reads_scaftigs",
         "logs/05.coalignment_reads_scaftigs",
-        "logs/05.alignment_bam_index",
-        "logs/05.coalignment_bam_index",
         "logs/05.alignment_base_depth",
         "logs/05.coalignment_base_depth",
         "logs/05.alignment_report",
@@ -175,8 +173,10 @@ class metaconfig:
         self.work_dir = os.path.realpath(work_dir)
         self.metapi_dir = os.path.dirname(os.path.abspath(__file__))
 
-        self.config_file = os.path.join(self.metapi_dir, "config", "config.yaml")
-        self.cluster_file = os.path.join(self.metapi_dir, "config", "cluster.yaml")
+        self.config_file = os.path.join(
+            self.metapi_dir, "config", "config.yaml")
+        self.cluster_file = os.path.join(
+            self.metapi_dir, "config", "cluster.yaml")
         self.envs_dir = os.path.join(self.metapi_dir, "envs")
 
         self.new_config_file = os.path.join(self.work_dir, "config.yaml")
@@ -259,7 +259,8 @@ class custom_help_formatter(argparse.HelpFormatter):
                 and action.default != False
             ):
                 if action.default is not argparse.SUPPRESS:
-                    defaulting_nargs = [argparse.OPTIONAL, argparse.ZERO_OR_MORE]
+                    defaulting_nargs = [
+                        argparse.OPTIONAL, argparse.ZERO_OR_MORE]
 
                     if action.option_strings or action.nargs in defaulting_nargs:
                         if "\n" in h:
