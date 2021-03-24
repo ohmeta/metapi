@@ -264,10 +264,13 @@ if config["params"]["binning"]["vamb"]["do"]:
             os.path.join(config["output"]["multisplit_binning"],
                          "bins/all.{assembler}.combined.out/vamb/bins")
         output:
-            directory(expand(
+            bins = directory(expand(
                 os.path.join(config["output"]["binning"],
                              "bins/{sample}.{{assembler}}.out/vamb"),
-                sample=SAMPLES.index.unique()))
+                sample=SAMPLES.index.unique())),
+            metadata = os.path.join(
+                config["output"]["multisplit_binning"],
+                "bins/all.{assembler}.combined.out/vamb/cluster.metadata")
         benchmark:
             os.path.join(config["output"]["multisplit_binning"],
                          "benchmark/binning_vamb_postprocess.{assembler}.benchmark.txt")
@@ -278,17 +281,19 @@ if config["params"]["binning"]["vamb"]["do"]:
         run:
             from glob import glob
             import os
+            import pandas as pd
 
+            metadata = []
             count = 0
             for i in SAMPLES.index.unique():
                 outdir = os.path.join(params.bins_to, f"bins/{i}.{params.assembler}.out/vamb")
                 os.makedirs(outdir, exist_ok=True)
 
                 count += 1
+                count_ = 0
                 fna_list = sorted(glob(f'{input}/S{count}C*.fna'))
 
                 # link method
-                #count_ = 0
                 #for fna in fna_list:
                 #    count_ += 1
                 #    fna_source = f"../../../../../{fna}"
@@ -302,10 +307,15 @@ if config["params"]["binning"]["vamb"]["do"]:
 
                 # copy method, rename 
                 for fna in fna_list:
-                    #bin_id = os.path.basename(fna).split(".")[0]
-                    bin_id = os.path.basename(fna).split(".")[0].split("C")[-1]
-                    fna_dist = os.path.join(outdir, f"{i}.{params.assembler}.vamb.bin.{bin_id}.fa")
+                    count_ += 1
+                    # bin_id = os.path.basename(fna).split(".")[0]
+                    # bin_id = os.path.basename(fna).split(".")[0].split("C")[-1]
+                    fna_dist = os.path.join(outdir, f"{i}.{params.assembler}.vamb.bin.{count_}.fa")
+                    metadata.append((os.path.abspath(fna), os.path.abspath(fna_dist)))
                     shell(f'''cat {fna} | seqkit replace -p "^S\d+C" > {fna_dist}''')
+
+            pd.DataFrame(metadata, columns=["vamb_bin", "vamb_postprocess_bin"])\
+              .to_csv(output.metadata, sep='\t', index=False)
 
 
     rule binning_vamb_all:
