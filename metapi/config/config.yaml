@@ -216,9 +216,9 @@ params:
       no_original_data: False
       coverage_out: False
     graphbin2:
-      do: false
-      max_iteration: 100
-      diff_threshold: 0.1
+      do: True
+      depth: 5
+      threshold: 1.5
     vamb:
       do: True
       cuda: True

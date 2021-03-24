@@ -302,7 +302,8 @@ if config["params"]["binning"]["vamb"]["do"]:
 
                 # copy method, rename 
                 for fna in fna_list:
-                    bin_id = os.path.basename(fna).split(".")[0]
+                    #bin_id = os.path.basename(fna).split(".")[0]
+                    bin_id = os.path.basename(fna).split(".")[0].split("C")[-1]
                     fna_dist = os.path.join(outdir, f"{i}.{params.assembler}.vamb.bin.{bin_id}.fa")
                     shell(f'''cat {fna} | seqkit replace -p "^S\d+C" > {fna_dist}''')
 

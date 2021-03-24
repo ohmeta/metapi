@@ -537,15 +537,15 @@ if config["params"]["binning"]["graphbin2"]["do"]:
                          "benchmark/{binner_graphbin}/{sample}.{assembler}.{binner_graphbin}.benchmark.txt")
         params:
             assembler = "{assembler}",
-            prefix = os.path.join(
-                config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/{binner_graphbin}_graphbin2/{sample}.{assembler}.{binner_graphbin}_graphbin2.bin"),
+            prefix = "{sample}.{assembler}.{binner_graphbin}_graphbin2.bin",
             suffix = config["params"]["binning"]["bin_suffix"],
             paths = os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.paths.gz"),
-            max_iteration = config["params"]["binning"]["graphbin2"]["max_iteration"],
-            diff_threshold = config["params"]["binning"]["graphbin2"]["diff_threshold"]
+            depth = config["params"]["binning"]["graphbin2"]["depth"],
+            threshold = config["params"]["binning"]["graphbin2"]["threshold"]
+        threads:
+            config["params"]["binning"]["threads"]
         run:
             import pandas as pd
             import os
@@ -566,9 +566,12 @@ if config["params"]["binning"]["graphbin2"]["do"]:
                         --graph {input.gfa} \
                         --paths {output}/scaftigs.paths \
                         --binned {input.binned} \
-                        --max_iteration {params.max_iteration} \
-                        --diff_threshold {params.diff_threshold} \
-                        --output {output} > {log} 2>&1
+                        --nthreads {threads} \
+                        --depth {params.depth} \
+                        --threshold {params.threshold} \
+                        --output {output} \
+                        --prefix {params.prefix} \
+                        > {log} 2>&1
 
                         rm -rf {output}/scaftigs.paths
                         ''')
@@ -580,9 +583,12 @@ if config["params"]["binning"]["graphbin2"]["do"]:
                         --contigs {input.scaftigs} \
                         --graph {input.gfa} \
                         --binned {input.binned} \
-                        --max_iteration {params.max_iteration} \
-                        --diff_threshold {params.diff_threshold} \
-                        --output {output} > {log} 2>&1
+                        --nthreads {threads} \
+                        --depth {params.depth} \
+                        --threshold {params.threshold} \
+                        --output {output} \
+                        --prefix {params.prefix} \
+                        > {log} 2>&1
                         ''')
 
                 metapi.generate_bins("%s/graphbin2_output.csv" % output[0],
@@ -653,7 +659,6 @@ if config["params"]["binning"]["dastools"]["do"]:
             import glob
             import os
 
-            shell('''rm -rf {output.bins_dir}''')
             shell('''mkdir -p {output.bins_dir}''')
 
             binners = []

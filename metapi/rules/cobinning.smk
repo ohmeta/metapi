@@ -515,15 +515,15 @@ if config["params"]["binning"]["graphbin2"]["do"]:
                          "benchmark/binning/all.{assembler_co}.{binner_graphbin}.graphbin2.refine.benchmark.txt")
         params:
             assembler_co = "{assembler_co}",
-            prefix = os.path.join(
-                config["output"]["cobinning"],
-                "bins/all.{assembler_co}.out/{binner_graphbin}_graphbin2/all.{assembler_co}.{binner_graphbin}_graphbin2.bin"),
+            prefix = "all.{assembler_co}.{binner_graphbin}_graphbin2.bin",
             suffix = config["params"]["binning"]["bin_suffix"],
             paths = os.path.join(
                 config["output"]["coassembly"],
                 "scaftigs/all.{assembler_co}.out/all.{assembler_co}.scaftigs.paths.gz"),
-            max_iteration = config["params"]["binning"]["graphbin2"]["max_iteration"],
-            diff_threshold = config["params"]["binning"]["graphbin2"]["diff_threshold"]
+            depth = config["params"]["binning"]["graphbin2"]["depth"],
+            threshold = config["params"]["binning"]["graphbin2"]["threshold"]
+        threads:
+            config["params"]["binning"]["threads"]
         run:
             import pandas as pd
             import os
@@ -534,7 +534,6 @@ if config["params"]["binning"]["graphbin2"]["do"]:
 
             if not df.empty:
                 if params.assembler_co == "metaspades" or params.assembler_co == "spades":
-                    shell('''pigz -p {threads} -dc {params.paths} > {output}/scaftigs.paths''')
                     shell(
                         '''
                         pigz -p {threads} -dc {params.paths} > {output}/scaftigs.paths
@@ -545,9 +544,12 @@ if config["params"]["binning"]["graphbin2"]["do"]:
                         --graph {input.gfa} \
                         --binned {input.binned} \
                         --paths {output}/scaftigs.paths \
-                        --max_iteration {params.max_iteration} \
-                        --diff_threshold {params.diff_threshold} \
-                        --output {output} > {log} 2>&1
+                        --nthreads {threads} \
+                        --depth {params.depth} \
+                        --threshold {params.threshold} \
+                        --output {output} \
+                        --prefix {params.prefix} \
+                        > {log} 2>&1
 
                         rm -rf {output}/scaftigs.paths
                         ''')
@@ -559,9 +561,12 @@ if config["params"]["binning"]["graphbin2"]["do"]:
                         --contigs {input.scaftigs} \
                         --graph {input.gfa} \
                         --binned {input.binned} \
-                        --max_iteration {params.max_iteration} \
-                        --diff_threshold {params.diff_threshold} \
-                        --output {output} > {log} 2>&1
+                        --nthreads {threads} \
+                        --depth {params.depth} \
+                        --threshold {params.threshold} \
+                        --output {output} \
+                        --prefix {params.prefix} \
+                        > {log} 2>&1
                         ''')
 
                 metapi.generate_bins("%s/graphbin2_output.csv" % output[0],
@@ -678,21 +683,22 @@ if config["params"]["binning"]["dastools"]["do"]:
                     --duplicate_penalty {params.duplicate_penalty} \
                     --megabin_penalty {params.megabin_penalty} \
                     --threads {threads} --debug > {log} 2>&1
+                   ''' % (",".join(tsv_list), ",".join(binners)))
 
-                    exitcode=$?
-                    if [ $exitcode -eq 1 ]
-                    then
-                        grep -oEi 'Aborting' {log}
-                        grepcode=$?
-                        if [ $grepcode -eq 0 ]
-                        then
-                            exit 0
-                        else
-                            exit $exitcode
-                        fi
-                    fi
-                    ''' % (",".join(tsv_list), ",".join(binners)))
-
+                   #TODO 
+                   # exitcode=$?
+                   # if [ $exitcode -eq 1 ]
+                   # then
+                   #     grep -oEi 'Aborting' {log}
+                   #     grepcode=$?
+                   #     if [ $grepcode -eq 0 ]
+                   #     then
+                   #         exit 0
+                   #     else
+                   #         exit $exitcode
+                   #     fi
+                   # fi
+ 
                 shell('''rm -rf {output.bins_dir}/scaftigs.fasta''')
 
                 bins_list_dastools = glob.glob(
