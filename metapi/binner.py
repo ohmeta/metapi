@@ -15,6 +15,10 @@ def get_binning_info(bins_dir, cluster_file, bin_suffix, assembler):
                     cluster_num = bin_id.split(".")[-1]
                     bin_fa = os.path.join(bins_dir, entry.name)
                     for seq in SeqIO.parse(bin_fa, "fasta"):
+                        # graphbin
+                        # oh.write("%s,%s" %
+                        #         ("_".join(seq.id.split("_")[:2]), cluster_num))
+                        # graphbin 2
                         oh.write(f"{seq.id},{cluster_num}\n")
 
 
@@ -23,7 +27,11 @@ def generate_bins(cluster_file, scaftigs, prefix, suffix):
     def get_accession(identifier):
         return "_".join(identifier.split("_")[:2])
 
-    scaftigs_index = SeqIO.index(scaftigs, "fasta", key_function=get_accession)
+    # graphbin
+    # scaftigs_index = SeqIO.index(scaftigs, "fasta", key_function=get_accession)
+
+    # graphbin2
+    scaftigs_index = SeqIO.index(scaftigs, "fasta")
 
     df = pd.read_csv(cluster_file, names=["scaftigs_id", "bin_id"])\
            .astype({"scaftigs_id": str,

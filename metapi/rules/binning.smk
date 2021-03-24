@@ -537,7 +537,9 @@ if config["params"]["binning"]["graphbin2"]["do"]:
                          "benchmark/{binner_graphbin}/{sample}.{assembler}.{binner_graphbin}.benchmark.txt")
         params:
             assembler = "{assembler}",
-            prefix = "{sample}.{assembler}.{binner_graphbin}_graphbin2.bin",
+            prefix = os.path.join(
+                config["output"]["binning"],
+                "bins/{sample}.{assembler}.out/{binner_graphbin}_graphbin2/{sample}.{assembler}.{binner_graphbin}_graphbin2.bin"),
             suffix = config["params"]["binning"]["bin_suffix"],
             paths = os.path.join(
                 config["output"]["assembly"],
@@ -570,7 +572,6 @@ if config["params"]["binning"]["graphbin2"]["do"]:
                         --depth {params.depth} \
                         --threshold {params.threshold} \
                         --output {output} \
-                        --prefix {params.prefix} \
                         > {log} 2>&1
 
                         rm -rf {output}/scaftigs.paths
@@ -587,11 +588,10 @@ if config["params"]["binning"]["graphbin2"]["do"]:
                         --depth {params.depth} \
                         --threshold {params.threshold} \
                         --output {output} \
-                        --prefix {params.prefix} \
                         > {log} 2>&1
                         ''')
 
-                metapi.generate_bins("%s/graphbin2_output.csv" % output[0],
+                metapi.generate_bins(f"{output}/graphbin2_output.csv",
                                      input.scaftigs,
                                      params.prefix,
                                      params.suffix)
