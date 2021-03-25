@@ -28,12 +28,8 @@ class metaconfig:
     """
 
     sub_dirs = [
-        "assay",
         "envs",
         "results",
-        "scripts",
-        "sources",
-        "study",
         "logs/00.simulate_short_reads",
         "logs/00.prepare_short_reads",
         "logs/00.prepare_long_reads",
