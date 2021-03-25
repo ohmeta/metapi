@@ -339,7 +339,7 @@ params:
       taxonomic_level: "a"
       min_cu_len: 2000
       avoid_disqm: True
-      analysis_type: "rel_ab"
+      analysis_type: "rel_ab_w_read_stats"
       #  [
       #    "rel_ab",
       #    "rel_ab_w_read_stats",
