@@ -325,6 +325,9 @@ if TRIMMING_DO and config["params"]["qcreport"]["do"]:
         output:
             os.path.join(config["output"]["trimming"],
                               "report/stats/{sample}_trimming_stats.tsv")
+        log:
+            os.path.join(config["output"]["trimming"],
+                         "logs/{sample}.seqkit.log")
         params:
             sample_id = "{sample}",
             fq_encoding = config["params"]["fq_encoding"]
@@ -340,7 +343,7 @@ if TRIMMING_DO and config["params"]["qcreport"]["do"]:
                 --fq-encoding {params.fq_encoding} \
                 --out-file {output} \
                 --threads {threads} \
-                {input}
+                {input} 2> {log}
                 ''')
 
             if IS_PE:

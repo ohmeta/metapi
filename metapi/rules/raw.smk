@@ -357,6 +357,9 @@ if config["params"]["qcreport"]["do"]:
         params:
             sample_id = "{sample}",
             fq_encoding = config["params"]["fq_encoding"]
+        log:
+            os.path.join(config["output"]["raw"],
+                         "logs/{sample}.seqkit.log")
         threads:
             config["params"]["qcreport"]["seqkit"]["threads"]
         run:
@@ -369,7 +372,7 @@ if config["params"]["qcreport"]["do"]:
                 --fq-encoding {params.fq_encoding} \
                 --out-file {output} \
                 --threads {threads} \
-                {input}
+                {input} 2> {log}
                 ''')
 
             if IS_PE:

@@ -604,6 +604,9 @@ if RMHOST_DO and config["params"]["qcreport"]["do"]:
         output:
             os.path.join(config["output"]["rmhost"],
                          "report/stats/{sample}_rmhost_stats.tsv")
+        log:
+            os.path.join(config["output"]["rmhost"],
+                         "logs/{sample}.seqkit.log")
         priority:
             25
         params:
@@ -621,7 +624,7 @@ if RMHOST_DO and config["params"]["qcreport"]["do"]:
                 --fq-encoding {params.fq_encoding} \
                 --out-file {output} \
                 --threads {threads} \
-                {input}
+                {input} 2> {log}
                 ''')
 
             if IS_PE:
