@@ -353,6 +353,7 @@ params:
       stat_q_v3: "0.2"
       stat: "tavg_g"
       unknown_estimation: True
+      add_viruses: True
       read_min_len: 70
       save_bowtie2out: False
       legacy_output: False

@@ -368,6 +368,9 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                 unknown_estimation = "--unknown_estimation" \
                     if config["params"]["profiling"]["metaphlan"]["unknown_estimation"] \
                     else "",
+                add_viruses = "--add_viruses" \
+                    if config["params"]["profiling"]["metaphlan"]["add_viruses"] \
+                    else "",
                 map_out = "--no_map" if config["params"]["profiling"]["metaphlan"]["no_map"] \
                     else "--bowtie2out %s" % os.path.join(
                         config["output"]["profiling"],
@@ -405,6 +408,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                 --stat {params.stat} \
                 -t {params.analysis_type} \
                 {params.unknown_estimation} \
+                {params.add_viruses} \
                 --output_file {output} \
                 --sample_id {params.sample_id} \
                 {params.legacy_output} \
