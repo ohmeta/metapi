@@ -66,7 +66,7 @@ rule prepare_short_reads:
     threads:
         config["params"]["raw"]["threads"]
     log:
-        os.path.join(config["output"]["raw"], "logs/fasterq_dump_{sample}.log")
+        os.path.join(config["output"]["raw"], "logs/{sample}_prepare.log")
     run:
         reads_num = len(input)
 
