@@ -234,6 +234,15 @@ def init(args, unknown):
                 os.path.realpath(args.workdir), f"envs/{env_name}.yaml"
             )
 
+        conf["params"]["trimming"][args.trimmer]["do"] = True
+        conf["params"]["rmhost"][args.rmhoster]["do"] = True
+
+        for assembler in args.assembler:
+            conf["params"]["assembly"][assembler]["do"] = True
+
+        for binner in args.binner:
+            conf["params"]["binning"][binner]["do"] = True
+
         if args.begin:
             conf["params"]["begin"] = args.begin
             if args.begin == "simulate":
@@ -247,16 +256,33 @@ def init(args, unknown):
                 conf["params"]["trimming"]["fastp"]["do"] = False
             elif args.begin == "assembly":
                 conf["params"]["simulate"]["do"] = False
+                conf["params"]["raw"]["save_reads"] = True
+                conf["params"]["raw"]["fastqc"]["do"] = False
+                conf["params"]["qcreport"]["do"] = False
                 conf["params"]["trimming"]["oas1"]["do"] = False
                 conf["params"]["trimming"]["sickle"]["do"] = False
                 conf["params"]["trimming"]["fastp"]["do"] = False
                 conf["params"]["rmhost"]["bwa"]["do"] = False
                 conf["params"]["rmhost"]["bowtie2"]["do"] = False
-
+                conf["params"]["rmhost"]["soap"]["do"] = False
+                conf["params"]["rmhost"]["minimap2"]["do"] = False
+            elif args.begin == "binning":
+                conf["params"]["simulate"]["do"] = False
                 conf["params"]["raw"]["save_reads"] = True
-
                 conf["params"]["raw"]["fastqc"]["do"] = False
                 conf["params"]["qcreport"]["do"] = False
+                conf["params"]["trimming"]["oas1"]["do"] = False
+                conf["params"]["trimming"]["sickle"]["do"] = False
+                conf["params"]["trimming"]["fastp"]["do"] = False
+                conf["params"]["rmhost"]["bwa"]["do"] = False
+                conf["params"]["rmhost"]["bowtie2"]["do"] = False
+                conf["params"]["rmhost"]["soap"]["do"] = False
+                conf["params"]["rmhost"]["minimap2"]["do"] = False
+                conf["params"]["assembly"]["idba_ud"]["do"] = False
+                conf["params"]["assembly"]["megahit"]["do"] = False
+                conf["params"]["assembly"]["metaspades"]["do"] = False
+                conf["params"]["assembly"]["spades"]["do"] = False
+                conf["params"]["assembly"]["opera_ms"]["do"] = False
 
         if args.samples:
             conf["params"]["samples"] = args.samples
@@ -530,8 +556,40 @@ if begin from simulate:
         "--begin",
         type=str,
         default="trimming",
-        choices=["simulate", "trimming", "rmhost", "assembly"],
+        choices=["simulate", "trimming", "rmhost", "assembly", "binning"],
         help="pipeline starting point",
+    )
+    parser_init.add_argument(
+        "--trimmer",
+        type=str,
+        default="fastp",
+        required=False,
+        choices=["oas1", "sickle", "fastp"],
+        help="which trimmer used"
+    )
+    parser_init.add_argument(
+        "--rmhoster",
+        type=str,
+        default="bowtie2",
+        required=False,
+        choices=["soap", "bwa", "bowtie2", "minimap2"],
+        help="which rmhoster used"
+    )
+    parser_init.add_argument(
+        "--assembler",
+        nargs="+",
+        default=["metaspades"],
+        required=False,
+        choices=["idba-ud", "megahit", "metaspades", "spades", "opera-ms"],
+        help="which assembler used, required when begin with binning, can be changed in config.yaml"
+    )
+    parser_init.add_argument(
+        "--binner",
+        nargs="+",
+        required=False,
+        default=["metabat2", "concoct", "maxbin2",
+                 "graphbin2", "vamb", "dastools"],
+        help="wchich binner used"
     )
     parser_init.set_defaults(func=init)
 

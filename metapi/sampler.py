@@ -51,6 +51,19 @@ def parse_samples(config):
         print("wrong header: {header}".format(header=samples_df.columns))
         cancel = True
 
+    if config["params"]["begin"] == "binning":
+        if len(samples_df) != len(samples_df.index.unique()):
+            print(
+                "when begin with binning, samples id need to be unique, because we can't merge assembly")
+            cancel = True
+
+        if "scaftigs" in samples_df.columns:
+            for sample_id in samples_df.index.unique():
+                scaftigs = samples_df.loc[sample_id, "scaftigs"]
+                if not os.path.exists(scaftigs):
+                    print(f"{scaftigs} not exists")
+                    cancel = True
+
     if cancel:
         sys.exit(-1)
     else:
