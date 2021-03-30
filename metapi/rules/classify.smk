@@ -8,7 +8,9 @@ if config["params"]["classify"]["kraken2"]["do"]:
         output:
             table = protected(os.path.join(
                 config["output"]["classify"],
-                "short_reads/{sample}.kraken2.out/{sample}.kraken2.table.gz")),
+                "short_reads/{sample}.kraken2.out/{sample}.kraken2.table.gz")) \
+                if config["params"]["classify"]["kraken2"]["save_table"] \
+                else "",
             report = protected(os.path.join(
                 config["output"]["classify"],
                 "short_reads/{sample}.kraken2.out/{sample}.kraken2.report"))
@@ -19,6 +21,7 @@ if config["params"]["classify"]["kraken2"]["do"]:
             os.path.join(config["output"]["classify"],
                          "benchmark/kraken2/{sample}.kraken2.benchmark.txt")
         params:
+            save_table = config["params"]["classify"]["kraken2"]["save_table"],
             paired = "--paired" if IS_PE else "",
             database = config["params"]["classify"]["kraken2"]["database"],
             quick = "--quick" \
@@ -73,16 +76,17 @@ if config["params"]["classify"]["kraken2"]["do"]:
                 --minimum-hit-groups {params.min_hit_groups} \
                 {params.unclassified_out} \
                 {params.classified_out} \
-                --output %s \
+                %s \
                 --report %s \
                 --gzip-compressed \
                 {params.paired} \
                 {input.reads} \
                 2> {log}
-                ''' % (os.path.splitext(output.table)[0],
+                ''' % (f"--output {os.path.splitext(output.table)[0]}" if params.save_table else "",
                        output.report))
 
-            shell('''pigz %s''' % os.path.splitext(output.table)[0])
+            if params.save_table:
+                shell('''pigz %s''' % os.path.splitext(output.table)[0])
 
 
     rule classify_short_reads_kraken2_krona_report:
@@ -105,9 +109,6 @@ if config["params"]["classify"]["kraken2"]["do"]:
     rule classify_short_reads_kraken2_all:
         input:
             expand([
-                os.path.join(
-                    config["output"]["classify"],
-                    "short_reads/{sample}.kraken2.out/{sample}.kraken2.table.gz"),
                 os.path.join(
                     config["output"]["classify"],
                     "short_reads/{sample}.kraken2.out/{sample}.kraken2.report"),
