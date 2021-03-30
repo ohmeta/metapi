@@ -274,6 +274,7 @@ params:
       min_hit_groups: 2
       unclassified_out: False
       classified_out: False
+      save_table: False
     gtdbtk:
       do: True
       pplacer_threads: 1
