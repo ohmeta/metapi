@@ -659,6 +659,7 @@ if config["params"]["binning"]["dastools"]["do"]:
             import glob
             import os
 
+            shell('''rm -rf {output.bins_dir}''')
             shell('''mkdir -p {output.bins_dir}''')
 
             binners = []
