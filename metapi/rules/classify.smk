@@ -4,14 +4,9 @@ if config["params"]["classify"]["kraken2"]["do"]:
             reads = assembly_input_with_short_reads,
             database = expand(os.path.join(
                 config["params"]["classify"]["kraken2"]["database"], "{db}"),
-                              db = ["hash.k2d", "taxo.k2d", "opts.k2d"])
+                db = ["hash.k2d", "taxo.k2d", "opts.k2d"])
         output:
-            table = protected(os.path.join(
-                config["output"]["classify"],
-                "short_reads/{sample}.kraken2.out/{sample}.kraken2.table.gz")) \
-                if config["params"]["classify"]["kraken2"]["save_table"] \
-                else "",
-            report = protected(os.path.join(
+           report = protected(os.path.join(
                 config["output"]["classify"],
                 "short_reads/{sample}.kraken2.out/{sample}.kraken2.report"))
         log:
@@ -55,12 +50,16 @@ if config["params"]["classify"]["kraken2"]["do"]:
                     "short_reads/{sample}.kraken2.out/{sample}.kraken2.classified%s.fq" \
                     % "#" if IS_PE else "") \
                     if config["params"]["classify"]["kraken2"]["classified_out"] \
-                       else ""
+                       else "",
+            table = "--table %s" % \
+                os.path.join(
+                    config["output"]["classify"],
+                    "short_reads/{sample}.kraken2.out/{sample}.kraken2.table") \
+                if config["params"]["classify"]["kraken2"]["save_table"] \
+                    else "",
         threads:
             config["params"]["classify"]["threads"]
         run:
-            import os
-
             shell(
                 '''
                 kraken2 \
@@ -76,17 +75,16 @@ if config["params"]["classify"]["kraken2"]["do"]:
                 --minimum-hit-groups {params.min_hit_groups} \
                 {params.unclassified_out} \
                 {params.classified_out} \
-                %s \
-                --report %s \
+                {params.table} \
+                --report {output.report} \
                 --gzip-compressed \
                 {params.paired} \
                 {input.reads} \
                 2> {log}
-                ''' % (f"--output {os.path.splitext(output.table)[0]}" if params.save_table else "",
-                       output.report))
+                ''') 
 
             if params.save_table:
-                shell('''pigz %s''' % os.path.splitext(output.table)[0])
+                shell('''pigz %s''' % params.table.split(" ")[-1])
 
 
     rule classify_short_reads_kraken2_krona_report:
@@ -116,6 +114,7 @@ if config["params"]["classify"]["kraken2"]["do"]:
                     config["output"]["classify"],
                     "report/kraken2_krona.all.html")],
                    sample=SAMPLES.index.unique()),
+
 
             rules.rmhost_all.input,
             rules.qcreport_all.input
