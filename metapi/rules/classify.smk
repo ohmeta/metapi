@@ -51,7 +51,7 @@ if config["params"]["classify"]["kraken2"]["do"]:
                     % "#" if IS_PE else "") \
                     if config["params"]["classify"]["kraken2"]["classified_out"] \
                        else "",
-            table = "--table %s" % \
+            table = "--output %s" % \
                 os.path.join(
                     config["output"]["classify"],
                     "short_reads/{sample}.kraken2.out/{sample}.kraken2.table") \
