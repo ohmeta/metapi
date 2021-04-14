@@ -81,6 +81,14 @@ params:
       split_size: 4G
       preset: sr
       index: /ldfssz1/ST_META/share/User/zhujie/database/galaxy_indexes/hg38/hg38full/minimap2_index/hg38full.mmi
+    kraken2:
+      do: False
+      database: /ldfssz1/ST_META/share/database/KRAKEN/minikraken2_v2_8GB_201904_UPDATE
+      host_taxid: 9606
+      # must include human reference genome
+      confidence: 0
+      min_base_quality: 0
+      min_hit_groups: 2
 
   qcreport:
     do: True

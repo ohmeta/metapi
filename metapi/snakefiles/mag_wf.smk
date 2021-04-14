@@ -25,18 +25,19 @@ HAVE_LONG = True \
        else False
 
 
-RMHOST_DO = True \
-    if config["params"]["rmhost"]["soap"]["do"] or \ 
-       config["params"]["rmhost"]["bwa"]["do"] or \
-       config["params"]["rmhost"]["bowtie2"]["do"] or \
-       config["params"]["rmhost"]["minimap2"]["do"] \
-       else False
-
-
 TRIMMING_DO = True \
     if config["params"]["trimming"]["oas1"]["do"] or \
        config["params"]["trimming"]["sickle"]["do"] or \
        config["params"]["trimming"]["fastp"]["do"] \
+       else False
+
+
+RMHOST_DO = True \
+    if config["params"]["rmhost"]["soap"]["do"] or \ 
+       config["params"]["rmhost"]["bwa"]["do"] or \
+       config["params"]["rmhost"]["bowtie2"]["do"] or \
+       config["params"]["rmhost"]["minimap2"]["do"] or \
+       config["params"]["rmhost"]["kraken2"]["do"] \
        else False
 
 
@@ -178,6 +179,7 @@ localrules: \
     rmhost_bwa_all, \
     rmhost_bowtie2_all, \
     rmhost_minimap2_all, \
+    rmhost_kraken2_all, \
     rmhost_report_all, \
     rmhost_all, \
     qcreport_all, \

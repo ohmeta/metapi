@@ -143,6 +143,12 @@ rmhost_minimap2:
   output: "logs/02.{rule}/{rule}.{wildcards.sample}.o"
   error: "logs/02.{rule}/{rule}.{wildcards.sample}.e"
 
+rmhost_kraken2:
+  mem: "6G"
+  cores: 8
+  output: "logs/02.{rule}/{rule}.{wildcards.sample}.o"
+  error: "logs/02.{rule}/{rule}.{wildcards.sample}.e"
+
 rmhost_alignment_report:
   mem: "513M"
   cores: 1
@@ -241,7 +247,7 @@ assembly_report_merge:
   error: "logs/04.{rule}/{rule}.{wildcards.assembler}.e"
 
 coassembly_megahit:
-  mem: "2000G"
+  mem: "200G"
   cores: 8
   output: "logs/04.{rule}/{rule}.o"
   error: "logs/04.{rule}/{rule}.e"

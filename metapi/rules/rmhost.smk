@@ -551,7 +551,122 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                         ''')
 
 
-if RMHOST_DO and (not config["params"]["rmhost"]["soap"]["do"]):
+if config["params"]["rmhost"]["kraken2"]["do"]:
+    rule rmhost_kraken2:
+       input:
+            reads = lambda wildcards: rmhost_input(wildcards),
+            database = config["params"]["rmhost"]["kraken2"]["database"] 
+        output:
+            table = temp(os.path.join(config["output"]["rmhost"],
+                                      "short_reads/{sample}/{sample}.kraken2.table")),
+            report = os.path.join(config["output"]["rmhost"],
+                                  "short_reads/{sample}/{sample}.kraken2.report.gz"),
+            reads = expand(os.path.join(
+                config["output"]["rmhost"],
+                "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                           read=[".1", ".2"] if IS_PE else "") \
+                           if config["params"]["rmhost"]["save_reads"] else \
+                              temp(expand(os.path.join(
+                                  config["output"]["rmhost"],
+                                  "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                                          read=[".1", ".2"] if IS_PE else ""))
+        log:
+            os.path.join(config["output"]["rmhost"], "logs/{sample}.kraken2.log")
+        benchmark:
+            os.path.join(config["output"]["rmhost"],
+                         "benchmark/kraken2/{sample}.kraken2.txt")
+        params:
+            confidence = config["params"]["rmhost"]["kraken2"]["confidence"],
+            min_base_quality = config["params"]["rmhost"]["kraken2"]["min_base_quality"],
+            min_hit_groups = config["params"]["rmhost"]["kraken2"]["min_hig_groups"],
+            host_taxid = config["params"]["rmhost"]["kraken2"]["host_taxid"]
+        priority:
+            10
+        threads:
+            config["params"]["rmhost"]["threads"]
+        run:
+            import os
+            report = os.path.splitext(output.report)[0]
+
+            if IS_PE:
+                shell(
+                    '''
+                    kraken2 \
+                    --threads {threads} \
+                    --db {input.database} \
+                    --use-names \
+                    --confidence {params.confidence} \
+                    --minimum-base-quality {params.min_base_quality} \
+                    --minimum-hit-groups {params.min_hit_groups} \
+                    --output {output.table} \
+                    --report {report} \
+                    --gzip-compressed \
+                    --paired \
+                    {input.reads} \
+                    >{log} 2>&1
+
+                    pigz -p {threads} {report}
+
+                    extract_kraken2_reads.py \
+                    -k {output.table} \
+                    --taxid {params.host_taxid} \
+                    --noappend \
+                    --exclude \
+                    --fastq-output \
+                    --gzip-output \
+                    -s {input.reads[0]} \
+                    -s2 {input.reads[1]} \
+                    -o {output.reads[0]} \
+                    -o2 {output.reads[1]} \
+                    >>{log} 2>&1
+                    '''
+            else:
+                shell(
+                    '''
+                    kraken2 \
+                    --threads {threads} \
+                    --db {input.database} \
+                    --use-names \
+                    --confidence {params.confidence} \
+                    --minimum-base-quality {params.min_base_quality} \
+                    --minimum-hit-groups {params.min_hit_groups} \
+                    --output {output.table} \
+                    --report {report} \
+                    --gzip-compressed \
+                    {input.reads[0]} \
+                    >{log} 2>&1
+
+                    pigz -p {threads} {report}
+
+                    extract_kraken2_reads.py \
+                    -k {output.table} \
+                    --taxid {params.host_taxid} \
+                    --noappend \
+                    --exclude \
+                    --fastq-output \
+                    --gzip-output \
+                    -s {input.reads[0]} \
+                    -o {output.reads[0]} \
+                    >>{log} 2>&1
+                    '''
+
+
+    rule rmhost_kraken2_all:
+        input:
+            expand(os.path.join(
+                config["output"]["rmhost"],
+                "short_reads/{sample}/{sample}.rmhost{read}.fq.gz"),
+                   sample=SAMPLES.index.unique(),
+                   read=[".1", ".2"] if IS_PE else "")
+
+else:
+    rule rmhost_kraken2_all:
+        input:
+
+
+if RMHOST_DO \
+and (not config["params"]["rmhost"]["soap"]["do"]) \
+and (not config["params"]["rmhost"]["kraken2"]["do"]):
     rule rmhost_alignment_report:
         input:
             expand(
@@ -664,6 +779,7 @@ rule rmhost_all:
         rules.rmhost_bowtie2_all.input,
         rules.rmhost_soap_all.input,
         rules.rmhost_minimap2_all.input,
+        rules.rmhost_kraken2_all.input,
         rules.rmhost_report_all.input,
 
         rules.trimming_all.input

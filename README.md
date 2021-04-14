@@ -107,6 +107,7 @@ $ metapi mag_wf --help
        trimming_fastp_all, trimming_report_all,
        trimming_all,
        rmhost_soap_all, rmhost_bwa_all, rmhost_bowtie2_all,
+       rmhost_minimap2_all, rmhost_kraken2_all,
        rmhost_report_all, rmhost_all, qcreport_all,
        assebmly_megahit_all, assembly_idba_ud_all,
        assembly_metaspades_all, assembly_spades_all,

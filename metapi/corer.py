@@ -28,6 +28,7 @@ WORKFLOWS_MAG = [
     "rmhost_bwa_all",
     "rmhost_bowtie2_all",
     "rmhost_minimap2_all",
+    "rmhost_kraken2_all",
     "rmhost_report_all",
     "rmhost_all",
     "qcreport_all",
