@@ -553,7 +553,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
 
 if config["params"]["rmhost"]["kraken2"]["do"]:
     rule rmhost_kraken2:
-       input:
+        input:
             reads = lambda wildcards: rmhost_input(wildcards),
             database = config["params"]["rmhost"]["kraken2"]["database"] 
         output:
@@ -578,7 +578,7 @@ if config["params"]["rmhost"]["kraken2"]["do"]:
         params:
             confidence = config["params"]["rmhost"]["kraken2"]["confidence"],
             min_base_quality = config["params"]["rmhost"]["kraken2"]["min_base_quality"],
-            min_hit_groups = config["params"]["rmhost"]["kraken2"]["min_hig_groups"],
+            min_hit_groups = config["params"]["rmhost"]["kraken2"]["min_hit_groups"],
             host_taxid = config["params"]["rmhost"]["kraken2"]["host_taxid"]
         priority:
             10
@@ -619,7 +619,7 @@ if config["params"]["rmhost"]["kraken2"]["do"]:
                     -o {output.reads[0]} \
                     -o2 {output.reads[1]} \
                     >>{log} 2>&1
-                    '''
+                    ''')
             else:
                 shell(
                     '''
@@ -648,7 +648,7 @@ if config["params"]["rmhost"]["kraken2"]["do"]:
                     -s {input.reads[0]} \
                     -o {output.reads[0]} \
                     >>{log} 2>&1
-                    '''
+                    ''')
 
 
     rule rmhost_kraken2_all:
