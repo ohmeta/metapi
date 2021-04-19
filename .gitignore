@@ -43,3 +43,4 @@ test/simulation_test/metaconfig.yaml
 examples
 notebook
 release
+tests/
