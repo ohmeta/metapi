@@ -707,7 +707,7 @@ if config["params"]["binning"]["dastools"]["do"]:
                     --duplicate_penalty {params.duplicate_penalty} \
                     --megabin_penalty {params.megabin_penalty} \
                     --threads {threads} --debug > {log} 2>&1
-                    
+
                     exitcode=$?
                     if [ $exitcode -eq 1 ]
                     then
@@ -727,7 +727,7 @@ if config["params"]["binning"]["dastools"]["do"]:
                             fi
                         fi
                     fi
-                    ''' % (",".join(tsv_list), ",".join(binners), params.search_engine)
+                    ''' % (",".join(tsv_list), ",".join(binners), params.search_engine))
 
                 shell('''rm -rf {output.bins_dir}/scaftigs.fasta''')
 
