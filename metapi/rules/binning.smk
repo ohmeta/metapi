@@ -717,10 +717,17 @@ if config["params"]["binning"]["dastools"]["do"]:
                         then
                             exit 0
                         else
-                            exit $exitcode
+                            grep -oEi 'single copy gene prediction using %s failed. Aborting' {log}
+                            grepcode=$?
+                            if [ $grepcode -eq 0 ]
+                            then
+                                exit 0
+                            else
+                                exit $exitcode
+                            fi
                         fi
                     fi
-                    ''' % (",".join(tsv_list), ",".join(binners)))
+                    ''' % (",".join(tsv_list), ",".join(binners)), params.search_engine)
 
                 shell('''rm -rf {output.bins_dir}/scaftigs.fasta''')
 
