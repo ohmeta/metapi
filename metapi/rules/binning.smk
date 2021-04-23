@@ -707,22 +707,20 @@ if config["params"]["binning"]["dastools"]["do"]:
                     --duplicate_penalty {params.duplicate_penalty} \
                     --megabin_penalty {params.megabin_penalty} \
                     --threads {threads} --debug > {log} 2>&1
-                    ''' % (",".join(tsv_list), ",".join(binners)))
                     
-                    #TODO
-                    # how to fix?
-                    #exitcode=$?
-                    #if [ $exitcode -eq 1 ]
-                    #then
-                    #    grep -oEi 'Aborting' {log}
-                    #    grepcode=$?
-                    #    if [ $grepcode -eq 0 ]
-                    #    then
-                    #        exit 0
-                    #    else
-                    #        exit $exitcode
-                    #    fi
-                    #fi
+                    exitcode=$?
+                    if [ $exitcode -eq 1 ]
+                    then
+                        grep -oEi 'no single copy genes found. Aborting' {log}
+                        grepcode=$?
+                        if [ $grepcode -eq 0 ]
+                        then
+                            exit 0
+                        else
+                            exit $exitcode
+                        fi
+                    fi
+                    ''' % (",".join(tsv_list), ",".join(binners)))
 
                 shell('''rm -rf {output.bins_dir}/scaftigs.fasta''')
 
@@ -731,7 +729,7 @@ if config["params"]["binning"]["dastools"]["do"]:
                         params.bin_prefix + "_DASTool_bins" ,
                         "*." + params.bin_suffix))
 
-                if len(bins_list_dastools):
+                if len(bins_list_dastools) > 0:
                     for bin_fa in bins_list_dastools:
                         bin_id = os.path.basename(bin_fa).split(".")[2]
                         bin_fa_ = os.path.basename(bin_fa).replace(bin_id, bin_id +"_dastools")
