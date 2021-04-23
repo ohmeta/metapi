@@ -727,7 +727,7 @@ if config["params"]["binning"]["dastools"]["do"]:
                             fi
                         fi
                     fi
-                    ''' % (",".join(tsv_list), ",".join(binners)), params.search_engine)
+                    ''' % (",".join(tsv_list), ",".join(binners), params.search_engine)
 
                 shell('''rm -rf {output.bins_dir}/scaftigs.fasta''')
 
