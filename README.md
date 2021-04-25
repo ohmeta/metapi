@@ -21,6 +21,8 @@ You can install it via [bioconda](https://bioconda.github.io/):
 $ conda install -c bioconda metapi
 # or
 $ conda install -c ohmeta metapi
+# specific version, recommand to install latest version
+$ conda install -c bioconda metapi=1.1.0
 ```
 
 Or via pip:
@@ -31,7 +33,7 @@ $ pip install metapi
 
 ## Run
 
-### help
+### Help
 
 ```
 $ metapi --help
@@ -59,7 +61,7 @@ $ metapi --help
     sync         metapi sync project
 ```
 
-### init
+### Init
 
 ```
 $ metapi init --help
@@ -83,9 +85,28 @@ $ metapi init --help
                             if begin from simulate:
                                 the header is [id, genome, abundance, reads_num, model]
 
-    -b, --begin {simulate,trimming,rmhost,assembly}
+    -b, --begin {simulate,trimming,rmhost,assembly,binning}
                             pipeline starting point (default: trimming)
 ```
+- **Note**  
+  * When we do `metapi init`, metapi will help us to create project structure,
+  include `config.yaml`, `cluster.yaml`, `envs/`, `logs/` and `results/`.
+    - `config.yaml`: workflow configuration, can be edited
+    - `cluster.yaml`: used when run pipeline on cluster, can be edited
+
+  * We recommand you to create a directory, and `cd` it, then do ```metapi init -d ./```.
+
+  * Samples file is required when init project. Samples input format requirement can see [here](#inputtag).
+
+  * Begin point can be `simulate`, `trimming`, `rmhost`, `assembly` and `binning`, it means:
+    - simulate: simulate reads
+    - trimming: samples need trimming, do quality control
+    - rmhost: samples is quality control well, only need to remove host sequence, will not do trimming
+    - assembly: samples is clean, just do assembly, will not do trimming and rmhost
+    - binning: supply samples and assembly, then do binning, will no do trimming, rmhost and assembly
+
+  * When metapi init executed, then corresponding configuration will be writen into `config.yaml`. Of course, you can edit `config.yaml` to update config, then when run `metapi mag_wf` or `metapi gene_wf`, `metapi` will understand it. Just edit it, see what will happen.
+
 
 ### mag_wf
 
@@ -170,13 +191,15 @@ $ metapi mag_wf --help
     conda create environments only
 ```
 
-### Example
+### mag_wf example
 
 ```
 # init project
 $ metapi init -d . -s samples.tsv -b trimming
 
 # create conda environments
+# now support python3 and python2 environment
+# when use MetaPhlAn2 or HUMMaN2, recommand to create envs first
 $ metapi mag_wf --conda-create-envs-only
 
 # run pipeline with conda
@@ -229,9 +252,13 @@ $ metapi mag_wf --run
 
 # run gene_wf all
 $ metapi gene_wf --run
+
+# run mag_wf all on SGE cluster
+$ metapi mag_wf --qsub
 ```
 
-## input requirements
+## Input requirements:
+<a name="inputtag"></a>
 
 The input samples file: `samples.tsv` format:
 
@@ -325,10 +352,30 @@ species g3 is 0.5.
 
 Then metapi will use [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq) to generate metagenomics shutgun reads.
 
-## FAQ
-
-- You know what you want to do, so you know how to configure config.yaml
-- You know snakemake, so you know how to hack metapi
+## Output Structure
+```
+- cluster.yaml
+- config.yaml
+- envs/
+    biobakery.yaml
+    bioenv2.yaml
+    bioenv3.6.yaml
+    bioenv3.7.yaml
+- results/
+    00.raw/
+    01.trimming/
+    02.rmhost/
+    03.qcreport/
+    04.assembly/
+    05.alignment/
+    06.binning/
+    07.predict/
+    08.checkm/
+    09.classify
+```
+**Note**: 
+- We will try our best to keep the directory structure uniform. Sequence files are generally placed in the reads directory, and report files are generally placed in the report directory. 
+- If you are not very clear about the output of the whole process, it is recommended to directly raise an issue or look at the code. 
 
 ## Getting help
 
