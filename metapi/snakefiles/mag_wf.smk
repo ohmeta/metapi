@@ -98,13 +98,13 @@ BINNERS_CHECKM = config["params"]["checkm"]["check_binners"]
 
 
 if config["params"]["simulate"]["do"]:
-    SAMPLES = metapi.parse_genomes(conf["params"]["samples"],
-                                   conf["output"]["simulate"])
+    SAMPLES = metapi.parse_genomes(config["params"]["samples"],
+                                   config["output"]["simulate"])
 else:
-    SAMPLES = metapi.parse_samples(conf["params"]["samples"],
-                                   conf["params"]["interleaved"],
-                                   conf["params"]["reads_layout"],
-                                   conf["params"]["begin"])
+    SAMPLES = metapi.parse_samples(config["params"]["samples"],
+                                   config["params"]["interleaved"],
+                                   config["params"]["reads_layout"],
+                                   config["params"]["begin"])
 
 
 READS_FORMAT = "sra" \
