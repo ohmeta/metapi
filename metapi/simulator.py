@@ -8,21 +8,16 @@ import pandas as pd
 from Bio import SeqIO
 
 
-def parse_genomes(config):
+def parse_genomes(samples_tsv, output_dir):
     header = ["id", "genome", "abundance", "reads_num", "model"]
 
-    genomes_df = pd.read_csv(
-        config["params"]["samples"], sep="\t"
-    ).set_index("id", drop=False)
+    genomes_df = pd.read_csv(samples_tsv, sep="\t").set_index("id", drop=False)
 
     cancel = False
     for i in header:
         if i not in genomes_df.columns:
             cancel = True
-            print(
-                'Error: "%s" not in %s header'
-                % (i, config["params"]["simulate"]["genomes"])
-            )
+            print(f'Error: {i} not in {genomes_df.columns} header')
 
     for i in genomes_df.index.unique():
         if "." in i:
@@ -34,13 +29,13 @@ def parse_genomes(config):
 
     genomes_df["fq1"] = genomes_df.apply(
         lambda x: os.path.join(
-            config["output"]["simulate"], "short_reads/%s.simulate.1.fq.gz" % x["id"],
+            output_dir, "short_reads/%s.simulate.1.fq.gz" % x["id"],
         ),
         axis=1,
     )
     genomes_df["fq2"] = genomes_df.apply(
         lambda x: os.path.join(
-            config["output"]["simulate"], "short_reads/%s.simulate.2.fq.gz" % x["id"],
+            output_dir, "short_reads/%s.simulate.2.fq.gz" % x["id"],
         ),
         axis=1,
     )
@@ -60,7 +55,8 @@ def simulate_short_reads(
                     total_len += len(record.seq)
                     genome.append((record.id, len(record.seq)))
                 for s in genome:
-                    outh.write("%s\t%f\n" % (s[0], float(a) * s[1] / total_len))
+                    outh.write("%s\t%f\n" %
+                               (s[0], float(a) * s[1] / total_len))
                 inh.close()
 
     args = (

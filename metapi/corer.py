@@ -344,9 +344,13 @@ def sync(args, unknown):
 
     conf = metapi.parse_yaml(args.config)
     if conf["params"]["simulate"]["do"]:
-        samples_df = metapi.parse_genomes(conf)
+        samples_df = metapi.parse_genomes(conf["params"]["samples"],
+                                          conf["output"]["simulate"])
     else:
-        samples_df = metapi.parse_samples(conf)
+        samples_df = metapi.parse_samples(conf["params"]["samples"],
+                                          conf["params"]["interleaved"],
+                                          conf["params"]["reads_layout"],
+                                          conf["params"]["begin"])
 
     samples_index = samples_df.index.unique()
     count = -1

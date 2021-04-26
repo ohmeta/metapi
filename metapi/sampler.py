@@ -9,10 +9,8 @@ import pandas as pd
 from Bio import bgzf
 
 
-def parse_samples(config):
-    samples_df = pd.read_csv(config["params"]["samples"], sep="\t").set_index(
-        "id", drop=False
-    )
+def parse_samples(samples_tsv, interleaved="false", reads_layout="pe", begin_point="trimming"):
+    samples_df = pd.read_csv(samples_tsv, sep="\t").set_index("id", drop=False)
 
     cancel = False
     if "fq1" in samples_df.columns:
@@ -30,8 +28,8 @@ def parse_samples(config):
                 if not os.path.exists(fq_file):
                     print(f"{fq_file} not exists")
                     cancel = True
-                if (config["params"]["reads_layout"] == "pe") and (
-                    not config["params"]["interleaved"]
+                if (reads_layout == "pe") and (
+                    not interleaved
                 ):
                     if len(fq2_list) == 0:
                         print(f"{sample_id} fq2 not exists")
@@ -51,7 +49,7 @@ def parse_samples(config):
         print("wrong header: {header}".format(header=samples_df.columns))
         cancel = True
 
-    if config["params"]["begin"] == "binning":
+    if begin_point == "binning":
         if len(samples_df) != len(samples_df.index.unique()):
             print(
                 "when begin with binning, samples id need to be unique, because we can't merge assembly")
