@@ -41,9 +41,9 @@ rule copredict_scaftigs_gene_prodigal_all:
             config["output"]["copredict"],
             "scaftigs_gene/all.{assembler_co}.prodigal.out/all.{assembler_co}.{ext}"),
                ext=["faa", "ffn", "gff"],
-               assembler_co=ASSEMBLERS_CO),
+               assembler_co=ASSEMBLERS_CO)#,
 
-        rules.coassembly_all.input
+        #rules.coassembly_all.input
 
 
 if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
@@ -129,9 +129,9 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
                     config["output"]["copredict"],
                     "report/scaftigs_gene_{assembler_co}.multiqc.out/prokka_multiqc_report_data")],
                    ext=PROKKA_SUFFIX,
-                   assembler_co=ASSEMBLERS_CO),
+                   assembler_co=ASSEMBLERS_CO)#,
 
-            rules.coassembly_all.input
+            #rules.coassembly_all.input
 
 else:
     rule copredict_scaftigs_gene_prokka_all:

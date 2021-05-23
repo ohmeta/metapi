@@ -130,11 +130,11 @@ rule cobinning_metabat2_all:
             os.path.join(
                 config["output"]["cobinning"],
                 "bins/all.{assembler_co}.out/metabat2"),
-            assembler_co=ASSEMBLERS_CO),
+            assembler_co=ASSEMBLERS_CO)#,
 
-        rules.cobinning_metabat2_coverage_all.input,
-        rules.coalignment_all.input,
-        rules.coassembly_all.input
+        #rules.cobinning_metabat2_coverage_all.input,
+        #rules.coalignment_all.input,
+        #rules.coassembly_all.input
 
 
 if config["params"]["binning"]["maxbin2"]["do"]:
@@ -243,10 +243,10 @@ if config["params"]["binning"]["maxbin2"]["do"]:
                 os.path.join(
                     config["output"]["cobinning"],
                     "bins/all.{assembler_co}.out/maxbin2"),
-                assembler_co=ASSEMBLERS_CO),
+                assembler_co=ASSEMBLERS_CO)#,
 
-            rules.coalignment_all.input,
-            rules.coassembly_all.input
+            #rules.coalignment_all.input,
+            #rules.coassembly_all.input
 
 else:
     rule cobinning_maxbin2_all:
@@ -440,10 +440,10 @@ if config["params"]["binning"]["concoct"]["do"]:
             expand(os.path.join(
                 config["output"]["cobinning"],
                 "bins/all.{assembler_co}.out/concoct"),
-                   assembler_co=ASSEMBLERS_CO),
+                   assembler_co=ASSEMBLERS_CO)#,
 
-            rules.coalignment_all.input,
-            rules.coassembly_all.input
+            #rules.coalignment_all.input,
+            #rules.coassembly_all.input
 
 else:
     rule cobinning_concoct_all:
@@ -581,10 +581,10 @@ if config["params"]["binning"]["graphbin2"]["do"]:
                 config["output"]["cobinning"],
                 "bins/all.{assembler_co}.out/{binner_graphbin}_graphbin2"),
                    binner_graphbin=BINNERS_GRAPHBIN,
-                   assembler_co=ASSEMBLERS_CO),
+                   assembler_co=ASSEMBLERS_CO)#,
 
-            rules.coalignment_all.input,
-            rules.coassembly_all.input
+            #rules.coalignment_all.input,
+            #rules.coassembly_all.input
 
 else:
     rule cobinning_graphbin2_all:
@@ -719,9 +719,9 @@ if config["params"]["binning"]["dastools"]["do"]:
                 os.path.join(
                     config["output"]["cobinning"],
                     "bins/all.{assembler_co}.out/dastools"),
-                assembler_co=ASSEMBLERS_CO),
+                assembler_co=ASSEMBLERS_CO)#,
 
-            rules.copredict_scaftigs_gene_prodigal_all.input
+            #rules.copredict_scaftigs_gene_prodigal_all.input
 
 else:
     rule cobinning_dastools_all:

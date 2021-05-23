@@ -132,9 +132,9 @@ rule coalignment_report_all:
 rule coalignment_all:
     input:
         rules.coalignment_base_depth_all.input,
-        rules.coalignment_report_all.input,
+        rules.coalignment_report_all.input#,
 
-        rules.coassembly_all.input
+        #rules.coassembly_all.input
 
 
 rule alignment_all:

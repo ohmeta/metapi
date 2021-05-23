@@ -122,9 +122,9 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
                 taxonomy=["archaea", "bacteria"],
                 system=["gtdb"],
                 assembler_co=ASSEMBLERS_CO,
-                binner_checkm=BINNERS_CHECKM),
+                binner_checkm=BINNERS_CHECKM)#,
 
-            rules.cocheckm_all.input,
+            #rules.cocheckm_all.input,
 
 else:
     rule coclassify_hmq_bins_gtdbtk_all:

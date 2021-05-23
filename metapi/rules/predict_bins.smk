@@ -69,9 +69,9 @@ rule predict_bins_gene_prodigal_all:
             "bins_gene/{assembler}.{binner_checkm}.prodigal.out/{sample}/done"),
                assembler=ASSEMBLERS,
                binner_checkm=BINNERS_CHECKM,
-               sample=SAMPLES.index.unique()),
+               sample=SAMPLES.index.unique())#,
 
-        rules.binning_all.input
+        #rules.binning_all.input
 
 
 if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
@@ -184,9 +184,9 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
                     "report/bins_gene_{assembler}.{binner_checkm}.multiqc.out/prokka_multiqc_report_data")],
                    assembler=ASSEMBLERS,
                    binner_checkm=BINNERS_CHECKM,
-                   sample=SAMPLES.index.unique()),
+                   sample=SAMPLES.index.unique())#,
 
-            rules.binning_all.input
+            #rules.binning_all.input
 
 else:
     rule predict_bins_gene_prokka_all:

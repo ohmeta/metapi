@@ -68,9 +68,9 @@ rule copredict_bins_gene_prodigal_all:
             config["output"]["copredict"],
             "bins_gene/{assembler_co}.{binner_checkm}.prodigal.out/all/done"),
                assembler_co=ASSEMBLERS_CO,
-               binner_checkm=BINNERS_CHECKM),
+               binner_checkm=BINNERS_CHECKM)#,
 
-        rules.cobinning_all.input
+        #rules.cobinning_all.input
 
 
 if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
@@ -180,9 +180,9 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
                     config["output"]["copredict"],
                     "report/bins_gene_{assembler_co}.{binner_checkm}.multiqc.out/prokka_multiqc_report_data")],
                    assembler_co=ASSEMBLERS_CO,
-                   binner_checkm=BINNERS_CHECKM),
+                   binner_checkm=BINNERS_CHECKM)#,
 
-            rules.cobinning_all.input
+            #rules.cobinning_all.input
 
 else:
     rule copredict_bins_gene_prokka_all:

@@ -130,11 +130,11 @@ if config["params"]["binning"]["metabat2"]["do"]:
                     config["output"]["binning"],
                     "bins/{sample}.{assembler}.out/metabat2"),
                 assembler=ASSEMBLERS,
-                sample=SAMPLES.index.unique()),
+                sample=SAMPLES.index.unique())#,
 
-            rules.binning_metabat2_coverage_all.input,
-            rules.single_alignment_all.input,
-            rules.single_assembly_all.input
+            #rules.binning_metabat2_coverage_all.input,
+            #rules.single_alignment_all.input,
+            #rules.single_assembly_all.input
        
 else:
     rule binning_metabat2_all:
@@ -249,10 +249,10 @@ if config["params"]["binning"]["maxbin2"]["do"]:
                     config["output"]["binning"],
                     "bins/{sample}.{assembler}.out/maxbin2"),
                 assembler=ASSEMBLERS,
-                sample=SAMPLES.index.unique()),
+                sample=SAMPLES.index.unique())#,
 
-            rules.single_alignment_all.input,
-            rules.single_assembly_all.input
+            #rules.single_alignment_all.input,
+            #rules.single_assembly_all.input
 
 else:
     rule binning_maxbin2_all:
@@ -462,10 +462,10 @@ if config["params"]["binning"]["concoct"]["do"]:
                 config["output"]["binning"],
                 "bins/{sample}.{assembler}.out/concoct"),
                    assembler=ASSEMBLERS,
-                   sample=SAMPLES.index.unique()),
+                   sample=SAMPLES.index.unique())#,
 
-            rules.single_alignment_all.input,
-            rules.single_assembly_all.input
+            #rules.single_alignment_all.input,
+            #rules.single_assembly_all.input
 
 else:
     rule binning_concoct_all:
@@ -604,10 +604,10 @@ if config["params"]["binning"]["graphbin2"]["do"]:
                 "bins/{sample}.{assembler}.out/{binner_graphbin}_graphbin2"),
                    binner_graphbin=BINNERS_GRAPHBIN,
                    assembler=ASSEMBLERS,
-                   sample=SAMPLES.index.unique()),
+                   sample=SAMPLES.index.unique())#,
 
-            rules.single_alignment_all.input,
-            rules.single_assembly_all.input
+            #rules.single_alignment_all.input,
+            #rules.single_assembly_all.input
 
 else:
     rule binning_graphbin2_all:
@@ -750,9 +750,9 @@ if config["params"]["binning"]["dastools"]["do"]:
                     config["output"]["binning"],
                     "bins/{sample}.{assembler}.out/dastools"),
                 assembler=ASSEMBLERS,
-                sample=SAMPLES.index.unique()),
+                sample=SAMPLES.index.unique())#,
 
-            rules.predict_scaftigs_gene_prodigal_all.input
+            #rules.predict_scaftigs_gene_prodigal_all.input
 
 else:
     rule binning_dastools_all:

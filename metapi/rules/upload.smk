@@ -92,6 +92,6 @@ else:
 rule upload_all:
     input:
         rules.upload_sequencing_all.input,
-        rules.upload_assembly_all.input,
+        rules.upload_assembly_all.input#,
 
-        rules.single_assembly_all.input
+        #rules.single_assembly_all.input

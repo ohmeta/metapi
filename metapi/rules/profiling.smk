@@ -319,10 +319,10 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"]:
                     config["output"]["profiling"],
                     "profile/metaphlan2.merged.abundance.profile.{level}.tsv"),
                 level=["all", "superkingdom", "phylum", "class",
-                       "order", "family", "genus", "species", "strain"]),
+                       "order", "family", "genus", "species", "strain"])#,
 
-            rules.rmhost_all.input,
-            rules.qcreport_all.input
+            #rules.rmhost_all.input,
+            #rules.qcreport_all.input
 
 else:
     rule profiling_metaphlan2_all:
@@ -570,10 +570,10 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                         config["output"]["profiling"],
                         "profile/metaphlan3.merged.abundance.profile.{level}.tsv"),
                     level=["all", "superkingdom", "phylum", "class",
-                           "order", "family", "genus", "species", "strain"]),
+                           "order", "family", "genus", "species", "strain"])#,
                 
-                rules.rmhost_all.input,
-                rules.qcreport_all.input
+                #rules.rmhost_all.input,
+                #rules.qcreport_all.input
 
 else:
     rule profiling_metaphlan3_all:
@@ -844,9 +844,9 @@ if config["params"]["profiling"]["jgi"]["do"]:
     if not config["params"]["profiling"]["jgi"]["oneway"]:
         rule profiling_jgi_all:
             input:
-                rules.profiling_jgi_all_.input,
-                rules.rmhost_all.input,
-                rules.qcreport_all.input
+                rules.profiling_jgi_all_.input#,
+                #rules.rmhost_all.input,
+                #rules.qcreport_all.input
     else:
         rule profiling_jgi_all:
             input:
@@ -927,10 +927,10 @@ if config["params"]["classify"]["kraken2"]["do"] and \
             expand(os.path.join(
                 config["output"]["profiling"],
                 "profile/bracken.merged.abundance.profile.{level}.tsv"),
-                   level=config["params"]["profiling"]["bracken"]["level"]),
+                   level=config["params"]["profiling"]["bracken"]["level"])#,
            
-            rules.rmhost_all.input,
-            rules.qcreport_all.input
+            #rules.rmhost_all.input,
+            #rules.qcreport_all.input
 
 else:
     rule profiling_bracken_all:
@@ -1305,10 +1305,10 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                    target=["genefamilies", "pathabundance", "pathcoverage"],
                    norm = config["params"]["profiling"]["humann"]["normalize_method"],
                    group=config["params"]["profiling"]["humann"]["map_database"],
-                   suffix=["stratified", "unstratified"]),
+                   suffix=["stratified", "unstratified"])#,
 
-            rules.rmhost_all.input,
-            rules.qcreport_all.input
+            #rules.rmhost_all.input,
+            #rules.qcreport_all.input
 
 else:
     rule profiling_humann2_all:
@@ -1694,10 +1694,10 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
                    target=["genefamilies", "pathabundance", "pathcoverage"],
                    norm = config["params"]["profiling"]["humann"]["normalize_method"],
                    group=config["params"]["profiling"]["humann"]["map_database"],
-                   suffix=["stratified", "unstratified"]),
+                   suffix=["stratified", "unstratified"])#,
 
-            rules.rmhost_all.input,
-            rules.qcreport_all.input
+            #rules.rmhost_all.input,
+            #rules.qcreport_all.input
 
 else:
     rule profiling_humann3_all:

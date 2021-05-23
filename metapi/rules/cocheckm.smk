@@ -185,10 +185,10 @@ if config["params"]["checkm"]["do"]:
                 os.path.join(config["output"]["cocheckm"],
                              "report/{assembler_co}_{binner_checkm}_bins_hmq.tsv")],
                    assembler_co=ASSEMBLERS_CO,
-                   binner_checkm=BINNERS_CHECKM),
+                   binner_checkm=BINNERS_CHECKM)#,
 
-            rules.copredict_bins_gene_prodigal_all.input,
-            rules.cobinning_all.input,
+            #rules.copredict_bins_gene_prodigal_all.input,
+            #rules.cobinning_all.input,
 
 else:
     rule cocheckm_all:

@@ -131,6 +131,4 @@ rule alignment_report_all:
 rule single_alignment_all:
     input:
         rules.alignment_base_depth_all.input,
-        rules.alignment_report_all.input,
-
-        rules.single_assembly_all.input
+        rules.alignment_report_all.input

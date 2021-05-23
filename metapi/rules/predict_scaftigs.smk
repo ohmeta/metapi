@@ -132,9 +132,9 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
                     "report/scaftigs_gene_{assembler}.multiqc.out/prokka_multiqc_report_data")],
                    ext=PROKKA_SUFFIX,
                    assembler=ASSEMBLERS,
-                   sample=SAMPLES.index.unique()),
+                   sample=SAMPLES.index.unique())#,
 
-            rules.single_assembly_all.input
+            #rules.single_assembly_all.input
 
 else:
     rule predict_scaftigs_gene_prokka_all:

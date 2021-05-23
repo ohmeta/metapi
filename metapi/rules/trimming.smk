@@ -381,6 +381,6 @@ rule trimming_all:
         rules.trimming_oas1_all.input,
         rules.trimming_sickle_all.input,
         rules.trimming_fastp_all.input,
-        rules.trimming_report_all.input,
+        rules.trimming_report_all.input#,
 
-        rules.raw_all.input
+        #rules.raw_all.input
