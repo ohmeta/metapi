@@ -1,0 +1,57 @@
+[tool.poetry]
+name = "metapi"
+version = "1.1.0"
+description = "a pipeline to construct a genome catalogue from metagenomics data"
+authors = ["alienzj <alienchuj@gmail.com>"]
+license = "GPL-3.0-only"
+readme = "README.md"
+homepage = "https://github.com/ohmeta/metapi"
+repository = "https://github.com/ohmeta/metapi"
+documentation = "https://github.com/ohmeta/metapi/blob/dev/README.md"
+keywords = ["python", "snakemake", "metagenomics", "assembly", "binning", "profiling", "MAG"]
+
+[tool.poetry.scripts]
+metapi = 'metapi.core.main'
+
+[tool.poetry.dependencies]
+python = "^3.6.1"
+numpy = ""
+pandas = ""
+openpyxl = ""
+snakemake = ""
+ruamel.yaml = ""
+biopython = ""
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+pytest-cov = "^2.8.1"
+flake8 = "^3.7.9"
+snakemake = "^6.0.0"
+isort = "^5.1.0"
+
+[tool.black]
+line-length = 88
+include = '\.pyi?$'
+exclude = '''
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+  )/
+)
+'''
+
+[tool.isort]
+profile = "black"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
