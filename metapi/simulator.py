@@ -8,7 +8,7 @@ import pandas as pd
 from Bio import SeqIO
 
 
-def parse_genomes(samples_tsv, output_dir):
+def parse_genomes(samples_tsv, output_dir, check_samples=False):
     header = ["id", "genome", "abundance", "reads_num", "model"]
 
     genomes_df = pd.read_csv(samples_tsv, sep="\t").set_index("id", drop=False)

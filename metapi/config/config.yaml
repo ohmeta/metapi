@@ -7,10 +7,11 @@ params:
   samples: "samples.tsv"
 
   simulate:
-    do: True
+    do: False
     threads: 8
 
   raw:
+    do: True
     threads: 8
     save_reads: True
     fastqc:

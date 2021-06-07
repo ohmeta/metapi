@@ -285,43 +285,43 @@ Note: The fastq need gzip compress.
   |  s2   | cc.12.fq.gz |       |
   |  s3   | dd.12.fq.gz |       |
 
-* `Paired-end reads with long reads`
+  - `Paired-end reads with long reads`
 
-|  id   |    fq1     |    fq2     |    fq_long    |
-| :---: | :--------: | :--------: | :-----------: |
-|  s1   | aa.1.fq.gz | aa.2.fq.gz | aa.long.fq.gz |
-|  s2   | bb.1.fq.gz | bb.2.fq.gz | bb.long.fq.gz |
-|  s2   | cc.1.fq.gz | cc.2.fq.gz | cc.long.fq.gz |
-|  s3   | dd.1.fq.gz | dd.2.fq.gz | dd.long.fq.gz |
+  |  id   |    fq1     |    fq2     |    fq_long    |
+  | :---: | :--------: | :--------: | :-----------: |
+  |  s1   | aa.1.fq.gz | aa.2.fq.gz | aa.long.fq.gz |
+  |  s2   | bb.1.fq.gz | bb.2.fq.gz | bb.long.fq.gz |
+  |  s2   | cc.1.fq.gz | cc.2.fq.gz | cc.long.fq.gz |
+  |  s3   | dd.1.fq.gz | dd.2.fq.gz | dd.long.fq.gz |
 
-- `Paired-end reads(interleaved) with long reads`
+  - `Paired-end reads(interleaved) with long reads`
 
-|  id   |     fq1     |  fq2  |    fq_long    |
-| :---: | :---------: | :---: | :-----------: |
-|  s1   | aa.12.fq.gz |       | aa.long.fq.gz |
-|  s2   | bb.12.fq.gz |       | bb.long.fq.gz |
-|  s2   | cc.12.fq.gz |       | cc.long.fq.gz |
-|  s3   | dd.12.fq.gz |       | dd.long.fq.gz |
+  |  id   |     fq1     |  fq2  |    fq_long    |
+  | :---: | :---------: | :---: | :-----------: |
+  |  s1   | aa.12.fq.gz |       | aa.long.fq.gz |
+  |  s2   | bb.12.fq.gz |       | bb.long.fq.gz |
+  |  s2   | cc.12.fq.gz |       | cc.long.fq.gz |
+  |  s3   | dd.12.fq.gz |       | dd.long.fq.gz |
 
-- `Single-end reads`
+  - `Single-end reads`
 
-|  id   |    fq1     |  fq2  |
-| :---: | :--------: | :---: |
-|  s1   | aa.1.fq.gz |       |
-|  s2   | bb.1.fq.gz |       |
-|  s2   | cc.1.fq.gz |       |
-|  s3   | dd.1.fq.gz |       |
+  |  id   |    fq1     |  fq2  |
+  | :---: | :--------: | :---: |
+  |  s1   | aa.1.fq.gz |       |
+  |  s2   | bb.1.fq.gz |       |
+  |  s2   | cc.1.fq.gz |       |
+  |  s3   | dd.1.fq.gz |       |
 
-- `SRA (only support paired-end reads)` :
+  - `SRA (only support paired-end reads)` :
 
-SRA can be dumpped to Paired-end fastq reads
+  SRA can be dumpped to Paired-end fastq reads
 
-|  id   |  sra   |
-| :---: | :----: |
-|  s1   | aa.sra |
-|  s2   | bb.sra |
-|  s2   | cc.sra |
-|  s3   | dd.sra |
+  |  id   |  sra   |
+  | :---: | :----: |
+  |  s1   | aa.sra |
+  |  s2   | bb.sra |
+  |  s2   | cc.sra |
+  |  s3   | dd.sra |
 
 - begin from simulate, only support paired-end reads
 
@@ -351,6 +351,24 @@ species g2 is 0.3, the relatative abundance of
 species g3 is 0.5.
 
 Then metapi will use [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq) to generate metagenomics shutgun reads.
+
+- begin from binning
+  |  id   |     fq1     |    fq2     |     scaftigs      |
+  | :---: | :---------: | :--------: | :---------------: |
+  |  s1   | s1.1.hfq.gz | s1.2.fq.gz | s1.scaftigs.fa.gz |
+  |  s2   | s2.1.fq.gz  | s2.2.fq.gz | s2.scafitgs.fa.gz |
+  |  s3   | s3.1.fq.gz  | s3.2.fq.gz | s3.scafitgs.fa.gz |
+
+- begin from checkm (fq1 and fq2 can be empty)
+  |  id   |  fq1  |  fq2  |     scaftigs      |    bins     |
+  | :---: | :---: | :---: | :---------------: | :---------: |
+  |  s1   |       |       | s1.scaftigs.fa.gz | s1.bin.1.fa |
+  |  s1   |       |       | s1.scaftigs.fa.gz | s1.bin.2.fa |
+  |  s1   |       |       | s1.scaftigs.fa.gz | s1.bin.3.fa |
+  |  s2   |       |       | s2.scaftigs.fa.gz | s2.bin.1.fa |
+  |  s2   |       |       | s2.scaftigs.fa.gz | s2.bin.2.fa |
+  |  s3   |       |       | s3.scaftigs.fa.gz | s3.bin.1.fa |
+
 
 ## Output Structure
 ```

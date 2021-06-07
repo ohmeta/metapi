@@ -71,8 +71,10 @@ def checkm_reporter(checkm_list, output, threads):
         }
     )
 
-    df_["MIMAG_quality_level"] = df_.apply(lambda x: MIMAG_quality_level(x), axis=1)
-    df_["SGB_quality_level"] = df_.apply(lambda x: SGB_quality_level(x), axis=1)
+    df_["MIMAG_quality_level"] = df_.apply(
+        lambda x: MIMAG_quality_level(x), axis=1)
+    df_["SGB_quality_level"] = df_.apply(
+        lambda x: SGB_quality_level(x), axis=1)
     df_["quality_score"] = df_.apply(lambda x: quality_score(x), axis=1)
 
     df_.to_csv(output, sep="\t", index=False)
@@ -82,7 +84,8 @@ def checkm_reporter(checkm_list, output, threads):
 def main():
     parser = argparse.ArgumentParser("CheckM reporter")
     parser.add_argument("--checkm_list", type=str, help="checkm out list")
-    parser.add_argument("--output", type=str, required=True, help="checkm output file")
+    parser.add_argument("--output", type=str, required=True,
+                        help="checkm output file")
     parser.add_argument(
         "--threads", type=int, default=8, help="threads used on combine CheckM output"
     )

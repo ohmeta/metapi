@@ -4,7 +4,7 @@ if config["params"]["checkm"]["do"]:
             expand(os.path.join(
                 config["output"]["predict"],
                 "bins_gene/{{assembler}}.{{binner_checkm}}.prodigal.out/{sample}/done"),
-                   sample=SAMPLES.index.unique())
+                sample=SAMPLES.index.unique())
         output:
             links_dir = directory(os.path.join(config["output"]["checkm"],
                                                "bins_input/{assembler}.{binner_checkm}.links")),
@@ -42,7 +42,6 @@ if config["params"]["checkm"]["do"]:
                                                 os.path.basename(bin_file)))
             else:
                 os.makedirs(os.path.join(output.links_dir, "bins_0"), exist_ok=True)
-
 
     rule checkm_lineage_wf:
         input:
@@ -186,11 +185,11 @@ if config["params"]["checkm"]["do"]:
                 os.path.join(config["output"]["checkm"],
                              "report/{assembler}_{binner_checkm}_bins_hmq.tsv")],
                 assembler=ASSEMBLERS,
-                binner_checkm=BINNERS_CHECKM),
+                binner_checkm=BINNERS_CHECKM)
 
-            rules.predict_bins_gene_prodigal_all.input,
-            rules.single_binning_all.input,
-            rules.multisplit_binning_all.input
+            #rules.predict_bins_gene_prodigal_all.input,
+            #rules.single_binning_all.input,
+            #rules.multisplit_binning_all.input
 
 else:
     rule single_checkm_all:

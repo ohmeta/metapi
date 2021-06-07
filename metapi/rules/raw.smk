@@ -44,86 +44,58 @@ def long_reads_suffix():
     return [".long"]
 
 
-rule prepare_short_reads:
-    input:
-        unpack(raw_short_reads)
-    output:
-        reads = expand(
-            os.path.join(
-                config["output"]["raw"],
-                "short_reads/{{sample}}/{{sample}}.raw{read}.fq.gz"),
-            read=short_reads_suffix()) \
-            if config["params"]["raw"]["save_reads"] else \
-               temp(expand(
-                   os.path.join(
-                       config["output"]["raw"],
-                       "short_reads/{{sample}}/{{sample}}.raw{read}.fq.gz"),
-                   read=short_reads_suffix()))
-    params:
-        output_dir = os.path.join(config["output"]["raw"],
-                                  "short_reads/{sample}"),
-        interleaved = config["params"]["interleaved"]
-    threads:
-        config["params"]["raw"]["threads"]
-    log:
-        os.path.join(config["output"]["raw"], "logs/{sample}_prepare.log")
-    run:
-        reads_num = len(input)
+if config["params"]["raw"]["do"]:
+    rule prepare_short_reads:
+        input:
+            unpack(raw_short_reads)
+        output:
+            reads = expand(
+                os.path.join(
+                    config["output"]["raw"],
+                    "short_reads/{{sample}}/{{sample}}.raw{read}.fq.gz"),
+                read=short_reads_suffix()) \
+                if config["params"]["raw"]["save_reads"] else \
+                temp(expand(
+                    os.path.join(
+                        config["output"]["raw"],
+                        "short_reads/{{sample}}/{{sample}}.raw{read}.fq.gz"),
+                    read=short_reads_suffix()))
+        params:
+            output_dir = os.path.join(config["output"]["raw"],
+                                   "short_reads/{sample}"),
+            interleaved = config["params"]["interleaved"]
+        threads:
+            config["params"]["raw"]["threads"]
+        log:
+            os.path.join(config["output"]["raw"], "logs/{sample}_prepare.log")
+        run:
+            reads_num = len(input)
 
-        if READS_FORMAT == "fastq":
-            if IS_PE:
-                if not params.interleaved:
-                    if reads_num == 2:
-                        os.symlink(os.path.realpath(input[0]), output.reads[0])
-                        os.symlink(os.path.realpath(input[1]), output.reads[1])
+            if READS_FORMAT == "fastq":
+                if IS_PE:
+                    if not params.interleaved:
+                        if reads_num == 2:
+                            os.symlink(os.path.realpath(input[0]), output.reads[0])
+                            os.symlink(os.path.realpath(input[1]), output.reads[1])
+                        else:
+                            shell('''cat %s > %s''' % (" ".join(input[0:reads_num//2]), output.reads[0]))
+                            shell('''cat %s > %s''' % (" ".join(input[reads_num//2:]), output.reads[1]))
                     else:
-                        shell('''cat %s > %s''' % (" ".join(input[0:reads_num//2]), output.reads[0]))
-                        shell('''cat %s > %s''' % (" ".join(input[reads_num//2:]), output.reads[1]))
+                        shell(
+                            '''
+                            cat {input} | \
+                            tee >(seqtk seq -1 - | pigz -c -p {threads} > {output.reads[0]}) | \
+                            seqtk seq -2 - | pigz -c -p {threads} > {output.reads[1]}
+                            ''')
                 else:
-                    shell(
-                        '''
-                        cat {input} | \
-                        tee >(seqtk seq -1 - | pigz -c -p {threads} > {output.reads[0]}) | \
-                        seqtk seq -2 - | pigz -c -p {threads} > {output.reads[1]}
-                        ''')
-            else:
+                    if reads_num == 1:
+                        os.symlink(os.path.realpath(input[0]), output.reads[0])
+                    else:
+                        shell('''cat {input} > {output.reads[0]}''')
+
+            elif READS_FORMAT == "sra":
                 if reads_num == 1:
-                    os.symlink(os.path.realpath(input[0]), output.reads[0])
-                else:
-                    shell('''cat {input} > {output.reads[0]}''')
-
-        elif READS_FORMAT == "sra":
-            if reads_num == 1:
-                sra_file = os.path.basename(input[0])
-                shell(
-                    f'''
-                    rm -rf {params.output_dir}/{sra_file}*
-                    rm -rf {params.output_dir}.{sra_file}.temp
-
-                    fasterq-dump \
-                    --threads {threads} \
-                    --split-3 \
-                    --temp {params.output_dir}.{sra_file}.temp \
-                    --outdir {params.output_dir} {input[0]} >{log} 2>&1
-
-                    rm -rf {params.output_dir}.{sra_file}.temp
-                    pigz --processes {threads} {params.output_dir}/{sra_file}_1.fastq
-                    pigz --processes {threads} {params.output_dir}/{sra_file}_2.fastq
-                    rm -rf {params.output_dir}/{sra_file}._*.fastq
-
-                    mv {params.output_dir}/{sra_file}_1.fastq.gz {output.reads[0]}
-                    mv {params.output_dir}/{sra_file}_2.fastq.gz {output.reads[1]}
-                    ''')
-
-            else:
-                r1_list = []
-                r2_list = []
-                for sra in input:
-                    sra_file = os.path.basename(sra)
-                    r1_list.append(os.path.join(params.output_dir,
-                                                sra_file + "_1.fastq.gz"))
-                    r2_list.append(os.path.join(params.output_dir,
-                                                sra_file + "_2.fastq.gz"))
+                    sra_file = os.path.basename(input[0])
                     shell(
                         f'''
                         rm -rf {params.output_dir}/{sra_file}*
@@ -133,71 +105,109 @@ rule prepare_short_reads:
                         --threads {threads} \
                         --split-3 \
                         --temp {params.output_dir}.{sra_file}.temp \
-                        --outdir {params.output_dir} {sra} >>{log} 2>&1
+                        --outdir {params.output_dir} {input[0]} >{log} 2>&1
 
                         rm -rf {params.output_dir}.{sra_file}.temp
                         pigz --processes {threads} {params.output_dir}/{sra_file}_1.fastq
                         pigz --processes {threads} {params.output_dir}/{sra_file}_2.fastq
                         rm -rf {params.output_dir}/{sra_file}._*.fastq
+
+                        mv {params.output_dir}/{sra_file}_1.fastq.gz {output.reads[0]}
+                        mv {params.output_dir}/{sra_file}_2.fastq.gz {output.reads[1]}
                         ''')
 
-                r1_str = " ".join(r1_list)
-                r2_str = " ".join(r2_list)
-                shell('''cat %s > %s''' % (r1_str, output.reads[0]))
-                shell('''cat %s > %s''' % (r2_str, output.reads[1]))
-                shell('''rm -rf %s''' % r1_str)
-                shell('''rm -rf %s''' % r2_str)
-
-
-rule prepare_short_reads_all:
-    input:
-        expand(os.path.join(
-            config["output"]["raw"],
-            "short_reads/{sample}/{sample}.raw{read}.fq.gz"),
-               read=short_reads_suffix(),
-               sample=SAMPLES.index.unique())
-
-
-if HAVE_LONG:
-    rule prepare_long_reads:
-        input:
-            unpack(raw_long_reads)
-        output:
-            reads = expand(
-                os.path.join(
-                    config["output"]["raw"],
-                    "long_reads/{{sample}}/{{sample}}.raw{read}.fq"),
-                read=long_reads_suffix()) \
-                if config["params"]["raw"]["save_reads"] else \
-                   temp(expand(
-                       os.path.join(
-                           config["output"]["raw"],
-                           "long_reads/{{sample}}/{{sample}}.raw{read}.fq"),
-                       read=long_reads_suffix()))
-        run:
-            reads_num = len(input)
-
-            if READS_FORMAT == "fastq":
-                if reads_num == 1:
-                    if input[0].endswith(".gz"):
-                        shell('''gzip -dc %s > %s''' % (input[0], output.reads[0]))
-                    else:
-                        os.symlink(os.path.realpath(input[0]), output.reads[0])
                 else:
-                    for i in input:
-                        if i.endswith(".gz"):
-                            shell('''gzip -dc %s >> %s''' % (i, output.reads[0]))
-                        else:
-                            shell('''cat %s >> %s''' % (i, output.reads[0]))
+                    r1_list = []
+                    r2_list = []
+                    for sra in input:
+                        sra_file = os.path.basename(sra)
+                        r1_list.append(os.path.join(params.output_dir,
+                                                 sra_file + "_1.fastq.gz"))
+                        r2_list.append(os.path.join(params.output_dir,
+                                                 sra_file + "_2.fastq.gz"))
+                        shell(
+                            f'''
+                            rm -rf {params.output_dir}/{sra_file}*
+                            rm -rf {params.output_dir}.{sra_file}.temp
+
+                            fasterq-dump \
+                            --threads {threads} \
+                            --split-3 \
+                            --temp {params.output_dir}.{sra_file}.temp \
+                            --outdir {params.output_dir} {sra} >>{log} 2>&1
+
+                            rm -rf {params.output_dir}.{sra_file}.temp
+                            pigz --processes {threads} {params.output_dir}/{sra_file}_1.fastq
+                            pigz --processes {threads} {params.output_dir}/{sra_file}_2.fastq
+                            rm -rf {params.output_dir}/{sra_file}._*.fastq
+                            ''')
+
+                    r1_str = " ".join(r1_list)
+                    r2_str = " ".join(r2_list)
+                    shell('''cat %s > %s''' % (r1_str, output.reads[0]))
+                    shell('''cat %s > %s''' % (r2_str, output.reads[1]))
+                    shell('''rm -rf %s''' % r1_str)
+                    shell('''rm -rf %s''' % r2_str)
 
 
-    rule prepare_long_reads_all:
+    rule prepare_short_reads_all:
         input:
             expand(os.path.join(
                 config["output"]["raw"],
-                "long_reads/{sample}/{sample}.raw{read}.fq"),
-                   read=long_reads_suffix(),
-                   sample=SAMPLES.index.unique())
+                "short_reads/{sample}/{sample}.raw{read}.fq.gz"),
+                read=short_reads_suffix(),
+                sample=SAMPLES.index.unique())
+
+else:
+    rule prepare_short_reads_all:
+        input:
+
+
+if config["params"]["raw"]["do"]:
+    if HAVE_LONG:
+        rule prepare_long_reads:
+            input:
+                unpack(raw_long_reads)
+            output:
+                reads = expand(
+                    os.path.join(
+                        config["output"]["raw"],
+                        "long_reads/{{sample}}/{{sample}}.raw{read}.fq"),
+                    read=long_reads_suffix()) \
+                    if config["params"]["raw"]["save_reads"] else \
+                    temp(expand(
+                        os.path.join(
+                            config["output"]["raw"],
+                            "long_reads/{{sample}}/{{sample}}.raw{read}.fq"),
+                        read=long_reads_suffix()))
+            run:
+                reads_num = len(input)
+
+                if READS_FORMAT == "fastq":
+                    if reads_num == 1:
+                        if input[0].endswith(".gz"):
+                            shell('''gzip -dc %s > %s''' % (input[0], output.reads[0]))
+                        else:
+                            os.symlink(os.path.realpath(input[0]), output.reads[0])
+                    else:
+                        for i in input:
+                            if i.endswith(".gz"):
+                                shell('''gzip -dc %s >> %s''' % (i, output.reads[0]))
+                            else:
+                                shell('''cat %s >> %s''' % (i, output.reads[0]))
+
+
+        rule prepare_long_reads_all:
+            input:
+                expand(os.path.join(
+                    config["output"]["raw"],
+                    "long_reads/{sample}/{sample}.raw{read}.fq"),
+                    read=long_reads_suffix(),
+                    sample=SAMPLES.index.unique())
+
+    else:
+        rule prepare_long_reads_all:
+            input:
 
 else:
     rule prepare_long_reads_all:

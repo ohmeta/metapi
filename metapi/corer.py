@@ -341,16 +341,18 @@ def sync(args, unknown):
         os.path.dirname(__file__), f"snakefiles/{args.workflow}.smk"
     )
     summary_df = snakemake_summary(snakefile, args.config, args.task)
-
     conf = metapi.parse_yaml(args.config)
+
     if conf["params"]["simulate"]["do"]:
         samples_df = metapi.parse_genomes(conf["params"]["samples"],
-                                          conf["output"]["simulate"])
+                                          conf["output"]["simulate"],
+                                          args.check_samples)
     else:
         samples_df = metapi.parse_samples(conf["params"]["samples"],
                                           conf["params"]["interleaved"],
                                           conf["params"]["reads_layout"],
-                                          conf["params"]["begin"])
+                                          conf["params"]["begin"],
+                                          args.check_samples)
 
     samples_index = samples_df.index.unique()
     count = -1
@@ -430,6 +432,13 @@ def main():
         type=str,
         default="./",
         help="project workdir",
+    )
+    common_parser.add_argument(
+        "--check-samples",
+        dest="check_samples",
+        default=False,
+        action="store_true",
+        help="check samples, default: False"
     )
 
     run_parser = argparse.ArgumentParser(add_help=False)
@@ -561,7 +570,8 @@ if begin from simulate:
         "--begin",
         type=str,
         default="trimming",
-        choices=["simulate", "trimming", "rmhost", "assembly", "binning"],
+        choices=["simulate", "trimming", "rmhost",
+                 "assembly", "binning", "checkm"],
         help="pipeline starting point",
     )
     parser_init.add_argument(
