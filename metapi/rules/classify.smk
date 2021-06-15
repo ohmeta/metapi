@@ -115,8 +115,7 @@ if config["params"]["classify"]["kraken2"]["do"]:
                     "report/kraken2_krona.all.html")],
                    sample=SAMPLES.index.unique()),
 
-
-            rules.rmhost_all.input,
+            #rules.rmhost_all.input,
             rules.qcreport_all.input
 
 else:
@@ -345,7 +344,7 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
                 assembler=ASSEMBLERS,
                 binner_checkm=BINNERS_CHECKM),
 
-            rules.checkm_all.input,
+            #rules.checkm_all.input,
 
 else:
     rule single_classify_hmq_bins_gtdbtk_all:

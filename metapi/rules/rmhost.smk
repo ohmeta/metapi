@@ -780,6 +780,6 @@ rule rmhost_all:
         rules.rmhost_soap_all.input,
         rules.rmhost_minimap2_all.input,
         rules.rmhost_kraken2_all.input,
-        rules.rmhost_report_all.input#,
+        rules.rmhost_report_all.input,
 
-        #rules.trimming_all.input
+        rules.trimming_all.input
