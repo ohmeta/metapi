@@ -176,7 +176,7 @@ if config["params"]["binning"]["vamb"]["do"]:
                 "benchmark/binning_vamb_gen_abundance_matrix.{assembler}.benchmark.txt")
         log:
             os.path.join(config["output"]["multisplit_binning"],
-                         "logs/coverage/binning_vamb_gen_abundance_matrix_{assembler}.log")
+                         "logs/binning_vamb_gen_abundance_matrix_{assembler}.log")
         shell:
             '''
             cut -f1-3 {input.raw_jgi_first} > {output}.column1to3
