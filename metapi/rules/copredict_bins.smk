@@ -24,8 +24,9 @@ rule copredict_bins_gene_prodigal:
         bin_list = glob.glob(input.bins_dir + "/*bin*fa")
         gff_count = 0
 
-        os.makedirs(params.output_dir, exist_ok=True)
-        os.makedirs(params.logs_dir, exist_ok=True)
+        shell(f'''rm -rf {params.output_dir}''')
+        shell(f'''mkdir -p {params.output_dir}''')
+        shell(f'''mkdir -p {params.logs_dir}''')
 
         for bin_fa in bin_list:
             bin_id = os.path.basename(os.path.splitext(bin_fa)[0])
