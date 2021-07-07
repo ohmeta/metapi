@@ -109,7 +109,7 @@ if config["params"]["binning"]["vamb"]["do"]:
             grep -v "^@" | \
             cat {input.dict} - | \
             samtools view -F 3584 -b - |
-            samtools sort -@{threads} -T {output.bam} -O BAM -o {output.bam} -
+            samtools sort -m 3G -@{threads} -T {output.bam} -O BAM -o {output.bam} -
             '''
 
     rule binning_vamb_align_scaftigs_report:
