@@ -66,6 +66,7 @@ rule alignment_reads_scaftigs:
               -@{threads} - \
               > {output.flagstat}) | \
         samtools sort \
+        -m 3G \
         -@{threads} \
         -T {output.bam} \
         -O BAM -o {output.bam} -
