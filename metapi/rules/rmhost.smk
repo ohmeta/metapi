@@ -205,6 +205,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                               -1 {output.reads[0]} \
                               -2 {output.reads[1]} -) | \
                         samtools sort \
+                        -m 3G \
                         -@{threads} \
                         -T {params.bam} \
                         -O BAM -o {params.bam} - \
@@ -249,6 +250,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                               pigz -c -p {threads} \
                               > {output.reads[0]}) | \
                         samtools sort \
+                        -m 3G \
                         -@{threads} \
                         -T {params.bam} \
                         -O BAM -o {params.bam} - \
@@ -348,6 +350,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                               -1 {output.reads[0]} \
                               -2 {output.reads[1]} -) | \
                         samtools sort \
+                        -m 3G \
                         -@{threads} \
                         -T {params.bam} \
                         -O BAM -o {params.bam} -
@@ -393,6 +396,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                               pigz -c -p {threads} \
                               > {output.reads[0]}) | \
                         samtools sort \
+                        -m 3G \
                         -@{threads} \
                         -T {params.bam} \
                         -O BAM -o {params.bam} -
@@ -483,6 +487,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                               -1 {output.reads[0]} \
                               -2 {output.reads[1]} -) | \
                         samtools sort \
+                        -m 3G \
                         -@{threads} \
                         -T {params.bam} \
                         -O BAM -o {params.bam} - \
@@ -526,6 +531,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                               pigz -c -p {threads} \
                               > {output.reads[0]}) | \
                         samtools sort \
+                        -m 3G \
                         -@{threads} \
                         -T {params.bam} \
                         -O BAM -o {params.bam} - \
