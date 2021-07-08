@@ -151,6 +151,28 @@ WORKFLOWS_GENE = [
     "all",
 ]
 
+WORKFLOWS_PHAGE = [
+    "simulate_all",
+    "prepare_reads_all",
+    "raw_fastqc_all",
+    "raw_report_all",
+    "raw_all",
+    "trimming_oas1_all",
+    "trimming_sickle_all",
+    "trimming_fastp_all",
+    "trimming_report_all",
+    "trimming_all",
+    "rmhost_soap_all",
+    "rmhost_bwa_all",
+    "rmhost_bowtie2_all",
+    "rmhost_minimap2_all",
+    "rmhost_report_all",
+    "rmhost_all",
+    "qcreport_all",
+    "all"
+]
+
+
 
 def run_snakemake(args, unknown, snakefile, workflow):
     conf = metapi.parse_yaml(args.config)
@@ -317,6 +339,12 @@ def gene_wf(args, unknown):
     snakefile = os.path.join(os.path.dirname(
         __file__), "snakefiles/gene_wf.smk")
     run_snakemake(args, unknown, snakefile, "gene_wf")
+
+
+def phage_wf(args, unknown):
+    snakefile = os.path.join(os.path.dirname(
+        __file__), "snakefiles/phage_wf.smk")
+    run_snakemake(args, unknown, snakefile, "phage_wf")
 
 
 def snakemake_summary(snakefile, configfile, task):
@@ -538,6 +566,14 @@ def main():
         prog="metapi gene_wf",
         help="metagenome-assembly-gene pipeline",
     )
+    parser_phage_wf = subparsers.add_parser(
+        "phage_wf",
+        formatter_class=metapi.custom_help_formatter,
+        parents=[common_parser, run_parser],
+        prog="metapi phage_wf",
+        help="metagenome-assembly-phage pipeline",
+    )
+
     parser_sync = subparsers.add_parser(
         "sync",
         formatter_class=metapi.custom_help_formatter,
@@ -632,17 +668,29 @@ if begin from simulate:
     )
     parser_gene_wf.set_defaults(func=gene_wf)
 
+    parser_phage_wf.add_argument(
+        "task",
+        metavar="TASK",
+        nargs="?",
+        type=str,
+        default="all",
+        choices=WORKFLOWS_PHAGE,
+        help="pipeline end point. Allowed values are " +
+        ", ".join(WORKFLOWS_PHAGE),
+    )
+    parser_phage_wf.set_defaults(func=phage_wf)
+
     parser_sync.add_argument(
         "workflow",
         metavar="WORKFLOW",
         nargs="?",
         type=str,
         default="mag_wf",
-        choices=["mag_wf", "gene_wf"],
-        help="workflow. Allowed values are mag_wf and gene_wf",
+        choices=["mag_wf", "gene_wf", "phage_wf"],
+        help="workflow. Allowed values are mag_wf, gene_wf and phage_wf",
     )
     parser_sync.add_argument(
-        "task",
+        "task", 
         metavar="TASK",
         nargs="?",
         type=str,
