@@ -225,7 +225,7 @@ params:
       no_original_data: False
       coverage_out: False
     graphbin2:
-      do: True
+      do: False
       depth: 5
       threshold: 1.5
     vamb:
@@ -409,7 +409,7 @@ params:
       #  "uniref90_level4ec",
       #  "uniref90_infogo1000",
       #  "uniref90_rxn",
-      update_config: True
+      update_config: False # humann save config to humann install dir
       database_utility_mapping: /ldfssz1/ST_META/share/User/zhujie/database/humann/utility_mapping
       database_utility_mapping_v3: /ldfssz1/ST_META/share/User/zhujie/database/humann/utility_mapping_v3
       database_protein: /ldfssz1/ST_META/share/User/zhujie/database/humann/uniref90_diamond

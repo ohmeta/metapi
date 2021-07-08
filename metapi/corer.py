@@ -586,7 +586,7 @@ if begin from simulate:
         "--binner",
         nargs="+",
         required=False,
-        default=["metabat2", "concoct", "maxbin2", "graphbin2", "vamb", "dastools"],
+        default=["metabat2", "concoct", "maxbin2", "vamb", "dastools"],
         help="wchich binner used",
     )
     parser_init.set_defaults(func=init)
