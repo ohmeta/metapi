@@ -173,7 +173,6 @@ WORKFLOWS_PHAGE = [
 ]
 
 
-
 def run_snakemake(args, unknown, snakefile, workflow):
     conf = metapi.parse_yaml(args.config)
 
@@ -248,25 +247,25 @@ def run_snakemake(args, unknown, snakefile, workflow):
 def update_config_tools(conf, begin, trimmer, rmhoster, assemblers, binners):
     conf["params"]["simulate"]["do"] = False
 
-    for trimmer_ in conf["params"]["trimming"].keys():
+    for trimmer_ in ["oas1", "sickle", "fastp"]:
         if trimmer_ == trimmer:
             conf["params"]["trimming"][trimmer_]["do"] = True
         else:
-            conf["params"]["trimming"][trimmer]["do"] = False
+            conf["params"]["trimming"][trimmer_]["do"] = False
 
-    for rmhoster_ in conf["params"]["rmhoster"].keys():
+    for rmhoster_ in ["soap", "bwa", "bowtie2", "minimap2", "kraken2"]:
         if rmhoster_ == rmhoster:
             conf["params"]["rmhost"][rmhoster_]["do"] = True
         else:
             conf["params"]["rmhost"][rmhoster_]["do"] = False
 
-    for assembler_ in conf["params"]["assembly"].keys():
+    for assembler_ in ["megahit", "idba_ud", "metaspades", "spades", "plass", "opera_ms"]:
         if assembler_ in assemblers:
             conf["params"]["assembly"][assembler_]["do"] = True
         else:
             conf["params"]["assembly"][assembler_]["do"] = False
 
-    for binner_ in conf["params"]["binning"].keys():
+    for binner_ in ["metabat2", "maxbin2", "concoct", "graphbin2", "vamb", "dastools"]:
         if binner_ in binners:
             conf["params"]["binning"][binner_]["do"] = True
         else:
