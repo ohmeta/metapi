@@ -223,6 +223,47 @@ def run_snakemake(args, unknown, snakefile, workflow):
     proc.communicate()
 
 
+def update_config_tools(conf, begin, trimmer, rmhoster, assemblers, binners):
+    conf["params"]["simulate"]["do"] = False
+
+    for trimmer_ in conf["params"]["trimming"].keys():
+        if trimmer_ == trimmer:
+            conf["params"]["trimming"][trimmer_]["do"] = True
+        else:
+            conf["params"]["trimming"][trimmer]["do"] = False
+
+    for rmhoster_ in conf["params"]["rmhoster"].keys():
+        if rmhoster_ == rmhoster:
+            conf["params"]["rmhost"][rmhoster_]["do"] = True
+        else:
+            conf["params"]["rmhost"][rmhoster_]["do"] = False
+
+    for assembler_ in conf["params"]["assembly"].keys():
+        if assembler_ in assemblers:
+            conf["params"]["assembly"][assembler_]["do"] = True
+        else:
+            conf["params"]["assembly"][assembler_]["do"] = False
+
+    for binner_ in conf["params"]["binning"].keys():
+        if binner_ in binners:
+            conf["params"]["binning"][binner_]["do"] = True
+        else:
+            conf["params"]["binning"][binner_]["do"] = False
+
+    if begin == "simulate":
+        conf["params"]["simulate"]["do"] = True
+    elif begin == "rmhost":
+        conf["params"]["trimming"][trimmer]["do"] = False
+    elif (begin == "assembly") or (begin == "binning"):
+        conf["params"]["raw"]["save_reads"] = True
+        conf["params"]["raw"]["fastqc"]["do"] = False
+        conf["params"]["qcreport"]["do"] = False
+
+        conf["params"]["trimming"][trimmer]["do"] = False
+        conf["params"]["rmhost"][rmhoster]["do"] = False
+    return conf
+
+
 def init(args, unknown):
     if args.workdir:
         project = metapi.metaconfig(args.workdir)
@@ -235,55 +276,9 @@ def init(args, unknown):
                 os.path.realpath(args.workdir), f"envs/{env_name}.yaml"
             )
 
-        conf["params"]["trimming"][args.trimmer]["do"] = True
-        conf["params"]["rmhost"][args.rmhoster]["do"] = True
-
-        for assembler in args.assembler:
-            conf["params"]["assembly"][assembler]["do"] = True
-
-        for binner in args.binner:
-            conf["params"]["binning"][binner]["do"] = True
-
-        if args.begin:
-            conf["params"]["begin"] = args.begin
-            if args.begin == "simulate":
-                conf["params"]["simulate"]["do"] = True
-            elif args.begin == "trimming":
-                conf["params"]["simulate"]["do"] = False
-            elif args.begin == "rmhost":
-                conf["params"]["simulate"]["do"] = False
-                conf["params"]["trimming"]["oas1"]["do"] = False
-                conf["params"]["trimming"]["sickle"]["do"] = False
-                conf["params"]["trimming"]["fastp"]["do"] = False
-            elif args.begin == "assembly":
-                conf["params"]["simulate"]["do"] = False
-                conf["params"]["raw"]["save_reads"] = True
-                conf["params"]["raw"]["fastqc"]["do"] = False
-                conf["params"]["qcreport"]["do"] = False
-                conf["params"]["trimming"]["oas1"]["do"] = False
-                conf["params"]["trimming"]["sickle"]["do"] = False
-                conf["params"]["trimming"]["fastp"]["do"] = False
-                conf["params"]["rmhost"]["bwa"]["do"] = False
-                conf["params"]["rmhost"]["bowtie2"]["do"] = False
-                conf["params"]["rmhost"]["soap"]["do"] = False
-                conf["params"]["rmhost"]["minimap2"]["do"] = False
-            elif args.begin == "binning":
-                conf["params"]["simulate"]["do"] = False
-                conf["params"]["raw"]["save_reads"] = True
-                conf["params"]["raw"]["fastqc"]["do"] = False
-                conf["params"]["qcreport"]["do"] = False
-                conf["params"]["trimming"]["oas1"]["do"] = False
-                conf["params"]["trimming"]["sickle"]["do"] = False
-                conf["params"]["trimming"]["fastp"]["do"] = False
-                conf["params"]["rmhost"]["bwa"]["do"] = False
-                conf["params"]["rmhost"]["bowtie2"]["do"] = False
-                conf["params"]["rmhost"]["soap"]["do"] = False
-                conf["params"]["rmhost"]["minimap2"]["do"] = False
-                conf["params"]["assembly"]["idba_ud"]["do"] = False
-                conf["params"]["assembly"]["megahit"]["do"] = False
-                conf["params"]["assembly"]["metaspades"]["do"] = False
-                conf["params"]["assembly"]["spades"]["do"] = False
-                conf["params"]["assembly"]["opera_ms"]["do"] = False
+        conf = update_config_tools(
+            conf, args.begin, args.trimmer, args.rmhoster, args.assembler, args.binner
+        )
 
         if args.samples:
             conf["params"]["samples"] = args.samples
@@ -308,14 +303,12 @@ def init(args, unknown):
 
 
 def mag_wf(args, unknown):
-    snakefile = os.path.join(os.path.dirname(
-        __file__), "snakefiles/mag_wf.smk")
+    snakefile = os.path.join(os.path.dirname(__file__), "snakefiles/mag_wf.smk")
     run_snakemake(args, unknown, snakefile, "mag_wf")
 
 
 def gene_wf(args, unknown):
-    snakefile = os.path.join(os.path.dirname(
-        __file__), "snakefiles/gene_wf.smk")
+    snakefile = os.path.join(os.path.dirname(__file__), "snakefiles/gene_wf.smk")
     run_snakemake(args, unknown, snakefile, "gene_wf")
 
 
@@ -330,8 +323,7 @@ def snakemake_summary(snakefile, configfile, task):
         task,
         "--summary",
     ]
-    cmd_out = subprocess.Popen(
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    cmd_out = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     summary = pd.read_csv(StringIO(cmd_out.stdout.read().decode()), sep="\t")
     return summary
 
@@ -344,28 +336,29 @@ def sync(args, unknown):
     conf = metapi.parse_yaml(args.config)
 
     if conf["params"]["simulate"]["do"]:
-        samples_df = metapi.parse_genomes(conf["params"]["samples"],
-                                          conf["output"]["simulate"],
-                                          args.check_samples)
+        samples_df = metapi.parse_genomes(
+            conf["params"]["samples"], conf["output"]["simulate"], args.check_samples
+        )
     else:
-        samples_df = metapi.parse_samples(conf["params"]["samples"],
-                                          conf["params"]["interleaved"],
-                                          conf["params"]["reads_layout"],
-                                          conf["params"]["begin"],
-                                          args.check_samples)
+        samples_df = metapi.parse_samples(
+            conf["params"]["samples"],
+            conf["params"]["interleaved"],
+            conf["params"]["reads_layout"],
+            conf["params"]["begin"],
+            args.check_samples,
+        )
 
     samples_index = samples_df.index.unique()
     count = -1
     for i in range(0, len(samples_index), args.split_num):
         count += 1
-        outdir = os.path.abspath(os.path.join(
-            args.outdir, args.name + f"_{count}"))
+        outdir = os.path.abspath(os.path.join(args.outdir, args.name + f"_{count}"))
         os.makedirs(outdir, exist_ok=True)
         samples_file = os.path.join(outdir, f"samples_{count}.tsv")
         config_file = os.path.join(outdir, "config.yaml")
 
         samples = samples_df.loc[
-            samples_index[i: i + args.split_num],
+            samples_index[i : i + args.split_num],
         ]
         samples.to_csv(samples_file, sep="\t", index=False)
         conf["params"]["samples"] = samples_file
@@ -391,8 +384,7 @@ def sync(args, unknown):
                         f"rsync --archive --relative --progress {log_file_path} {outdir}\n"
                     )
 
-    print(
-        f"please change current directory to {args.workdir} to run sync script")
+    print(f"please change current directory to {args.workdir} to run sync script")
 
 
 def main():
@@ -438,7 +430,7 @@ def main():
         dest="check_samples",
         default=False,
         action="store_true",
-        help="check samples, default: False"
+        help="check samples, default: False",
     )
 
     run_parser = argparse.ArgumentParser(add_help=False)
@@ -454,12 +446,8 @@ def main():
         default="./cluster.yaml",
         help="cluster.yaml",
     )
-    run_parser.add_argument(
-        "--cores", type=int, default=8, help="CPU cores"
-    )
-    run_parser.add_argument(
-        "--jobs", type=int, default=80, help="qsub job numbers"
-    )
+    run_parser.add_argument("--cores", type=int, default=8, help="CPU cores")
+    run_parser.add_argument("--jobs", type=int, default=80, help="qsub job numbers")
     run_parser.add_argument(
         "--list",
         default=False,
@@ -491,9 +479,7 @@ def main():
         action="store_true",
         help="qsub pipeline",
     )
-    run_parser.add_argument(
-        "--wait", type=int, default=60, help="wait given seconds"
-    )
+    run_parser.add_argument("--wait", type=int, default=60, help="wait given seconds")
     run_parser.add_argument(
         "--use-conda",
         default=False,
@@ -505,7 +491,7 @@ def main():
         "--conda-prefix",
         default="/ldfssz1/ST_META/share/User/zhujie/.conda/envs",
         dest="conda_prefix",
-        help="conda environment prefix"
+        help="conda environment prefix",
     )
     run_parser.add_argument(
         "--conda-create-envs-only",
@@ -515,8 +501,7 @@ def main():
         help="conda create environments only",
     )
 
-    subparsers = parser.add_subparsers(
-        title="available subcommands", metavar="")
+    subparsers = parser.add_subparsers(title="available subcommands", metavar="")
     parser_init = subparsers.add_parser(
         "init",
         formatter_class=metapi.custom_help_formatter,
@@ -570,8 +555,7 @@ if begin from simulate:
         "--begin",
         type=str,
         default="trimming",
-        choices=["simulate", "trimming", "rmhost",
-                 "assembly", "binning", "checkm"],
+        choices=["simulate", "trimming", "rmhost", "assembly", "binning", "checkm"],
         help="pipeline starting point",
     )
     parser_init.add_argument(
@@ -580,7 +564,7 @@ if begin from simulate:
         default="fastp",
         required=False,
         choices=["oas1", "sickle", "fastp"],
-        help="which trimmer used"
+        help="which trimmer used",
     )
     parser_init.add_argument(
         "--rmhoster",
@@ -588,7 +572,7 @@ if begin from simulate:
         default="bowtie2",
         required=False,
         choices=["soap", "bwa", "bowtie2", "minimap2"],
-        help="which rmhoster used"
+        help="which rmhoster used",
     )
     parser_init.add_argument(
         "--assembler",
@@ -596,15 +580,14 @@ if begin from simulate:
         default=["metaspades"],
         required=False,
         choices=["idba-ud", "megahit", "metaspades", "spades", "opera-ms"],
-        help="which assembler used, required when begin with binning, can be changed in config.yaml"
+        help="which assembler used, required when begin with binning, can be changed in config.yaml",
     )
     parser_init.add_argument(
         "--binner",
         nargs="+",
         required=False,
-        default=["metabat2", "concoct", "maxbin2",
-                 "graphbin2", "vamb", "dastools"],
-        help="wchich binner used"
+        default=["metabat2", "concoct", "maxbin2", "graphbin2", "vamb", "dastools"],
+        help="wchich binner used",
     )
     parser_init.set_defaults(func=init)
 
@@ -615,8 +598,7 @@ if begin from simulate:
         type=str,
         default="all",
         choices=WORKFLOWS_MAG,
-        help="pipeline end point. Allowed values are " +
-        ", ".join(WORKFLOWS_MAG),
+        help="pipeline end point. Allowed values are " + ", ".join(WORKFLOWS_MAG),
     )
     parser_mag_wf.set_defaults(func=mag_wf)
 
@@ -627,8 +609,7 @@ if begin from simulate:
         type=str,
         default="all",
         choices=WORKFLOWS_GENE,
-        help="pipeline end point. Allowed values are " +
-        ", ".join(WORKFLOWS_GENE),
+        help="pipeline end point. Allowed values are " + ", ".join(WORKFLOWS_GENE),
     )
     parser_gene_wf.set_defaults(func=gene_wf)
 
@@ -655,8 +636,7 @@ if begin from simulate:
         default="./config.yaml",
         help="config.yaml",
     )
-    parser_sync.add_argument(
-        "--name", type=str, required=True, help="project basename")
+    parser_sync.add_argument("--name", type=str, required=True, help="project basename")
     parser_sync.add_argument(
         "--outdir", type=str, required=True, help="sync to a directory"
     )
