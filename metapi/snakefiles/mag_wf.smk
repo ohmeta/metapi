@@ -114,14 +114,17 @@ READS_FORMAT = "sra" \
 if config["params"]["begin"] == "binning":
     for sample_id in SAMPLES.index.unique():
         scaftigs = os.path.abspath(SAMPLES.loc[sample_id, "scaftigs"])
-        for assembler in ASSEMBLERS:
-            scaftigs_ = os.path.join(
-                os.path.abspath(config["output"]["assembly"]),
-                f"scaftigs/{sample_id}.{assembler}.out/{sample_id}.{assembler}.scaftigs.fa.gz")
-            if not os.path.exists(scaftigs_):
-                scaftigs_dir = os.path.dirname(scaftigs_)
-                shell(f'''mkdir -p {scaftigs_dir}''')
-                shell(f'''ln -s {scaftigs} {scaftigs_}''')
+        if len(ASSEMBLERS) == 0:
+            print("When begin with binning, please specific assembler")
+        else:
+            for assembler in ASSEMBLERS:
+                scaftigs_ = os.path.join(
+                    os.path.abspath(config["output"]["assembly"]),
+                    f"scaftigs/{sample_id}.{assembler}.out/{sample_id}.{assembler}.scaftigs.fa.gz")
+                if not os.path.exists(scaftigs_):
+                    scaftigs_dir = os.path.dirname(scaftigs_)
+                    shell(f'''mkdir -p {scaftigs_dir}''')
+                    shell(f'''ln -s {scaftigs} {scaftigs_}''')
 
 
 include: "../rules/simulate.smk"
