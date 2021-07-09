@@ -113,12 +113,11 @@ rule coalignment_report:
                 "report/flagstat/{sample}.{{assembler_co}}.align2scaftigs.flagstat"),
             sample=SAMPLES.index.unique())
     output:
-        os.path.join(config["output"]["coalignment"],
-                     "report/alignment_flagstat_{assembler_co}.tsv")
+        flagstat = os.path.join(config["output"]["coalignment"],
+                                "report/alignment_flagstat_{assembler_co}.tsv")
     run:
         input_list = [str(i) for i in input]
-        output_str = str(output)
-        metapi.flagstats_summary(input_list, output_str, 2)
+        metapi.flagstats_summary(input_list, 2, output=output.flagstat)
 
 
 rule coalignment_report_all:

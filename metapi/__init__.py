@@ -20,6 +20,7 @@ from metapi.sampler import get_sample_id_
 from metapi.qcer import change
 from metapi.qcer import compute_host_rate
 from metapi.qcer import qc_bar_plot
+from metapi.qcer import parse_fastp_json
 
 from metapi.assembler import assembler_init
 from metapi.assembler import parse_assembly

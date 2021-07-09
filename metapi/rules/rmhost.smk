@@ -680,12 +680,11 @@ and (not config["params"]["rmhost"]["kraken2"]["do"]):
                              "report/flagstat/{sample}.align2host.flagstat"),
                 sample=SAMPLES.index.unique())
         output:
-            os.path.join(config["output"]["rmhost"],
-                         "report/rmhost_align2host_stats.tsv")
+            flagstat = os.path.join(config["output"]["rmhost"],
+                                    "report/rmhost_align2host_stats.tsv")
         run:
             input_list = [str(i) for i in input]
-            output_str = str(output)
-            metapi.flagstats_summary(input_list, output_str, 2)
+            metapi.flagstats_summary(input_list, 2, output=output.flagstat)
 
 
 if config["params"]["rmhost"]["bwa"]["do"]:

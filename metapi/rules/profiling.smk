@@ -534,12 +534,21 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
 
     rule profiling_metaphlan3_merge:
         input:
-            expand(os.path.join(
+            jsons = expand(os.path.join(
+                config["output"]["profiling"],
+                "stats_preprocess/{sample}/{sample}.fastp.json"),
+                           sample=SAMPLES.index.unique()),
+            flagstats = expand(os.path.join(
+                config["output"]["profiling"],
+                "stats_preprocess/{sample}/{sample}.rmhost.flagstat"),
+                               sample=SAMPLES.index.unique())
+            abuns = expand(os.path.join(
                 config["output"]["profiling"],
                 "profile/metaphlan3/{sample}/{sample}.metaphlan3.abundance.profile.tsv"),
-                   sample=SAMPLES.index.unique())
+                          sample=SAMPLES.index.unique())
         output:
-            expand(
+            qc = os.path.join(config["output"]["profiling"], "qc_stats.tsv"),
+            profiles = expand(
                 os.path.join(
                     config["output"]["profiling"],
                     "profile/metaphlan3.merged.abundance.profile.{level}.tsv"),
@@ -548,10 +557,26 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
         threads:
             config["params"]["profiling"]["threads"]
         run:
-           metapi.metaphlan_init(3)
-           df_list = metapi.merge_metaphlan_tables(input, threads)
-           for i in range(0, len(df_list)):
-               df_list[i].to_csv(output[i], sep='\t', index=False)
+            import concurrent.futures
+
+            fastp_dict_list = []
+            json_tuples = [(j, IS_PE) for j in input.jsons]
+            with concurrent.futures.ProcessPoolExecutor(max_workers=threads) as executor:
+                for fastp_dict in executor.map(metapi.parse_fastp_json, json_tuples):
+                    fastp_dict_list.append(fastp_dict)
+            fastp_df = pd.DataFrame(fastp_dict_list)
+            flagstat_df = metapi.flagstats_summary(input.flagstats, 2)
+            qc_df = fastp_df.merge(faststat_df)
+            qc_df["after_rmhosted_total_reads"] = qc_df["total_num"] - qc_df["mapped_num"] - qc_df["singletons_num"]
+            qc_df["host_rate"] = (qc_df["mapped_num"] + qc_df["singletons_num"]) / qc_df["total_num"]
+
+            qc_df.loc[:, list(fastp_df.columns) + ["after_rmhosted_total_reads", "host_rate"]]\
+                .to_csv(output.qc, sep="\t", index=False)
+
+            metapi.metaphlan_init(3)
+            profile_list = metapi.merge_metaphlan_tables(input.abuns, threads)
+            for i in range(0, len(profile_list)):
+                profile_list[i].to_csv(output.profiles[i], sep='\t', index=False)
 
 
     if config["params"]["profiling"]["metaphlan"]["do_v3_one_way"]:
