@@ -142,6 +142,7 @@ class metaconfig:
         "logs/11.profiling_metaphlan2",
         "logs/11.profiling_metaphlan2_merge",
         "logs/11.profiling_metaphlan3",
+        "logs/11.profiling_metaphlan3_oneway_qc",
         "logs/11.profiling_metaphlan3_merge",
         "logs/11.profiling_jgi",
         "logs/11.profiling_jgi_merge",
