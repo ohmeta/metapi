@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 import argparse
-import csv
 import os
 import re
+import pandas as pd
 from decimal import *
 
 
@@ -39,26 +39,11 @@ checkm_coverage
 """
 
 
-def flagstats_summary(flagstats, out_file, method):
+def flagstats_summary(flagstats, method, **kwargs):
     """
     get alignment rate from sorted bam file
     samtools -flagstat --threads 8 sample.sort.bam
     """
-    headers = [
-        "sample_id",
-        "total_num",
-        "read_1_num",
-        "read_2_num",
-        "mapping_type",
-        "mapped_num",
-        "mapped_rate",
-        "paired_num",
-        "paired_rate",
-        "singletons_num",
-        "singletons_rate",
-        "mate_mapped_num",
-        "mate_mapped_num_mapQge5",
-    ]
     mapping_info = []
     getcontext().prec = 8
 
@@ -103,10 +88,10 @@ def flagstats_summary(flagstats, out_file, method):
             info["mate_mapped_num_mapQge5"] = re.split(r"\(|\s+", stat_list[-1])[0]
             mapping_info.append(info)
 
-    with open(out_file, "w") as out_handle:
-        f_tsv = csv.DictWriter(out_handle, headers, delimiter="\t")
-        f_tsv.writeheader()
-        f_tsv.writerows(mapping_info)
+    mapping_info_df = pd.DataFrame(mapping_info)
+    if "output" in kwargs:
+        mapping_info_df.to_csv(kwargs["output"], sep="\t", index=False)
+    return mapping_info_df
 
 
 def main():
@@ -122,10 +107,10 @@ def main():
     args = parser.parse_args()
     if args.statlist:
         method = 1
-        flagstats_summary(args.statlist, args.outfile, method)
+        flagstats_summary(args.statlist, method, output=args.outfile)
     if args.statfiles:
         method = 2
-        flagstats_summary(args.statfiles, args.outfile, method)
+        flagstats_summary(args.statfiles, method, output=args.outfile)
 
 
 if __name__ == "__main__":

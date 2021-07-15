@@ -121,12 +121,12 @@ if config["params"]["binning"]["vamb"]["do"]:
                 sample=SAMPLES.index.unique(),
                 assembler=ASSEMBLERS)
         output:
-            os.path.join(config["output"]["multisplit_binning"],
-                         "report/alignment_flagstat_{assembler}.tsv")
+            flagstat = os.path.join(config["output"]["multisplit_binning"],
+                                    "report/alignment_flagstat_{assembler}.tsv")
         run:
             input_list = [str(i) for i in input]
             output_str = str(output)
-            metapi.flagstats_summary(input_list, output_str, 2)
+            metapi.flagstats_summary(input_list, 2, output=output.flagstat)
 
 
     rule binning_vamb_coverage:

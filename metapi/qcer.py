@@ -6,11 +6,63 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import argparse
 import os
+import json
 import pandas as pd
 import numpy as np
 
 import matplotlib
 matplotlib.use("agg")
+
+
+def parse_fastp_json(json_f, paired):
+    trimming_dict = {}
+    sample_id = os.path.basename(json_f).split(".")[0]
+    with open(json_f, 'r') as ih:
+        json_ob = json.load(ih)
+        trimming_dict["sample_id"] = sample_id
+        trimming_dict["before_filtering_total_reads"] = json_ob["summary"]["before_filtering"]["total_reads"]
+        trimming_dict["before_filtering_total_bases"] = json_ob["summary"]["before_filtering"]["total_bases"]
+        trimming_dict["before_filtering_q20_bases"] = json_ob["summary"]["before_filtering"]["q20_bases"]
+        trimming_dict["before_filtering_q30_bases"] = json_ob["summary"]["before_filtering"]["q30_bases"]
+        trimming_dict["before_filtering_q20_rate"] = json_ob["summary"]["before_filtering"]["q20_rate"]
+        trimming_dict["before_filtering_q30_rate"] = json_ob["summary"]["before_filtering"]["q30_rate"]
+        trimming_dict["before_filtering_qc_content"] = json_ob["summary"]["before_filtering"]["qc_content"]
+        trimming_dict["before_filtering_read1_mean_length"] = json_ob["summary"]["before_filtering"]["read1_mean_length"]
+        if paired:
+            trimming_dict["before_filtering_read2_mean_length"] = json_ob["summary"]["before_filtering"]["read2_mean_length"]
+
+        trimming_dict["read1_before_filtering_total_reads"] = json_ob["read1_before_filtering"]["total_reads"]
+        trimming_dict["read1_before_filtering_total_bases"] = json_ob["read1_before_filtering"]["total_bases"]
+        trimming_dict["read1_before_filtering_q20_bases"] = json_ob["read1_before_filtering"]["q20_bases"]
+        trimming_dict["read1_before_filtering_q30_bases"] = json_ob["read1_before_filtering"]["q30_bases"]
+        if paired:
+            trimming_dict["read2_before_filtering_total_reads"] = json_ob["read2_before_filtering"]["total_reads"]
+            trimming_dict["read2_before_filtering_total_bases"] = json_ob["read2_before_filtering"]["total_bases"]
+            trimming_dict["read2_before_filtering_q20_bases"] = json_ob["read2_before_filtering"]["q20_bases"]
+            trimming_dict["read2_before_filtering_q30_bases"] = json_ob["read2_before_filtering"]["q30_bases"]
+
+        trimming_dict["after_filtering_total_reads"] = json_ob["summary"]["after_filtering"]["total_reads"]
+        trimming_dict["after_filtering_total_bases"] = json_ob["summary"]["after_filtering"]["total_bases"]
+        trimming_dict["after_filtering_q20_bases"] = json_ob["summary"]["after_filtering"]["q20_bases"]
+        trimming_dict["after_filtering_q30_bases"] = json_ob["summary"]["after_filtering"]["q30_bases"]
+        trimming_dict["after_filtering_q20_rate"] = json_ob["summary"]["after_filtering"]["q20_rate"]
+        trimming_dict["after_filtering_q30_rate"] = json_ob["summary"]["after_filtering"]["q30_rate"]
+        trimming_dict["after_filtering_qc_content"] = json_ob["summary"]["after_filtering"]["qc_content"]
+        trimming_dict["after_filtering_read1_mean_length"] = json_ob["summary"]["after_filtering"]["read1_mean_length"]
+        if paired:
+            trimming_dict["after_filtering_read2_mean_length"] = json_ob["summary"]["after_filtering"]["read2_mean_length"]
+
+        trimming_dict["read1_after_filtering_total_reads"] = json_ob["read1_after_filtering"]["total_reads"]
+        trimming_dict["read1_after_filtering_total_bases"] = json_ob["read1_after_filtering"]["total_bases"]
+        trimming_dict["read1_after_filtering_q20_bases"] = json_ob["read1_after_filtering"]["q20_bases"]
+        trimming_dict["read1_after_filtering_q30_bases"] = json_ob["read1_after_filtering"]["q30_bases"]
+        if paired:
+            trimming_dict["read2_after_filtering_total_reads"] = json_ob["read2_after_filtering"]["total_reads"]
+            trimming_dict["read2_after_filtering_total_bases"] = json_ob["read2_after_filtering"]["total_bases"]
+            trimming_dict["read2_after_filtering_q20_bases"] = json_ob["read2_after_filtering"]["q20_bases"]
+            trimming_dict["read2_after_filtering_q30_bases"] = json_ob["read2_after_filtering"]["q30_bases"]
+
+        return trimming_dict
 
 
 def change(output, sample_id, step, fq_type, reads_list):
