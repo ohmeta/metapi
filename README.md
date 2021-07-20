@@ -336,21 +336,21 @@ Note: The fastq need gzip compress.
 
 It means:
 
-The sample s1 contain 1M reads which come from g1, the relatative abundance of
+The sample s1 contain 1M reads which come from g1, the relative abundance of
 species g1 is 1.0.
 
 The sample s2 contain 2M reads, 1M reads come from g1
-and 1M reads come from g2. the relatative abundance of
-species g1 is 0.5, the relatative abundance of
+and 1M reads come from g2. the relative abundance of
+species g1 is 0.5, the relative abundance of
 species g2 is 0.5.
 
 The sample s3 contain 3M reads, 0.6M reads come from g1, 0.9M reads come from
-g2 and 1.5M reads come from g3, the relatative abundance of
-species g1 is 0.2, the relatative abundance of
-species g2 is 0.3, the relatative abundance of
+g2 and 1.5M reads come from g3, the relative abundance of
+species g1 is 0.2, the relative abundance of
+species g2 is 0.3, the relative abundance of
 species g3 is 0.5.
 
-Then metapi will use [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq) to generate metagenomics shutgun reads.
+Then metapi will use [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq) to generate metagenomics shotgun reads.
 
 - begin from binning
   |  id   |     fq1     |    fq2     |     scaftigs      |
@@ -389,7 +389,7 @@ Then metapi will use [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq) to g
     06.binning/
     07.predict/
     08.checkm/
-    09.classify
+    09.classify/
 ```
 **Note**: 
 - We will try our best to keep the directory structure uniform. Sequence files are generally placed in the reads directory, and report files are generally placed in the report directory. 

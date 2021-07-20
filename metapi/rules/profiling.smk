@@ -1029,7 +1029,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                          "logs/{sample}.humann2.build_pandb.log")
         benchmark:
             os.path.join(config["output"]["profiling"],
-                         "benchmark/humann2/{sample}.bwotie2_index.benchmark.txt")
+                         "benchmark/humann2/{sample}.bowtie2_index.benchmark.txt")
         params:
             basename = "{sample}",
             wrapper_dir = WRAPPER_DIR,
