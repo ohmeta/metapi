@@ -37,7 +37,8 @@ RMHOST_DO = True \
        config["params"]["rmhost"]["bwa"]["do"] or \
        config["params"]["rmhost"]["bowtie2"]["do"] or \
        config["params"]["rmhost"]["minimap2"]["do"] or \
-       config["params"]["rmhost"]["kraken2"]["do"] \
+       config["params"]["rmhost"]["kraken2"]["do"] or \
+       config["params"]["rmhost"]["kneaddata"]["do"] \
        else False
 
 
