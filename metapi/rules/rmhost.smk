@@ -670,9 +670,89 @@ else:
         input:
 
 
+if config["params"]["rmhost"]["kneaddata"]["do"]:
+    rule rmhost_kneaddata:
+        input:
+            reads = lambda wildcards: rmhost_input(wildcards)
+        output:
+            reads = expand(os.path.join(
+                config["output"]["rmhost"],
+                "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                           read=[".1", ".2"] if IS_PE else "") \
+                           if config["params"]["rmhost"]["save_reads"] else \
+                              temp(expand(os.path.join(
+                                  config["output"]["rmhost"],
+                                  "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                                          read=[".1", ".2"] if IS_PE else ""))
+        log:
+            os.path.join(config["output"]["rmhost"], "logs/{sample}.kneaddata.log")
+        benchmark:
+            os.path.join(config["output"]["rmhost"],
+                         "benchmark/kneaddata/{sample}.kneaddata.txt")
+        params:
+            method = config["params"]["rmhost"]["kneaddata"]["method"],
+            database = config["params"]["rmhost"]["kneaddata"]["database"],
+            output_dir = os.path.join(config["output"]["rmhost"], "short_reads/{sample}"),
+            output_prefix = "{sample}.rmhost"
+        priority:
+            10
+        threads:
+            config["params"]["rmhost"]["threads"]
+        run:
+            shell(
+                '''
+                kneaddata %s -o {params.output_dir} \
+                -db {params.database} \
+                %s \
+                --output-prefix {params.output_prefix} \
+                --reorder \
+                --bypass-trim \
+                --remove-intermediate-output \
+                --threads {threads} \
+                --log {log}
+                ''' % (
+                    "-i {input.reads[0]} -i {input.reads[1]}" \
+                    if IS_PE else "-i {input.reads}",
+                    "--run-bmtagger" if (params.method == "bmtagger") else ""))
+
+            shell(
+                '''
+                pigz -p {threads} {params.output_dir}/* 
+                ''')
+            
+            if IS_PE:
+                shell(
+                    '''
+                    mv {params.output_dir}/{params.output_prefix}_paired_1.fastq.gz \
+                    {output.reads[0]}
+                    mv {params.output_dir}/{params.output_prefix}_paired_2.fastq.gz \
+                    {output.reads[1]}
+                    ''')
+            else:
+                shell(
+                    '''
+                    mv {params.output_dir}/{params.output_prefix}.fastq.gz \
+                    {output.reads}
+                    ''')
+
+
+    rule rmhost_kneaddata_all:
+        input:
+            expand(os.path.join(
+                config["output"]["rmhost"],
+                "short_reads/{sample}/{sample}.rmhost{read}.fq.gz"),
+                   sample=SAMPLES.index.unique(),
+                   read=[".1", ".2"] if IS_PE else "")
+
+else:
+    rule rmhost_kneadata_all:
+        input:
+
+
 if RMHOST_DO \
 and (not config["params"]["rmhost"]["soap"]["do"]) \
-and (not config["params"]["rmhost"]["kraken2"]["do"]):
+and (not config["params"]["rmhost"]["kraken2"]["do"]) \
+and (not config["params"]["rmhost"]["kneaddata"]["do"]):
     rule rmhost_alignment_report:
         input:
             expand(
@@ -785,6 +865,7 @@ rule rmhost_all:
         rules.rmhost_soap_all.input,
         rules.rmhost_minimap2_all.input,
         rules.rmhost_kraken2_all.input,
+        rules.rmhost_kneaddata_all.input,
         rules.rmhost_report_all.input,
 
         rules.trimming_all.input

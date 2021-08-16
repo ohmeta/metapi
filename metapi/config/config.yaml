@@ -90,6 +90,10 @@ params:
       confidence: 0
       min_base_quality: 0
       min_hit_groups: 2
+    kneaddata:
+      do: False
+      method: "bowtie2"
+      database: /home/zhujie/databases/kneaddata/human_genome_bowtie2/hg37dec_v0.1
 
   qcreport:
     do: True
@@ -372,7 +376,7 @@ params:
       biom: False
     jgi:
       oneway: False
-      do: True
+      do: false
       fragment: 1200
       memory_limit: 8G
       compression_level: 6
