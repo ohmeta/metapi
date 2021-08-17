@@ -29,6 +29,7 @@ WORKFLOWS_MAG = [
     "rmhost_bowtie2_all",
     "rmhost_minimap2_all",
     "rmhost_kraken2_all",
+    "rmhost_kneaddata_all",
     "rmhost_report_all",
     "rmhost_all",
     "qcreport_all",
@@ -253,7 +254,7 @@ def update_config_tools(conf, begin, trimmer, rmhoster, assemblers, binners):
         else:
             conf["params"]["trimming"][trimmer_]["do"] = False
 
-    for rmhoster_ in ["soap", "bwa", "bowtie2", "minimap2", "kraken2"]:
+    for rmhoster_ in ["soap", "bwa", "bowtie2", "minimap2", "kraken2", "kneaddata"]:
         if rmhoster_ == rmhoster:
             conf["params"]["rmhost"][rmhoster_]["do"] = True
         else:
