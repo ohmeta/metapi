@@ -69,7 +69,7 @@ params:
     bwa:
       do: False
       algorithms: "mem" # "mem2"
-      index_prefix: ~/atabases/galaxy_indexes/hg38/hg38full/bwa_index/hg38full.fa
+      index_prefix: ~/databases/galaxy_indexes/hg38/hg38full/bwa_index/hg38full.fa
       # /ldfssz1/ST_META/share/User/zhujie/database/galaxy_indexes/hg38/hg38full/bwa_mem2_index/hg38full.fa
       # /ldfssz1/ST_META/share/User/zhujie/database/mouse/GRCm39/bwa_mem2_index/GRCm39.fna
       minimum_seed_length: 23

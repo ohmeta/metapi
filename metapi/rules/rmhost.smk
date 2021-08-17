@@ -747,7 +747,7 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
                    read=[".1", ".2"] if IS_PE else "")
 
 else:
-    rule rmhost_kneadata_all:
+    rule rmhost_kneaddata_all:
         input:
 
 
