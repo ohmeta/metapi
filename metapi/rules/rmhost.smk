@@ -701,6 +701,8 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
         run:
             shell(
                 '''
+                rm -rf {params.output_dir}
+
                 kneaddata %s -o {params.output_dir} \
                 -db {params.database} \
                 %s \
