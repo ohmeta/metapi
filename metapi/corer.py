@@ -607,7 +607,7 @@ if begin from simulate:
         type=str,
         default="bowtie2",
         required=False,
-        choices=["soap", "bwa", "bowtie2", "minimap2"],
+        choices=["soap", "bwa", "bowtie2", "minimap2", "kraken2", "kneaddata"],
         help="which rmhoster used",
     )
     parser_init.add_argument(

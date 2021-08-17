@@ -276,7 +276,7 @@ params:
     threads: 8
     kraken2:
       do: True
-      database: ~/databases/kraken2/k2_standard_20200919
+      database: ~/databases/kraken2/k2_standard_20210517
       quick: False
       memory_mapping: False
       use_names: True

@@ -338,13 +338,13 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
     if not config["params"]["profiling"]["metaphlan"]["do_v3_one_way"]:
         rule profiling_metaphlan3:
             input:
-                reads = assembly_input_with_short_reads,
-                index_mp3 = expand(
-                    os.path.join(
-                        config["params"]["profiling"]["metaphlan"]["bowtie2db"],
-                        "{mpa_name}.{suffix}"),
-                    mpa_name = config["params"]["profiling"]["metaphlan"]["index_v3"],
-                    suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2", "pkl"])
+                reads = assembly_input_with_short_reads
+                #index_mp3 = expand(
+                #    os.path.join(
+                #        config["params"]["profiling"]["metaphlan"]["bowtie2db"],
+                #        "{mpa_name}.{suffix}"),
+                #    mpa_name = config["params"]["profiling"]["metaphlan"]["index_v3"],
+                #    suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2", "pkl"])
             output:
                protected(os.path.join(
                    config["output"]["profiling"],
@@ -424,16 +424,16 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
     else:
         rule profiling_metaphlan3:
             input:
-                reads = lambda wildcards: get_reads(wildcards, "raw"),
-                index_mp3 = expand(
-                    os.path.join(
-                        config["params"]["profiling"]["metaphlan"]["bowtie2db"],
-                        "{mpa_name}.{suffix}"),
-                    mpa_name = config["params"]["profiling"]["metaphlan"]["index_v3"],
-                    suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2", "pkl"]),
-                index_host = expand("{prefix}.{suffix}",
-                    prefix=config["params"]["rmhost"]["bwa"]["index_prefix"],
-                    suffix=BWA_INDEX_SUFFIX)
+                reads = lambda wildcards: get_reads(wildcards, "raw")
+                #index_mp3 = expand(
+                #    os.path.join(
+                #        config["params"]["profiling"]["metaphlan"]["bowtie2db"],
+                #        "{mpa_name}.{suffix}"),
+                #    mpa_name = config["params"]["profiling"]["metaphlan"]["index_v3"],
+                #    suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2", "pkl"]),
+                #index_host = expand("{prefix}.{suffix}",
+                #    prefix=config["params"]["rmhost"]["bwa"]["index_prefix"],
+                #    suffix=BWA_INDEX_SUFFIX)
             output:
                 profile = protected(os.path.join(
                     config["output"]["profiling"],
@@ -1493,7 +1493,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
             --nucleotide-subject-coverage-threshold {params.nucleotide_subject_coverage_threshold} \
             --translated-query-coverage-threshold {params.translated_query_coverage_threshold} \
             --nucleotide-query-coverage-threshold {params.nucleotide_query_coverage_threshold} \
-            --gap-fill {params.gap-fill} \
+            --gap-fill {params.gap_fill} \
             --minpath {params.minpath} \
             --xipe {params.xipe} \
             --pathways {params.pathways} \
