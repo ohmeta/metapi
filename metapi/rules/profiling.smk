@@ -1496,6 +1496,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
             --gap-fill {params.gap-fill} \
             --minpath {params.minpath} \
             --xipe {params.xipe} \
+            --pathways {params.pathways} \
             --memory-use {params.memory_use} \
             --output-basename {params.basename} \
             --output {params.output_dir} \
