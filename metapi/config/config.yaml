@@ -53,14 +53,14 @@ params:
       n_base_limit: 5
 
   rmhost:
-    host_fasta: ~/databases/galaxy_indexes/hg38/seq/hg38full.fa
+    host_fasta: "~/databases/galaxy_indexes/hg38/seq/hg38full.fa"
     threads: 8
     save_reads: True
     save_bam: False
     compression: 6
     soap:
       do: False
-      index_prefix: ~/databases/galaxy_indexes/hg38/hg38full/soap_index/hg38full.fa.index
+      index_prefix: "~/databases/galaxy_indexes/hg38/hg38full/soap_index/hg38full.fa.index"
       match_model: 4
       align_seed: 30
       report_repeat_hits: 1
@@ -69,22 +69,22 @@ params:
     bwa:
       do: False
       algorithms: "mem" # "mem2"
-      index_prefix: ~/databases/galaxy_indexes/hg38/hg38full/bwa_index/hg38full.fa
+      index_prefix: "~/databases/galaxy_indexes/hg38/hg38full/bwa_index/hg38full.fa"
       # /ldfssz1/ST_META/share/User/zhujie/database/galaxy_indexes/hg38/hg38full/bwa_mem2_index/hg38full.fa
       # /ldfssz1/ST_META/share/User/zhujie/database/mouse/GRCm39/bwa_mem2_index/GRCm39.fna
       minimum_seed_length: 23
     bowtie2:
       do: True
-      index_prefix: ~/databases/galaxy_indexes/hg38/hg38full/bowtie2_index/hg38full
+      index_prefix: "~/databases/galaxy_indexes/hg38/hg38full/bowtie2_index/hg38full"
       presets: "--very-sensitive"
     minimap2:
       do: False
-      split_size: 4G
-      preset: sr
-      index: ~/databases/galaxy_indexes/hg38/hg38full/minimap2_index/hg38full.mmi
+      split_size: "4G"
+      preset: "sr"
+      index: "~/databases/galaxy_indexes/hg38/hg38full/minimap2_index/hg38full.mmi"
     kraken2:
       do: False
-      database: ~/databases/KRAKEN/minikraken2_v2_8GB_201904_UPDATE
+      database: "~/databases/kraken/minikraken2_v2_8GB_201904_UPDATE"
       host_taxid: 9606
       # must include human reference genome
       confidence: 0
@@ -93,7 +93,7 @@ params:
     kneaddata:
       do: False
       method: "bowtie2"
-      database: ~/databases/kneaddata/human_genome_bowtie2/hg37dec_v0.1
+      database: "~/databases/kneaddata/human_genome_bowtie2/hg37dec_v0.1"
 
   qcreport:
     do: True
@@ -147,17 +147,17 @@ params:
       filter_protiens: 1
     opera_ms:
       do: False
-      path: ~/toolkit/OPERA-MS/OPERA-MS.pl
+      path: "~/toolkit/OPERA-MS/OPERA-MS.pl"
       no_ref_clustering: True
       no_strain_clustering: False
       no_gap_filling: False
       polishing: True
-      long_read_mapper: blasr
-      short_read_assembler: megahit
+      long_read_mapper: "blasr"
+      short_read_assembler: "megahit"
       contig_len_threshold: 500
       contig_edge_len: 80
       contig_window_len: 340
-      genome_db: ~/toolkit/OPERA-MS/OPERA-MS-DB
+      genome_db: "~/toolkit/OPERA-MS/OPERA-MS-DB"
 
     metaquast:
       do: False
@@ -237,7 +237,7 @@ params:
       cuda: True
       save_bam: False
       min_contig: 2000
-      index_size: 12G
+      index_size: "12G"
     dastools:
       do: True
       search_engine: "diamond"
@@ -258,7 +258,7 @@ params:
     bins_to_gene:
       prokka:
         do: False
-        kingdom: Bacteria
+        kingdom: "Bacteria"
 
   checkm:
     do: True
@@ -276,7 +276,7 @@ params:
     threads: 8
     kraken2:
       do: True
-      database: ~/databases/kraken2/k2_standard_20210517
+      database: "~/databases/kraken2/k2_standard_20210517"
       quick: False
       memory_mapping: False
       use_names: True
@@ -292,10 +292,10 @@ params:
       do: True
       pplacer_threads: 1
       batch_num: 1000
-      gtdb_data_path: ~/databases/gtdb/db
-      ar122_metadata: ~/databases/gtdb/ar122_metadata_r202.tsv
-      bac120_metadata: ~/databases/gtdb/bac120_metadata_r202.tsv
-      gtdb_to_ncbi_script: ~/toolkit/GTDBTk/scripts/gtdb_to_ncbi_majority_vote.py
+      gtdb_data_path: "~/databases/gtdb/db"
+      ar122_metadata: "~/databases/gtdb/ar122_metadata_r202.tsv"
+      bac120_metadata: "~/databases/gtdb/bac120_metadata_r202.tsv"
+      gtdb_to_ncbi_script: "~/toolkit/GTDBTk/scripts/gtdb_to_ncbi_majority_vote.py"
 
   dereplicate:
     drep:
@@ -328,10 +328,10 @@ params:
 
   profiling:
     threads: 8
-    index_taxonomy: /path/to/mag_taxonomy
+    index_taxonomy: "/path/to/mag_taxonomy"
     bgi_soap: # for learning
       do: False
-      index_prefix: /path/to/mag_soap_index
+      index_prefix: "/path/to/mag_soap_index"
       minimal_insert_size: 0
       maximal_insert_size: 1000
       report_repeat_hits: 1
@@ -341,12 +341,12 @@ params:
       identity: 0.95
     bowtie2: # for learning
       do: False
-      index_prefix: /path/to/mag_bowtie2_index
+      index_prefix: "/path/to/mag_bowtie2_index"
     metaphlan:
       do_v2: False
       do_v3: True
       do_v3_one_way: False
-      bowtie2db: ~/databases/metaphlan
+      bowtie2db: "~/databases/metaphlan"
       index_v2: "v20_m200"
       index_v3: "mpa_v30_CHOCOPhlAn_201901"
       bowtie2_presets: "very-sensitive"
@@ -378,11 +378,11 @@ params:
       oneway: False
       do: false
       fragment: 1200
-      memory_limit: 8G
+      memory_limit: "8G"
       compression_level: 6
-      index_metadata: /path/to/mag_metadata
-      taxonomy: /path/to/mag_taxonomy
-      index_prefix: /path/to/mag_bowtie2_index
+      index_metadata: "/path/to/mag_metadata"
+      taxonomy: "/path/to/mag_taxonomy"
+      index_prefix: "/path/to/mag_bowtie2_index"
     bracken:
       do: True
       reads_len: 100
@@ -400,11 +400,11 @@ params:
       nucleotide_query_coverage_threshold: 90.0
       translated_query_coverage_threshold: 90.0
       translated-alignment: "diamond" # ["diamond", "usearch", "rapsearch"]
-      xipe: off
-      minpath: on
-      pick_frames: off
-      gap_fill: on
-      pathways: metacyc # ["metacyc", "unipathway"]
+      xipe: "off"
+      minpath: "on"
+      pick_frames: "off"
+      gap_fill: "on"
+      pathways: "metacyc" # ["metacyc", "unipathway"]
       remove_temp_output: True
       memory_use: "minimum"
       normalize_method: "relab"
@@ -415,12 +415,12 @@ params:
       #  "uniref90_infogo1000",
       #  "uniref90_rxn",
       update_config: False # humann save config to humann install dir
-      database_utility_mapping: /path/to/humann/utility_mapping
-      database_utility_mapping_v3: ~/databases/humann/utility_mapping
-      database_protein: /path/to/humann/uniref
-      database_protein_v3: ~/databases/humann/uniref
-      database_nucleotide: /path/to/humann/chocophlan
-      database_nucleotide_v3: ~/databases/humann/chocophlan
+      database_utility_mapping: "/path/to/humann/utility_mapping"
+      database_utility_mapping_v3: "~/databases/humann/utility_mapping"
+      database_protein: "/path/to/humann/uniref"
+      database_protein_v3: "~/databases/humann/uniref"
+      database_nucleotide: "/path/to/humann/chocophlan"
+      database_nucleotide_v3: "~/databases/humann/chocophlan"
 
 output:
   simulate: "results/00.simulate"
