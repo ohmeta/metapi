@@ -60,7 +60,7 @@ def simulate_short_reads(
                 inh.close()
 
     args = (
-        ["iss", "generate", "--compress", "--cpus", str(threads), "--genomes"]
+        ["iss", "generate", "--cpus", str(threads), "--genomes"]
         + genomes
         + ["--n_reads", reads_num, "--model", model, "--output", output_prefix]
     )
@@ -82,8 +82,10 @@ def simulate_short_reads(
             default_abunf = output_prefix + "_abundance.txt"
             if os.path.exists(default_abunf):
                 os.rename(default_abunf, abunf)
-        os.rename(output_prefix + "_R1.fastq.gz", r1)
-        os.rename(output_prefix + "_R2.fastq.gz", r2)
+        subprocess.run(f"pigz -p {threads} {output_prefix}_R1.fastq", shell=True)
+        subprocess.run(f"pigz -p {threads} {output_prefix}_R2.fastq", shell=True)
+        os.rename(f"{output_prefix}_R1.fastq.gz", r1)
+        os.rename(f"{output_prefix}_R2.fastq.gz", r2)
     else:
         sys.exit(1)
 
