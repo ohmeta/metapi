@@ -247,6 +247,7 @@ def run_snakemake(args, unknown, snakefile, workflow):
 
 def update_config_tools(conf, begin, trimmer, rmhoster, assemblers, binners):
     conf["params"]["simulate"]["do"] = False
+    conf["params"]["begin"] = begin
 
     for trimmer_ in ["oas1", "sickle", "fastp"]:
         if trimmer_ == trimmer:
