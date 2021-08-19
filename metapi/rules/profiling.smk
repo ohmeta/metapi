@@ -27,6 +27,8 @@ if config["params"]["profiling"]["bgi_soap"]["do"]:
             soap = os.path.join(
                 config["output"]["profiling"],
                 "profile/bgi_soap/{sample}/{sample}.bgi_soap.soap")
+        priority:
+            20
         threads:
             config["params"]["profiling"]["threads"]
         run:
@@ -86,6 +88,8 @@ if config["params"]["profiling"]["bgi_soap"]["do"]:
         log:
             os.path.join(config["output"]["profiling"],
                          "logs/profiling_bgi_soap_merge.log")
+        priority:
+            20
         threads:
             config["params"]["profiling"]["threads"]
         run:
@@ -143,6 +147,8 @@ if config["params"]["profiling"]["bowtie2"]["do"]:
                          "benchmark/bowtie2/{sample}.profiling.bowtie2.benchmark.txt")
         params:
             index_prefix = config["params"]["profiling"]["bowtie2"]["index_prefix"]
+        priority:
+            20
         threads:
             config["params"]["profiling"]["threads"]
         run:
@@ -204,6 +210,8 @@ if config["params"]["profiling"]["bowtie2"]["do"]:
         log:
             os.path.join(config["output"]["profiling"],
                          "logs/profiling_bowtie2_merge.log")
+        priority:
+            20
         threads:
             config["params"]["profiling"]["threads"]
         run:
@@ -272,6 +280,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"]:
                config["output"]["profiling"],
                "profile/metaphlan2/{sample}/{sample}.metaphlan2.bowtie2.bz2"),
             save_bowtie2out = config["params"]["profiling"]["metaphlan"]["save_bowtie2out"]
+        priority:
+            20
         threads:
             config["params"]["profiling"]["threads"]
         shell:
@@ -310,6 +320,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"]:
                        "order", "class", "phylum", "superkingdom"])
         threads:
             config["params"]["profiling"]["threads"]
+        priority:
+            20
         run:
            metapi.metaphlan_init(2)
            df_list = metapi.merge_metaphlan_tables(input, threads)
@@ -391,6 +403,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                 cami_format_output = "--CAMI_format_output" \
                     if config["params"]["profiling"]["metaphlan"]["cami_format_output"] \
                     else ""
+            priority:
+                20
             threads:
                 config["params"]["profiling"]["threads"]
             shell:
@@ -491,6 +505,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                 cami_format_output = "--CAMI_format_output" \
                     if config["params"]["profiling"]["metaphlan"]["cami_format_output"] \
                     else ""
+            priority:
+                20
             threads:
                 config["params"]["profiling"]["threads"]
             run:
@@ -547,7 +563,9 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                     "stats_preprocess/{sample}/{sample}.rmhost.flagstat"),
                     sample=SAMPLES.index.unique())
             output:
-                qc = os.path.join(config["output"]["profiling"], "qc_stats.tsv"),
+                qc = os.path.join(config["output"]["profiling"], "qc_stats.tsv")
+            priority:
+                20
             run:
                 import concurrent.futures
 
@@ -581,6 +599,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                        "order", "class", "phylum", "superkingdom"])
         threads:
             config["params"]["profiling"]["threads"]
+        priority:
+            20
         run:
             metapi.metaphlan_init(3)
             profile_list = metapi.merge_metaphlan_tables(input.abuns, threads)
@@ -648,6 +668,8 @@ if config["params"]["profiling"]["jgi"]["do"]:
                 coverage = os.path.join(
                     config["output"]["profiling"],
                     "profile/jgi/{sample}/{sample}.jgi.coverage")
+            priority:
+                20
             run:
                 shell(
                     '''
@@ -724,6 +746,8 @@ if config["params"]["profiling"]["jgi"]["do"]:
                 coverage = os.path.join(
                     config["output"]["profiling"],
                     "profile/jgi/{sample}/{sample}.jgi.coverage")
+            priority:
+                20
             run:
                 if TRIMMING_DO and RMHOST_DO:
                     shell('''date > {log}''')
@@ -819,6 +843,8 @@ if config["params"]["profiling"]["jgi"]["do"]:
                 "profile/jgi.merged.abundance.profile.strain.tsv")
         threads:
             config["params"]["profiling"]["threads"]
+        priority:
+            20
         run:
             taxonomy_df = pd.read_csv(input.taxonomy, sep='\t')
 
@@ -920,6 +946,8 @@ if config["params"]["classify"]["kraken2"]["do"] and \
             database = config["params"]["classify"]["kraken2"]["database"],
             reads_len = config["params"]["profiling"]["bracken"]["reads_len"],
             level = "{level}"
+        priority:
+            20
         threads:
             config["params"]["profiling"]["threads"]
         shell:
@@ -947,6 +975,8 @@ if config["params"]["classify"]["kraken2"]["do"] and \
             os.path.join(
                 config["output"]["profiling"],
                 "profile/bracken.merged.abundance.profile.{level}.tsv")
+        priority:
+            20
         log:
             os.path.join(config["output"]["profiling"],
                          "logs/bracken.merged.{level}.log")
@@ -991,6 +1021,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                 database_nucleotide = config["params"]["profiling"]["humann"]["database_nucleotide"],
                 database_protein = config["params"]["profiling"]["humann"]["database_protein"],
                 threads = config["params"]["profiling"]["threads"]
+            priority:
+                20
             shell:
                 '''
                 humann2_config > {log}
@@ -1035,6 +1067,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             wrapper_dir = WRAPPER_DIR,
             db_dir = os.path.join(config["output"]["profiling"], "database/humann2/{sample}"),
             prescreen_threshold = config["params"]["profiling"]["humann"]["prescreen_threshold"]
+        priority:
+            20
         shell:
             '''
             python {params.wrapper_dir}/humann2_db_wrapper.py \
@@ -1092,6 +1126,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             memory_use = config["params"]["profiling"]["humann"]["memory_use"],
             output_dir = os.path.join(config["output"]["profiling"],
                                       "profile/humann2/{sample}")
+        priority:
+            20
         threads:
             config["params"]["profiling"]["threads"]
         shell:
@@ -1148,6 +1184,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             normalize_method = config["params"]["profiling"]["humann"]["normalize_method"],
             regroup_method = config["params"]["profiling"]["humann"]["regroup_method"],
             map_database =  config["params"]["profiling"]["humann"]["map_database"]
+        priority:
+            20
         shell:
             '''
             humann2_renorm_table \
@@ -1224,6 +1262,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             input_dir = os.path.join(config["output"]["profiling"], "profile/humann2"),
             normalize_method = config["params"]["profiling"]["humann"]["normalize_method"],
             map_database = config["params"]["profiling"]["humann"]["map_database"]
+        priority:
+            20
         shell:
             '''
             python {params.wrapper_dir}/humann2_postprocess_wrapper.py \
@@ -1294,6 +1334,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
             wrapper_dir = WRAPPER_DIR,
             output_dir = os.path.join(config["output"]["profiling"], "profile"),
             map_database = config["params"]["profiling"]["humann"]["map_database"]
+        priority:
+            20
         shell:
             '''
             python {params.wrapper_dir}/humann2_postprocess_wrapper.py \
@@ -1365,6 +1407,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
                 database_nucleotide = config["params"]["profiling"]["humann"]["database_nucleotide_v3"],
                 database_protein = config["params"]["profiling"]["humann"]["database_protein_v3"],
                 threads = config["params"]["profiling"]["threads"]
+            priority:
+                20
             shell:
                 '''
                 humann_config > {log}
@@ -1436,6 +1480,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
         benchmark:
             os.path.join(config["output"]["profiling"],
                          "benchmark/humann3/{sample}.humann3.benchmark.txt")
+        priority:
+            20
         conda:
             config["envs"]["biobakery"]
         params:
@@ -1533,6 +1579,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
             normalize_method = config["params"]["profiling"]["humann"]["normalize_method"],
             regroup_method = config["params"]["profiling"]["humann"]["regroup_method"],
             map_database =  config["params"]["profiling"]["humann"]["map_database"]
+        priority:
+            20
         shell:
             '''
             humann_renorm_table \
@@ -1609,6 +1657,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
             input_dir = os.path.join(config["output"]["profiling"], "profile/humann3"),
             normalize_method = config["params"]["profiling"]["humann"]["normalize_method"],
             map_database = config["params"]["profiling"]["humann"]["map_database"]
+        priority:
+            20
         shell:
             '''
             python {params.wrapper_dir}/humann3_postprocess_wrapper.py \
@@ -1679,6 +1729,8 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
             wrapper_dir = WRAPPER_DIR,
             output_dir = os.path.join(config["output"]["profiling"], "profile"),
             map_database = config["params"]["profiling"]["humann"]["map_database"]
+        priority:
+            20
         shell:
             '''
             python {params.wrapper_dir}/humann3_postprocess_wrapper.py \
