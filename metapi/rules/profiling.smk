@@ -1116,10 +1116,10 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"] and \
                 config["params"]["profiling"]["humann"]["translated_subject_coverage_threshold"],
             translated_query_coverage_threshold = \
                 config["params"]["profiling"]["humann"]["translated_query_coverage_threshold"],
-            xipe = config["params"]["profiling"]["humann"]["xipe"],
-            minpath = config["params"]["profiling"]["humann"]["minpath"],
-            pick_frames = config["params"]["profiling"]["humann"]["pick_frames"],
-            gap_fill = config["params"]["profiling"]["humann"]["gap_fill"],
+            xipe = "on" if config["params"]["profiling"]["humann"]["xipe"] else "off",
+            minpath = "on" if config["params"]["profiling"]["humann"]["minpath"] else "off",
+            pick_frames = "on" if config["params"]["profiling"]["humann"]["pick_frames"] else "off",
+            gap_fill = "on" if config["params"]["profiling"]["humann"]["gap_fill"] else "off",
             remove_temp_output = "--remove-temp-output" \
                 if config["params"]["profiling"]["humann"]["remove_temp_output"] \
                    else "",
@@ -1503,9 +1503,9 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"] and \
                 config["params"]["profiling"]["humann"]["nucleotide_subject_coverage_threshold"],
             nucleotide_query_coverage_threshold = \
                 config["params"]["profiling"]["humann"]["nucleotide_query_coverage_threshold"],
-            minpath = config["params"]["profiling"]["humann"]["minpath"],
-            gap_fill = config["params"]["profiling"]["humann"]["gap_fill"],
-            xipe = config["params"]["profiling"]["humann"]["xipe"],
+            minpath = "on" if config["params"]["profiling"]["humann"]["minpath"] else "off",
+            gap_fill = "on" if config["params"]["profiling"]["humann"]["gap_fill"] else "off",
+            xipe = "on" if config["params"]["profiling"]["humann"]["xipe"] else "off",
             pathways = config["params"]["profiling"]["humann"]["pathways"],
             remove_temp_output = "--remove-temp-output" \
                 if config["params"]["profiling"]["humann"]["remove_temp_output"] \
