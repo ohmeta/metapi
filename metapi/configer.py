@@ -29,6 +29,7 @@ class metaconfig:
 
     sub_dirs = [
         "envs",
+        "profiles",
         "results",
         "logs/00.simulate_short_reads",
         "logs/00.prepare_short_reads",
@@ -172,14 +173,10 @@ class metaconfig:
         self.work_dir = os.path.realpath(work_dir)
         self.metapi_dir = os.path.dirname(os.path.abspath(__file__))
 
-        self.config_file = os.path.join(
-            self.metapi_dir, "config", "config.yaml")
-        self.cluster_file = os.path.join(
-            self.metapi_dir, "config", "cluster.yaml")
+        self.config_file = os.path.join(self.metapi_dir, "config", "config.yaml")
         self.envs_dir = os.path.join(self.metapi_dir, "envs")
-
+        self.profiles_dir = os.path.join(self.metapi_dir, "profiles")
         self.new_config_file = os.path.join(self.work_dir, "config.yaml")
-        self.new_cluster_file = os.path.join(self.work_dir, "cluster.yaml")
 
     def __str__(self):
         message = """
@@ -227,16 +224,18 @@ if you have environments:
         for i in os.listdir(self.envs_dir):
             shutil.copyfile(
                 os.path.join(self.envs_dir, i),
-                os.path.join(self.work_dir, os.path.join("envs", i)),
-            )
+                os.path.join(self.work_dir, "envs", i)),
+
+        for i in os.listdir(self.profiles_dir):
+            shutil.copytree(
+                os.path.join(self.profiles_dir, i),
+                os.path.join(self.work_dir, "profiles", i), dirs_exist_ok=True)
 
     def get_config(self):
         """
         get default configuration
         """
-        config = parse_yaml(self.config_file)
-        cluster = parse_yaml(self.cluster_file)
-        return (config, cluster)
+        return parse_yaml(self.config_file)
 
 
 # https://github.com/Ecogenomics/CheckM/blob/master/checkm/customHelpFormatter.py

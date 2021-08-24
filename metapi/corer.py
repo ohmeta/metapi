@@ -186,9 +186,7 @@ def run_snakemake(args, unknown, snakefile, workflow):
         "--snakefile",
         snakefile,
         "--configfile",
-        args.config,
-        "--cores",
-        str(args.cores),
+        args.config
     ] + unknown
 
     if args.conda_create_envs_only:
@@ -200,7 +198,7 @@ def run_snakemake(args, unknown, snakefile, workflow):
             "--printshellcmds",
             "--reason",
             "--until",
-            args.task,
+            args.task
         ]
 
         if args.use_conda:
@@ -210,26 +208,14 @@ def run_snakemake(args, unknown, snakefile, workflow):
 
         if args.list:
             cmd += ["--list"]
-        elif args.run:
-            cmd += [""]
+        elif args.run_local:
+            cmd += ["--cores", str(args.cores)]
+        elif args.run_remote:
+            cmd += ["--profile", args.profile, "--local-cores", str(args.local_cores), "--jobs", str(args.jobs)]
         elif args.debug:
             cmd += ["--debug-dag", "--dry-run"]
         elif args.dry_run:
             cmd += ["--dry-run"]
-        elif args.qsub:
-            cmd += [
-                "--cluster-config",
-                args.cluster,
-                "--jobs",
-                str(args.jobs),
-                "--latency-wait",
-                str(args.wait),
-                '--cluster "qsub -S /bin/bash -cwd \
-                -q {cluster.queue} -P {cluster.project} \
-                -l vf={cluster.mem},p={cluster.cores} \
-                -binding linear:{cluster.cores} \
-                -o {cluster.output} -e {cluster.error}"',
-            ]
 
     cmd_str = " ".join(cmd).strip()
     print("Running metapi %s:\n%s" % (workflow, cmd_str))
@@ -292,7 +278,7 @@ def init(args, unknown):
         project = metapi.metaconfig(args.workdir)
         print(project.__str__())
         project.create_dirs()
-        conf, cluster = project.get_config()
+        conf = project.get_config()
 
         for env_name in conf["envs"]:
             conf["envs"][env_name] = os.path.join(
@@ -305,20 +291,12 @@ def init(args, unknown):
 
         if args.samples:
             conf["params"]["samples"] = args.samples
-
-        if conf["params"]["binning"]["vamb"]["cuda"]:
-            cluster["binning_vamb"]["project"] = "P18Z10200N0127_gpu"
-            cluster["binning_vamb"]["queue"] = "st_gpu1.q"
-            print("When do binning using vamb and cuda, please use gpu queue")
         else:
-            cluster["binning_vamb"]["project"] = "P18Z10200N0127"
-            cluster["binning_vamb"]["queue"] = "st.q"
+            print("Please supply samples table")
+            sys.exit(-1)
 
         metapi.update_config(
             project.config_file, project.new_config_file, conf, remove=False
-        )
-        metapi.update_config(
-            project.cluster_file, project.new_cluster_file, cluster, remove=False
         )
     else:
         print("Please supply a workdir!")
@@ -470,24 +448,32 @@ def main():
         help="config.yaml",
     )
     run_parser.add_argument(
-        "--cluster",
+        "--profile",
         type=str,
-        default="./cluster.yaml",
-        help="cluster.yaml",
+        default="./profiles/slurm",
+        help="cluster profile name",
     )
-    run_parser.add_argument("--cores", type=int, default=8, help="CPU cores")
-    run_parser.add_argument("--jobs", type=int, default=80, help="qsub job numbers")
+    run_parser.add_argument(
+        "--cores",
+        type=int,
+        default=32,
+        help="all job cores, available on '--run-local'")
+    run_parser.add_argument(
+        "--local-cores",
+        type=int,
+        dest="local_cores",
+        default=8,
+        help="local job cores, available on '--run-remote'")
+    run_parser.add_argument(
+        "--jobs",
+        type=int,
+        default=80,
+        help="cluster job numbers, available on '--run-remote'")
     run_parser.add_argument(
         "--list",
         default=False,
         action="store_true",
         help="list pipeline rules",
-    )
-    run_parser.add_argument(
-        "--run",
-        default=False,
-        action="store_true",
-        help="run pipeline",
     )
     run_parser.add_argument(
         "--debug",
@@ -497,16 +483,28 @@ def main():
     )
     run_parser.add_argument(
         "--dry-run",
-        default=False,
+        default=True,
         dest="dry_run",
         action="store_true",
         help="dry run pipeline",
     )
     run_parser.add_argument(
-        "--qsub",
+        "--run-local",
         default=False,
         action="store_true",
-        help="qsub pipeline",
+        help="run pipeline on local computer",
+    )
+    run_parser.add_argument(
+        "--run-remote",
+        default=False,
+        action="store_true",
+        help="run pipeline on remote cluster",
+    )
+    run_parser.add_argument(
+        "--cluster-engine",
+        default="slurm",
+        choices=["slurm", "sge", "lsf", "pbs-torque"],
+        help="cluster workflow manager engine, support slurm(sbatch) and sge(qsub)"
     )
     run_parser.add_argument("--wait", type=int, default=60, help="wait given seconds")
     run_parser.add_argument(
@@ -518,7 +516,7 @@ def main():
     )
     run_parser.add_argument(
         "--conda-prefix",
-        default="/ldfssz1/ST_META/share/User/zhujie/.conda/envs",
+        default="~/.conda/envs",
         dest="conda_prefix",
         help="conda environment prefix",
     )

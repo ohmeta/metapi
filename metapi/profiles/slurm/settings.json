@@ -1,0 +1,6 @@
+{
+    "SBATCH_DEFAULTS": "",
+    "CLUSTER_NAME": "",
+    "CLUSTER_CONFIG": "cluster.yaml",
+    "ADVANCED_ARGUMENT_CONVERSION": "no"
+}

@@ -1,0 +1,35 @@
+## This is a yaml file, defining options for specific rules or by default.
+## The '#' defines a comment.
+## the two spaces at the beginning of rows below rulenames are important.
+## For more information see https://snakemake.readthedocs.io/en/stable/executing/cluster-cloud.html#cluster-execution
+
+# default parameter for all rules
+__default__:
+  #queue: normal
+  nodes: 1
+
+
+# The following rules in atlas need need more time/memory.
+# If you need to submit them to different queues you can configure this as outlined.
+
+# run_megahit:
+#   queue: bigmem
+# run_spades:
+#   queue: bigmem
+
+#gtdb-tk classify uses 'large_mem' and log time
+# classify:
+#   queue: bigmem-long
+
+# run_checkm_lineage_wf:
+#   queue: long
+
+# run_all_checkm_lineage_wf:
+#   queue: long
+
+# You can  overwrite values for specific rules
+# rulename:
+#   queue: long
+#   account: ""
+#   time:  # h
+#   threads:
