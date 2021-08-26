@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import sys
 import shutil
 
 from ruamel.yaml import YAML
@@ -222,14 +223,20 @@ if you have environments:
             os.makedirs(os.path.join(self.work_dir, sub_dir), exist_ok=True)
 
         for i in os.listdir(self.envs_dir):
-            shutil.copyfile(
-                os.path.join(self.envs_dir, i),
-                os.path.join(self.work_dir, "envs", i)),
+            dest_file = os.path.join(self.work_dir, "envs", i)
+            if os.path.exists(dest_file):
+                print(f"{dest_file} exists, please remove or backup it first")
+                sys.exit(-1)
+            else:
+                shutil.copyfile(os.path.join(self.envs_dir, i), dest_file)
 
         for i in os.listdir(self.profiles_dir):
-            shutil.copytree(
-                os.path.join(self.profiles_dir, i),
-                os.path.join(self.work_dir, "profiles", i), dirs_exist_ok=True)
+            dest_dir = os.path.join(self.work_dir, "profiles", i)
+            if os.path.exists(dest_dir):
+                print(f"{dest_dir} exists, please remove or backup it first")
+                sys.exit(-1)
+            else:
+                shutil.copytree(os.path.join(self.profiles_dir, i), dest_dir)
 
     def get_config(self):
         """
