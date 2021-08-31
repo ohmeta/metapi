@@ -696,7 +696,7 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
             sequencer_source = config["params"]["rmhost"]["kneaddata"]["sequencer_source"],
             do_bowtie2 = config["params"]["rmhost"]["kneaddata"]["do_bowtie2"],
             bowtie2_options = config["params"]["rmhost"]["kneaddata"]["bowtie2_options"],
-            decontaminate_pairs = config["params"]["rmhost"]["kneaddata"]["bowtie2_decontaminate_pairs"],
+            decontaminate_pairs = config["params"]["rmhost"]["kneaddata"]["decontaminate_pairs"],
             bowtie2_database = config["params"]["rmhost"]["kneaddata"]["bowtie2_database"],
             do_bmtagger = config["params"]["rmhost"]["kneaddata"]["do_bmtagger"],
             output_dir = os.path.join(config["output"]["rmhost"], "short_reads/{sample}"),
