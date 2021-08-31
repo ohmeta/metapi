@@ -690,8 +690,15 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
             os.path.join(config["output"]["rmhost"],
                          "benchmark/kneaddata/{sample}.kneaddata.txt")
         params:
-            method = config["params"]["rmhost"]["kneaddata"]["method"],
-            database = config["params"]["rmhost"]["kneaddata"]["database"],
+            trf_options = "--run-trf" if config["params"]["rmhost"]["kneaddata"]["do_trf"] else "--bypass-trf",
+            do_trimmomatic = config["params"]["rmhost"]["kneaddata"]["do_trimmomatic"],
+            trimmomatic_options = config["params"]["rmhost"]["kneaddata"]["trimmomatic_options"],
+            sequencer_source = config["params"]["rmhost"]["kneaddata"]["sequencer_source"],
+            do_bowtie2 = config["params"]["rmhost"]["kneaddata"]["do_bowtie2"],
+            bowtie2_options = config["params"]["rmhost"]["kneaddata"]["bowtie2_options"],
+            decontaminate_pairs = config["params"]["rmhost"]["kneaddata"]["bowtie2_decontaminate_pairs"],
+            bowtie2_database = config["params"]["rmhost"]["kneaddata"]["bowtie2_database"],
+            do_bmtagger = config["params"]["rmhost"]["kneaddata"]["do_bmtagger"],
             output_dir = os.path.join(config["output"]["rmhost"], "short_reads/{sample}"),
             output_prefix = "{sample}.rmhost"
         priority:
@@ -699,24 +706,76 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
         threads:
             config["params"]["rmhost"]["threads"]
         run:
-            shell(
-                '''
-                rm -rf {params.output_dir}
+            shell('''rm -rf {params.output_dir}''')
 
-                kneaddata %s -o {params.output_dir} \
-                -db {params.database} \
-                %s \
-                --output-prefix {params.output_prefix} \
-                --reorder \
-                --bypass-trim \
-                --remove-intermediate-output \
-                --threads {threads} \
-                --log {log}
-                ''' % (
-                    "-i {input.reads[0]} -i {input.reads[1]}" \
-                    if IS_PE else "-i {input.reads}",
-                    "--run-bmtagger" if (params.method == "bmtagger") else ""))
+            if params.do_bowtie2:
+                if params.do_trimmomatic:
+                    shell(
+                        '''
+                        kneaddata %s \
+                        {params.trf_options} \
+                        --output {params.output_dir} \
+                        --output-prefix {params.output_prefix} \
+                        --reference-db {params.bowtie2_database} \
+                        --trimmomatic-options '{params.trimmomatic_options}' \
+                        --sequencer-source {params.sequencer_source} \
+                        --bowtie2-options {params.bowtie2_options} \
+                        --decontaminate-pairs {params.decontaminate_pairs} \
+                        --remove-intermediate-output \
+                        --threads {threads} \
+                        --reorder \
+                        --log {log}
+                        ''' % "-i {input.reads[0]} -i {input.reads[1]}" if IS_PE else "-i {input.reads}")
 
+                else:
+                    shell(
+                        '''
+                        kneaddata %s \
+                        {params.trf_options} \
+                        --bypass-trim \
+                        --output {params.output_dir} \
+                        --output-prefix {params.output_prefix} \
+                        --reference-db {params.bowtie2_database} \
+                        --bowtie2-options {params.bowtie2_options} \
+                        --decontaminate-pairs {params.decontaminate_pairs} \
+                        --remove-intermediate-output \
+                        --threads {threads} \
+                        --reorder \
+                        --log {log}
+                        ''' % "-i {input.reads[0]} -i {input.reads[1]}" if IS_PE else "-i {input.reads}")
+
+            elif params.do_bmtagger:
+                if params.do_trimmomatic:
+                    shell(
+                        '''
+                        kneaddata %s \
+                        {params.trf_options} \
+                        --output {params.output_dir} \
+                        --output-prefix {params.output_prefix} \
+                        --trimmomatic-options '{params.trimmomatic_options}' \
+                        --sequencer-source {params.sequencer_source} \
+                        --run-bmtagger \
+                        --remove-intermediate-output \
+                        --threads {threads} \
+                        --reorder \
+                        --log {log}
+                        ''' % "-i {input.reads[0]} -i {input.reads[1]}" if IS_PE else "-i {input.reads}")
+
+                else:
+                    shell(
+                        '''
+                        kneaddata %s \
+                        {params.trf_options} \
+                        --bypass-trim \
+                        --output {params.output_dir} \
+                        --output-prefix {params.output_prefix} \
+                        --run-bmtagger \
+                        --remove-intermediate-output \
+                        --threads {threads} \
+                        --reorder \
+                        --log {log}
+                        ''' % "-i {input.reads[0]} -i {input.reads[1]}" if IS_PE else "-i {input.reads}")
+                 
             shell(
                 '''
                 pigz -p {threads} {params.output_dir}/* 

@@ -92,9 +92,16 @@ params:
       min_hit_groups: 2
     kneaddata:
       do: False
-      method: "bowtie2"
-      database: "~/databases/kneaddata/human_genome_bowtie2/hg37dec_v0.1"
-
+      do_trf: False
+      do_trimmomatic: False
+      trimmomatic_options: 'MINLEN:50 ILLUMINACLIP:/-PE.fa:2:40:15 SLIDINGWINDOW:4:20'
+      sequencer_source: "TruSeq3" # ["NexteraPE", "TruSeq2", "TruSeq3", "none"]
+      do_bmtagger: False
+      do_bowtie2: True
+      decontaminate_pairs: "strict" # ["strict", "lenient", "unpaired"]
+      bowtie2_options: "--very-sensitive --dovetail"
+      bowtie2_database: "~/databases/kneaddata/human_genome_bowtie2/hg37dec_v0.1"
+ 
   qcreport:
     do: True
     seqkit:
