@@ -721,7 +721,7 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
                         --output {params.output_dir} \
                         --output-prefix {params.output_prefix} \
                         --reference-db {params.bowtie2_database} \
-                        --trimmomatic {trimmomatic} \
+                        --trimmomatic {trimmomatic_dir} \
                         --trimmomatic-options '{params.trimmomatic_options}' \
                         --sequencer-source {params.sequencer_source} \
                         --bowtie2-options '{params.bowtie2_options}' \
