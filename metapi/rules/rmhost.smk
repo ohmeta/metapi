@@ -707,7 +707,7 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
             config["params"]["rmhost"]["threads"]
         run:
             import shutil
-            trimmomatic = which("trimmomatic")
+            trimmomatic = shutil.which("trimmomatic")
 
             shell('''rm -rf {params.output_dir}''')
 
