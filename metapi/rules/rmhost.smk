@@ -706,6 +706,9 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
         threads:
             config["params"]["rmhost"]["threads"]
         run:
+            import shutil
+            trimmomatic = which("trimmomatic")
+
             shell('''rm -rf {params.output_dir}''')
 
             if params.do_bowtie2:
@@ -717,6 +720,7 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
                         --output {params.output_dir} \
                         --output-prefix {params.output_prefix} \
                         --reference-db {params.bowtie2_database} \
+                        --trimmomatic {trimmomatic} \
                         --trimmomatic-options '{params.trimmomatic_options}' \
                         --sequencer-source {params.sequencer_source} \
                         --bowtie2-options '{params.bowtie2_options}' \
@@ -752,6 +756,7 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
                         {params.trf_options} \
                         --output {params.output_dir} \
                         --output-prefix {params.output_prefix} \
+                        --trimmomatic {trimmomatic} \
                         --trimmomatic-options '{params.trimmomatic_options}' \
                         --sequencer-source {params.sequencer_source} \
                         --run-bmtagger \
