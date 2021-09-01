@@ -724,7 +724,7 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
                         --trimmomatic {trimmomatic_dir} \
                         --trimmomatic-options '{params.trimmomatic_options}' \
                         --sequencer-source {params.sequencer_source} \
-                        --bowtie2-options '{params.bowtie2_options}' \
+                        --bowtie2-options '{params.bowtie2_options} ' \
                         --decontaminate-pairs {params.decontaminate_pairs} \
                         --remove-intermediate-output \
                         --threads {threads} \
@@ -741,7 +741,7 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
                         --output {params.output_dir} \
                         --output-prefix {params.output_prefix} \
                         --reference-db {params.bowtie2_database} \
-                        --bowtie2-options '{params.bowtie2_options}' \
+                        --bowtie2-options '{params.bowtie2_options} ' \
                         --decontaminate-pairs {params.decontaminate_pairs} \
                         --remove-intermediate-output \
                         --threads {threads} \
