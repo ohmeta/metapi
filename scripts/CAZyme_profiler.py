@@ -30,10 +30,10 @@ def parse_count_abun_table(count_abun_table):
     sample_id = os.path.basename(count_abun_table).split(".")[0]
 
     df = pd.read_csv(count_abun_table, sep="\t").set_index("CAZy_gene_name")
-    df_count = df.loc[:, ["CAZy_gene_name", "CAZy_gene_copy_number"]]\
+    df_count = df.loc[:, ["CAZy_gene_copy_number"]]\
                  .rename(columns={"CAZy_gene_copy_number": sample_id})
 
-    df_abun = df.loc[:, ["CAZy_gene_name", "CAZy_gene_relab_abun"]]\
+    df_abun = df.loc[:, ["CAZy_gene_relab_abun"]]\
                 .rename(columns={"CAZy_gene_relab_abun": sample_id})
     return df_count, df_abun
 
