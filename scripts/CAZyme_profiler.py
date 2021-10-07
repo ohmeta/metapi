@@ -9,6 +9,11 @@ from xopen import xopen
 import math
 
 
+# example
+# seqtk mergepe s1.1.fastq.gz s1.2.fastq.gz | \
+#    diamond blastx -d CAZyDB.09242021.dmnd \
+#    -o blastx_output/s1.m6 -f 6 -p 24 -e 1e-05 > s1.log 2>&1
+
 # BLAST tab format
 # qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore
 # qseqid sseqid pident length evalue
