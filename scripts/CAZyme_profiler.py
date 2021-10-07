@@ -8,6 +8,7 @@ from Bio import SeqIO
 from xopen import xopen
 import math
 import concurrent.futures
+import os
 
 # example
 # seqtk mergepe s1.1.fastq.gz s1.2.fastq.gz | \
