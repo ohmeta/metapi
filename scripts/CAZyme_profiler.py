@@ -17,6 +17,7 @@ import math
 def parse_fai(fai):
     df = pd.read_csv(fai, sep="\t", header=None,
     names=["CAZy_gene_name", "CAZy_gene_len", "CAZy_gene_start", "CAZy_gene_end", "total_bytes"])
+    return df
 
 
 def main():
@@ -100,9 +101,13 @@ def main():
     mapping_count_table.to_csv(args.mapping_count_table, sep="\t", index=False)
 
     cazy_fai_df = parse_fai(args.cazydb_fai)
-
+    #print(cazy_fai_df.head())
+    
+    #print(cazy_dict.items())
     cazy_df = pd.DataFrame(cazy_dict.items(), columns=["CAZy_gene_name", "CAZy_gene_copy_number"])\
-        .merge(cazy_fai_df)
+        .merge(cazy_fai_df).loc[:, ["CAZy_gene_name", "CAZy_gene_len", "CAZy_gene_copy_number"]]
+    #print(cazy_df)
+    
     cazy_df["CAZy_gene_copy_number_norm"] = cazy_df["CAZy_gene_copy_number"] / cazy_df["CAZy_gene_len"]
     cazy_df["CAZy_gene_relab_abun"] = cazy_df["CAZy_gene_copy_number_norm"] / sum(cazy_df["CAZy_gene_copy_number_norm"])
     cazy_df.to_csv(args.cazy_abundance_table, sep="\t", index=False)
