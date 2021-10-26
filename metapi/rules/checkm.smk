@@ -96,7 +96,7 @@ if config["params"]["checkm"]["do"]:
                 shell('''touch {output.table}''')
                 shell('''mkdir -p {params.data_dir_temp}''')
 
-            shell('''tar -czvf {output.data} {params.data_dir_temp}/''')
+            shell('''tar --warning=no-file-changed -czvf {output.data} {params.data_dir_temp}/''')
             shell('''rm -rf {params.data_dir_temp}''')
 
 
