@@ -85,8 +85,8 @@ def main():
     tax_df = parse_taxonomy(args.tax_list)
 
     if args.download:
-        os.mkdirs(args.outdir, exists_ok=True)
-        os.mkdirs(args.logdir, exists_ok=True)
+        os.makedirs(args.outdir, exist_ok=True)
+        os.makedirs(args.logdir, exist_ok=True)
         logout = open(os.path.join(args.logdir, "ngd.log"), "w")
 
     for i in tax_df.index:

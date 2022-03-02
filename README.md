@@ -419,6 +419,11 @@ pip `pip install black flake8 flake8-bugbear snakefmt`.
 - Fangming Yang - [@yangfangming](https://github.com/yangfangming)
 - Yanmei Ju - [@juyanmei](https://github.com/juyanmei)
 
+## Citation
+
+Over 50,000 Metagenomically Assembled Draft Genomes for the Human Oral Microbiome Reveal New Taxa  
+Genomics, Proteomics & Bioinformatics, 2021, https://doi.org/10.1016/j.gpb.2021.05.001  
+
 ## License
 
 This module is licensed under the terms of the [GPLv3 license](https://opensource.org/licenses/GPL-3.0).

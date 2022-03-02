@@ -414,46 +414,42 @@ if config["params"]["binning"]["concoct"]["do"]:
 
                 cat {params.basename}_log.txt >> {log}
 
-                exitcode=$?
-                if [ $exitcode -eq 1 ]
+                grep -oEi 'Not enough contigs pass the threshold filter' {params.basename}_log.txt
+                grepcode=$?
+                if [ $grepcode -eq 0 ]
                 then
-                    grep -oEi 'Not enough contigs pass the threshold filter' {params.basename}_log.txt
-                    grepcode=$?
-                    if [ $grepcode -eq 0 ]
-                    then
-                        exit 0
-                    else
-                        exit $exitcode
-                    fi
+                    echo "Not enough contigs pass the threshold, touch empty concoct output directory"
                 fi
                 ''')
 
-            shell(
-                '''
-                merge_cutup_clustering.py \
-                {params.basename}_clustering_gt1000.csv \
-                > {params.basename}_clustering_merged.csv
-                ''')
+            if os.path.exists("{params.basename}_clustering_gt1000.csv"):
 
-            shell(
-                '''
-                extract_fasta_bins.py \
-                {input.scaftigs} \
-                {params.basename}_clustering_merged.csv \
-                --output_path {output.bins_dir}
-                ''')
+                shell(
+                    '''
+                    merge_cutup_clustering.py \
+                    {params.basename}_clustering_gt1000.csv \
+                    > {params.basename}_clustering_merged.csv
+                    ''')
 
-            with os.scandir(output.bins_dir) as itr:
-                i = 0
-                for entry in itr:
-                    bin_id, suffix = os.path.splitext(entry.name)
-                    if suffix == "." + params.bin_suffix:
-                        i += 1
-                        shell('''mv %s %s''' \
-                              % (os.path.join(output.bins_dir, entry.name),
-                                 os.path.join(params.basename + "." + \
-                                              str(i) + "." + \
-                                              params.bin_suffix)))
+                shell(
+                    '''
+                    extract_fasta_bins.py \
+                    {input.scaftigs} \
+                    {params.basename}_clustering_merged.csv \
+                    --output_path {output.bins_dir}
+                    ''')
+
+                with os.scandir(output.bins_dir) as itr:
+                    i = 0
+                    for entry in itr:
+                        bin_id, suffix = os.path.splitext(entry.name)
+                        if suffix == "." + params.bin_suffix:
+                            i += 1
+                            shell('''mv %s %s''' \
+                                  % (os.path.join(output.bins_dir, entry.name),
+                                     os.path.join(params.basename + "." + \
+                                                  str(i) + "." + \
+                                                  params.bin_suffix)))
 
 
     rule binning_concoct_all:
