@@ -291,7 +291,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
             index_prefix = config["params"]["rmhost"]["bowtie2"]["index_prefix"]
         shell:
             '''
-            bowtie2-build {input} {params.prefix} 2> {log}
+            bowtie2-build {input} {params.index_prefix} 2> {log}
             '''
 
 
