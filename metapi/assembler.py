@@ -85,7 +85,7 @@ def cumulative_len(x):
 
 def parse_assembly(input_tuple):
     df_ = tooler.parse(input_tuple[0]).query('length >= %d' % input_tuple[1])
-    if df_ is not None:
+    if (df_ is not None) and (not df_.empty):
         df = (
             df_.groupby(GROUP_BY_)
             .agg(
