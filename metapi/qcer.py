@@ -77,27 +77,39 @@ def change(output, sample_id, step, fq_type, reads_list):
 def compute_host_rate(df, **kwargs):
     host_rate = {}
     df = df.set_index("id")
+
+    all_state_set = set()
+    have_state_set = set()
+
     for i in df.index.unique():
+        reads_num = 0
+        for step in set(df.loc[[i], "step"].dropna().tolist()):
+            all_state_set.add((i, step))
+
         if not pd.isnull(i):
             if not df.loc[[i], ].query('reads=="fq1" and step=="rmhost"').empty:
-                reads_num_rmhost = df.loc[[i], ].query('reads=="fq1" and step=="rmhost"')[
-                    "num_seqs"
-                ][0]
+                have_state_set.add((i, "rmhost"))
+                reads_num_rmhost = df.loc[[i], ].query('reads=="fq1" and step=="rmhost"')["num_seqs"][0]
+
                 if not df.loc[[i], ].query('reads=="fq1" and step=="trimming"').empty:
-                    reads_num = df.loc[[i], ].query('reads=="fq1" and step=="trimming"')[
-                        "num_seqs"
-                    ][0]
+                    have_state_set.add((i, "trimming"))
+                    reads_num = df.loc[[i], ].query('reads=="fq1" and step=="trimming"')["num_seqs"][0]
+
                 elif not df.loc[[i], ].query('reads=="fq1" and step=="raw"').empty:
-                    reads_num = df.loc[[i], ].query('reads=="fq1" and step=="raw"')[
-                        "num_seqs"
-                    ][0]
+                    have_state_set.add((i, "raw"))
+                    reads_num = df.loc[[i], ].query('reads=="fq1" and step=="raw"')["num_seqs"][0]
+
                 hostrate = (reads_num - reads_num_rmhost) / reads_num
                 host_rate[i] = hostrate
             else:
                 host_rate[i] = np.nan
-        else:
-            print("exists NA value in sample id list, please check")
-            sys.exit(1)
+
+    not_have_state_set = all_state_set - have_state_set
+    if len(not_have_state_set) > 0:
+        for j in not_have_state_set:
+            print(f'''There are no {j[0]} full stats report for {j[1]} step''')
+        print("Please check stats report again for each sample")
+        sys.exit(1)
 
     df = df.reset_index()
     df["host_rate"] = df.apply(lambda x: host_rate[x["id"]], axis=1)
