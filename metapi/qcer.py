@@ -11,56 +11,125 @@ import pandas as pd
 import numpy as np
 
 import matplotlib
+
 matplotlib.use("agg")
 
 
 def parse_fastp_json(json_f, paired):
     trimming_dict = {}
     sample_id = os.path.basename(json_f).split(".")[0]
-    with open(json_f, 'r') as ih:
+    with open(json_f, "r") as ih:
         json_ob = json.load(ih)
         trimming_dict["sample_id"] = sample_id
-        trimming_dict["before_filtering_total_reads"] = json_ob["summary"]["before_filtering"]["total_reads"]
-        trimming_dict["before_filtering_total_bases"] = json_ob["summary"]["before_filtering"]["total_bases"]
-        trimming_dict["before_filtering_q20_bases"] = json_ob["summary"]["before_filtering"]["q20_bases"]
-        trimming_dict["before_filtering_q30_bases"] = json_ob["summary"]["before_filtering"]["q30_bases"]
-        trimming_dict["before_filtering_q20_rate"] = json_ob["summary"]["before_filtering"]["q20_rate"]
-        trimming_dict["before_filtering_q30_rate"] = json_ob["summary"]["before_filtering"]["q30_rate"]
-        trimming_dict["before_filtering_qc_content"] = json_ob["summary"]["before_filtering"]["qc_content"]
-        trimming_dict["before_filtering_read1_mean_length"] = json_ob["summary"]["before_filtering"]["read1_mean_length"]
+        trimming_dict["before_filtering_total_reads"] = json_ob["summary"][
+            "before_filtering"
+        ]["total_reads"]
+        trimming_dict["before_filtering_total_bases"] = json_ob["summary"][
+            "before_filtering"
+        ]["total_bases"]
+        trimming_dict["before_filtering_q20_bases"] = json_ob["summary"][
+            "before_filtering"
+        ]["q20_bases"]
+        trimming_dict["before_filtering_q30_bases"] = json_ob["summary"][
+            "before_filtering"
+        ]["q30_bases"]
+        trimming_dict["before_filtering_q20_rate"] = json_ob["summary"][
+            "before_filtering"
+        ]["q20_rate"]
+        trimming_dict["before_filtering_q30_rate"] = json_ob["summary"][
+            "before_filtering"
+        ]["q30_rate"]
+        trimming_dict["before_filtering_qc_content"] = json_ob["summary"][
+            "before_filtering"
+        ]["qc_content"]
+        trimming_dict["before_filtering_read1_mean_length"] = json_ob["summary"][
+            "before_filtering"
+        ]["read1_mean_length"]
         if paired:
-            trimming_dict["before_filtering_read2_mean_length"] = json_ob["summary"]["before_filtering"]["read2_mean_length"]
+            trimming_dict["before_filtering_read2_mean_length"] = json_ob["summary"][
+                "before_filtering"
+            ]["read2_mean_length"]
 
-        trimming_dict["read1_before_filtering_total_reads"] = json_ob["read1_before_filtering"]["total_reads"]
-        trimming_dict["read1_before_filtering_total_bases"] = json_ob["read1_before_filtering"]["total_bases"]
-        trimming_dict["read1_before_filtering_q20_bases"] = json_ob["read1_before_filtering"]["q20_bases"]
-        trimming_dict["read1_before_filtering_q30_bases"] = json_ob["read1_before_filtering"]["q30_bases"]
+        trimming_dict["read1_before_filtering_total_reads"] = json_ob[
+            "read1_before_filtering"
+        ]["total_reads"]
+        trimming_dict["read1_before_filtering_total_bases"] = json_ob[
+            "read1_before_filtering"
+        ]["total_bases"]
+        trimming_dict["read1_before_filtering_q20_bases"] = json_ob[
+            "read1_before_filtering"
+        ]["q20_bases"]
+        trimming_dict["read1_before_filtering_q30_bases"] = json_ob[
+            "read1_before_filtering"
+        ]["q30_bases"]
         if paired:
-            trimming_dict["read2_before_filtering_total_reads"] = json_ob["read2_before_filtering"]["total_reads"]
-            trimming_dict["read2_before_filtering_total_bases"] = json_ob["read2_before_filtering"]["total_bases"]
-            trimming_dict["read2_before_filtering_q20_bases"] = json_ob["read2_before_filtering"]["q20_bases"]
-            trimming_dict["read2_before_filtering_q30_bases"] = json_ob["read2_before_filtering"]["q30_bases"]
+            trimming_dict["read2_before_filtering_total_reads"] = json_ob[
+                "read2_before_filtering"
+            ]["total_reads"]
+            trimming_dict["read2_before_filtering_total_bases"] = json_ob[
+                "read2_before_filtering"
+            ]["total_bases"]
+            trimming_dict["read2_before_filtering_q20_bases"] = json_ob[
+                "read2_before_filtering"
+            ]["q20_bases"]
+            trimming_dict["read2_before_filtering_q30_bases"] = json_ob[
+                "read2_before_filtering"
+            ]["q30_bases"]
 
-        trimming_dict["after_filtering_total_reads"] = json_ob["summary"]["after_filtering"]["total_reads"]
-        trimming_dict["after_filtering_total_bases"] = json_ob["summary"]["after_filtering"]["total_bases"]
-        trimming_dict["after_filtering_q20_bases"] = json_ob["summary"]["after_filtering"]["q20_bases"]
-        trimming_dict["after_filtering_q30_bases"] = json_ob["summary"]["after_filtering"]["q30_bases"]
-        trimming_dict["after_filtering_q20_rate"] = json_ob["summary"]["after_filtering"]["q20_rate"]
-        trimming_dict["after_filtering_q30_rate"] = json_ob["summary"]["after_filtering"]["q30_rate"]
-        trimming_dict["after_filtering_qc_content"] = json_ob["summary"]["after_filtering"]["qc_content"]
-        trimming_dict["after_filtering_read1_mean_length"] = json_ob["summary"]["after_filtering"]["read1_mean_length"]
+        trimming_dict["after_filtering_total_reads"] = json_ob["summary"][
+            "after_filtering"
+        ]["total_reads"]
+        trimming_dict["after_filtering_total_bases"] = json_ob["summary"][
+            "after_filtering"
+        ]["total_bases"]
+        trimming_dict["after_filtering_q20_bases"] = json_ob["summary"][
+            "after_filtering"
+        ]["q20_bases"]
+        trimming_dict["after_filtering_q30_bases"] = json_ob["summary"][
+            "after_filtering"
+        ]["q30_bases"]
+        trimming_dict["after_filtering_q20_rate"] = json_ob["summary"][
+            "after_filtering"
+        ]["q20_rate"]
+        trimming_dict["after_filtering_q30_rate"] = json_ob["summary"][
+            "after_filtering"
+        ]["q30_rate"]
+        trimming_dict["after_filtering_qc_content"] = json_ob["summary"][
+            "after_filtering"
+        ]["qc_content"]
+        trimming_dict["after_filtering_read1_mean_length"] = json_ob["summary"][
+            "after_filtering"
+        ]["read1_mean_length"]
         if paired:
-            trimming_dict["after_filtering_read2_mean_length"] = json_ob["summary"]["after_filtering"]["read2_mean_length"]
+            trimming_dict["after_filtering_read2_mean_length"] = json_ob["summary"][
+                "after_filtering"
+            ]["read2_mean_length"]
 
-        trimming_dict["read1_after_filtering_total_reads"] = json_ob["read1_after_filtering"]["total_reads"]
-        trimming_dict["read1_after_filtering_total_bases"] = json_ob["read1_after_filtering"]["total_bases"]
-        trimming_dict["read1_after_filtering_q20_bases"] = json_ob["read1_after_filtering"]["q20_bases"]
-        trimming_dict["read1_after_filtering_q30_bases"] = json_ob["read1_after_filtering"]["q30_bases"]
+        trimming_dict["read1_after_filtering_total_reads"] = json_ob[
+            "read1_after_filtering"
+        ]["total_reads"]
+        trimming_dict["read1_after_filtering_total_bases"] = json_ob[
+            "read1_after_filtering"
+        ]["total_bases"]
+        trimming_dict["read1_after_filtering_q20_bases"] = json_ob[
+            "read1_after_filtering"
+        ]["q20_bases"]
+        trimming_dict["read1_after_filtering_q30_bases"] = json_ob[
+            "read1_after_filtering"
+        ]["q30_bases"]
         if paired:
-            trimming_dict["read2_after_filtering_total_reads"] = json_ob["read2_after_filtering"]["total_reads"]
-            trimming_dict["read2_after_filtering_total_bases"] = json_ob["read2_after_filtering"]["total_bases"]
-            trimming_dict["read2_after_filtering_q20_bases"] = json_ob["read2_after_filtering"]["q20_bases"]
-            trimming_dict["read2_after_filtering_q30_bases"] = json_ob["read2_after_filtering"]["q30_bases"]
+            trimming_dict["read2_after_filtering_total_reads"] = json_ob[
+                "read2_after_filtering"
+            ]["total_reads"]
+            trimming_dict["read2_after_filtering_total_bases"] = json_ob[
+                "read2_after_filtering"
+            ]["total_bases"]
+            trimming_dict["read2_after_filtering_q20_bases"] = json_ob[
+                "read2_after_filtering"
+            ]["q20_bases"]
+            trimming_dict["read2_after_filtering_q30_bases"] = json_ob[
+                "read2_after_filtering"
+            ]["q30_bases"]
 
         return trimming_dict
 
@@ -74,42 +143,56 @@ def change(output, sample_id, step, fq_type, reads_list):
     df.to_csv(output, sep="\t", index=False)
 
 
-def compute_host_rate(df, **kwargs):
-    host_rate = {}
-    df = df.set_index("id")
-
+def compute_host_rate(df, steps, samples_id_list, **kwargs):
     all_state_set = set()
     have_state_set = set()
+    sample_reads = {}
+    host_rate = {}
 
-    for i in df.index.unique():
-        reads_num = 0
-        for step in set(df.loc[[i], "step"].dropna().tolist()):
-            all_state_set.add((i, step))
+    for step in steps:
+        for sample_id in samples_id_list:
+            all_state_set.add((sample_id, step))
 
-        if not pd.isnull(i):
-            if not df.loc[[i], ].query('reads=="fq1" and step=="rmhost"').empty:
-                have_state_set.add((i, "rmhost"))
-                reads_num_rmhost = df.loc[[i], ].query('reads=="fq1" and step=="rmhost"')["num_seqs"][0]
-
-                if not df.loc[[i], ].query('reads=="fq1" and step=="trimming"').empty:
-                    have_state_set.add((i, "trimming"))
-                    reads_num = df.loc[[i], ].query('reads=="fq1" and step=="trimming"')["num_seqs"][0]
-
-                elif not df.loc[[i], ].query('reads=="fq1" and step=="raw"').empty:
-                    have_state_set.add((i, "raw"))
-                    reads_num = df.loc[[i], ].query('reads=="fq1" and step=="raw"')["num_seqs"][0]
-
-                hostrate = (reads_num - reads_num_rmhost) / reads_num
-                host_rate[i] = hostrate
-            else:
-                host_rate[i] = np.nan
+    for sample_id in df.index.unique():
+        if not pd.isnull(sample_id):
+            sample_reads[sample_id] = {}
+            for step in steps:
+                step_df = df.loc[
+                    [sample_id],
+                ].query(f'''reads=="fq1" and step=="{step}"''')
+                if not step_df.empty:
+                    num_seqs = step_df["num_seqs"][0]
+                    if num_seqs >= 0:
+                        have_state_set.add((sample_id, step))
+                        sample_reads[sample_id][step] = num_seqs
+                    else:
+                        print(f"""WARNING: {sample_id}_{step}_num_seqs: {num_seqs}""")
+        else:
+            print("WARNING: found NA sample id in qcreport summary")
 
     not_have_state_set = all_state_set - have_state_set
     if len(not_have_state_set) > 0:
         for j in not_have_state_set:
-            print(f'''There are no {j[0]} full stats report for {j[1]} step''')
+            print(f"""WARNING: there are no {j[0]} full stats report for {j[1]} step""")
         print("Please check stats report again for each sample")
         sys.exit(1)
+    else:
+        for sample_id in df.index.unique():
+            if "rmhost" in steps:
+                if "trimming" in steps:
+                    host_rate[sample_id] = (
+                        sample_reads[sample_id]["trimming"]
+                        - sample_reads[sample_id]["rmhost"]
+                    ) / sample_reads[sample_id]["trimming"]
+                elif "raw" in steps:
+                    host_rate[sample_id] = (
+                        sample_reads[sample_id]["raw"]
+                        - sample_reads[sample_id]["rmhost"]
+                    ) / sample_reads[sample_id]["raw"]
+                else:
+                    host_rate[sample_id] = np.nan
+            else:
+                host_rate[sample_id] = np.nan
 
     df = df.reset_index()
     df["host_rate"] = df.apply(lambda x: host_rate[x["id"]], axis=1)
@@ -146,18 +229,36 @@ def qc_bar_plot(df, engine, stacked=False, **kwargs):
                 reads_host = 0
                 reads_clean = 0
 
-                if not df.loc[[i], ].query('reads=="fq1" and step=="raw"').empty:
-                    reads_total = df.loc[[i], ].query('reads=="fq1" and step=="raw"')[
+                if (
+                    not df.loc[
+                        [i],
+                    ]
+                    .query('reads=="fq1" and step=="raw"')
+                    .empty
+                ):
+                    reads_total = df.loc[[i],].query('reads=="fq1" and step=="raw"')[
                         "num_seqs"
                     ][0]
 
-                if not df.loc[[i], ].query('reads=="fq1" and step=="trimming"').empty:
-                    reads_trim = df.loc[[i], ].query('reads=="fq1" and step=="trimming"')[
-                        "num_seqs"
-                    ][0]
+                if (
+                    not df.loc[
+                        [i],
+                    ]
+                    .query('reads=="fq1" and step=="trimming"')
+                    .empty
+                ):
+                    reads_trim = df.loc[[i],].query(
+                        'reads=="fq1" and step=="trimming"'
+                    )["num_seqs"][0]
 
-                if not df.loc[[i], ].query('reads=="fq1" and step=="rmhost"').empty:
-                    reads_clean = df.loc[[i], ].query('reads=="fq1" and step=="rmhost"')[
+                if (
+                    not df.loc[
+                        [i],
+                    ]
+                    .query('reads=="fq1" and step=="rmhost"')
+                    .empty
+                ):
+                    reads_clean = df.loc[[i],].query('reads=="fq1" and step=="rmhost"')[
                         "num_seqs"
                     ][0]
 
@@ -195,8 +296,7 @@ def main():
     trimming_list = pd.read_csv(
         args.trimming_stats_list, header=None, names=["trimming"]
     )
-    rmhost_list = pd.read_csv(args.rmhost_stats_list,
-                              header=None, names=["rmhost"])
+    rmhost_list = pd.read_csv(args.rmhost_stats_list, header=None, names=["rmhost"])
 
     df = tooler.merge(
         raw_list["raw"].dropna().tolist()
@@ -206,7 +306,12 @@ def main():
         8,
     )
 
-    df_ = compute_host_rate(df, output=os.path.join(args.output, ".stats.tsv"))
+    df_ = compute_host_rate(
+        df,
+        ["raw", "trimming", "rmhost"],
+        df.set_index("id").index.unique(),
+        output=os.path.join(args.output, ".stats.tsv"),
+    )
     qc_bar_plot(df_, "seaborn", output=os.path.join(args.output, ".plot.pdf"))
 
 
