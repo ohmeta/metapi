@@ -153,6 +153,7 @@ def compute_host_rate(df, steps, samples_id_list, **kwargs):
         for sample_id in samples_id_list:
             all_state_set.add((sample_id, step))
 
+    df = df.set_index("id")
     for sample_id in df.index.unique():
         if not pd.isnull(sample_id):
             sample_reads[sample_id] = {}
@@ -161,16 +162,27 @@ def compute_host_rate(df, steps, samples_id_list, **kwargs):
                     [sample_id],
                 ].query(f'''reads=="fq1" and step=="{step}"''')
                 if not step_df.empty:
-                    num_seqs = step_df["num_seqs"][0]
+                    num_seqs = step_df["num_seqs"].to_list()[0]
+                    #print(num_seqs)
                     if num_seqs >= 0:
+                        #print(sample_id)
                         have_state_set.add((sample_id, step))
                         sample_reads[sample_id][step] = num_seqs
                     else:
-                        print(f"""WARNING: {sample_id}_{step}_num_seqs: {num_seqs}""")
+                        print(f'''WARNING: {sample_id}_{step}_num_seqs: {num_seqs}''')
         else:
             print("WARNING: found NA sample id in qcreport summary")
 
     not_have_state_set = all_state_set - have_state_set
+
+    #print("\n")
+    #print(all_state_set)
+    #print("\n")
+    #print(have_state_set)
+    #print("\n")
+    #print(not_have_state_set)
+    #print("\n")
+
     if len(not_have_state_set) > 0:
         for j in not_have_state_set:
             print(f"""WARNING: there are no {j[0]} full stats report for {j[1]} step""")
