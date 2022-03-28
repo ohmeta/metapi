@@ -278,8 +278,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v2"]:
             analysis_type = config["params"]["profiling"]["metaphlan"]["analysis_type"],
             bowtie2out = os.path.join(
                config["output"]["profiling"],
-               "profile/metaphlan2/{sample}/{sample}.metaphlan2.bowtie2.bz2"),
-            save_bowtie2out = config["params"]["profiling"]["metaphlan"]["save_bowtie2out"]
+               "profile/metaphlan2/{sample}/{sample}.metaphlan2.bowtie2.bz2")
         priority:
             20
         threads:
@@ -376,6 +375,9 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                 bowtie2_presets = config["params"]["profiling"]["metaphlan"]["bowtie2_presets"],
                 min_cu_len = config["params"]["profiling"]["metaphlan"]["min_cu_len"],
                 taxonomic_level = config["params"]["profiling"]["metaphlan"]["taxonomic_level"],
+                ignore_markers = "--ignore_markers %s" % config["params"]["profiling"]["metaphlan"]["ignore_markers"] \
+                    if os.path.exists(config["params"]["profiling"]["metaphlan"]["ignore_markers"]) \
+                    else "",
                 avoid_disqm = "--avoid_disqm" \
                     if config["params"]["profiling"]["metaphlan"]["avoid_disqm"] \
                     else "",
@@ -422,6 +424,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                 --bt2_ps {params.bowtie2_presets} \
                 --min_cu_len {params.min_cu_len} \
                 --tax_lev {params.taxonomic_level} \
+                {params.ignore_markers} \
                 {params.avoid_disqm} \
                 --stat_q {params.stat_q} \
                 --stat {params.stat} \
@@ -481,6 +484,9 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                 bowtie2_presets = config["params"]["profiling"]["metaphlan"]["bowtie2_presets"],
                 min_cu_len = config["params"]["profiling"]["metaphlan"]["min_cu_len"],
                 taxonomic_level = config["params"]["profiling"]["metaphlan"]["taxonomic_level"],
+                ignore_markers = "--ignore_markers %s" % config["params"]["profiling"]["metaphlan"]["ignore_markers"] \
+                    if os.path.exists(config["params"]["profiling"]["metaphlan"]["ignore_markers"]) \
+                    else "",
                 avoid_disqm = "--avoid_disqm" \
                     if config["params"]["profiling"]["metaphlan"]["avoid_disqm"] \
                     else "",
@@ -534,6 +540,7 @@ if config["params"]["profiling"]["metaphlan"]["do_v3"]:
                         --bt2_ps {params.bowtie2_presets} \
                         --min_cu_len {params.min_cu_len} \
                         --tax_lev {params.taxonomic_level} \
+                        {params.ignore_markers} \
                         {params.avoid_disqm} \
                         --stat_q {params.stat_q} \
                         --stat {params.stat} \
