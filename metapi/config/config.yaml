@@ -359,6 +359,7 @@ params:
       bowtie2_presets: "very-sensitive"
       taxonomic_level: "a"
       min_cu_len: 2000
+      ignore_markers: "/path/to/ignore_markers.txt"
       avoid_disqm: True
       analysis_type: "rel_ab_w_read_stats"
       #  [
@@ -376,7 +377,6 @@ params:
       unknown_estimation: True
       add_viruses: True
       read_min_len: 70
-      save_bowtie2out: False
       legacy_output: False
       cami_format_output: False
       no_map: True
