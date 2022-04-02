@@ -3,9 +3,15 @@ if config["params"]["classify"]["kraken2"]["do"]:
         input:
             reads = assembly_input_with_short_reads
         output:
-           report = protected(os.path.join(
+            report = protected(os.path.join(
                 config["output"]["classify"],
-                "short_reads/{sample}.kraken2.out/{sample}.kraken2.report"))
+                "short_reads/{sample}.kraken2.out/{sample}.kraken2.report")),
+            report_mpa_reads_count = protected(os.path.join(
+                config["output"]["classify"],
+                "short_reads/{sample}.kraken2.out/{sample}.kraken2.report.mpa.reads_count")),
+            report_mpa_percentages = protected(os.path.join(
+                config["output"]["classify"],
+                "short_reads/{sample}.kraken2.out/{sample}.kraken2.report.mpa.percentages"))
         log:
             os.path.join(config["output"]["classify"],
                          "logs/{sample}.kraken2.log")
@@ -78,7 +84,23 @@ if config["params"]["classify"]["kraken2"]["do"]:
                 {params.paired} \
                 {input.reads} \
                 2> {log}
-                ''') 
+                ''')
+
+            shell(
+                '''
+                kreport2mpa.py \
+                --report-file {output.report} \
+                --display-header \
+                --no-intermediate-ranks \
+                --read_count \
+                --output {output.report_mpa_reads_count}
+
+                kreport2mpa.py \
+                --report {output.report} \
+                --no-intermediate-ranks \
+                --percentages \
+                --output {output.report_mpa_percentages}
+                ''')
 
             if params.save_table:
                 shell('''pigz %s''' % params.table.split(" ")[-1])
@@ -101,16 +123,74 @@ if config["params"]["classify"]["kraken2"]["do"]:
             '''
 
 
+    rule classify_short_reads_kraken2_combine_kreport:
+        input:
+            expand(
+                os.path.join(
+                    config["output"]["classify"],
+                    "short_reads/{sample}.kraken2.out/{sample}.kraken2.report"),
+                sample=SAMPLES.index.unique())
+        output:
+            os.path.join(
+                config["output"]["classify"],
+                "report/kraken2_report.all.tsv")
+        params:
+            samples_name = " ".join(list(SAMPLES.index.unique()))
+        shell:
+            '''
+            combine_kreports.py \
+            --report-file {input} \
+            --sample-names {params.samples_name} \
+            --display-headers \
+            --output {output}
+            '''
+
+
+    rule classify_short_reads_kraken2_combine_kreport_mpa:
+        input:
+            report_mpa_reads_count = expand(os.path.join(
+                config["output"]["classify"],
+                "short_reads/{sample}.kraken2.out/{sample}.kraken2.report.mpa.reads_count"),
+                sample=SAMPLES.index.unique()),
+            report_mpa_percentages = expand(os.path.join(
+                config["output"]["classify"],
+                "short_reads/{sample}.kraken2.out/{sample}.kraken2.report.mpa.percentages"),
+                sample=SAMPLES.index.unique())
+        output:
+            report_mpa_reads_count = os.path.join(
+                config["output"]["classify"],
+                "report/kraken2_report.mpa.reads_count.tsv"),
+            report_mpa_percentages = os.path.join(
+                config["output"]["classify"],
+                "report/kraken2_report.mpa.percentages.tsv")
+        shell:
+            '''
+            combine_mpa.py \
+            --input {input.report_mpa_reads_count} \
+            --output {output.report_mpa_reads_count}
+
+            combine_mpa.py \
+            --input {input.report_mpa_percentages} \
+            --output {output.report_mpa_percentages}
+            '''
+
+
     rule classify_short_reads_kraken2_all:
         input:
             expand([
                 os.path.join(
                     config["output"]["classify"],
-                    "short_reads/{sample}.kraken2.out/{sample}.kraken2.report"),
+                    "short_reads/{sample}.kraken2.out/{sample}.kraken2.report{suffix}"),
                 os.path.join(
                     config["output"]["classify"],
-                    "report/kraken2_krona.all.html")],
-                   sample=SAMPLES.index.unique()),
+                    "report/kraken2_krona.all.html"),
+                os.path.join(
+                    config["output"]["classify"],
+                    "report/kraken2_report.{report}.tsv")
+                    ],
+                    suffix=["", ".mpa.reads_count", ".mpa.percentages"],
+                    report=["all", "mpa.reads_count", "mpa.percentages"],
+                    sample=SAMPLES.index.unique()),
 
             #rules.rmhost_all.input,
             rules.qcreport_all.input

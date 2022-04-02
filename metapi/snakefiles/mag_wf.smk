@@ -245,6 +245,9 @@ localrules: \
     dereplicate_mags_drep_all, \
     dereplicate_mags_all, \
     dereplicate_all, \
+    classify_short_reads_kraken2_krona_report,
+    classify_short_reads_kraken2_combine_kreport,
+    classify_short_reads_kraken2_combine_kreport_mpa,
     classify_short_reads_kraken2_all, \
     single_classify_hmq_bins_gtdbtk_all, \
     coclassify_hmq_bins_gtdbtk_all, \
