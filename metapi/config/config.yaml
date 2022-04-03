@@ -53,14 +53,14 @@ params:
       n_base_limit: 5
 
   rmhost:
-    host_fasta: "~/databases/galaxy_indexes/hg38/seq/hg38full.fa"
+    host_fasta: "/home/zhujie/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"
     threads: 8
     save_reads: True
     save_bam: False
     compression: 6
     soap:
       do: False
-      index_prefix: "~/databases/galaxy_indexes/hg38/hg38full/soap_index/hg38full.fa.index"
+      index_prefix: "/home/zhujie/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"
       match_model: 4
       align_seed: 30
       report_repeat_hits: 1
@@ -69,22 +69,22 @@ params:
     bwa:
       do: False
       algorithms: "mem" # "mem2"
-      index_prefix: "~/databases/galaxy_indexes/hg38/hg38full/bwa_index/hg38full.fa"
+      index_prefix: "/home/zhujie/databases/genomics/human/CHM13/chm13v2.0_plusY/bwa_index/chm13v2.0.fa"
       # /ldfssz1/ST_META/share/User/zhujie/database/galaxy_indexes/hg38/hg38full/bwa_mem2_index/hg38full.fa
       # /ldfssz1/ST_META/share/User/zhujie/database/mouse/GRCm39/bwa_mem2_index/GRCm39.fna
       minimum_seed_length: 23
     bowtie2:
       do: True
-      index_prefix: "~/databases/galaxy_indexes/hg38/hg38full/bowtie2_index/hg38full"
+      index_prefix: "/home/zhujie/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"
       presets: "--very-sensitive"
     minimap2:
       do: False
       split_size: "4G"
       preset: "sr"
-      index: "~/databases/galaxy_indexes/hg38/hg38full/minimap2_index/hg38full.mmi"
+      index: "/home/zhujie/databases/genomics/human/CHM13/chm13v2.0_plusY/minimap_index/chm13v2.0.fa"
     kraken2:
       do: False
-      database: "~/databases/kraken/minikraken2_v2_8GB_201904_UPDATE"
+      database: "/home/zhujie/databases/kraken/minikraken2_v2_8GB_201904_UPDATE"
       host_taxid: 9606
       # must include human reference genome
       confidence: 0
@@ -100,7 +100,7 @@ params:
       do_bowtie2: True
       decontaminate_pairs: "strict" # ["strict", "lenient", "unpaired"]
       bowtie2_options: "--very-sensitive --dovetail"
-      bowtie2_database: "~/databases/kneaddata/human_genome_bowtie2/hg37dec_v0.1"
+      bowtie2_database: "/home/zhujie/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"
  
   qcreport:
     do: True
@@ -283,7 +283,7 @@ params:
     threads: 8
     kraken2:
       do: True
-      database: "~/databases/kraken2/k2_standard_20210517"
+      database: "/home/zhujie/databases/ecogenomics/Struo2/GTDB_release202/kraken2"
       quick: False
       memory_mapping: False
       use_names: True
@@ -299,10 +299,10 @@ params:
       do: True
       pplacer_threads: 1
       batch_num: 1000
-      gtdb_data_path: "~/databases/gtdb/db"
-      ar122_metadata: "~/databases/gtdb/ar122_metadata_r202.tsv"
-      bac120_metadata: "~/databases/gtdb/bac120_metadata_r202.tsv"
-      gtdb_to_ncbi_script: "~/toolkit/GTDBTk/scripts/gtdb_to_ncbi_majority_vote.py"
+      gtdb_data_path: "/home/zhujie/databases/ecogenomics/GTDB/release202"
+      ar122_metadata: "/home/zhujie/databases/ecogenomics/GTDB/release202/ar122_metadata_r202.tsv"
+      bac120_metadata: "/home/zhujie/databases/ecogenomics/GTDB/release202/bac120_metadata_r202.tsv"
+      gtdb_to_ncbi_script: "/home/zhujie/toolkit/GTDBTk/scripts/gtdb_to_ncbi_majority_vote.py"
 
   dereplicate:
     drep:

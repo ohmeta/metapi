@@ -18,7 +18,7 @@ if config["params"]["qcreport"]["do"]:
             config["params"]["qcreport"]["seqkit"]["threads"]
         run:
             df = metapi.merge(input, metapi.parse, threads)
-            metapi.compute_host_rate(df, STEPS, SAMPLES.index.unique(), output=output[0])
+            metapi.compute_host_rate(df, STEPS, SAMPLES_ID_LIST, output=output[0])
 
 
     rule qcreport_plot:

@@ -3,6 +3,7 @@
 import sys
 import metapi
 import pandas as pd
+from pprint import pprint
 
 shell.executable("bash")
 
@@ -107,6 +108,10 @@ else:
                                    config["params"]["reads_layout"],
                                    config["params"]["begin"])
 
+SAMPLES_ID_LIST = SAMPLES.index.get_level_values("sample_id").unique()
+SAMPLES_ASSEMBLY_GROUP_LIST = SAMPLES.index.get_level_values("assembly_group").unique()
+SAMPLES_BINNING_GROUP_LIST = SAMPLES.index.get_level_values("binning_group").unique()
+
 
 READS_FORMAT = "sra" \
     if "sra" in SAMPLES.columns \
@@ -134,23 +139,23 @@ include: "../rules/trimming.smk"
 include: "../rules/rmhost.smk"
 include: "../rules/qcreport.smk"
 include: "../rules/assembly.smk"
-include: "../rules/coassembly.smk"
-include: "../rules/predict_scaftigs.smk"
-include: "../rules/copredict_scaftigs.smk"
-include: "../rules/alignment.smk"
-include: "../rules/coalignment.smk"
-include: "../rules/binning.smk"
-include: "../rules/cobinning.smk"
-include: "../rules/multisplit_binning.smk"
-include: "../rules/predict_bins.smk"
-include: "../rules/copredict_bins.smk"
-include: "../rules/checkm.smk"
-include: "../rules/cocheckm.smk"
-include: "../rules/dereplicate_mags.smk"
-include: "../rules/classify.smk"
-include: "../rules/coclassify.smk"
-include: "../rules/profiling.smk"
-include: "../rules/upload.smk"
+#include: "../rules/coassembly.smk"
+#include: "../rules/predict_scaftigs.smk"
+#include: "../rules/copredict_scaftigs.smk"
+#include: "../rules/alignment.smk"
+#include: "../rules/coalignment.smk"
+#include: "../rules/binning.smk"
+#include: "../rules/cobinning.smk"
+#include: "../rules/multisplit_binning.smk"
+#include: "../rules/predict_bins.smk"
+#include: "../rules/copredict_bins.smk"
+#include: "../rules/checkm.smk"
+#include: "../rules/cocheckm.smk"
+#include: "../rules/dereplicate_mags.smk"
+#include: "../rules/classify.smk"
+#include: "../rules/coclassify.smk"
+#include: "../rules/profiling.smk"
+#include: "../rules/upload.smk"
 
 
 rule all:
@@ -160,16 +165,16 @@ rule all:
         rules.trimming_all.input,
         rules.rmhost_all.input,
         rules.qcreport_all.input,
-        rules.assembly_all.input,
-        rules.predict_scaftigs_gene_all.input,
-        rules.alignment_all.input,
-        rules.binning_all.input,
-        rules.predict_bins_gene_all.input,
-        rules.checkm_all.input,
-        rules.dereplicate_mags_all.input,
-        rules.classify_all.input,
-        rules.profiling_all.input,
-        rules.upload_all.input
+        rules.assembly_all.input#,
+#        rules.predict_scaftigs_gene_all.input,
+#        rules.alignment_all.input,
+#        rules.binning_all.input,
+#        rules.predict_bins_gene_all.input,
+#        rules.checkm_all.input,
+#        rules.dereplicate_mags_all.input,
+#        rules.classify_all.input,
+#        rules.profiling_all.input,
+#        rules.upload_all.input
 
 
 localrules: \

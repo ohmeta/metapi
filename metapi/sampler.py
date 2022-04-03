@@ -17,19 +17,19 @@ def parse_samples(
     check_samples=False,
 ):
     samples_df = pd.read_csv(
-        samples_tsv, sep="\t", dtype={"id": str, "fq1": str, "fq2": str}
-    ).set_index("id", drop=False)
+        samples_tsv, sep="\t", dtype={"sample_id": str, "fq1": str, "fq2": str}
+    ).set_index(["sample_id", "assembly_group", "binning_group"])
 
     cancel = False
     if "fq1" in samples_df.columns:
-        for sample_id in samples_df.index.unique():
+        for sample_id in samples_df.index.get_level_values("sample_id").unique():
             sample_id = str(sample_id)
             if "." in sample_id:
                 print(f"{sample_id} contain '.', please remove '.', now quiting :)")
                 cancel = True
 
-            fq1_list = samples_df.loc[[sample_id], "fq1"].dropna().tolist()
-            fq2_list = samples_df.loc[[sample_id], "fq2"].dropna().tolist()
+            fq1_list = samples_df.loc(axis=0)[sample_id, :, :]["fq1"].dropna().tolist()
+            fq2_list = samples_df.loc(axis=0)[sample_id, :, :]["fq2"].dropna().tolist()
             for fq_file in fq1_list:
                 if not fq_file.endswith(".gz"):
                     print(f"{fq_file} need gzip format")
@@ -43,14 +43,14 @@ def parse_samples(
                             print(f"{sample_id} fq2 not exists")
                             cancel = True
     elif "sra" in samples_df.columns:
-        for sample_id in samples_df.index.unique():
+        for sample_id in samples_df.index.get_level_values("sample_id").unique():
             sample_id = str(sample_id)
             if "." in sample_id:
                 print(f"{sample_id} contain '.', please remove '.', now quiting :)")
                 cancel = True
 
             if check_samples:
-                sra_list = samples_df.loc[[sample_id], "sra"].dropna().tolist()
+                sra_list = samples_df.loc(axis=0)[sample_id, :, :]["sra"].dropna().tolist()
                 for sra_file in sra_list:
                     if not os.path.exists(sra_file):
                         print(f"{sra_file} not exists")
@@ -93,15 +93,19 @@ def parse_bins(bins_dir):
 
 
 def get_reads(sample_df, wildcards, col):
-    return sample_df.loc[[wildcards.sample], col].dropna().tolist()
+    return sample_df.loc(axis=0)[wildcards.sample, :, :][col].dropna().tolist()
+
+
+def get_assembly_id(sample_df, wildcards):
+    return sample_df.loc(axis=0)[:, wildcards.assembly_group, :].index.get_level_values("sample_id").unique()
 
 
 def get_sample_id(sample_df, wildcards, col):
-    return sample_df.loc[wildcards.sample, [col]].dropna()[0]
+    return sample_df.loc(axis=0)[wildcards.sample, :, :][col].dropna()[0]
 
 
 def get_sample_id_(sample_df, wildcards, col):
-    return sample_df.loc[wildcards.sample_, [col]].dropna()[0]
+    return sample_df.loc(axis=0)[wildcards.sample_, :, :][col].dropna()[0]
 
 
 def get_bin_id(bin_df, wildcards, col):

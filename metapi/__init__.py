@@ -16,6 +16,7 @@ from metapi.sampler import parse_samples
 from metapi.sampler import get_reads
 from metapi.sampler import get_sample_id
 from metapi.sampler import get_sample_id_
+from metapi.sampler import get_assembly_id
 
 from metapi.qcer import change
 from metapi.qcer import compute_host_rate
