@@ -114,6 +114,8 @@ if config["params"]["binning"]["metabat2"]["do"]:
             config["params"]["binning"]["threads"]
         shell:
             '''
+            rm -rf {output.bins_dir}
+
             metabat2 \
             --inFile {input.scaftigs} \
             --abdFile {input.coverage} \
@@ -195,6 +197,7 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             os.path.join(config["output"]["binning"],
                          "benchmark/maxbin2/{assembly_group}.{assembler}.maxbin2.benchmark.txt")
         params:
+            wrapper_dir = WRAPPER_DIR,
             bin_suffix = config["params"]["binning"]["bin_suffix"],
             bin_prefix = os.path.join(
                 config["output"]["binning"],
@@ -207,51 +210,41 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             markerset = config["params"]["binning"]["maxbin2"]["markerset"]
         threads:
             config["params"]["binning"]["threads"]
-        run:
-            import os
+        shell:
+            '''
+            rm -rf {output.bins_dir}
+            mkdir -p {output.bins_dir}
 
-            shell('''mkdir -p {output.bins_dir}''')
+            set +e
+            run_MaxBin.pl \
+            -thread {threads} \
+            -contig {input.scaftigs} \
+            -abund {input.coverage} \
+            -min_contig_length {params.min_contig} \
+            -max_iteration {params.max_iteration} \
+            -prob_threshold {params.prob_threshold} \
+            {params.plotmarker} \
+            -markerset {params.markerset} \
+            -out {params.bin_prefix} \
+            > {log} 2>&1
 
-            shell(
-                '''
-                set +e
-
-                run_MaxBin.pl \
-                -thread {threads} \
-                -contig {input.scaftigs} \
-                -abund {input.coverage} \
-                -min_contig_length {params.min_contig} \
-                -max_iteration {params.max_iteration} \
-                -prob_threshold {params.prob_threshold} \
-                {params.plotmarker} \
-                -markerset {params.markerset} \
-                -out {params.bin_prefix} \
-                > {log} 2>&1
-
-                exitcode=$?
-                if [ $exitcode -eq 1 ]
+            exitcode=$?
+            if [ $exitcode -eq 1 ]
+            then
+                grep -oEi 'Program stop' {log}
+                grepcode=$?
+                if [ $grepcode -eq 0 ]
                 then
-                    grep -oEi 'Program stop' {log}
-                    grepcode=$?
-                    if [ $grepcode -eq 0 ]
-                    then
-                        exit 0
-                    else
-                        exit $exitcode
-                    fi
+                    exit 0
+                else
+                    exit $exitcode
                 fi
-                ''')
+            fi
 
-            with os.scandir(output.bins_dir) as itr:
-                for entry in itr:
-                    bin_id, bin_suffix = os.path.splitext(entry.name)
-                    bin_name, cluster_num = bin_id.rsplit(".", maxsplit=1)
-                    bin_id = bin_name + "." + cluster_num.lstrip("0")
-                    if bin_suffix == ".fasta":
-                        shell('''mv %s %s''' \
-                              % (os.path.join(output.bins_dir, entry.name),
-                                 os.path.join(output.bins_dir,
-                                              bin_id + "." + params.bin_suffix)))
+            python {params.wrapper_dir}/maxbin2_postprocess.py \
+            {output.bins_dir} \
+            {params.bin_suffix}
+            '''
 
 
     rule binning_maxbin2_all:
@@ -318,7 +311,7 @@ if config["params"]["binning"]["concoct"]["do"]:
                 "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.cut.bed")),
             coverage = os.path.join(
                 config["output"]["binning"],
-                "coverage/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.concoct.coverage")
+                "coverage/{assembly_group}.{assembler}.out/{assembly_group}.concoct.coverage")
         priority:
             30
         conda:
@@ -363,7 +356,7 @@ if config["params"]["binning"]["concoct"]["do"]:
                 "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.cut.bed"),
             coverage = os.path.join(
                 config["output"]["binning"],
-                "coverage/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.concoct.coverage")
+                "coverage/{assembly_group}.{assembler}.out/{assembly_group}.concoct.coverage")
         output:
             bins_dir = directory(os.path.join(config["output"]["binning"],
                                               "bins/{assembly_group}.{assembler}.out/concoct"))
@@ -378,6 +371,7 @@ if config["params"]["binning"]["concoct"]["do"]:
             os.path.join(config["output"]["binning"],
                          "benchmark/concoct/{assembly_group}.{assembler}.concoct.benchmark.txt")
         params:
+            wrapper_dir = WRAPPER_DIR,
             clusters = config["params"]["binning"]["concoct"]["clusters"],
             kmer_length = config["params"]["binning"]["concoct"]["kmer_length"],
             length_threshold = config["params"]["binning"]["concoct"]["length_threshold"],
@@ -403,71 +397,56 @@ if config["params"]["binning"]["concoct"]["do"]:
                 "bins/{assembly_group}.{assembler}.out/concoct/{assembly_group}.{assembler}.concoct.bin"),
         threads:
             config["params"]["binning"]["threads"]
-        run:
-            import os
-           
-            shell('''mkdir -p {output.bins_dir}''')
+        shell:
+            '''
+            rm -rf {output.bins_dir}
+            mkdir -p {output.bins_dir}
 
-            shell(
-                '''
-                set +e
+            set +e
 
-                concoct \
-                --threads {threads} \
-                --basename {params.basename} \
-                --coverage_file {input.coverage} \
-                --composition_file {input.scaftigs_cut} \
-                --clusters {params.clusters} \
-                --kmer_length {params.kmer_length} \
-                --length_threshold {params.length_threshold} \
-                --read_length {params.read_length} \
-                --total_percentage_pca {params.total_percentage_pca} \
-                --seed {params.seed} \
-                --iterations {params.iterations} \
-                {params.no_cov_normalization} \
-                {params.no_total_coverage} \
-                {params.no_original_data} \
-                {params.coverage_out} \
-                2> {log}
+            concoct \
+            --threads {threads} \
+            --basename {params.basename} \
+            --coverage_file {input.coverage} \
+            --composition_file {input.scaftigs_cut} \
+            --clusters {params.clusters} \
+            --kmer_length {params.kmer_length} \
+            --length_threshold {params.length_threshold} \
+            --read_length {params.read_length} \
+            --total_percentage_pca {params.total_percentage_pca} \
+            --seed {params.seed} \
+            --iterations {params.iterations} \
+            {params.no_cov_normalization} \
+            {params.no_total_coverage} \
+            {params.no_original_data} \
+            {params.coverage_out} \
+            2> {log}
 
-                cat {params.basename}_log.txt >> {log}
+            cat {params.basename}_log.txt >> {log}
 
-                grep -oEi 'Not enough contigs pass the threshold filter' {params.basename}_log.txt
-                grepcode=$?
-                if [ $grepcode -eq 0 ]
-                then
-                    echo "Not enough contigs pass the threshold, touch empty concoct output directory"
-                fi
-                ''')
+            grep -oEi 'Not enough contigs pass the threshold filter' {params.basename}_log.txt
+            grepcode=$?
+            if [ $grepcode -eq 0 ]
+            then
+                echo "Not enough contigs pass the threshold, touch empty concoct output directory"
+            fi
 
-            if os.path.exists("{params.basename}_clustering_gt1000.csv"):
+            if [ -f "{params.basename}_clustering_gt1000.csv" ]; then
+                merge_cutup_clustering.py \
+                {params.basename}_clustering_gt1000.csv \
+                > {params.basename}_clustering_merged.csv
 
-                shell(
-                    '''
-                    merge_cutup_clustering.py \
-                    {params.basename}_clustering_gt1000.csv \
-                    > {params.basename}_clustering_merged.csv
-                    ''')
+                extract_fasta_bins.py \
+                {input.scaftigs} \
+                {params.basename}_clustering_merged.csv \
+                --output_path {output.bins_dir}
 
-                shell(
-                    '''
-                    extract_fasta_bins.py \
-                    {input.scaftigs} \
-                    {params.basename}_clustering_merged.csv \
-                    --output_path {output.bins_dir}
-                    ''')
-
-                with os.scandir(output.bins_dir) as itr:
-                    i = 0
-                    for entry in itr:
-                        bin_id, suffix = os.path.splitext(entry.name)
-                        if suffix == "." + params.bin_suffix:
-                            i += 1
-                            shell('''mv %s %s''' \
-                                  % (os.path.join(output.bins_dir, entry.name),
-                                     os.path.join(params.basename + "." + \
-                                                  str(i) + "." + \
-                                                  params.bin_suffix)))
+                python {params.wrapper_dir}/concoct_postprocess.py \
+                {output.bins_dir} \
+                {params.bin_suffix} \
+                {params.basename}
+            fi
+            '''
 
 
     rule binning_concoct_all:
@@ -616,9 +595,9 @@ if config["params"]["binning"]["graphbin2"]["do"]:
             expand(os.path.join(
                 config["output"]["binning"],
                 "bins/{assembly_group}.{assembler}.out/{binner_graphbin}_graphbin2"),
-                   binner_graphbin=BINNERS_GRAPHBIN,
-                   assembler=ASSEMBLERS,
-                   assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
+                binner_graphbin=BINNERS_GRAPHBIN,
+                assembler=ASSEMBLERS,
+                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
 
             #rules.alignment_all.input,
             #rules.assembly_all.input
@@ -629,12 +608,48 @@ else:
 
 
 if config["params"]["binning"]["dastools"]["do"]:
-    rule binning_dastools:
+    rule binning_dastools_preprocess:
         input:
             bins_dir = expand(
                 os.path.join(
                     config["output"]["binning"],
                     "bins/{{assembly_group}}.{{assembler}}.out/{binner_dastools}"),
+                    binner_dastools=BINNERS_DASTOOLS)
+        output:
+            contigs2bin = expand(
+                os.path.join(
+                    config["output"]["binning"],
+                    "bins_id/{{assembly_group}}.{{assembler}}.out/{binner_dastools}_Contigs2Bin.tsv"),
+                    binner_dastools=BINNERS_DASTOOLS)
+        params:
+            bin_suffix = config["params"]["binning"]["bin_suffix"]
+        run:
+            import glob
+            import os
+            from Bio import SeqIO
+
+            i = -1
+            for bins_dir in input.bins_dir:
+                i += 1
+                shell(f'''rm -rf {output.contigs2bin[i]}''')
+                bins_list = glob.glob(bins_dir + "/*.bin.*.fa")
+                if len(bins_list) == 0:
+                    shell(f'''touch {output.contigs2bin[i]}''')
+                else:
+                    with open(output[i], 'w') as oh:
+                        for bin_fa in sorted(bins_list):
+                            bin_id_list = os.path.basename(bin_fa).split(".")
+                            bin_id = bin_id_list[2] + "." + str(bin_id_list[4])
+                            for contig in SeqIO.parse(bin_fa, "fasta"):
+                                oh.write(f'''{contig.id}\t{bin_id}\n''')
+
+
+    rule binning_dastools:
+        input:
+            contigs2bin = expand(
+                os.path.join(
+                    config["output"]["binning"],
+                    "bins_id/{{assembly_group}}.{{assembler}}.out/{binner_dastools}_Contigs2Bin.tsv"),
                     binner_dastools=BINNERS_DASTOOLS),
             scaftigs = os.path.join(
                 config["output"]["assembly"],
@@ -657,11 +672,9 @@ if config["params"]["binning"]["dastools"]["do"]:
         conda:
             config["envs"]["dastools"]
         params:
+            binner = ",".join(BINNERS_DASTOOLS),
+            wrapper_dir = WRAPPER_DIR,
             search_engine = config["params"]["binning"]["dastools"]["search_engine"],
-            write_bin_evals = config["params"]["binning"]["dastools"]["write_bin_evals"],
-            write_bins = config["params"]["binning"]["dastools"]["write_bins"],
-            write_unbinned = config["params"]["binning"]["dastools"]["write_unbinned"],
-            create_plots = config["params"]["binning"]["dastools"]["create_plots"],
             score_threshold = config["params"]["binning"]["dastools"]["score_threshold"],
             duplicate_penalty = config["params"]["binning"]["dastools"]["duplicate_penalty"],
             megabin_penalty = config["params"]["binning"]["dastools"]["megabin_penalty"],
@@ -671,92 +684,56 @@ if config["params"]["binning"]["dastools"]["do"]:
                 "bins/{assembly_group}.{assembler}.out/dastools/{assembly_group}.{assembler}.dastools.bin")
         threads:
             config["params"]["binning"]["threads"]
-        run:
-            import glob
-            import os
+        shell:
+            '''
+            set +e
+            rm -rf {output.bins_dir}
+            mkdir -p {output.bins_dir}
+            
+            pigz -p {threads} -d -c {input.scaftigs} > {output.bins_dir}/scaftigs.fasta
+            contigs2bin=$(python -c "import sys; print(','.join(sys.argv[1:]))" {input.contigs2bin})
 
-            shell('''rm -rf {output.bins_dir}''')
-            shell('''mkdir -p {output.bins_dir}''')
+            DAS_Tool \
+            --bins $contigs2bin \
+            --labels {params.binner} \
+            --contigs {output.bins_dir}/scaftigs.fasta \
+            --proteins {input.pep} \
+            --outputbasename {params.bin_prefix} \
+            --search_engine {params.search_engine} \
+            --write_bin_evals \
+            --write_bins \
+            --write_unbinned \
+            --score_threshold {params.score_threshold} \
+            --duplicate_penalty {params.duplicate_penalty} \
+            --megabin_penalty {params.megabin_penalty} \
+            --threads {threads} --debug > {log} 2>&1
 
-            binners = []
-            tsv_list = []
+            rm -rf {output.bins_dir}/scaftigs.fasta
 
-            for bin_dir in input.bins_dir:
-                binner_id = os.path.basename(bin_dir)
-                bins_list = glob.glob(bin_dir + "/*.bin.*.fa")
-
-                if len(bins_list) > 0:
-                    binners.append(binner_id)
-                    tsv_file = "{params.bin_prefix}.%s.scaftigs2bin.tsv" % binner_id
-                    tsv_list.append(tsv_file)
-
-                    shell(
-                        '''
-                        Fasta_to_Scaffolds2Bin.sh \
-                        --input_folder %s \
-                        --extension {params.bin_suffix} \
-                        > %s
-                        ''' % (bin_dir, tsv_file))
-
-            if len(binners) > 0:
-                shell(
-                    '''
-                    pigz -p {threads} -d -c {input.scaftigs} > {output.bins_dir}/scaftigs.fasta
-                    ''')
-
-                shell(
-                    '''
-                    set +e
-
-                    DAS_Tool \
-                    --bins %s \
-                    --labels %s \
-                    --contigs {output.bins_dir}/scaftigs.fasta \
-                    --proteins {input.pep} \
-                    --outputbasename {params.bin_prefix} \
-                    --search_engine {params.search_engine} \
-                    --write_bin_evals {params.write_bin_evals} \
-                    --write_bins {params.write_bins} \
-                    --write_unbinned {params.write_unbinned} \
-                    --create_plots {params.create_plots} \
-                    --score_threshold {params.score_threshold} \
-                    --duplicate_penalty {params.duplicate_penalty} \
-                    --megabin_penalty {params.megabin_penalty} \
-                    --threads {threads} --debug > {log} 2>&1
-
-                    exitcode=$?
-                    if [ $exitcode -eq 1 ]
+            exitcode=$?
+            if [ $exitcode -eq 1 ]
+            then
+                grep -oEi 'no single copy genes found. Aborting' {log}
+                grepcode=$?
+                if [ $grepcode -eq 0 ]
+                then
+                    exit 0
+                else
+                    grep -oEi 'single copy gene prediction using {params.search_engine} failed. Aborting' {log}
+                    grepcode=$?
+                    if [ $grepcode -eq 0 ]
                     then
-                        grep -oEi 'no single copy genes found. Aborting' {log}
-                        grepcode=$?
-                        if [ $grepcode -eq 0 ]
-                        then
-                            exit 0
-                        else
-                            grep -oEi 'single copy gene prediction using %s failed. Aborting' {log}
-                            grepcode=$?
-                            if [ $grepcode -eq 0 ]
-                            then
-                                exit 0
-                            else
-                                exit $exitcode
-                            fi
-                        fi
+                        exit 0
+                    else
+                        exit $exitcode
                     fi
-                    ''' % (",".join(tsv_list), ",".join(binners), params.search_engine))
+                fi
+            fi
 
-                shell('''rm -rf {output.bins_dir}/scaftigs.fasta''')
-
-                bins_list_dastools = glob.glob(
-                    os.path.join(
-                        params.bin_prefix + "_DASTool_bins" ,
-                        "*." + params.bin_suffix))
-
-                if len(bins_list_dastools) > 0:
-                    for bin_fa in bins_list_dastools:
-                        bin_id = os.path.basename(bin_fa).split(".")[2]
-                        bin_fa_ = os.path.basename(bin_fa).replace(bin_id, bin_id +"_dastools")
-                        shell('''mv %s %s''' % (bin_fa, os.path.join(output.bins_dir, bin_fa_)))
+            python {params.wrapper_dir}/dastools_postprocess.py \
+            {params.bin_prefix} \
+            {params.bin_suffix}
+            ''' 
 
 
     rule binning_dastools_all:
