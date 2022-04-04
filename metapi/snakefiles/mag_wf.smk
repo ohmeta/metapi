@@ -142,7 +142,7 @@ include: "../rules/assembly.smk"
 #include: "../rules/coassembly.smk"
 #include: "../rules/predict_scaftigs.smk"
 #include: "../rules/copredict_scaftigs.smk"
-#include: "../rules/alignment.smk"
+include: "../rules/alignment.smk"
 #include: "../rules/coalignment.smk"
 #include: "../rules/binning.smk"
 #include: "../rules/cobinning.smk"
@@ -165,9 +165,9 @@ rule all:
         rules.trimming_all.input,
         rules.rmhost_all.input,
         rules.qcreport_all.input,
-        rules.assembly_all.input#,
+        rules.assembly_all.input,
 #        rules.predict_scaftigs_gene_all.input,
-#        rules.alignment_all.input,
+        rules.alignment_all.input#,
 #        rules.binning_all.input,
 #        rules.predict_bins_gene_all.input,
 #        rules.checkm_all.input,
