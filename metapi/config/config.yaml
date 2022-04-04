@@ -506,3 +506,7 @@ envs:
   bioenv3.6: "envs/bioenv3.6.yaml" # drep
   bioenv2: "envs/bioenv2.yaml" # metaphlan2, humann2
   biobakery: "envs/biobakery.yaml" # metaphlan3, humann3
+  metabat2: "envs/metabat2.yaml"
+  maxbin2: "envs/maxbin2.yaml"
+  concoct: "envs/concoct.yaml"
+  dastools: "envs/dastools.yaml"

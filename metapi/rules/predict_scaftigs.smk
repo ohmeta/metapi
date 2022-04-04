@@ -9,13 +9,13 @@ rule predict_scaftigs_gene_prodigal:
     output:
         pep = os.path.join(
             config["output"]["predict"],
-            "scaftigs_gene/{assembly_group}.{assembler}.prodigal.out/{assembly_group}.faa"),
+            "scaftigs_gene/{assembly_group}.{assembler}.prodigal.out/{assembly_group}.{assembler}.faa"),
         cds = os.path.join(
             config["output"]["predict"],
-            "scaftigs_gene/{assembly_group}.{assembler}.prodigal.out/{assembly_group}.ffn"),
+            "scaftigs_gene/{assembly_group}.{assembler}.prodigal.out/{assembly_group}.{assembler}.ffn"),
         gff = os.path.join(
             config["output"]["predict"],
-            "scaftigs_gene/{assembly_group}.{assembler}.prodigal.out/{assembly_group}.gff")
+            "scaftigs_gene/{assembly_group}.{assembler}.prodigal.out/{assembly_group}.{assembler}.gff")
     log:
         os.path.join(config["output"]["predict"],
                      "logs/scaftigs_gene/{assembly_group}.{assembler}.prodigal.log")
@@ -39,7 +39,7 @@ rule predict_scaftigs_gene_prodigal_all:
     input:
         expand(os.path.join(
             config["output"]["predict"],
-            "scaftigs_gene/{assembly_group}.{assembler}.prodigal.out/{assembly_group}.{ext}"),
+            "scaftigs_gene/{assembly_group}.{assembler}.prodigal.out/{assembly_group}.{assembler}.{ext}"),
                ext=["faa", "ffn", "gff"],
                assembler=ASSEMBLERS,
                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST),

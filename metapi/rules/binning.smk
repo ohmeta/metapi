@@ -1,47 +1,55 @@
+def get_samples_id_list(wildcards):
+    return metapi.get_assembly_id(SAMPLES, wildcards)
+
+
 if config["params"]["binning"]["metabat2"]["do"]:
     rule binning_metabat2_coverage:
         input:
             scaftigs = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
-            bam = os.path.join(
+                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa.gz"),
+            bam = lambda wildcards: expand(os.path.join(
                 config["output"]["alignment"],
-                "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam"),
-            bai = os.path.join(
+                "bam/{{assembly_group}}.{{assembler}}.out/{sample}.align2scaftigs.sorted.bam"),
+                sample=get_samples_id_list(wildcards)),
+            bai = lambda wildcards: expand(os.path.join(
                 config["output"]["alignment"],
-                "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam.bai")
+                "bam/{{assembly_group}}.{{assembler}}.out/{sample}.align2scaftigs.sorted.bam.bai"),
+                sample=get_samples_id_list(wildcards))
         output:
             coverage = os.path.join(
                 config["output"]["binning"],
-                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.coverage")
+                "coverage/{assembly_group}.{assembler}.out/{assembly_group}.metabat2.coverage")
         priority:
-            30
+            28
+        conda:
+            config["envs"]["metabat2"]
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/coverage/{sample}.{assembler}.metabat2.coverage.log")
+                         "logs/coverage/{assembly_group}.{assembler}.metabat2.coverage.log")
         params:
             percent_identity = config["params"]["binning"]["metabat2"]["percent_identity"],
             min_map_qual = config["params"]["binning"]["metabat2"]["min_map_qual"],
             output_paired_contigs = "--pairedContigs %s" % \
                 os.path.join(
                     config["output"]["binning"],
-                    "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.paired_contigs") \
+                    "coverage/{assembly_group}.{assembler}.out/{assembly_group}.metabat2.paired_contigs") \
                     if config["params"]["binning"]["metabat2"]["output_paired_contigs"] \
                        else "",
             output_gc = "--outputGC %s" % \
                 os.path.join(
                     config["output"]["binning"],
-                    "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.gc") \
+                    "coverage/{assembly_group}.{assembler}.out/{assembly_group}.metabat2.gc") \
                     if config["params"]["binning"]["metabat2"]["output_gc"] \
                        else "",
             output_gc_window = "--gcWindow %s" % \
                 os.path.join(
                     config["output"]["binning"],
-                    "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.gc_window") \
+                    "coverage/{assembly_group}.{assembler}.out/{assembly_group}.metabat2.gc_window") \
                     if config["params"]["binning"]["metabat2"]["output_gc_window"] \
                        else "",
             output_dir = os.path.join(config["output"]["binning"],
-                                      "coverage/{sample}.{assembler}.out")
+                                      "coverage/{assembly_group}.{assembler}.out")
         shell:
             '''
             jgi_summarize_bam_contig_depths \
@@ -60,34 +68,36 @@ if config["params"]["binning"]["metabat2"]["do"]:
         input:
             expand(os.path.join(
                 config["output"]["binning"],
-                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.coverage"),
+                "coverage/{assembly_group}.{assembler}.out/{assembly_group}.metabat2.coverage"),
                    assembler=ASSEMBLERS,
-                   sample=SAMPLES.index.unique())
+                   assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
 
 
     rule binning_metabat2:
         input:
             scaftigs = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
+                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa.gz"),
             coverage = os.path.join(
                 config["output"]["binning"],
-                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.coverage")
+                "coverage/{assembly_group}.{assembler}.out/{assembly_group}.metabat2.coverage")
         output:
             bins_dir = directory(os.path.join(config["output"]["binning"],
-                                              "bins/{sample}.{assembler}.out/metabat2"))
+                                              "bins/{assembly_group}.{assembler}.out/metabat2"))
         priority:
             30
+        conda:
+            config["envs"]["metabat2"]
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/binning/{sample}.{assembler}.metabat2.binning.log")
+                         "logs/binning/{assembly_group}.{assembler}.metabat2.binning.log")
         benchmark:
             os.path.join(config["output"]["binning"],
-                         "benchmark/metabat2/{sample}.{assembler}.metabat2.benchmark.txt")
+                         "benchmark/metabat2/{assembly_group}.{assembler}.metabat2.benchmark.txt")
         params:
             bin_prefix = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/metabat2/{sample}.{assembler}.metabat2.bin"),
+                "bins/{assembly_group}.{assembler}.out/metabat2/{assembly_group}.{assembler}.metabat2.bin"),
             min_contig = config["params"]["binning"]["metabat2"]["min_contig"],
             max_p = config["params"]["binning"]["metabat2"]["maxP"],
             min_s = config["params"]["binning"]["metabat2"]["minS"],
@@ -128,13 +138,13 @@ if config["params"]["binning"]["metabat2"]["do"]:
             expand(
                 os.path.join(
                     config["output"]["binning"],
-                    "bins/{sample}.{assembler}.out/metabat2"),
+                    "bins/{assembly_group}.{assembler}.out/metabat2"),
                 assembler=ASSEMBLERS,
-                sample=SAMPLES.index.unique())#,
+                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
 
             #rules.binning_metabat2_coverage_all.input,
-            #rules.single_alignment_all.input,
-            #rules.single_assembly_all.input
+            #rules.alignment_all.input,
+            #rules.assembly_all.input
        
 else:
     rule binning_metabat2_all:
@@ -147,16 +157,16 @@ if config["params"]["binning"]["maxbin2"]["do"]:
         input:
             coverage = os.path.join(
                 config["output"]["binning"],
-                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.metabat2.coverage")
+                "coverage/{assembly_group}.{assembler}.out/{assembly_group}.metabat2.coverage")
         output:
             coverage = os.path.join(
                 config["output"]["binning"],
-                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.maxbin2.coverage")
+                "coverage/{assembly_group}.{assembler}.out/{assembly_group}.maxbin2.coverage")
         priority:
             30
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/coverage/{sample}.{assembler}.maxbin2.coverage.log")
+                         "logs/coverage/{assembly_group}.{assembler}.maxbin2.coverage.log")
         shell:
             '''
             cut -f1,3 {input.coverage} | tail -n +2 > {output.coverage}
@@ -167,26 +177,28 @@ if config["params"]["binning"]["maxbin2"]["do"]:
         input:
             scaftigs = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
+                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa.gz"),
             coverage = os.path.join(
                 config["output"]["binning"],
-                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.maxbin2.coverage")
+                "coverage/{assembly_group}.{assembler}.out/{assembly_group}.maxbin2.coverage")
         output:
             bins_dir = directory(os.path.join(config["output"]["binning"],
-                                              "bins/{sample}.{assembler}.out/maxbin2"))
+                                              "bins/{assembly_group}.{assembler}.out/maxbin2"))
         priority:
             30
+        conda:
+            config["envs"]["maxbin2"]
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/binning/{sample}.{assembler}.maxbin2.binning.log")
+                         "logs/binning/{assembly_group}.{assembler}.maxbin2.binning.log")
         benchmark:
             os.path.join(config["output"]["binning"],
-                         "benchmark/maxbin2/{sample}.{assembler}.maxbin2.benchmark.txt")
+                         "benchmark/maxbin2/{assembly_group}.{assembler}.maxbin2.benchmark.txt")
         params:
             bin_suffix = config["params"]["binning"]["bin_suffix"],
             bin_prefix = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/maxbin2/{sample}.{assembler}.maxbin2.bin"),
+                "bins/{assembly_group}.{assembler}.out/maxbin2/{assembly_group}.{assembler}.maxbin2.bin"),
             min_contig = config["params"]["binning"]["maxbin2"]["min_contig"],
             max_iteration = config["params"]["binning"]["maxbin2"]["max_iteration"],
             prob_threshold = config["params"]["binning"]["maxbin2"]["prob_threshold"],
@@ -247,12 +259,12 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             expand(
                 os.path.join(
                     config["output"]["binning"],
-                    "bins/{sample}.{assembler}.out/maxbin2"),
+                    "bins/{assembly_group}.{assembler}.out/maxbin2"),
                 assembler=ASSEMBLERS,
-                sample=SAMPLES.index.unique())#,
+                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
 
-            #rules.single_alignment_all.input,
-            #rules.single_assembly_all.input
+            #rules.alignment_all.input,
+            #rules.assembly_all.input
 
 else:
     rule binning_maxbin2_all:
@@ -285,31 +297,35 @@ if config["params"]["binning"]["concoct"]["do"]:
         input:
             scaftigs = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
-            bam = os.path.join(
+                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa.gz"),
+            bam = lambda wildcards: expand(os.path.join(
                 config["output"]["alignment"],
-                "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam"),
-            bai = os.path.join(
+                "bam/{{assembly_group}}.{{assembler}}.out/{sample}.align2scaftigs.sorted.bam"),
+                sample=get_samples_id_list(wildcards)),
+            bai = lambda wildcards: expand(os.path.join(
                 config["output"]["alignment"],
-                "bam/{sample}.{assembler}.out/{sample}.{assembler}.align2scaftigs.sorted.bam.bai")
+                "bam/{{assembly_group}}.{{assembler}}.out/{sample}.align2scaftigs.sorted.bam.bai"),
+                sample=get_samples_id_list(wildcards))
         output:
             scaftigs = temp(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa")),
+                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa")),
             scaftigs_cut = temp(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.cut.fa")),
+                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.cut.fa")),
             scaftigs_bed = temp(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.cut.bed")),
+                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.cut.bed")),
             coverage = os.path.join(
                 config["output"]["binning"],
-                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.concoct.coverage")
+                "coverage/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.concoct.coverage")
         priority:
             30
+        conda:
+            config["envs"]["concoct"]
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/coverage/{sample}.{assembler}.concoct.coverage.log")
+                         "logs/coverage/{assembly_group}.{assembler}.concoct.coverage.log")
         params:
             chunk_size = config["params"]["binning"]["concoct"]["chunk_size"],
             overlap_size = config["params"]["binning"]["concoct"]["overlap_size"]
@@ -338,27 +354,29 @@ if config["params"]["binning"]["concoct"]["do"]:
         input:
             scaftigs = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa"),
+                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa"),
             scaftigs_cut = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.cut.fa"),
+                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.cut.fa"),
             scaftigs_bed = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.cut.bed"),
+                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.cut.bed"),
             coverage = os.path.join(
                 config["output"]["binning"],
-                "coverage/{sample}.{assembler}.out/{sample}.{assembler}.concoct.coverage")
+                "coverage/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.concoct.coverage")
         output:
             bins_dir = directory(os.path.join(config["output"]["binning"],
-                                              "bins/{sample}.{assembler}.out/concoct"))
+                                              "bins/{assembly_group}.{assembler}.out/concoct"))
         priority:
             30
+        conda:
+            config["envs"]["concoct"]
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/binning/{sample}.{assembler}.concoct.binning.log")
+                         "logs/binning/{assembly_group}.{assembler}.concoct.binning.log")
         benchmark:
             os.path.join(config["output"]["binning"],
-                         "benchmark/concoct/{sample}.{assembler}.concoct.benchmark.txt")
+                         "benchmark/concoct/{assembly_group}.{assembler}.concoct.benchmark.txt")
         params:
             clusters = config["params"]["binning"]["concoct"]["clusters"],
             kmer_length = config["params"]["binning"]["concoct"]["kmer_length"],
@@ -382,7 +400,7 @@ if config["params"]["binning"]["concoct"]["do"]:
             bin_suffix = config["params"]["binning"]["bin_suffix"],
             basename = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/concoct/{sample}.{assembler}.concoct.bin"),
+                "bins/{assembly_group}.{assembler}.out/concoct/{assembly_group}.{assembler}.concoct.bin"),
         threads:
             config["params"]["binning"]["threads"]
         run:
@@ -456,12 +474,12 @@ if config["params"]["binning"]["concoct"]["do"]:
         input:
             expand(os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/concoct"),
+                "bins/{assembly_group}.{assembler}.out/concoct"),
                    assembler=ASSEMBLERS,
-                   sample=SAMPLES.index.unique())#,
+                   assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
 
-            #rules.single_alignment_all.input,
-            #rules.single_assembly_all.input
+            #rules.alignment_all.input,
+            #rules.assembly_all.input
 
 else:
     rule binning_concoct_all:
@@ -473,17 +491,17 @@ if config["params"]["binning"]["graphbin2"]["do"]:
         input:
             scaftigs = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
+                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa.gz"),
             gfa = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.gfa.gz"),
+                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.gfa.gz"),
         output:
              scaftigs = temp(os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/graphbin2/scaftigs.fa")),
+                "bins/{assembly_group}.{assembler}.out/graphbin2/scaftigs.fa")),
              gfa = temp(os.path.join(
                  config["output"]["binning"],
-                 "bins/{sample}.{assembler}.out/graphbin2/scaftigs.gfa"))
+                 "bins/{assembly_group}.{assembler}.out/graphbin2/scaftigs.gfa"))
         shell:
             '''
             pigz -dc {input.scaftigs} > {output.scaftigs}
@@ -495,11 +513,11 @@ if config["params"]["binning"]["graphbin2"]["do"]:
         input:
             bins_dir = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/{binner_graphbin}")
+                "bins/{assembly_group}.{assembler}.out/{binner_graphbin}")
         output:
             binned = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/graphbin2/{sample}.{assembler}.{binner_graphbin}.graphbin2.csv")
+                "bins/{assembly_group}.{assembler}.out/graphbin2/{assembly_group}.{assembler}.{binner_graphbin}.graphbin2.csv")
         params:
             suffix = config["params"]["binning"]["bin_suffix"],
             assembler = "{assembler}"
@@ -514,32 +532,32 @@ if config["params"]["binning"]["graphbin2"]["do"]:
         input:
             scaftigs = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/graphbin2/scaftigs.fa"),
+                "bins/{assembly_group}.{assembler}.out/graphbin2/scaftigs.fa"),
             gfa = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/graphbin2/scaftigs.gfa"),
+                "bins/{assembly_group}.{assembler}.out/graphbin2/scaftigs.gfa"),
             binned = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/graphbin2/{sample}.{assembler}.{binner_graphbin}.graphbin2.csv")
+                "bins/{assembly_group}.{assembler}.out/graphbin2/{assembly_group}.{assembler}.{binner_graphbin}.graphbin2.csv")
         output:
             directory(os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/{binner_graphbin}_graphbin2"))
+                "bins/{assembly_group}.{assembler}.out/{binner_graphbin}_graphbin2"))
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/binning/{sample}.{assembler}.{binner_graphbin}.graphbin2.refine.log")
+                         "logs/binning/{assembly_group}.{assembler}.{binner_graphbin}.graphbin2.refine.log")
         benchmark:
             os.path.join(config["output"]["binning"],
-                         "benchmark/{binner_graphbin}/{sample}.{assembler}.{binner_graphbin}.benchmark.txt")
+                         "benchmark/{binner_graphbin}/{assembly_group}.{assembler}.{binner_graphbin}.benchmark.txt")
         params:
             assembler = "{assembler}",
             prefix = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/{binner_graphbin}_graphbin2/{sample}.{assembler}.{binner_graphbin}_graphbin2.bin"),
+                "bins/{assembly_group}.{assembler}.out/{binner_graphbin}_graphbin2/{assembly_group}.{assembler}.{binner_graphbin}_graphbin2.bin"),
             suffix = config["params"]["binning"]["bin_suffix"],
             paths = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.paths.gz"),
+                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.paths.gz"),
             depth = config["params"]["binning"]["graphbin2"]["depth"],
             threshold = config["params"]["binning"]["graphbin2"]["threshold"]
         threads:
@@ -597,13 +615,13 @@ if config["params"]["binning"]["graphbin2"]["do"]:
         input:
             expand(os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/{binner_graphbin}_graphbin2"),
+                "bins/{assembly_group}.{assembler}.out/{binner_graphbin}_graphbin2"),
                    binner_graphbin=BINNERS_GRAPHBIN,
                    assembler=ASSEMBLERS,
-                   sample=SAMPLES.index.unique())#,
+                   assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
 
-            #rules.single_alignment_all.input,
-            #rules.single_assembly_all.input
+            #rules.alignment_all.input,
+            #rules.assembly_all.input
 
 else:
     rule binning_graphbin2_all:
@@ -616,26 +634,28 @@ if config["params"]["binning"]["dastools"]["do"]:
             bins_dir = expand(
                 os.path.join(
                     config["output"]["binning"],
-                    "bins/{{sample}}.{{assembler}}.out/{binner_dastools}"),
+                    "bins/{{assembly_group}}.{{assembler}}.out/{binner_dastools}"),
                     binner_dastools=BINNERS_DASTOOLS),
             scaftigs = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz"),
+                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa.gz"),
             pep = os.path.join(
                 config["output"]["predict"],
-                "scaftigs_gene/{sample}.{assembler}.prodigal.out/{sample}.{assembler}.faa")
+                "scaftigs_gene/{assembly_group}.{assembler}.prodigal.out/{assembly_group}.{assembler}.faa")
         output:
             bins_dir = directory(os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/dastools"))
+                "bins/{assembly_group}.{assembler}.out/dastools"))
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/binning/{sample}.{assembler}.dastools.binning.log")
+                         "logs/binning/{assembly_group}.{assembler}.dastools.binning.log")
         benchmark:
             os.path.join(config["output"]["binning"],
-                         "benchmark/dastools/{sample}.{assembler}.dastools.benchmark.txt")
+                         "benchmark/dastools/{assembly_group}.{assembler}.dastools.benchmark.txt")
         priority:
             30
+        conda:
+            config["envs"]["dastools"]
         params:
             search_engine = config["params"]["binning"]["dastools"]["search_engine"],
             write_bin_evals = config["params"]["binning"]["dastools"]["write_bin_evals"],
@@ -648,7 +668,7 @@ if config["params"]["binning"]["dastools"]["do"]:
             bin_suffix = config["params"]["binning"]["bin_suffix"],
             bin_prefix = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/dastools/{sample}.{assembler}.dastools.bin")
+                "bins/{assembly_group}.{assembler}.out/dastools/{assembly_group}.{assembler}.dastools.bin")
         threads:
             config["params"]["binning"]["threads"]
         run:
@@ -744,9 +764,9 @@ if config["params"]["binning"]["dastools"]["do"]:
             expand(
                 os.path.join(
                     config["output"]["binning"],
-                    "bins/{sample}.{assembler}.out/dastools"),
+                    "bins/{assembly_group}.{assembler}.out/dastools"),
                 assembler=ASSEMBLERS,
-                sample=SAMPLES.index.unique())#,
+                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
 
             #rules.predict_scaftigs_gene_prodigal_all.input
 
@@ -760,16 +780,16 @@ if len(BINNERS_CHECKM) != 0:
         input:
             bins_dir = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/{binner_checkm}")
+                "bins/{assembly_group}.{assembler}.out/{binner_checkm}")
         output:
             report_dir = directory(
                 os.path.join(
                     config["output"]["binning"],
-                    "report/{assembler}_{binner_checkm}_stats/{sample}"))
+                    "report/{assembler}_{binner_checkm}_stats/{assembly_group}"))
         priority:
             35
         params:
-            sample_id = "{sample}",
+            assembly_group = "{assembly_group}",
             assembler = "{assembler}",
             binner = "{binner_checkm}"
         run:
@@ -779,7 +799,7 @@ if len(BINNERS_CHECKM) != 0:
             shell('''mkdir -p {output.report_dir}''')
 
             bin_list =  glob.glob(input.bins_dir + "/*bin*fa")
-            header_list = ["sample_id", "bin_id", "assembler", "binner",
+            header_list = ["assembly_group", "bin_id", "assembler", "binner",
                            "chr", "length", "#A", "#C", "#G", "#T",
                            "#2", "#3", "#4", "#CpG", "#tv", "#ts", "#CpG-ts"]
             header = "\\t".join(header_list)
@@ -806,8 +826,8 @@ if len(BINNERS_CHECKM) != 0:
         input:
             expand(os.path.join(
                 config["output"]["binning"],
-                "report/{{assembler}}_{{binner_checkm}}_stats/{sample}"),
-                   sample=SAMPLES.index.unique())
+                "report/{{assembler}}_{{binner_checkm}}_stats/{assembly_group}"),
+                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
         output:
             summary = os.path.join(
                 config["output"]["binning"],
@@ -846,7 +866,7 @@ else:
         input:
 
 
-rule single_binning_all:
+rule binning_all:
     input:
         rules.binning_metabat2_all.input,
         rules.binning_maxbin2_all.input,
