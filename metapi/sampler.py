@@ -17,8 +17,13 @@ def parse_samples(
     check_samples=False,
 ):
     samples_df = pd.read_csv(
-        samples_tsv, sep="\t", dtype={"sample_id": str, "fq1": str, "fq2": str}
-    ).set_index(["sample_id", "assembly_group", "binning_group"])
+        samples_tsv, sep="\t", dtype={
+            "sample_id": str,
+            "fq1": str, "fq2": str,
+            "assembly_group": str,
+            "binning_group": str})
+    samples_df["multibinning_group"] = samples_df["assembly_group"] + "__" + samples_df["binning_group"]
+    samples_df = samples_df.set_index(["sample_id", "assembly_group", "binning_group", "multibinning_group"])
 
     cancel = False
     if "fq1" in samples_df.columns:
@@ -28,8 +33,8 @@ def parse_samples(
                 print(f"{sample_id} contain '.', please remove '.', now quiting :)")
                 cancel = True
 
-            fq1_list = samples_df.loc(axis=0)[sample_id, :, :]["fq1"].dropna().tolist()
-            fq2_list = samples_df.loc(axis=0)[sample_id, :, :]["fq2"].dropna().tolist()
+            fq1_list = samples_df.loc[sample_id, :, :, :]["fq1"].dropna().tolist()
+            fq2_list = samples_df.loc[sample_id, :, :, :]["fq2"].dropna().tolist()
             for fq_file in fq1_list:
                 if not fq_file.endswith(".gz"):
                     print(f"{fq_file} need gzip format")
@@ -50,7 +55,7 @@ def parse_samples(
                 cancel = True
 
             if check_samples:
-                sra_list = samples_df.loc(axis=0)[sample_id, :, :]["sra"].dropna().tolist()
+                sra_list = samples_df.loc[sample_id, :, :, :]["sra"].dropna().tolist()
                 for sra_file in sra_list:
                     if not os.path.exists(sra_file):
                         print(f"{sra_file} not exists")
@@ -93,19 +98,31 @@ def parse_bins(bins_dir):
 
 
 def get_reads(sample_df, wildcards, col):
-    return sample_df.loc(axis=0)[wildcards.sample, :, :][col].dropna().tolist()
+    return sample_df.loc[wildcards.sample, :, :, :][col].dropna().tolist()
 
 
-def get_assembly_id(sample_df, wildcards):
-    return sample_df.loc(axis=0)[:, wildcards.assembly_group, :].index.get_level_values("sample_id").unique()
+def get_samples_id_by_assembly_group(sample_df, assembly_group):
+    return sample_df.loc[:, assembly_group, :, :].index.get_level_values("sample_id").unique()
+
+
+def get_samples_id_by_binning_group(sample_df, binning_group):
+    return sample_df.loc[:, :, binning_group, :].index.get_level_values("sample_id").unique()
+
+
+def get_assembly_group_by_binning_group(sample_df, binning_group):
+    return sample_df.loc[:, :, binning_group, :].index.get_level_values("assembly_group").unique()
+
+
+def get_multibinning_group_by_assembly_group(sample_df, assembly_group):
+    return sample_df.loc[:, assembly_group, :, :].index.get_level_values("multibinning_group").unique()
 
 
 def get_sample_id(sample_df, wildcards, col):
-    return sample_df.loc(axis=0)[wildcards.sample, :, :][col].dropna()[0]
+    return sample_df.loc[wildcards.sample, :, :][col].dropna()[0]
 
 
 def get_sample_id_(sample_df, wildcards, col):
-    return sample_df.loc(axis=0)[wildcards.sample_, :, :][col].dropna()[0]
+    return sample_df.loc[wildcards.sample_, :, :][col].dropna()[0]
 
 
 def get_bin_id(bin_df, wildcards, col):

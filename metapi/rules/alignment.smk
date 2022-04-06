@@ -1,11 +1,11 @@
 ALIGNMENT_GROUP = SAMPLES.reset_index().loc[:, ["sample_id", "assembly_group"]].drop_duplicates()
+
 alignment_df_list = []
 for assembler in ASSEMBLERS:
     alignment_df = ALIGNMENT_GROUP.copy()
     alignment_df["assembler"] = assembler
     alignment_df_list.append(alignment_df)
 ALIGNMENT_GROUPS = pd.concat(alignment_df_list, axis=0)
-ASSEMBLY_GROUPS = ALIGNMENT_GROUPS.loc[:, ["assembly_group", "assembler"]].drop_duplicates()
 
 
 def alignment_input_with_short_reads(wildcards):
@@ -62,10 +62,10 @@ rule alignment_reads_scaftigs:
             "bam/{assembly_group}.{assembler}.out/{sample}.align2scaftigs.sorted.bam.bai"))
     log:
         os.path.join(config["output"]["alignment"],
-                     "logs/alignment/{assembly_group}.{assembler}/{sample}.align.reads1scaftigs.log")
+                     "logs/alignment/{assembly_group}.{assembler}/{sample}.align2scaftigs.log")
     benchmark:
         os.path.join(config["output"]["alignment"],
-                     "benchmark/alignment/{assembly_group}.{assembler}/{sample}.align.reads2scaftigs.benchmark.txt")
+                     "benchmark/alignment/{assembly_group}.{assembler}/{sample}.align2scaftigs.benchmark.txt")
     params:
         bwa = "bwa-mem2" if config["params"]["alignment"]["algorithms"] == "mem2" else "bwa",
         index_prefix = os.path.join(

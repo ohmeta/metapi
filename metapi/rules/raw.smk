@@ -261,32 +261,7 @@ def get_reads_(wildcards, step, have_single=False):
         sample_=wildcards.sample_)
 
 
-def get_short_reads_list(step):
-    if IS_PE:
-        return [
-            expand(
-                os.path.join(
-                    config["output"][step],
-                    "short_reads/{sample}/{sample}.{step}.1.fq.gz"),
-                step=step,
-                sample=SAMPLES_ID_LIST),
-            expand(
-                os.path.join(
-                    config["output"][step],
-                    "short_reads/{sample}/{sample}.{step}.2.fq.gz"),
-                step=step,
-                sample=SAMPLES_ID_LIST)]
-    else:
-        return [
-            expand(
-                os.path.join(
-                    config["output"][step],
-                    "short_reads/{sample}/{sample}.{step}.fq.gz"),
-                step=step,
-                sample=SAMPLES_ID_LIST)]
-
-
-def get_short_reads_list_v2(step, samples_id_list):
+def get_short_reads_list(step, samples_id_list):
     if IS_PE:
         return [
             expand(

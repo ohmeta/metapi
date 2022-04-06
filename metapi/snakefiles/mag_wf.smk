@@ -108,9 +108,9 @@ else:
                                    config["params"]["reads_layout"],
                                    config["params"]["begin"])
 
-SAMPLES_ID_LIST = SAMPLES.index.get_level_values("sample_id").unique()
-SAMPLES_ASSEMBLY_GROUP_LIST = SAMPLES.index.get_level_values("assembly_group").unique()
-SAMPLES_BINNING_GROUP_LIST = SAMPLES.index.get_level_values("binning_group").unique()
+    SAMPLES_ID_LIST = SAMPLES.index.get_level_values("sample_id").unique()
+    SAMPLES_ASSEMBLY_GROUP_LIST = SAMPLES.index.get_level_values("assembly_group").unique()
+    SAMPLES_BINNING_GROUP_LIST = SAMPLES.index.get_level_values("binning_group").unique()
 
 
 READS_FORMAT = "sra" \
@@ -145,8 +145,9 @@ include: "../rules/predict_scaftigs.smk"
 include: "../rules/alignment.smk"
 #include: "../rules/coalignment.smk"
 include: "../rules/binning.smk"
+include: "../rules/binning_multisplit.smk"
+include: "../rules/binning_refine.smk"
 #include: "../rules/cobinning.smk"
-#include: "../rules/multisplit_binning.smk"
 #include: "../rules/predict_bins.smk"
 #include: "../rules/copredict_bins.smk"
 #include: "../rules/checkm.smk"

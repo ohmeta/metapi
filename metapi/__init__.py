@@ -16,7 +16,10 @@ from metapi.sampler import parse_samples
 from metapi.sampler import get_reads
 from metapi.sampler import get_sample_id
 from metapi.sampler import get_sample_id_
-from metapi.sampler import get_assembly_id
+from metapi.sampler import get_samples_id_by_assembly_group
+from metapi.sampler import get_samples_id_by_binning_group
+from metapi.sampler import get_assembly_group_by_binning_group
+from metapi.sampler import get_multibinning_group_by_assembly_group
 
 from metapi.qcer import change
 from metapi.qcer import compute_host_rate

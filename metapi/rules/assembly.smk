@@ -1,6 +1,6 @@
 def get_reads_for_assembly(wildcards, step, have_single=False, have_long=False):
-    samples_id_list = metapi.get_assembly_id(SAMPLES, wildcards)
-    short_reads = get_short_reads_list_v2(step, samples_id_list)
+    samples_id_list = metapi.get_samples_id_by_assembly_group(SAMPLES, wildcards.assembly_group)
+    short_reads = get_short_reads_list(step, samples_id_list)
 
     if have_long:
         long_reads = expand(os.path.join(
@@ -209,9 +209,9 @@ if "idba_ud" in ASSEMBLERS:
                         ''')
 
             shell(
-                '''
+                f'''
                 idba_ud \
-                -r %s \
+                -r {reads} \
                 --mink {params.mink} \
                 --maxk {params.maxk} \
                 --step {params.step} \
@@ -220,7 +220,7 @@ if "idba_ud" in ASSEMBLERS:
                 --num_threads {threads} \
                 --pre_correction \
                 > {log}
-                ''' % reads)
+                ''')
 
             shell(f'''rm -rf {reads}''')
             shell('''sed -i 's#^>#>{params.prefix}_#g' {params.output_dir}/scaffold.fa''')

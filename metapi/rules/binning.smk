@@ -1,21 +1,14 @@
-def get_samples_id_list(wildcards):
-    return metapi.get_assembly_id(SAMPLES, wildcards)
-
-
 if config["params"]["binning"]["metabat2"]["do"]:
     rule binning_metabat2_coverage:
         input:
-            scaftigs = os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa.gz"),
             bam = lambda wildcards: expand(os.path.join(
                 config["output"]["alignment"],
                 "bam/{{assembly_group}}.{{assembler}}.out/{sample}.align2scaftigs.sorted.bam"),
-                sample=get_samples_id_list(wildcards)),
+                sample=metapi.get_samples_id_by_assembly_group(SAMPLES, wildcards.assembly_group)),
             bai = lambda wildcards: expand(os.path.join(
                 config["output"]["alignment"],
                 "bam/{{assembly_group}}.{{assembler}}.out/{sample}.align2scaftigs.sorted.bam.bai"),
-                sample=get_samples_id_list(wildcards))
+                sample=metapi.get_samples_id_by_assembly_group(SAMPLES, wildcards.assembly_group))
         output:
             coverage = os.path.join(
                 config["output"]["binning"],
@@ -82,8 +75,8 @@ if config["params"]["binning"]["metabat2"]["do"]:
                 config["output"]["binning"],
                 "coverage/{assembly_group}.{assembler}.out/{assembly_group}.metabat2.coverage")
         output:
-            bins_dir = directory(os.path.join(config["output"]["binning"],
-                                              "bins/{assembly_group}.{assembler}.out/metabat2"))
+            os.path.join(config["output"]["binning"],
+                         "bins/{assembly_group}.{assembler}.out/metabat2/binning_done")
         priority:
             30
         conda:
@@ -95,6 +88,7 @@ if config["params"]["binning"]["metabat2"]["do"]:
             os.path.join(config["output"]["binning"],
                          "benchmark/metabat2/{assembly_group}.{assembler}.metabat2.benchmark.txt")
         params:
+            bins_dir = os.path.join(config["output"]["binning"], "bins/{assembly_group}.{assembler}.out/metabat2"),
             bin_prefix = os.path.join(
                 config["output"]["binning"],
                 "bins/{assembly_group}.{assembler}.out/metabat2/{assembly_group}.{assembler}.metabat2.bin"),
@@ -114,7 +108,7 @@ if config["params"]["binning"]["metabat2"]["do"]:
             config["params"]["binning"]["threads"]
         shell:
             '''
-            rm -rf {output.bins_dir}
+            rm -rf {params.bins_dir}
 
             metabat2 \
             --inFile {input.scaftigs} \
@@ -132,6 +126,8 @@ if config["params"]["binning"]["metabat2"]["do"]:
             --seed {params.seed} \
             --numThreads {threads} \
             --verbose > {log}
+
+            touch {output}
             '''
 
 
@@ -140,7 +136,7 @@ if config["params"]["binning"]["metabat2"]["do"]:
             expand(
                 os.path.join(
                     config["output"]["binning"],
-                    "bins/{assembly_group}.{assembler}.out/metabat2"),
+                    "bins/{assembly_group}.{assembler}.out/metabat2/binning_done"),
                 assembler=ASSEMBLERS,
                 assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
 
@@ -184,8 +180,8 @@ if config["params"]["binning"]["maxbin2"]["do"]:
                 config["output"]["binning"],
                 "coverage/{assembly_group}.{assembler}.out/{assembly_group}.maxbin2.coverage")
         output:
-            bins_dir = directory(os.path.join(config["output"]["binning"],
-                                              "bins/{assembly_group}.{assembler}.out/maxbin2"))
+            os.path.join(config["output"]["binning"],
+                         "bins/{assembly_group}.{assembler}.out/maxbin2/binning_done")
         priority:
             30
         conda:
@@ -198,6 +194,8 @@ if config["params"]["binning"]["maxbin2"]["do"]:
                          "benchmark/maxbin2/{assembly_group}.{assembler}.maxbin2.benchmark.txt")
         params:
             wrapper_dir = WRAPPER_DIR,
+            bins_dir = os.path.join(config["output"]["binning"],
+                                    "bins/{assembly_group}.{assembler}.out/maxbin2"),
             bin_suffix = config["params"]["binning"]["bin_suffix"],
             bin_prefix = os.path.join(
                 config["output"]["binning"],
@@ -212,8 +210,8 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             config["params"]["binning"]["threads"]
         shell:
             '''
-            rm -rf {output.bins_dir}
-            mkdir -p {output.bins_dir}
+            rm -rf {params.bins_dir}
+            mkdir -p {params.bins_dir}
 
             set +e
             run_MaxBin.pl \
@@ -242,8 +240,10 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             fi
 
             python {params.wrapper_dir}/maxbin2_postprocess.py \
-            {output.bins_dir} \
+            {params.bins_dir} \
             {params.bin_suffix}
+
+            touch {output}
             '''
 
 
@@ -252,7 +252,7 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             expand(
                 os.path.join(
                     config["output"]["binning"],
-                    "bins/{assembly_group}.{assembler}.out/maxbin2"),
+                    "bins/{assembly_group}.{assembler}.out/maxbin2/binning_done"),
                 assembler=ASSEMBLERS,
                 assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
 
@@ -294,11 +294,11 @@ if config["params"]["binning"]["concoct"]["do"]:
             bam = lambda wildcards: expand(os.path.join(
                 config["output"]["alignment"],
                 "bam/{{assembly_group}}.{{assembler}}.out/{sample}.align2scaftigs.sorted.bam"),
-                sample=get_samples_id_list(wildcards)),
+                sample=metapi.get_samples_id_by_assembly_group(SAMPLES, wildcards)),
             bai = lambda wildcards: expand(os.path.join(
                 config["output"]["alignment"],
                 "bam/{{assembly_group}}.{{assembler}}.out/{sample}.align2scaftigs.sorted.bam.bai"),
-                sample=get_samples_id_list(wildcards))
+                sample=metapi.get_samples_id_by_assembly_group(SAMPLES, wildcards))
         output:
             scaftigs = temp(os.path.join(
                 config["output"]["assembly"],
@@ -358,8 +358,8 @@ if config["params"]["binning"]["concoct"]["do"]:
                 config["output"]["binning"],
                 "coverage/{assembly_group}.{assembler}.out/{assembly_group}.concoct.coverage")
         output:
-            bins_dir = directory(os.path.join(config["output"]["binning"],
-                                              "bins/{assembly_group}.{assembler}.out/concoct"))
+            os.path.join(config["output"]["binning"],
+                         "bins/{assembly_group}.{assembler}.out/concoct/binning_done")
         priority:
             30
         conda:
@@ -372,6 +372,8 @@ if config["params"]["binning"]["concoct"]["do"]:
                          "benchmark/concoct/{assembly_group}.{assembler}.concoct.benchmark.txt")
         params:
             wrapper_dir = WRAPPER_DIR,
+            bins_dir = os.path.join(config["output"]["binning"],
+                                    "bins/{assembly_group}.{assembler}.out/concoct"),
             clusters = config["params"]["binning"]["concoct"]["clusters"],
             kmer_length = config["params"]["binning"]["concoct"]["kmer_length"],
             length_threshold = config["params"]["binning"]["concoct"]["length_threshold"],
@@ -399,8 +401,8 @@ if config["params"]["binning"]["concoct"]["do"]:
             config["params"]["binning"]["threads"]
         shell:
             '''
-            rm -rf {output.bins_dir}
-            mkdir -p {output.bins_dir}
+            rm -rf {params.bins_dir}
+            mkdir -p {params.bins_dir}
 
             set +e
 
@@ -431,7 +433,8 @@ if config["params"]["binning"]["concoct"]["do"]:
                 echo "Not enough contigs pass the threshold, touch empty concoct output directory"
             fi
 
-            if [ -f "{params.basename}_clustering_gt1000.csv" ]; then
+            if [ -f "{params.basename}_clustering_gt1000.csv" ];
+            then
                 merge_cutup_clustering.py \
                 {params.basename}_clustering_gt1000.csv \
                 > {params.basename}_clustering_merged.csv
@@ -439,13 +442,15 @@ if config["params"]["binning"]["concoct"]["do"]:
                 extract_fasta_bins.py \
                 {input.scaftigs} \
                 {params.basename}_clustering_merged.csv \
-                --output_path {output.bins_dir}
+                --output_path {params.bins_dir}
 
                 python {params.wrapper_dir}/concoct_postprocess.py \
-                {output.bins_dir} \
+                {params.bins_dir} \
                 {params.bin_suffix} \
                 {params.basename}
             fi
+
+            touch {output}
             '''
 
 
@@ -453,7 +458,7 @@ if config["params"]["binning"]["concoct"]["do"]:
         input:
             expand(os.path.join(
                 config["output"]["binning"],
-                "bins/{assembly_group}.{assembler}.out/concoct"),
+                "bins/{assembly_group}.{assembler}.out/concoct/binning_done"),
                    assembler=ASSEMBLERS,
                    assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
 
@@ -463,390 +468,3 @@ if config["params"]["binning"]["concoct"]["do"]:
 else:
     rule binning_concoct_all:
         input:
-
-
-if config["params"]["binning"]["graphbin2"]["do"]:
-    rule binning_graphbin2_prepare_assembly:
-        input:
-            scaftigs = os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa.gz"),
-            gfa = os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.gfa.gz"),
-        output:
-             scaftigs = temp(os.path.join(
-                config["output"]["binning"],
-                "bins/{assembly_group}.{assembler}.out/graphbin2/scaftigs.fa")),
-             gfa = temp(os.path.join(
-                 config["output"]["binning"],
-                 "bins/{assembly_group}.{assembler}.out/graphbin2/scaftigs.gfa"))
-        shell:
-            '''
-            pigz -dc {input.scaftigs} > {output.scaftigs}
-            pigz -dc {input.gfa} > {output.gfa}
-            '''
-
-           
-    rule binning_graphbin2_prepare_binned:
-        input:
-            bins_dir = os.path.join(
-                config["output"]["binning"],
-                "bins/{assembly_group}.{assembler}.out/{binner_graphbin}")
-        output:
-            binned = os.path.join(
-                config["output"]["binning"],
-                "bins/{assembly_group}.{assembler}.out/graphbin2/{assembly_group}.{assembler}.{binner_graphbin}.graphbin2.csv")
-        params:
-            suffix = config["params"]["binning"]["bin_suffix"],
-            assembler = "{assembler}"
-        run:
-            metapi.get_binning_info(input.bins_dir,
-                                    output.binned,
-                                    params.suffix,
-                                    params.assembler)
-
-
-    rule binning_graphbin2:
-        input:
-            scaftigs = os.path.join(
-                config["output"]["binning"],
-                "bins/{assembly_group}.{assembler}.out/graphbin2/scaftigs.fa"),
-            gfa = os.path.join(
-                config["output"]["binning"],
-                "bins/{assembly_group}.{assembler}.out/graphbin2/scaftigs.gfa"),
-            binned = os.path.join(
-                config["output"]["binning"],
-                "bins/{assembly_group}.{assembler}.out/graphbin2/{assembly_group}.{assembler}.{binner_graphbin}.graphbin2.csv")
-        output:
-            directory(os.path.join(
-                config["output"]["binning"],
-                "bins/{assembly_group}.{assembler}.out/{binner_graphbin}_graphbin2"))
-        log:
-            os.path.join(config["output"]["binning"],
-                         "logs/binning/{assembly_group}.{assembler}.{binner_graphbin}.graphbin2.refine.log")
-        benchmark:
-            os.path.join(config["output"]["binning"],
-                         "benchmark/{binner_graphbin}/{assembly_group}.{assembler}.{binner_graphbin}.benchmark.txt")
-        params:
-            assembler = "{assembler}",
-            prefix = os.path.join(
-                config["output"]["binning"],
-                "bins/{assembly_group}.{assembler}.out/{binner_graphbin}_graphbin2/{assembly_group}.{assembler}.{binner_graphbin}_graphbin2.bin"),
-            suffix = config["params"]["binning"]["bin_suffix"],
-            paths = os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.paths.gz"),
-            depth = config["params"]["binning"]["graphbin2"]["depth"],
-            threshold = config["params"]["binning"]["graphbin2"]["threshold"]
-        threads:
-            config["params"]["binning"]["threads"]
-        run:
-            import pandas as pd
-            import os
-
-            shell('''mkdir -p {output}''')
-
-            df = pd.read_csv(input.binned, names=["scaftigs_id", "bin_id"])
-
-            if not df.empty:
-                if params.assembler == "metaspades" or params.assembler == "spades":
-                    shell(
-                        '''
-                        pigz -p {threads} -dc {params.paths} > {output}/scaftigs.paths
-
-                        graphbin2 \
-                        --assembler spades \
-                        --contigs {input.scaftigs} \
-                        --graph {input.gfa} \
-                        --paths {output}/scaftigs.paths \
-                        --binned {input.binned} \
-                        --nthreads {threads} \
-                        --depth {params.depth} \
-                        --threshold {params.threshold} \
-                        --output {output} \
-                        > {log} 2>&1
-
-                        rm -rf {output}/scaftigs.paths
-                        ''')
-                else:
-                    shell(
-                        '''
-                        graphbin2 \
-                        --assembler {params.assembler} \
-                        --contigs {input.scaftigs} \
-                        --graph {input.gfa} \
-                        --binned {input.binned} \
-                        --nthreads {threads} \
-                        --depth {params.depth} \
-                        --threshold {params.threshold} \
-                        --output {output} \
-                        > {log} 2>&1
-                        ''')
-
-                metapi.generate_bins(f"{output}/graphbin2_output.csv",
-                                     input.scaftigs,
-                                     params.prefix,
-                                     params.suffix)
-
-
-    rule binning_graphbin2_all:
-        input:
-            expand(os.path.join(
-                config["output"]["binning"],
-                "bins/{assembly_group}.{assembler}.out/{binner_graphbin}_graphbin2"),
-                binner_graphbin=BINNERS_GRAPHBIN,
-                assembler=ASSEMBLERS,
-                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
-
-            #rules.alignment_all.input,
-            #rules.assembly_all.input
-
-else:
-    rule binning_graphbin2_all:
-        input:
-
-
-if config["params"]["binning"]["dastools"]["do"]:
-    rule binning_dastools_preprocess:
-        input:
-            bins_dir = expand(
-                os.path.join(
-                    config["output"]["binning"],
-                    "bins/{{assembly_group}}.{{assembler}}.out/{binner_dastools}"),
-                    binner_dastools=BINNERS_DASTOOLS)
-        output:
-            contigs2bin = expand(
-                os.path.join(
-                    config["output"]["binning"],
-                    "bins_id/{{assembly_group}}.{{assembler}}.out/{binner_dastools}_Contigs2Bin.tsv"),
-                    binner_dastools=BINNERS_DASTOOLS)
-        params:
-            bin_suffix = config["params"]["binning"]["bin_suffix"]
-        run:
-            import glob
-            import os
-            from Bio import SeqIO
-
-            i = -1
-            for bins_dir in input.bins_dir:
-                i += 1
-                shell(f'''rm -rf {output.contigs2bin[i]}''')
-                bins_list = glob.glob(bins_dir + "/*.bin.*.fa")
-                if len(bins_list) == 0:
-                    shell(f'''touch {output.contigs2bin[i]}''')
-                else:
-                    with open(output[i], 'w') as oh:
-                        for bin_fa in sorted(bins_list):
-                            bin_id_list = os.path.basename(bin_fa).split(".")
-                            bin_id = bin_id_list[2] + "." + str(bin_id_list[4])
-                            for contig in SeqIO.parse(bin_fa, "fasta"):
-                                oh.write(f'''{contig.id}\t{bin_id}\n''')
-
-
-    rule binning_dastools:
-        input:
-            contigs2bin = expand(
-                os.path.join(
-                    config["output"]["binning"],
-                    "bins_id/{{assembly_group}}.{{assembler}}.out/{binner_dastools}_Contigs2Bin.tsv"),
-                    binner_dastools=BINNERS_DASTOOLS),
-            scaftigs = os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa.gz"),
-            pep = os.path.join(
-                config["output"]["predict"],
-                "scaftigs_gene/{assembly_group}.{assembler}.prodigal.out/{assembly_group}.{assembler}.faa")
-        output:
-            bins_dir = directory(os.path.join(
-                config["output"]["binning"],
-                "bins/{assembly_group}.{assembler}.out/dastools"))
-        log:
-            os.path.join(config["output"]["binning"],
-                         "logs/binning/{assembly_group}.{assembler}.dastools.binning.log")
-        benchmark:
-            os.path.join(config["output"]["binning"],
-                         "benchmark/dastools/{assembly_group}.{assembler}.dastools.benchmark.txt")
-        priority:
-            30
-        conda:
-            config["envs"]["dastools"]
-        params:
-            binner = ",".join(BINNERS_DASTOOLS),
-            wrapper_dir = WRAPPER_DIR,
-            search_engine = config["params"]["binning"]["dastools"]["search_engine"],
-            score_threshold = config["params"]["binning"]["dastools"]["score_threshold"],
-            duplicate_penalty = config["params"]["binning"]["dastools"]["duplicate_penalty"],
-            megabin_penalty = config["params"]["binning"]["dastools"]["megabin_penalty"],
-            bin_suffix = config["params"]["binning"]["bin_suffix"],
-            bin_prefix = os.path.join(
-                config["output"]["binning"],
-                "bins/{assembly_group}.{assembler}.out/dastools/{assembly_group}.{assembler}.dastools.bin")
-        threads:
-            config["params"]["binning"]["threads"]
-        shell:
-            '''
-            set +e
-            rm -rf {output.bins_dir}
-            mkdir -p {output.bins_dir}
-            
-            pigz -p {threads} -d -c {input.scaftigs} > {output.bins_dir}/scaftigs.fasta
-            contigs2bin=$(python -c "import sys; print(','.join(sys.argv[1:]))" {input.contigs2bin})
-
-            DAS_Tool \
-            --bins $contigs2bin \
-            --labels {params.binner} \
-            --contigs {output.bins_dir}/scaftigs.fasta \
-            --proteins {input.pep} \
-            --outputbasename {params.bin_prefix} \
-            --search_engine {params.search_engine} \
-            --write_bin_evals \
-            --write_bins \
-            --write_unbinned \
-            --score_threshold {params.score_threshold} \
-            --duplicate_penalty {params.duplicate_penalty} \
-            --megabin_penalty {params.megabin_penalty} \
-            --threads {threads} --debug > {log} 2>&1
-
-            rm -rf {output.bins_dir}/scaftigs.fasta
-
-            exitcode=$?
-            if [ $exitcode -eq 1 ]
-            then
-                grep -oEi 'no single copy genes found. Aborting' {log}
-                grepcode=$?
-                if [ $grepcode -eq 0 ]
-                then
-                    exit 0
-                else
-                    grep -oEi 'single copy gene prediction using {params.search_engine} failed. Aborting' {log}
-                    grepcode=$?
-                    if [ $grepcode -eq 0 ]
-                    then
-                        exit 0
-                    else
-                        exit $exitcode
-                    fi
-                fi
-            fi
-
-            python {params.wrapper_dir}/dastools_postprocess.py \
-            {params.bin_prefix} \
-            {params.bin_suffix}
-            ''' 
-
-
-    rule binning_dastools_all:
-        input:
-            expand(
-                os.path.join(
-                    config["output"]["binning"],
-                    "bins/{assembly_group}.{assembler}.out/dastools"),
-                assembler=ASSEMBLERS,
-                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
-
-            #rules.predict_scaftigs_gene_prodigal_all.input
-
-else:
-    rule binning_dastools_all:
-        input:
-
-
-if len(BINNERS_CHECKM) != 0:
-    rule binning_report:
-        input:
-            bins_dir = os.path.join(
-                config["output"]["binning"],
-                "bins/{assembly_group}.{assembler}.out/{binner_checkm}")
-        output:
-            report_dir = directory(
-                os.path.join(
-                    config["output"]["binning"],
-                    "report/{assembler}_{binner_checkm}_stats/{assembly_group}"))
-        priority:
-            35
-        params:
-            assembly_group = "{assembly_group}",
-            assembler = "{assembler}",
-            binner = "{binner_checkm}"
-        run:
-            import glob
-
-            shell('''rm -rf {output.report_dir}''')
-            shell('''mkdir -p {output.report_dir}''')
-
-            bin_list =  glob.glob(input.bins_dir + "/*bin*fa")
-            header_list = ["assembly_group", "bin_id", "assembler", "binner",
-                           "chr", "length", "#A", "#C", "#G", "#T",
-                           "#2", "#3", "#4", "#CpG", "#tv", "#ts", "#CpG-ts"]
-            header = "\\t".join(header_list)
-
-            for bin_fa in bin_list:
-                bin_id = os.path.basename(os.path.splitext(bin_fa)[0])
-                header_ = "\\t".join([params.sample_id, bin_id,
-                                      params.assembler, params.binner])
-                stats_file = os.path.join(output.report_dir,
-                                          bin_id + ".seqtk.comp.tsv.gz")
-
-                shell(
-                    '''
-                    seqtk comp %s | \
-                    awk \
-                    'BEGIN \
-                    {{print "%s"}}; \
-                    {{print "%s" "\t" $0}}' | \
-                    gzip -c > %s
-                    ''' % (bin_fa, header, header_, stats_file))
-
-
-    rule binning_report_merge:
-        input:
-            expand(os.path.join(
-                config["output"]["binning"],
-                "report/{{assembler}}_{{binner_checkm}}_stats/{assembly_group}"),
-                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
-        output:
-            summary = os.path.join(
-                config["output"]["binning"],
-                "report/assembly_stats_{assembler}_{binner_checkm}.tsv")
-        params:
-            min_length = config["params"]["assembly"]["report"]["min_length"],
-            len_ranges = config["params"]["assembly"]["report"]["len_ranges"]
-        threads:
-            config["params"]["binning"]["threads"]
-        run:
-            import glob
-            comp_list = []
-            for i in input:
-                comp_list += glob.glob(i + "/*bin*.seqtk.comp.tsv.gz")
-
-            if len(comp_list) != 0:
-                metapi.assembler_init(params.len_ranges,
-                                      ["sample_id", "bin_id", "assembler", "binner"])
-                comp_list_ = [(j, params.min_length) for j in comp_list]
-                metapi.merge(comp_list_, metapi.parse_assembly,
-                             threads, output=output.summary)
-            else:
-                shell('''touch {output.summary}''')
-
-
-    rule binning_report_all:
-        input:
-            expand(os.path.join(
-                config["output"]["binning"],
-                "report/assembly_stats_{assembler}_{binner_checkm}.tsv"),
-                   assembler=ASSEMBLERS,
-                   binner_checkm=BINNERS_CHECKM)
-
-else:
-    rule binning_report_all:
-        input:
-
-
-rule binning_all:
-    input:
-        rules.binning_metabat2_all.input,
-        rules.binning_maxbin2_all.input,
-        rules.binning_concoct_all.input,
-        rules.binning_graphbin2_all.input,
-        rules.binning_dastools_all.input

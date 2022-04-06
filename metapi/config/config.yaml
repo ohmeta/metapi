@@ -244,7 +244,9 @@ params:
       cuda: True
       save_bam: False
       min_contig: 2000
+      min_fasta: 200000 # 200K, 500K # For viral genome, choose ? 1kb ?
       index_size: "12G"
+      external_params: ""
     dastools:
       do: True
       search_engine: "diamond"
@@ -506,3 +508,4 @@ envs:
   maxbin2: "envs/maxbin2.yaml"
   concoct: "envs/concoct.yaml"
   dastools: "envs/dastools.yaml"
+  vamb: "envs/vamb.yaml"
