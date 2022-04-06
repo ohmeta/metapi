@@ -294,11 +294,11 @@ if config["params"]["binning"]["concoct"]["do"]:
             bam = lambda wildcards: expand(os.path.join(
                 config["output"]["alignment"],
                 "bam/{{assembly_group}}.{{assembler}}.out/{sample}.align2scaftigs.sorted.bam"),
-                sample=metapi.get_samples_id_by_assembly_group(SAMPLES, wildcards)),
+                sample=metapi.get_samples_id_by_assembly_group(SAMPLES, wildcards.assembly_group)),
             bai = lambda wildcards: expand(os.path.join(
                 config["output"]["alignment"],
                 "bam/{{assembly_group}}.{{assembler}}.out/{sample}.align2scaftigs.sorted.bam.bai"),
-                sample=metapi.get_samples_id_by_assembly_group(SAMPLES, wildcards))
+                sample=metapi.get_samples_id_by_assembly_group(SAMPLES, wildcards.assembly_group))
         output:
             scaftigs = temp(os.path.join(
                 config["output"]["assembly"],
@@ -433,10 +433,10 @@ if config["params"]["binning"]["concoct"]["do"]:
                 echo "Not enough contigs pass the threshold, touch empty concoct output directory"
             fi
 
-            if [ -f "{params.basename}_clustering_gt1000.csv" ];
+            if [ -f "{params.basename}_clustering_gt{params.length_threshold}.csv" ];
             then
                 merge_cutup_clustering.py \
-                {params.basename}_clustering_gt1000.csv \
+                {params.basename}_clustering_gt{params.length_threshold}.csv \
                 > {params.basename}_clustering_merged.csv
 
                 extract_fasta_bins.py \

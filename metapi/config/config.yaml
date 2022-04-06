@@ -202,7 +202,7 @@ params:
       output_paired_contigs: False
       output_gc: False
       output_gc_window: False
-      min_contig: 1500
+      min_contig: 2000
       maxP: 95
       minS: 60
       maxEdges: 200
@@ -215,7 +215,7 @@ params:
       seed: 2020
     maxbin2:
       do: True
-      min_contig: 1500
+      min_contig: 2000
       max_iteration: 50
       prob_threshold: 0.9
       plotmarker: True
@@ -226,7 +226,7 @@ params:
       overlap_size: 0
       clusters: 400
       kmer_length: 4
-      length_threshold: 1000
+      length_threshold: 2000
       read_length: 100
       total_percentage_pca: 90
       iterations: 500
