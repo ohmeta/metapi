@@ -286,44 +286,33 @@ if config["params"]["binning"]["canopy"]["do"]:
 
 
 if config["params"]["binning"]["concoct"]["do"]:
-    rule binning_concoct_coverage:
+    rule binning_connoct_cut_bed:
         input:
             scaftigs = os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa.gz"),
-            bam = lambda wildcards: expand(os.path.join(
-                config["output"]["alignment"],
-                "bam/{{assembly_group}}.{{assembler}}.out/{sample}.align2scaftigs.sorted.bam"),
-                sample=metapi.get_samples_id_by_assembly_group(SAMPLES, wildcards.assembly_group)),
-            bai = lambda wildcards: expand(os.path.join(
-                config["output"]["alignment"],
-                "bam/{{assembly_group}}.{{assembler}}.out/{sample}.align2scaftigs.sorted.bam.bai"),
-                sample=metapi.get_samples_id_by_assembly_group(SAMPLES, wildcards.assembly_group))
         output:
-            scaftigs = temp(os.path.join(
+            scaftigs = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa")),
-            scaftigs_cut = temp(os.path.join(
+                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa"),
+            scaftigs_cut = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.cut.fa")),
-            scaftigs_bed = temp(os.path.join(
+                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.cut.fa"),
+            scaftigs_bed = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.cut.bed")),
-            coverage = os.path.join(
-                config["output"]["binning"],
-                "coverage/{assembly_group}.{assembler}.out/{assembly_group}.concoct.coverage")
+                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.cut.bed")
+        threads:
+            1
+        log:
+            os.path.join(config["output"]["binning"],
+                         "logs/coverage/{assembly_group}.{assembler}.concoct.cut_bed.log")
         priority:
             30
         conda:
             config["envs"]["concoct"]
-        log:
-            os.path.join(config["output"]["binning"],
-                         "logs/coverage/{assembly_group}.{assembler}.concoct.coverage.log")
         params:
             chunk_size = config["params"]["binning"]["concoct"]["chunk_size"],
             overlap_size = config["params"]["binning"]["concoct"]["overlap_size"]
-        threads:
-            config["params"]["profiling"]["threads"]
         shell:
             '''
             pigz -p {threads} -k -d -c {input.scaftigs} > {output.scaftigs}
@@ -334,12 +323,51 @@ if config["params"]["binning"]["concoct"]["do"]:
             --overlap_size {params.overlap_size} \
             --merge_last \
             --bedfile {output.scaftigs_bed} \
-            > {output.scaftigs_cut}
+            > {output.scaftigs_cut} 2>{log}
+            '''
 
+
+    rule binning_concoct_cut_bed_all:
+        input:
+            expand(os.path.join(config["output"]["assembly"],
+                   "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.{results}"),
+                   assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST,
+                   assembler=ASSEMBLERS,
+                   results=["scaftigs.fa", "scaftigs.cut.fa", "scaftigs.cut.bed"])
+
+
+    rule binning_concoct_coverage:
+        input:
+            scaftigs_bed = os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.cut.bed"),
+            bam = lambda wildcards: expand(os.path.join(
+                config["output"]["alignment"],
+                "bam/{{assembly_group}}.{{assembler}}.out/{sample}.align2scaftigs.sorted.bam"),
+                sample=metapi.get_samples_id_by_assembly_group(SAMPLES, wildcards.assembly_group)),
+            bai = lambda wildcards: expand(os.path.join(
+                config["output"]["alignment"],
+                "bam/{{assembly_group}}.{{assembler}}.out/{sample}.align2scaftigs.sorted.bam.bai"),
+                sample=metapi.get_samples_id_by_assembly_group(SAMPLES, wildcards.assembly_group))
+        output:
+            coverage = os.path.join(
+                config["output"]["binning"],
+                "coverage/{assembly_group}.{assembler}.out/{assembly_group}.concoct.coverage")
+        priority:
+            30
+        conda:
+            config["envs"]["concoct"]
+        log:
+            os.path.join(config["output"]["binning"],
+                         "logs/coverage/{assembly_group}.{assembler}.concoct.coverage.log")
+        threads:
+            config["params"]["binning"]["threads"]
+        shell:
+            '''
             concoct_coverage_table.py \
-            {output.scaftigs_bed} \
+            {input.scaftigs_bed} \
             {input.bam} \
-            > {output.coverage}
+            > {output.coverage} 2> {log}
             '''
 
 
