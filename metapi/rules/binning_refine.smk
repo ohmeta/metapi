@@ -312,11 +312,28 @@ else:
 
 
 if len(BINNERS_CHECKM) != 0:
+    def get_binning_done(wildcards):
+        if wildcards.binner_checkm != "vamb":
+            binning_done = expand(os.path.join(
+                config["output"]["binning"],
+                "bins/{assembly_group}.{assembler}.out/{binner}/binning_done"),
+                assembly_group=wildcards.assembly_group,
+                assembler=wildcards.assembler,
+                binner=wildcards.binner_checkm)
+            return binning_done
+        else:
+            binning_done = expand(os.path.join(
+                config["output"]["binning"],
+                "bins/{assembly_group}.{assembler}.out/{binner}/binning_done"),
+                assembly_group=metapi.get_multibinning_group_by_assembly_group(SAMPLES, wildcards.assembly_group),
+                assembler=wildcards.assembler,
+                binner=wildcards.binner_checkm)
+            return binning_done
+
+ 
     rule binning_report:
         input:
-            os.path.join(
-                config["output"]["binning"],
-                "bins/{assembly_group}.{assembler}.out/{binner_checkm}/binning_done")
+            unpack(get_binning_done)
         output:
             report_dir = directory(
                 os.path.join(

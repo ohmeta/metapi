@@ -4,4 +4,4 @@ channels:
   - defaults
 dependencies:
   - maxbin2=2.2.7
-  - fraggenscan=1.31
+  - fraggenescan=1.31
