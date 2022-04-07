@@ -138,6 +138,8 @@ def run_snakemake(args, unknown, snakefile, workflow):
 
     if args.conda_create_envs_only:
         cmd += ["--use-conda", "--conda-create-envs-only"]
+        if args.conda_prefix is not None:
+            cmd += ["--conda-prefix", args.conda_prefix]
     else:
         cmd += [
             "--rerun-incomplete",
@@ -258,12 +260,6 @@ def mag_wf(args, unknown):
 def gene_wf(args, unknown):
     snakefile = os.path.join(os.path.dirname(__file__), "snakefiles/gene_wf.smk")
     run_snakemake(args, unknown, snakefile, "gene_wf")
-
-
-def phage_wf(args, unknown):
-    snakefile = os.path.join(os.path.dirname(
-        __file__), "snakefiles/phage_wf.smk")
-    run_snakemake(args, unknown, snakefile, "phage_wf")
 
 
 def snakemake_summary(snakefile, configfile, task):
