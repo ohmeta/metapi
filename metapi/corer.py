@@ -588,18 +588,6 @@ if begin from simulate:
     )
     parser_gene_wf.set_defaults(func=gene_wf)
 
-    parser_phage_wf.add_argument(
-        "task",
-        metavar="TASK",
-        nargs="?",
-        type=str,
-        default="all",
-        choices=WORKFLOWS_PHAGE,
-        help="pipeline end point. Allowed values are " +
-        ", ".join(WORKFLOWS_PHAGE),
-    )
-    parser_phage_wf.set_defaults(func=phage_wf)
-
     parser_sync.add_argument(
         "workflow",
         metavar="WORKFLOW",
