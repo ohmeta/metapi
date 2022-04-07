@@ -78,7 +78,7 @@ class metaconfig:
         "logs/06.binning_metabat2",
         "logs/06.binning_maxbin2_coverage",
         "logs/06.binning_maxbin2",
-        "logs/06.binning_concoct_but_bed",
+        "logs/06.binning_concoct_cut_bed",
         "logs/06.binning_concoct_coverage",
         "logs/06.binning_concoct",
         "logs/06.binning_graphbin2_prepare_assembly",
