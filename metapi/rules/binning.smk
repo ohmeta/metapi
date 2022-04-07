@@ -286,7 +286,7 @@ if config["params"]["binning"]["canopy"]["do"]:
 
 
 if config["params"]["binning"]["concoct"]["do"]:
-    rule binning_connoct_cut_bed:
+    rule binning_concoct_cut_bed:
         input:
             scaftigs = os.path.join(
                 config["output"]["assembly"],
