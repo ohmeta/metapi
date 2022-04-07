@@ -351,6 +351,8 @@ if config["params"]["binning"]["concoct"]["do"]:
             coverage = os.path.join(
                 config["output"]["binning"],
                 "coverage/{assembly_group}.{assembler}.out/{assembly_group}.concoct.coverage")
+        priority:
+            30
         conda:
             config["envs"]["concoct"]
         log:
