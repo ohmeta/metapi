@@ -306,8 +306,6 @@ if config["params"]["binning"]["concoct"]["do"]:
         log:
             os.path.join(config["output"]["binning"],
                          "logs/coverage/{assembly_group}.{assembler}.concoct.cut_bed.log")
-        priority:
-            30
         conda:
             config["envs"]["concoct"]
         params:
@@ -353,8 +351,6 @@ if config["params"]["binning"]["concoct"]["do"]:
             coverage = os.path.join(
                 config["output"]["binning"],
                 "coverage/{assembly_group}.{assembler}.out/{assembly_group}.concoct.coverage")
-        priority:
-            30
         conda:
             config["envs"]["concoct"]
         log:
@@ -388,8 +384,6 @@ if config["params"]["binning"]["concoct"]["do"]:
         output:
             os.path.join(config["output"]["binning"],
                          "bins/{assembly_group}.{assembler}.out/concoct/binning_done")
-        priority:
-            30
         conda:
             config["envs"]["concoct"]
         log:
