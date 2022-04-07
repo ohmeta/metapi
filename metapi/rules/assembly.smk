@@ -755,6 +755,8 @@ else:
         input:
 
 
+## TODO
+## FIX ME
 if len(ASSEMBLERS) != 0:
     if config["params"]["assembly"]["metaquast"]["do"] and IS_PE:
         rule assembly_metaquast:

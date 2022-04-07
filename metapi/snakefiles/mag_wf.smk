@@ -139,22 +139,16 @@ include: "../rules/trimming.smk"
 include: "../rules/rmhost.smk"
 include: "../rules/qcreport.smk"
 include: "../rules/assembly.smk"
-#include: "../rules/coassembly.smk"
 include: "../rules/predict_scaftigs.smk"
-#include: "../rules/copredict_scaftigs.smk"
 include: "../rules/alignment.smk"
-#include: "../rules/coalignment.smk"
 include: "../rules/binning.smk"
 include: "../rules/binning_multisplit.smk"
 include: "../rules/binning_refine.smk"
-#include: "../rules/cobinning.smk"
 #include: "../rules/predict_bins.smk"
 #include: "../rules/copredict_bins.smk"
 #include: "../rules/checkm.smk"
-#include: "../rules/cocheckm.smk"
 #include: "../rules/dereplicate_mags.smk"
 #include: "../rules/classify.smk"
-#include: "../rules/coclassify.smk"
 #include: "../rules/profiling.smk"
 #include: "../rules/upload.smk"
 
@@ -206,60 +200,34 @@ localrules: \
     assembly_opera_ms_all, \
     assembly_metaquast_all, \
     assembly_report_all, \
-    single_assembly_all, \
-    coassembly_megahit_all, \
-    coassembly_all, \
     assembly_all, \
+    alignment_reads_scaftigs_all, \
     alignment_base_depth_all, \
-    coalignment_base_depth_all, \
     alignment_report_all, \
-    single_alignment_all, \
-    coalignment_report_all, \
-    coalignment_all, \
     alignment_all, \
     binning_metabat2_coverage_all, \
     binning_metabat2_all, \
     binning_maxbin2_all, \
+    binning_concoct_cut_bed_all, \
     binning_concoct_all, \
-    binning_graphbin2_all, \
-    binning_dastools_all, \
     binning_vamb_prepare_all, \
     binning_vamb_all, \
+    binning_graphbin2_all, \
+    binning_dastools_all, \
     binning_report_all, \
-    single_binning_all, \
-    cobinning_metabat2_coverage_all, \
-    cobinning_metabat2_all, \
-    cobinning_maxbin2_all, \
-    cobinning_concoct_all, \
-    cobinning_graphbin2_all, \
-    cobinning_dastools_all, \
-    cobinning_report_all, \
-    cobinning_all, \
-    multisplit_binning_all, \
     binning_all, \
-    single_predict_scaftigs_gene_all, \
-    single_predict_bins_gene_all, \
-    copredict_scaftigs_gene_all, \
-    copredict_bins_gene_all, \
     predict_scaftigs_gene_all, \
     predict_bins_gene_all, \
-    copredict_all, \
     predict_all, \
-    single_checkm_all, \
-    cocheckm_all, \
     checkm_all, \
     dereplicate_mags_drep_all, \
     dereplicate_mags_all, \
     dereplicate_all, \
-    classify_short_reads_kraken2_krona_report,
-    classify_short_reads_kraken2_combine_kreport,
-    classify_short_reads_kraken2_combine_kreport_mpa,
+    classify_short_reads_kraken2_krona_report, \
+    classify_short_reads_kraken2_combine_kreport, \
+    classify_short_reads_kraken2_combine_kreport_mpa, \
     classify_short_reads_kraken2_all, \
-    single_classify_hmq_bins_gtdbtk_all, \
-    coclassify_hmq_bins_gtdbtk_all, \
     classify_hmq_bins_gtdbtk_all, \
-    single_classify_all, \
-    coclassify_all, \
     classify_all, \
     profiling_bgi_soap_all, \
     profiling_bowtie2_all, \

@@ -16,668 +16,436 @@ __default__:
   mem: "1G"
   threads: 1
 
+
 simulate_short_reads:
   mem: "2G"
-  threads: 8
   output: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 prepare_short_reads:
-  mem: "512M"
-  threads: 1
   output: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 prepare_long_reads:
   mem: "512M"
-  threads: 1
   output: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 raw_fastqc:
   mem: "512M"
-  threads: 2
   output: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 raw_fastqc_multiqc:
   mem: "128M"
-  threads: 1
   output: "logs/00.{rule}/{rule}.{jobid}.o"
   error: "logs/00.{rule}/{rule}.{jobid}.e"
 
 raw_report:
   mem: "1G"
-  threads: 2
   output: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 raw_report_merge:
   mem: "512M"
-  threads: 2
   output: "logs/00.{rule}/{rule}.{jobid}.o"
   error: "logs/00.{rule}/{rule}.{jobid}.e"
 
 trimming_oas1:
   mem: "1G"
-  threads: 1
   output: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 trimming_sickle:
   mem: "1G"
-  threads: 1
   output: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 trimming_fastp:
   mem: "1G"
-  threads: 4
   output: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 trimming_fastp_multiqc:
   mem: "128M"
-  threads: 1
   output: "logs/01.{rule}/{rule}.{jobid}.o"
   error: "logs/01.{rule}/{rule}.{jobid}.e"
 
 trimming_report:
   mem: "1G"
-  threads: 2
   output: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 trimming_report_merge:
   mem: "512M"
-  threads: 2
   output: "logs/01.{rule}/{rule}.{jobid}.o"
   error: "logs/01.{rule}/{rule}.{jobid}.e"
 
 rmhost_soap_index:
   mem: "1G"
-  threads: 1
   output: "logs/02.{rule}/{rule}.{jobid}.o"
   error: "logs/02.{rule}/{rule}.{jobid}.e"
 
 rmhost_soap:
   mem: "6G"
-  threads: 8
   output: "logs/02.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/02.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 rmhost_bwa_index:
   mem: "1G"
-  threads: 1
   output: "logs/02.{rule}/{rule}.{jobid}.o"
   error: "logs/02.{rule}/{rule}.{jobid}.e"
 
 rmhost_bwa:
   mem: "6G"
-  threads: 8
   output: "logs/02.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/02.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 rmhost_bowtie2_index:
   mem: "1G"
-  threads: 1
   output: "logs/02.{rule}/{rule}.{jobid}.o"
   error: "logs/02.{rule}/{rule}.{jobid}.e"
 
 rmhost_bowtie2:
   mem: "4G"
-  threads: 8
   output: "logs/02.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/02.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 rmhost_minimap2_index:
   mem: "1G"
-  threads: 1
   output: "logs/02.{rule}/{rule}.{jobid}.o"
   error: "logs/02.{rule}/{rule}.{jobid}.e"
 
 rmhost_minimap2:
   mem: "6G"
-  threads: 8
   output: "logs/02.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/02.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 rmhost_kraken2:
   mem: "6G"
-  threads: 8
   output: "logs/02.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/02.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 rmhost_kneaddata:
   mem: "6G"
-  threads: 8
   output: "logs/02.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/02.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 rmhost_alignment_report:
   mem: "513M"
-  threads: 1
   output: "logs/02.{rule}/{rule}.{jobid}.o"
   error: "logs/02.{rule}/{rule}.{jobid}.e"
 
 rmhost_report:
   mem: "1G"
-  threads: 2
   output: "logs/02.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/02.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 rmhost_report_merge:
   mem: "512M"
-  threads: 2
   output: "logs/02.{rule}/{rule}.{jobid}.o"
   error: "logs/02.{rule}/{rule}.{jobid}.e"
 
 qcreport_summary:
   mem: "512M"
-  threads: 4
   output: "logs/03.{rule}/{rule}.{jobid}.o"
   error: "logs/03.{rule}/{rule}.{jobid}.e"
 
 qcreport_plot:
   mem: "512M"
-  threads: 4
   output: "logs/03.{rule}/{rule}.{jobid}.o"
   error: "logs/03.{rule}/{rule}.{jobid}.e"
 
 assembly_megahit:
   mem: "10G"
-  threads: 8
-  output: "logs/04.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
-  error: "logs/04.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.o"
+  error: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.e"
 
 assembly_idba_ud:
   mem: "15G"
-  threads: 8
-  output: "logs/04.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
-  error: "logs/04.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.o"
+  error: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.e"
 
 assembly_metaspades:
   mem: "81G"
-  threads: 8
-  output: "logs/04.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
-  error: "logs/04.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.o"
+  error: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.e"
 
 assembly_spades:
   mem: "20G"
-  threads: 8
-  output: "logs/04.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
-  error: "logs/04.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.o"
+  error: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.e"
 
 assembly_plass:
   mem: "20G"
-  threads: 8
-  output: "logs/04.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
-  error: "logs/04.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.o"
+  error: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.e"
 
 assembly_opera_ms:
   mem: "20G"
-  threads: 8
-  output: "logs/04.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
-  error: "logs/04.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.o"
+  error: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.e"
 
 assembly_metaquast:
   mem: "2G"
-  threads: 8
-  output: "logs/04.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/04.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 assembly_metaquast_multiqc:
   mem: "128M"
-  threads: 1
   output: "logs/04.{rule}/{rule}.{jobid}.o"
   error: "logs/04.{rule}/{rule}.{jobid}.e"
 
 assembly_report:
   mem: "512M"
-  threads: 1
-  output: "logs/04.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/04.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 assembly_report_merge:
   mem: "1G"
-  threads: 8
   output: "logs/04.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
   error: "logs/04.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
 
-coassembly_megahit:
-  #queue: "st_supermem.q"
-  mem: "200G"
-  threads: 8
-  output: "logs/04.{rule}/{rule}.{jobid}.o"
-  error: "logs/04.{rule}/{rule}.{jobid}.e"
-
 alignment_scaftigs_index:
   mem: "512M"
-  threads: 1
-  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.e"
-
-coalignment_scaftigs_index:
-  mem: "512M"
-  threads: 1
-  output: "logs/05.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.o"
-  error: "logs/05.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.e"
+  output: "logs/05.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/05.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 alignment_reads_scaftigs:
   mem: "1G"
-  threads: 8
-  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.e"
-
-coalignment_reads_scaftigs:
-  mem: "1G"
-  threads: 8
-  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler_co}.{jobid}.o"
-  error: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler_co}.{jobid}.e"
+  output: "logs/05.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.o"
+  error: "logs/05.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.e"
 
 alignment_base_depth:
   mem: "512M"
-  threads: 1
-  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.e"
-
-coalignment_base_depth:
-  mem: "512M"
-  threads: 1
-  output: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler_co}.{jobid}.o"
-  error: "logs/05.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler_co}.{jobid}.e"
+  output: "logs/05.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.o"
+  error: "logs/05.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.e"
 
 alignment_report:
   mem: "128M"
-  threads: 1
   output: "logs/05.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
   error: "logs/05.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
 
-coalignment_report:
-  mem: "128M"
-  threads: 1
-  output: "logs/05.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.o"
-  error: "logs/05.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.o"
-
 binning_metabat2_coverage:
   mem: "1G"
-  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_metabat2:
   mem: "1G"
-  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_maxbin2_coverage:
   mem: "2G"
-  threads: 8
-  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_maxbin2:
   mem: "1G"
-  threads: 8
-  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+
+binning_concoct_cut_bed:
+  mem: "2G"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_concoct_coverage:
   mem: "2G"
-  threads: 8
-  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_concoct:
   mem: "1G"
-  threads: 8
-  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.e"
-
-binning_graphbin2_prepare_assembly:
-  mem: "512M"
-  threads: 1
-  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.e"
-
-binning_graphbin2_prepare_binned:
-  mem: "512M"
-  threads: 1
-  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_graphbin}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_graphbin}.{jobid}.e"
-
-binning_graphbin2:
-  mem: "512M"
-  threads: 1
-  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.e"
-
-binning_dastools:
-  mem: "1G"
-  threads: 4
-  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_vamb_combine_scaftigs:
   mem: "1G"
-  threads: 1
-  output: "logs/06.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_vamb_dict_scaftigs:
   mem: "1G"
-  threads: 1
-  output: "logs/06.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_vamb_index_scaftigs:
   mem: "1G"
-  threads: 1
-  output: "logs/06.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_vamb_align_scaftigs:
   mem: "1G"
-  threads: 8
-  output: "logs/06.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.e"
 
 binning_vamb_align_scaftigs_report:
   mem: "512M"
-  threads: 2
   output: "logs/06.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
 
 binning_vamb_coverage:
   mem: "1G"
-  threads: 8
-  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.e"
 
 binning_vamb_gen_abundance_matrix:
   mem: "1G"
-  threads: 1
-  output: "logs/06.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_vamb:
-  #project: "P18Z10200N0127_gpu"
-  #queue: "st_gpu1.q"
+  #partition: "gpu"
   mem: "1G"
-  threads: 1
-  output: "logs/06.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_vamb_postprocess:
   mem: "1G"
-  threads: 1
-  output: "logs/06.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.assembly_group}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.assembly_group}.{jobid}.e"
+
+binning_graphbin2_prepare_assembly:
+  mem: "512M"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+
+binning_graphbin2_prepare_binned:
+  mem: "512M"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_graphbin}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_graphbin}.{jobid}.e"
+
+binning_graphbin2:
+  mem: "512M"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_graphbin}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_graphbin}.{jobid}.e"
+
+binning_dastools_preprocess:
+  mem: "1G"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+
+binning_dastools:
+  mem: "1G"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_report:
   mem: "1G"
-  output: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
 binning_report_merge:
   mem: "1G"
   output: "logs/06.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
-cobinning_metabat2_coverage:
-  mem: "1G"
-  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.e"
-
-cobinning_metabat2:
-  mem: "1G"
-  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.e"
-
-cobinning_maxbin2_coverage:
-  mem: "2G"
-  threads: 8
-  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.e"
-
-cobinning_maxbin2:
-  mem: "1G"
-  threads: 8
-  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.e"
-
-cobinning_concoct_coverage:
-  mem: "2G"
-  threads: 8
-  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.e"
-
-cobinning_concoct:
-  mem: "1G"
-  threads: 8
-  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.e"
-
-cobinning_graphbin2_prepare_assembly:
-  mem: "512M"
-  threads: 1
-  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.e"
-
-cobinning_graphbin2_prepare_binned:
-  mem: "512M"
-  threads: 1
-  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_graphbin}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_graphbin}.{jobid}.e"
-
-cobinning_graphbin2:
-  mem: "512M"
-  threads: 1
-  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.e"
-
-cobinning_dastools:
-  mem: "1G"
-  threads: 4
-  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.e"
-
-cobinning_report:
-  mem: "1G"
-  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.{jobid}.e"
-
-cobinning_report_merge:
-  mem: "1G"
-  output: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.{jobid}.e"
-
 predict_scaftigs_gene_prodigal:
   mem: "1G"
-  threads: 1
-  output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.e"
-
-copredict_scaftigs_gene_prodigal:
-  mem: "1G"
-  threads: 1
-  output: "logs/07.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.o"
-  error: "logs/07.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.e"
+  output: "logs/07.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/07.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 predict_scaftigs_gene_prokka:
   mem: "1G"
-  threads: 1
-  output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/07.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/07.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
-copredict_scaftigs_gene_prokka:
-  mem: "1G"
-  threads: 1
-  output: "logs/07.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.o"
-  error: "logs/07.{rule}/{rule}.{wildcards.assembler_co}.{jobid}.e"
-
+## TODO
 predict_bins_gene_prodigal:
   mem: "1G"
-  threads: 1
   output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
   error: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
-
-copredict_bins_gene_prodigal:
-  mem: "1G"
-  threads: 1
-  output: "logs/07.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.{jobid}.o"
-  error: "logs/07.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.{jobid}.e"
 
 predict_bins_gene_prokka:
   mem: "1G"
-  threads: 1
   output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
   error: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
-copredict_bins_gene_prokka:
-  mem: "1G"
-  threads: 1
-  output: "logs/07.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.{jobid}.o"
-  error: "logs/07.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.{jobid}.e"
-
 checkm_prepare:
   mem: "512M"
-  threads: 1
   output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
   error: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
 checkm_lineage_wf:
   mem: "30G"
-  threads: 8
   output: "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
   error: "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
 checkm_report:
   mem: "512M"
-  threads: 8
   output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
   error: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
-cocheckm_prepare:
-  mem: "512M"
-  threads: 1
-  output: "logs/08.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.{jobid}.o"
-  error: "logs/08.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.{jobid}.e"
-
-cocheckm_lineage_wf:
-  mem: "30G"
-  threads: 8
-  output: "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler_co}.{wildcards.binner_checkm}.{jobid}.o"
-  error: "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler_co}.{wildcards.binner_checkm}.{jobid}.e"
-
-cocheckm_report:
-  mem: "512M"
-  threads: 8
-  output: "logs/08.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.{jobid}.o"
-  error: "logs/08.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.{jobid}.e"
-
 classify_short_reads_kraken2:
   mem: "8G"
-  threads: 8
   output: "logs/09.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/09.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 classify_short_reads_kraken2_krona_report:
   mem: "512M"
-  threads: 1
   output: "logs/09.{rule}/{rule}.{jobid}.o"
   error: "logs/09.{rule}/{rule}.{jobid}.e"
 
 classify_hmq_bins_gtdbtk_prepare:
   mem: "512M"
-  threads: 1
   output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
   error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
 classify_hmq_bins_gtdbtk:
-  #queue: "st_supermem.q"
-  #project: "st_supermem"
+  #partition: "hugemem"
   mem: "130G"
-  threads: 8
   output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
   error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
 classify_hmq_bins_gtdbtk_report:
   mem: "512M"
-  threads: 1
   output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
   error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
-coclassify_hmq_bins_gtdbtk_prepare:
-  mem: "512M"
-  threads: 1
-  output: "logs/09.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.{jobid}.o"
-  error: "logs/09.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.{jobid}.e"
-
-coclassify_hmq_bins_gtdbtk:
-  #queue: "st_supermem.q"
-  #project: "st_supermem"
-  mem: "130G"
-  threads: 8
-  output: "logs/09.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.{jobid}.o"
-  error: "logs/09.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.{jobid}.e"
-
-coclassify_hmq_bins_gtdbtk_report:
-  mem: "512M"
-  threads: 1
-  output: "logs/09.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.{jobid}.o"
-  error: "logs/09.{rule}/{rule}.{wildcards.assembler_co}.{wildcards.binner_checkm}.{jobid}.e"
-
 dereplicate_mags_drep_prepare:
   mem: "512M"
-  threads: 1
   output: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
   error: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
 dereplicate_mags_drep:
   mem: "2G"
-  threads: 8
   output: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
   error: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
 dereplicate_gene_prepare:
   mem: "512M"
-  threads: 1
   output: "logs/10.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
   error: "logs/10.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
 
 dereplicate_gene_cdhit:
   mem: "2G"
-  threads: 8
   output: "logs/10.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
   error: "logs/10.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
 
 profiling_bgi_soap:
   mem: "3G"
-  threads: 8
   output: "logs/11.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/11.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 profiling_bgi_soap_merge:
   mem: "1G"
-  threads: 8
   output: "logs/11.{rule}/{rule}.{jobid}.o"
   error: "logs/11.{rule}/{rule}.{jobid}.e"
 
 profiling_bowtie2:
   mem: "3G"
-  threads: 8
   output: "logs/11.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/11.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 profiling_bowtie2_merge:
   mem: "1G"
-  threads: 8
   output: "logs/11.{rule}/{rule}.{jobid}.o"
   error: "logs/11.{rule}/{rule}.{jobid}.e"
 
 profiling_metaphlan2:
   mem: "3G"
-  threads: 8
   output: "logs/11.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/11.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
@@ -688,13 +456,11 @@ profiling_metaphlan2_merge:
 
 profiling_metaphlan3:
   mem: "3G"
-  threads: 8
   output: "logs/11.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/11.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 profiling_metaphlan3_oneway_qc:
   mem: "1G"
-  threads: 8
   output: "logs/11.{rule}/{rule}.{jobid}.o"
   error: "logs/11.{rule}/{rule}.{jobid}.e"
 
@@ -705,43 +471,36 @@ profiling_metaphlan3_merge:
 
 profiling_jgi:
   mem: "8G"
-  threads: 8
   output: "logs/11.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/11.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 profiling_jgi_merge:
   mem: "1G"
-  threads: 8
   output: "logs/11.{rule}/{rule}.{jobid}.o"
   error: "logs/11.{rule}/{rule}.{jobid}.e"
 
 profiling_bracken:
   mem: "1G"
-  threads: 4
   output: "logs/11.{rule}/{rule}.{wildcards.sample}.{wildcards.level}.{jobid}.o"
   error: "logs/11.{rule}/{rule}.{wildcards.sample}.{wildcards.level}.{jobid}.e"
 
 profiling_bracken_merge:
   mem: "512M"
-  threads: 1
   output: "logs/11.{rule}/{rule}.{wildcards.level}.{jobid}.o"
   error: "logs/11.{rule}/{rule}.{wildcards.level}.{jobid}.e"
 
 profiling_humann2_config:
   mem: "512M"
-  threads: 1
   output: "logs/11.{rule}/{rule}.{jobid}.o"
   error: "logs/11.{rule}/{rule}.{jobid}.o"
 
 profiling_humann2_build_chocophlan_pangenome_db:
   mem: "6G"
-  threads: 8
   output: "logs/11.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/11.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 profiling_humann2:
   mem: "10G"
-  threads: 8
   output: "logs/11.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/11.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
@@ -762,19 +521,16 @@ profiling_humann2_split_stratified:
 
 profiling_humann3_config:
   mem: "512M"
-  threads: 1
   output: "logs/11.{rule}/{rule}.{jobid}.o"
   error: "logs/11.{rule}/{rule}.{jobid}.o"
 
 profiling_humann3_build_chocophlan_pangenome_db:
   mem: "6G"
-  threads: 8
   output: "logs/11.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/11.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
 profiling_humann3:
   mem: "40G"
-  threads: 8
   output: "logs/11.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/11.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
@@ -805,7 +561,6 @@ upload_md5_short_reads:
 
 upload_generate_run_info:
   mem: "1G"
-  threads: 8
   output: "logs/12.{rule}/{rule}.{jobid}.o"
   error: "logs/12.{rule}/{rule}.{jobid}.e"
 
@@ -816,6 +571,5 @@ upload_md5_scaftigs:
 
 upload_generate_assembly_info:
   mem: "1G"
-  threads: 8
   output: "logs/12.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
   error: "logs/12.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
