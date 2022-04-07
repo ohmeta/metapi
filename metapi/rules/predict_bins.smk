@@ -2,17 +2,18 @@ rule predict_bins_gene_prodigal:
     input:
         bins_dir = os.path.join(
             config["output"]["binning"],
-            "bins/{sample}.{assembler}.out/{binner_checkm}")
+            "bins/{assembly_group}.{assembler}.out/{binner_checkm}")
     output:
         done = os.path.join(
             config["output"]["predict"],
-            "bins_gene/{assembler}.{binner_checkm}.prodigal.out/{sample}/done")
+            "bins_gene/{assembly_group}.{assembler}.prodigal.out/{binner_checkm}/predict_done")
+    log:
+        os.path.join(config["output"]["predict"],
+                     "logs/bins_gene/{assembly_group}.{assembler}.{binner_checkm}.prodigal.log")
     params:
         output_dir = os.path.join(
             config["output"]["predict"],
-            "bins_gene/{assembler}.{binner_checkm}.prodigal.out/{sample}"),
-        logs_dir = os.path.join(config["output"]["predict"],
-                                "logs/bins_gene/{sample}.prodigal"),
+            "bins_gene/{assembly_group}.{assembler}.prodigal.out/{binner_checkm}"),
         format = config["params"]["predict"]["format"]
     run:
         import glob
@@ -26,14 +27,12 @@ rule predict_bins_gene_prodigal:
 
         shell(f'''rm -rf {params.output_dir}''')
         shell(f'''mkdir -p {params.output_dir}''')
-        shell(f'''mkdir -p {params.logs_dir}''')
 
         for bin_fa in bin_list:
             bin_id = os.path.basename(os.path.splitext(bin_fa)[0])
             pep_file = os.path.join(params.output_dir, bin_id + ".faa")
             cds_file = os.path.join(params.output_dir, bin_id + ".ffn")
             gff_file = os.path.join(params.output_dir, bin_id + ".gff")
-            log_file= os.path.join(params.logs_dir, bin_id + ".prodigal.log")
 
             total_bases = 0
             for seq in SeqIO.parse(bin_fa, "fasta"):
@@ -44,17 +43,18 @@ rule predict_bins_gene_prodigal:
                 mode = "single"
 
             shell(
-                '''
+                f'''
+                echo "\nProcessing {bin_fa}\n" >> {log}
                 prodigal \
-                -i %s \
+                -i {bin_fa} \
                 -m \
-                -a %s \
-                -d %s \
-                -o %s \
+                -a {pep_file} \
+                -d {cds_file} \
+                -o {gff_file} \
                 -f {params.format} \
-                -p %s \
-                2> %s
-                ''' % (bin_fa, pep_file, cds_file, gff_file, mode, log_file))
+                -p {mode} \
+                2>> {log} 
+                ''')
 
             if os.path.exists(gff_file):
                 gff_count += 1
@@ -67,10 +67,10 @@ rule predict_bins_gene_prodigal_all:
     input:
         expand(os.path.join(
             config["output"]["predict"],
-            "bins_gene/{assembler}.{binner_checkm}.prodigal.out/{sample}/done"),
+            "bins_gene/{assembly_group}.{assembler}.prodigal.out/{binner_checkm}/predict_done"),
                assembler=ASSEMBLERS,
                binner_checkm=BINNERS_CHECKM,
-               sample=SAMPLES.index.unique())#,
+               assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)#,
 
         #rules.binning_all.input
 
@@ -80,18 +80,19 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
         input:
             bins_dir = os.path.join(
                 config["output"]["binning"],
-                "bins/{sample}.{assembler}.out/{binner_checkm}")
+                "bins/{assembly_group}.{assembler}.out/{binner_checkm}")
         output:
             done = os.path.join(
                 config["output"]["predict"],
-                "bins_gene/{assembler}.{binner_checkm}.prokka.out/{sample}/done")
+                "bins_gene/{assembly_group}.{assembler}.prokka.out/{binner_checkm}/predict_done")
         params:
             output_dir = os.path.join(
                 config["output"]["predict"],
-                "bins_gene/{assembler}.{binner_checkm}.prokka.out/{sample}"),
-            logs_dir = os.path.join(config["output"]["predict"],
-                                    "logs/bins_gene/{sample}.prodigal"),
+                "bins_gene/{assembly_group}.{assembler}.prokka.out/{binner_checkm}"),
             kingdom = config["params"]["predict"]["bins_to_gene"]["prokka"]["kingdom"]
+        log:
+            os.path.join(config["output"]["predict"],
+                         "logs/bins_gene/{assembly_group}.{assembler}.{binner_checkm}.prokka.log")
         threads:
             config["params"]["predict"]["threads"]
         run:
@@ -107,25 +108,22 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
                 bin_id = os.path.basename(os.path.splitext(bin_fa)[0])
                 output_dir = os.path.join(params.output_dir, bin_id)
                 gff_file = os.path.join(output_dir, bin_id + ".gff")
-                log_file= os.path.join(params.logs_dir, bin_id + ".prokka.log")
-                os.makedirs(params.logs_dir, exist_ok=True)
 
                 shell(
-                    '''
-                    prokka %s \
+                    f'''
+                    echo "\nProcessing {bin_fa}\n" >> {log}
+
+                    prokka {bin_fa} \
                     --force \
                     --centre X \
                     --compliant \
                     --cpus {threads} \
-                    --outdir %s \
-                    --locustag %s \
-                    --prefix %s \
+                    --outdir {output_dir} \
+                    --locustag {bin_id} \
+                    --prefix {bin_id} \
                     --kingdom {params.kingdom} \
-                    2> %s
-                    ''' % (bin_fa,
-                           output_dir,
-                           bin_id, bin_id,
-                           log_file))
+                    2>> {log} 
+                    ''')
 
                 if os.path.exists(gff_file):
                     gff_count += 1
@@ -139,8 +137,8 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
             expand(
                 os.path.join(
                     config["output"]["predict"],
-                    "bins_gene/{{assembler}}.{{binner_checkm}}.prokka.out/{sample}/done"),
-                sample=SAMPLES.index.unique())
+                    "bins_gene/{assembly_group}.{{assembler}}.prokka.out/{{binner_checkm}}/predict_done"),
+                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
         output:
             html = os.path.join(
                 config["output"]["predict"],
@@ -153,9 +151,12 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
                 config["output"]["predict"],
                 "logs/report/bins_gene_{assembler}.{binner_checkm}.multiqc.prokka.log")
         params:
-            input_dir = os.path.join(
+            input_dir = lambda wildcards: expand(os.path.join(
                 config["output"]["predict"],
-                "bins_gene/{assembler}.{binner_checkm}.prokka.out/"),
+                "bins_gene/{assembly_group}.{assembler}.prokka.out/{binner_checkm}"),
+                assembler=wildcards.assembler, 
+                binner_checkm=wildcards.binner_checkm,
+                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST),
             output_dir = os.path.join(
                 config["output"]["predict"],
                 "report/bins_gene_{assembler}.{binner_checkm}.multiqc.out")
@@ -176,7 +177,7 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
             expand([
                 os.path.join(
                     config["output"]["predict"],
-                    "bins_gene/{assembler}.{binner_checkm}.prokka.out/{sample}/done"),
+                    "bins_gene/{assembly_group}.{assembler}.prokka.out/{binner_checkm}/predict_done"),
                 os.path.join(
                     config["output"]["predict"],
                     "report/bins_gene_{assembler}.{binner_checkm}.multiqc.out/prokka_multiqc_report.html"),
@@ -185,7 +186,7 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
                     "report/bins_gene_{assembler}.{binner_checkm}.multiqc.out/prokka_multiqc_report_data")],
                    assembler=ASSEMBLERS,
                    binner_checkm=BINNERS_CHECKM,
-                   sample=SAMPLES.index.unique())#,
+                   assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)#,
 
             #rules.binning_all.input
 
@@ -194,13 +195,13 @@ else:
         input:
 
 
-rule single_predict_bins_gene_all:
+rule predict_bins_gene_all:
     input:
         rules.predict_bins_gene_prodigal_all.input,
         rules.predict_bins_gene_prokka_all.input,
 
 
-rule single_predict_all:
+rule predict_all:
     input:
-        rules.single_predict_scaftigs_gene_all.input,
-        rules.single_predict_bins_gene_all.input
+        rules.predict_scaftigs_gene_all.input,
+        rules.predict_bins_gene_all.input

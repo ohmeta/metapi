@@ -373,16 +373,25 @@ predict_scaftigs_gene_prokka:
   output: "logs/07.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
   error: "logs/07.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
-## TODO
+predict_scaftigs_gene_prokka_multiqc:
+  mem: "1G"
+  output: "logs/07.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/07.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
+
 predict_bins_gene_prodigal:
   mem: "1G"
-  output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
-  error: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
+  output: "logs/07.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
+  error: "logs/07.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
 predict_bins_gene_prokka:
   mem: "1G"
-  output: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
-  error: "logs/07.{rule}/{rule}.{wildcards.sample}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
+  output: "logs/07.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
+  error: "logs/07.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
+
+predict_bins_gene_prokka_multiqc:
+  mem: "1G"
+  output: "logs/07.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
+  error: "logs/07.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
 checkm_prepare:
   mem: "512M"

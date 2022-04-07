@@ -144,7 +144,7 @@ include: "../rules/alignment.smk"
 include: "../rules/binning.smk"
 include: "../rules/binning_multisplit.smk"
 include: "../rules/binning_refine.smk"
-#include: "../rules/predict_bins.smk"
+include: "../rules/predict_bins.smk"
 #include: "../rules/copredict_bins.smk"
 #include: "../rules/checkm.smk"
 #include: "../rules/dereplicate_mags.smk"
@@ -163,8 +163,8 @@ rule all:
         rules.assembly_all.input,
         rules.predict_scaftigs_gene_all.input,
         rules.alignment_all.input,
-        rules.binning_all.input#,
-#        rules.predict_bins_gene_all.input,
+        rules.binning_all.input,
+        rules.predict_bins_gene_all.input
 #        rules.checkm_all.input,
 #        rules.dereplicate_mags_all.input,
 #        rules.classify_all.input,
