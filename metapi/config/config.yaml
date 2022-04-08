@@ -256,7 +256,6 @@ params:
 
   predict:
     threads: 8
-    format: "gff"
     scaftigs_to_gene:
       prokka:
         do: False

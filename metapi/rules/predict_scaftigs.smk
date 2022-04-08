@@ -19,8 +19,6 @@ rule predict_scaftigs_gene_prodigal:
     log:
         os.path.join(config["output"]["predict"],
                      "logs/scaftigs_gene/{assembly_group}.{assembler}.prodigal.log")
-    params:
-        format = config["params"]["predict"]["format"]
     shell:
         '''
         zcat {input} | \
@@ -29,7 +27,7 @@ rule predict_scaftigs_gene_prodigal:
         -a {output.pep} \
         -d {output.cds} \
         -o {output.gff} \
-        -f {params.format} \
+        -f gff \
         -p meta -q \
         2> {log}
         '''

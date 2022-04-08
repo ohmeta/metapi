@@ -13,8 +13,7 @@ rule predict_bins_gene_prodigal:
     params:
         output_dir = os.path.join(
             config["output"]["predict"],
-            "bins_gene/{assembly_group}.{assembler}.prodigal.out/{binner_checkm}"),
-        format = config["params"]["predict"]["format"]
+            "bins_gene/{assembly_group}.{assembler}.prodigal.out/{binner_checkm}")
     run:
         import glob
         import os

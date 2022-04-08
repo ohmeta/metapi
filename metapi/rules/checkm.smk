@@ -3,8 +3,8 @@ if config["params"]["checkm"]["do"]:
         input:
             expand(os.path.join(
                 config["output"]["predict"],
-                "bins_gene/{{assembler}}.{{binner_checkm}}.prodigal.out/{sample}/done"),
-                sample=SAMPLES.index.unique())
+                "bins_gene/{{assembly_group}}.{{assembler}}.prodigal.out/{binner_checkm}/done"),
+                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
         output:
             links_dir = directory(os.path.join(config["output"]["checkm"],
                                                "bins_input/{assembler}.{binner_checkm}.links")),
