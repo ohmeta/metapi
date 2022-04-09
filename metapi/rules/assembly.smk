@@ -755,8 +755,6 @@ else:
         input:
 
 
-## TODO
-## FIX ME
 if len(ASSEMBLERS) != 0:
     if config["params"]["assembly"]["metaquast"]["do"] and IS_PE:
         rule assembly_metaquast:
@@ -804,7 +802,7 @@ if len(ASSEMBLERS) != 0:
                 expand(os.path.join(
                     config["output"]["assembly"],
                     "metaquast/{assembly_group}.{{assembler}}.metaquast.out/combined_reference/report.tsv"),
-                    assembly_group=SAMPLES["assembly_group"].unique())
+                    assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
             output:
                 html = os.path.join(
                     config["output"]["assembly"],
