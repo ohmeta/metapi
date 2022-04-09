@@ -332,7 +332,7 @@ else:
 if len(BINNERS_CHECKM) != 0:
     rule binning_report:
         input:
-            lambda wildcards: unpack(get_binning_done_list(wildcards, [wildcards.binner_checkm]))
+            lambda wildcards: get_binning_done(wildcards, [wildcards.binner_checkm])
         output:
             report_dir = directory(
                 os.path.join(
