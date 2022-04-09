@@ -1,6 +1,6 @@
 rule predict_bins_gene_prodigal:
     input:
-        lambda wildcards: unpack(get_binning_done_list(wildcards, [wildcards.binner_checkm]))
+        binning_done = lambda wildcards: get_binning_done(wildcards, [wildcards.binner_checkm])
     output:
         predict_done = os.path.join(
             config["output"]["predict"],
@@ -18,7 +18,7 @@ rule predict_bins_gene_prodigal:
         '''
         python {params.wrapper_dir}/prodigal_wrapper.py \
         {threads} \
-        {input} \
+        {input.binning_done} \
         {output.predict_done}
         '''
 

@@ -142,7 +142,7 @@ else:
         input:
 
 
-def get_binning_done_list(wildcards, binners):
+def get_binning_done(wildcards, binners):
     if len(binners) == 1:
         if binners[0] != "vamb":
             binning_done = expand(os.path.join(
@@ -170,7 +170,7 @@ def get_binning_done_list(wildcards, binners):
                     assembly_group=wildcards.assembly_group,
                     assembler=wildcards.assembler,
                     binner=binner)
-                binning_done_list.append(binning_done)
+                binning_done_list.append(binning_done[0])
             else:
                 binning_done = expand(os.path.join(
                     config["output"]["binning"],
@@ -178,14 +178,14 @@ def get_binning_done_list(wildcards, binners):
                     assembly_group=metapi.get_multibinning_group_by_assembly_group(SAMPLES, wildcards.assembly_group),
                     assembler=wildcards.assembler,
                     binner=binner)
-                binning_done_list.append(binning_done)
+                binning_done_list.append(binning_done[0])
         return binning_done_list
  
 
 if config["params"]["binning"]["dastools"]["do"]:
     rule binning_dastools_preprocess:
         input:
-            lambda wildcards: unpack(get_binning_done_list(wildcards, BINNERS_DASTOOLS))
+            lambda wildcards: get_binning_done(wildcards, BINNERS_DASTOOLS)
         output:
             contigs2bin = expand(
                 os.path.join(
