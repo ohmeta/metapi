@@ -1,67 +1,28 @@
 rule predict_bins_gene_prodigal:
     input:
-        bins_dir = os.path.join(
-            config["output"]["binning"],
-            "bins/{assembly_group}.{assembler}.out/{binner_checkm}")
+        lambda wildcards: unpack(get_binning_done_list(wildcards, [wildcards.binner_checkm]))
     output:
-        done = os.path.join(
+        predict_done = os.path.join(
             config["output"]["predict"],
             "bins_gene/{assembly_group}.{assembler}.prodigal.out/{binner_checkm}/predict_done")
     log:
         os.path.join(config["output"]["predict"],
                      "logs/bins_gene/{assembly_group}.{assembler}.{binner_checkm}.prodigal.log")
+    conda:
+        config["envs"]["checkm"]
     params:
-        output_dir = os.path.join(
-            config["output"]["predict"],
-            "bins_gene/{assembly_group}.{assembler}.prodigal.out/{binner_checkm}")
-    run:
-        import glob
-        import os
-        import time
-        import subprocess
-        from Bio import SeqIO
+        wrapper_dir = WRAPPER_DIR
+    threads:
+        config["params"]["predict"]["threads"]
+    shell:
+        '''
+        python {params.wrapper_dir}/prodigal_wrapper.py \
+        {threads} \
+        {input} \
+        {output.predict_done}
+        '''
 
-        bin_list = glob.glob(input.bins_dir + "/*bin*fa")
-        gff_count = 0
-
-        shell(f'''rm -rf {params.output_dir}''')
-        shell(f'''mkdir -p {params.output_dir}''')
-
-        for bin_fa in bin_list:
-            bin_id = os.path.basename(os.path.splitext(bin_fa)[0])
-            pep_file = os.path.join(params.output_dir, bin_id + ".faa")
-            cds_file = os.path.join(params.output_dir, bin_id + ".ffn")
-            gff_file = os.path.join(params.output_dir, bin_id + ".gff")
-
-            total_bases = 0
-            for seq in SeqIO.parse(bin_fa, "fasta"):
-                total_bases += len(seq)
-            if total_bases < 100000:
-                mode = "meta"
-            else:
-                mode = "single"
-
-            shell(
-                f'''
-                echo "\nProcessing {bin_fa}\n" >> {log}
-                prodigal \
-                -i {bin_fa} \
-                -m \
-                -a {pep_file} \
-                -d {cds_file} \
-                -o {gff_file} \
-                -f {params.format} \
-                -p {mode} \
-                2>> {log} 
-                ''')
-
-            if os.path.exists(gff_file):
-                gff_count += 1
-
-        if gff_count == len(bin_list):
-            shell('''touch {output.done}''')
-
-       
+ 
 rule predict_bins_gene_prodigal_all:
     input:
         expand(os.path.join(

@@ -508,3 +508,4 @@ envs:
   concoct: "envs/concoct.yaml"
   dastools: "envs/dastools.yaml"
   vamb: "envs/vamb.yaml"
+  checkm: "envs/checkm.yaml"
