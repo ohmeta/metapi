@@ -194,7 +194,6 @@ params:
 
   binning:
     threads: 8
-    bin_suffix: "fa"
     metabat2:
       do: True
       percent_identity: 97

@@ -9,9 +9,8 @@ with os.scandir(sys.argv[1]) as itr:
     i = 0
     for entry in itr:
         bin_id, suffix = os.path.splitext(entry.name)
-        if suffix == "." + sys.argv[2]:
+        if suffix == ".fa":
             i += 1
             subprocess.run('''mv %s %s''' \
                   % (os.path.join(sys.argv[1], entry.name),
-                     os.path.join(sys.argv[3] + "." + str(i) + "." + sys.argv[2])), shell=True)
-
+                     os.path.join(sys.argv[2] + "." + str(i) + ".fa")), shell=True)

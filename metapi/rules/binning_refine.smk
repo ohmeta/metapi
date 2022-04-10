@@ -31,12 +31,10 @@ if config["params"]["binning"]["graphbin2"]["do"]:
                 config["output"]["binning"],
                 "bins/{assembly_group}.{assembler}.out/graphbin2/{assembly_group}.{assembler}.{binner_graphbin}.graphbin2.csv")
         params:
-            suffix = config["params"]["binning"]["bin_suffix"],
             assembler = "{assembler}"
         run:
             metapi.get_binning_info(input.bins_dir,
                                     output.binned,
-                                    params.suffix,
                                     params.assembler)
 
 
@@ -69,7 +67,6 @@ if config["params"]["binning"]["graphbin2"]["do"]:
             prefix = os.path.join(
                 config["output"]["binning"],
                 "bins/{assembly_group}.{assembler}.out/{binner_graphbin}_graphbin2/{assembly_group}.{assembler}.{binner_graphbin}_graphbin2.bin"),
-            suffix = config["params"]["binning"]["bin_suffix"],
             paths = os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.paths.gz"),
@@ -121,7 +118,7 @@ if config["params"]["binning"]["graphbin2"]["do"]:
                         ''')
 
                 metapi.generate_bins(f"{params.bins_dir}/graphbin2_output.csv",
-                                     input.scaftigs, params.prefix, params.suffix)
+                                     input.scaftigs, params.prefix)
                 shell('''touch {output}''')
 
 
@@ -192,8 +189,6 @@ if config["params"]["binning"]["dastools"]["do"]:
                     config["output"]["binning"],
                     "bins_id/{{assembly_group}}.{{assembler}}.out/{binner_dastools}_Contigs2Bin.tsv"),
                     binner_dastools=BINNERS_DASTOOLS)
-        params:
-            bin_suffix = config["params"]["binning"]["bin_suffix"]
         run:
             import glob
             import os
@@ -253,7 +248,6 @@ if config["params"]["binning"]["dastools"]["do"]:
             score_threshold = config["params"]["binning"]["dastools"]["score_threshold"],
             duplicate_penalty = config["params"]["binning"]["dastools"]["duplicate_penalty"],
             megabin_penalty = config["params"]["binning"]["dastools"]["megabin_penalty"],
-            bin_suffix = config["params"]["binning"]["bin_suffix"],
             bin_prefix = os.path.join(
                 config["output"]["binning"],
                 "bins/{assembly_group}.{assembler}.out/dastools/{assembly_group}.{assembler}.dastools.bin")
@@ -306,8 +300,7 @@ if config["params"]["binning"]["dastools"]["do"]:
             fi
 
             python {params.wrapper_dir}/dastools_postprocess.py \
-            {params.bin_prefix} \
-            {params.bin_suffix}
+            {params.bin_prefix}
 
             touch {output}
             ''' 

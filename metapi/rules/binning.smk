@@ -196,7 +196,6 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             wrapper_dir = WRAPPER_DIR,
             bins_dir = os.path.join(config["output"]["binning"],
                                     "bins/{assembly_group}.{assembler}.out/maxbin2"),
-            bin_suffix = config["params"]["binning"]["bin_suffix"],
             bin_prefix = os.path.join(
                 config["output"]["binning"],
                 "bins/{assembly_group}.{assembler}.out/maxbin2/{assembly_group}.{assembler}.maxbin2.bin"),
@@ -240,8 +239,7 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             fi
 
             python {params.wrapper_dir}/maxbin2_postprocess.py \
-            {params.bins_dir} \
-            {params.bin_suffix}
+            {params.bins_dir}
 
             touch {output}
             '''
@@ -417,7 +415,6 @@ if config["params"]["binning"]["concoct"]["do"]:
             coverage_out = "--coverage_out" \
                 if config["params"]["binning"]["concoct"]["coverage_out"] \
                    else "",
-            bin_suffix = config["params"]["binning"]["bin_suffix"],
             basename = os.path.join(
                 config["output"]["binning"],
                 "bins/{assembly_group}.{assembler}.out/concoct/{assembly_group}.{assembler}.concoct.bin"),
@@ -470,7 +467,6 @@ if config["params"]["binning"]["concoct"]["do"]:
 
                 python {params.wrapper_dir}/concoct_postprocess.py \
                 {params.bins_dir} \
-                {params.bin_suffix} \
                 {params.basename}
             fi
 

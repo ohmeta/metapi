@@ -6,12 +6,12 @@ from Bio import SeqIO
 import pandas as pd
 
 
-def get_binning_info(bins_dir, cluster_file, bin_suffix, assembler):
+def get_binning_info(bins_dir, cluster_file, assembler):
     if assembler.lower() in ["spades", "metaspades", "megahit"]:
         with os.scandir(bins_dir) as itr, open(cluster_file, "w") as oh:
             for entry in itr:
                 bin_id, suffix = os.path.splitext(entry.name)
-                if suffix == "." + bin_suffix:
+                if suffix == ".fa":
                     cluster_num = bin_id.split(".")[-1]
                     bin_fa = os.path.join(bins_dir, entry.name)
                     for seq in SeqIO.parse(bin_fa, "fasta"):
@@ -22,7 +22,7 @@ def get_binning_info(bins_dir, cluster_file, bin_suffix, assembler):
                         oh.write(f"{seq.id},{cluster_num}\n")
 
 
-def generate_bins(cluster_file, scaftigs, prefix, suffix):
+def generate_bins(cluster_file, scaftigs, prefix):
 
     def get_accession(identifier):
         return "_".join(identifier.split("_")[:2])
@@ -41,7 +41,7 @@ def generate_bins(cluster_file, scaftigs, prefix, suffix):
     for i in df.index.unique():
         scaftigs_id_list = df.loc[[i], "scaftigs_id"]\
                              .dropna().tolist()
-        bin_fa = prefix + "." + i + "." + suffix
+        bin_fa = prefix + "." + i + ".fa"
         with open(bin_fa, 'w') as oh:
             for scaftigs_id in scaftigs_id_list:
                 SeqIO.write(scaftigs_index[scaftigs_id], oh, "fasta")

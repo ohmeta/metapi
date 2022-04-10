@@ -85,7 +85,6 @@ if config["params"]["checkm"]["do"]:
             config["params"]["checkm"]["threads"]
         params:
             bins_dir = os.path.join(config["output"]["binning"], "bins"),
-            bin_suffix = config["params"]["binning"]["bin_suffix"],
             standard = config["params"]["checkm"]["standard"] + "_quality_level",
             assembler = "{assembler}",
             binner = "{binner_checkm}"
@@ -98,12 +97,11 @@ if config["params"]["checkm"]["do"]:
                 bin_fa_path = os.path.realpath(
                     os.path.join(
                         params.bins_dir,
-                        "%s.%s.out/%s/%s.%s" % (
+                        "%s.%s.out/%s/%s.fa" % (
                             row["bin_id"].split(".")[0],
                             params.assembler,
                             params.binner,
-                            row["bin_id"],
-                            params.bin_suffix)))
+                            row["bin_id"])))
                 return bin_fa_path
 
             df["bin_fa_path"] = df.apply(lambda x: get_bin_path(x), axis=1)

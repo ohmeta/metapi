@@ -6,14 +6,13 @@ import glob
 import subprocess
 
 
-bins_dir = os.path.dirname(sys.argv[1])
+bins_prefix = sys.argv[1].replace("dastools.bin", "")
 
-bins_list_dastools = glob.glob(
-    os.path.join(sys.argv[1] + "_DASTool_bins", "*." + sys.argv[2]))
+bins_list = glob.glob(os.path.join(sys.argv[1] + "_DASTool_bins", "*.fa"))
 
-if len(bins_list_dastools) > 0:
-    for bin_fa in bins_list_dastools:
+if len(bins_list) > 0:
+    for bin_fa in bins_list:
         binner = os.path.basename(bin_fa).split(".")[0]
         if binner != "unbinned":
-            bin_fa_ = os.path.basename(bin_fa).replace(binner, binner +"_dastools")
-            subprocess.run('''mv %s %s''' % (bin_fa, os.path.join(bins_dir, bin_fa_)), shell=True)
+            bin_fa_ = bins_prefix + os.path.basename(bin_fa).replace(binner, binner +"_dastools")
+            subprocess.run(f'''mv {bin_fa} {bin_fa_}''', shell=True)

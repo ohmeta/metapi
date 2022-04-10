@@ -12,7 +12,6 @@ with os.scandir(sys.argv[1]) as itr:
         if bin_suffix == ".fasta":
             subprocess.run('''mv %s %s''' \
                   % (os.path.join(sys.argv[1], entry.name),
-                     os.path.join(sys.argv[1],
-                     bin_id + "." + sys.argv[2])), shell=True)
+                     os.path.join(sys.argv[1], bin_id + ".fa")), shell=True)
 
 
