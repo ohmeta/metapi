@@ -12,8 +12,8 @@ from checkm import prodigal
 
 
 def run_prodigal(input_list):
-    bin_fa = input_list[0]
-    output_dir = input_list[1]
+    bin_fa = os.path.abspath(input_list[0])
+    output_dir = os.path.abspath(input_list[1])
 
     bin_id = os.path.basename(os.path.splitext(bin_fa)[0])
 
