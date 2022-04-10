@@ -20,9 +20,9 @@ if config["params"]["checkm"]["do"]:
                          "bins_input/{assembler}.{binner_checkm}.bins_input/bins_input.{batchid}.tsv")
         output:
             table = os.path.join(config["output"]["checkm"],
-                                 "table/{assembler}.{binner_checkm}.checkm.table.{batchid}.tsv"),
+                                 "table/checkm.table.{batchid}.{assembler}.{binner_checkm}.tsv"),
             data = directory(os.path.join(config["output"]["checkm"],
-                                          "data/{assembler}.{binner_checkm}.checkm.data.{batchid}"))
+                                          "data/checkm.data.{batchid}.{assembler}.{binner_checkm}"))
         wildcard_constraints:
             batchid="\d+"
         params:
@@ -59,7 +59,7 @@ if config["params"]["checkm"]["do"]:
 
         return expand(os.path.join(
             config["output"]["checkm"],
-            "table/{assembler}.{binner_checkm}.checkm.table.{batchid}.tsv"),
+            "table/checkm.table.{batchid}.{assembler}.{binner_checkm}.tsv"),
                       assembler=wildcards.assembler,
                       binner_checkm=wildcards.binner_checkm,
                       batchid=list(set([i.split("/")[0] \
@@ -72,15 +72,15 @@ if config["params"]["checkm"]["do"]:
             aggregate_checkm_output
         output:
             table = os.path.join(config["output"]["checkm"],
-                                 "report/{assembler}_{binner_checkm}_checkm_table.tsv"),
+                                 "report/checkm_table_{assembler}_{binner_checkm}.tsv"),
             bins_hq = os.path.join(config["output"]["checkm"],
-                                   "report/{assembler}_{binner_checkm}_bins_hq.tsv"),
+                                   "report/checkm_table_{assembler}_{binner_checkm}_bins_hq.tsv"),
             bins_mq = os.path.join(config["output"]["checkm"],
-                                   "report/{assembler}_{binner_checkm}_bins_mq.tsv"),
+                                   "report/checkm_table_{assembler}_{binner_checkm}_bins_mq.tsv"),
             bins_lq = os.path.join(config["output"]["checkm"],
-                                   "report/{assembler}_{binner_checkm}_bins_lq.tsv"),
+                                   "report/checkm_table_{assembler}_{binner_checkm}_bins_lq.tsv"),
             bins_hmq = os.path.join(config["output"]["checkm"],
-                                    "report/{assembler}_{binner_checkm}_bins_hmq.tsv")
+                                    "report/checkm_table_{assembler}_{binner_checkm}_bins_hmq.tsv")
         threads:
             config["params"]["checkm"]["threads"]
         params:
@@ -127,15 +127,15 @@ if config["params"]["checkm"]["do"]:
         input:
             expand([
                 os.path.join(config["output"]["checkm"],
-                             "report/{assembler}_{binner_checkm}_checkm_table.tsv"),
+                             "report/checkm_table_{assembler}_{binner_checkm}.tsv"),
                 os.path.join(config["output"]["checkm"],
-                             "report/{assembler}_{binner_checkm}_bins_hq.tsv"),
+                             "report/checkm_table_{assembler}_{binner_checkm}_bins_hq.tsv"),
                 os.path.join(config["output"]["checkm"],
-                             "report/{assembler}_{binner_checkm}_bins_mq.tsv"),
+                             "report/checkm_table_{assembler}_{binner_checkm}_bins_mq.tsv"),
                 os.path.join(config["output"]["checkm"],
-                             "report/{assembler}_{binner_checkm}_bins_lq.tsv"),
+                             "report/checkm_table_{assembler}_{binner_checkm}_bins_lq.tsv"),
                 os.path.join(config["output"]["checkm"],
-                             "report/{assembler}_{binner_checkm}_bins_hmq.tsv")],
+                             "report/checkm_table_{assembler}_{binner_checkm}_bins_hmq.tsv")],
                 assembler=ASSEMBLERS,
                 binner_checkm=BINNERS_CHECKM)
 
