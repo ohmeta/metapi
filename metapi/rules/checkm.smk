@@ -69,9 +69,12 @@ if config["params"]["checkm"]["do"]:
    
     rule checkm_report:
         input:
-            aggregate_checkm_output
+            checkm_table = aggregate_checkm_output,
+            bins_report = os.path.join(
+                config["output"]["binning"],
+                "report/assembly_stats_{assembler}_{binner_checkm}.tsv")
         output:
-            table = os.path.join(config["output"]["checkm"],
+            genomes_info = os.path.join(config["output"]["checkm"],
                                  "report/checkm_table_{assembler}_{binner_checkm}.tsv"),
             bins_hq = os.path.join(config["output"]["checkm"],
                                    "report/{assembler}_{binner_checkm}_bins_hq.tsv"),
@@ -91,36 +94,26 @@ if config["params"]["checkm"]["do"]:
         run:
             import pandas as pd
 
-            df = metapi.checkm_reporter(input, output.table, threads)
+            checkm_table = metapi.checkm_reporter(input.checkm_table, None, threads).set_index("bin_id")
+            bins_report = metapi.extract_bins_report(input.bins_report).set_index("bin_id")
 
-            def get_bin_path(row):
-                bin_fa_path = os.path.realpath(
-                    os.path.join(
-                        params.bins_dir,
-                        "%s.%s.out/%s/%s.fa" % (
-                            row["bin_id"].split(".")[0],
-                            params.assembler,
-                            params.binner,
-                            row["bin_id"])))
-                return bin_fa_path
+            genomes_info = pd.concat([bins_report, checkm_table], axis=1)\
+                            .reset_index()\
+                            .rename(columns={"index": "bin_id"})
+            genomes_info["genome"] = genomes_info["bin_id"] + ".fa"
+            genomes_info.to_csv(output.genomes_info, sep='\t', index=False)
 
-            df["bin_fa_path"] = df.apply(lambda x: get_bin_path(x), axis=1)
+            genomes_info.query('%s=="high_quality"' % params.standard)\
+              .loc[:, "bin_file"].to_csv(output.bins_hq, sep='\t', index=False, header=False)
 
-            df.query('%s=="high_quality"' % params.standard)\
-              .loc[:, "bin_fa_path"]\
-              .to_csv(output.bins_hq, sep='\t', index=False, header=False)
+            genomes_info.query('%s=="high_quality" or %s=="medium_quality"' % (params.standard, params.standard))\
+              .loc[:, "bin_file"].to_csv(output.bins_hmq, sep='\t', index=False, header=False)
 
-            df.query('%s=="high_quality" or %s=="medium_quality"' % (params.standard, params.standard))\
-              .loc[:, "bin_fa_path"]\
-              .to_csv(output.bins_hmq, sep='\t', index=False, header=False)
+            genomes_info.query('%s=="medium_quality"' % params.standard)\
+              .loc[:, "bin_file"].to_csv(output.bins_mq, sep='\t', index=False, header=False)
 
-            df.query('%s=="medium_quality"' % params.standard)\
-              .loc[:, "bin_fa_path"]\
-              .to_csv(output.bins_mq, sep='\t', index=False, header=False)
-
-            df.query('%s=="low_quality"' % params.standard)\
-              .loc[:, "bin_fa_path"]\
-              .to_csv(output.bins_lq, sep='\t', index=False, header=False)
+            genomes_info.query('%s=="low_quality"' % params.standard)\
+              .loc[:, "bin_file"].to_csv(output.bins_lq, sep='\t', index=False, header=False)
 
 
     rule checkm_all:

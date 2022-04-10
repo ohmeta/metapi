@@ -45,3 +45,25 @@ def generate_bins(cluster_file, scaftigs, prefix):
         with open(bin_fa, 'w') as oh:
             for scaftigs_id in scaftigs_id_list:
                 SeqIO.write(scaftigs_index[scaftigs_id], oh, "fasta")
+
+
+def extract_bins_report(bins_report_table):
+    bins_report = pd.read_csv(bins_report_table, sep='\t', header=[0, 1])\
+                    .rename(columns={
+                            "Unnamed: 0_level_1": "assembly_group",
+                            "Unnamed: 1_level_1": "bin_id",
+                            "Unnamed: 2_level_1": "bin_file",
+                            "Unnamed: 3_level_1": "assembler",
+                            "Unnamed: 4_level_1": "binner"}, level=1)
+
+    bins_report = bins_report[[
+        ("assembly_group", "assembly_group"),
+        ("bin_id", "bin_id"),
+        ("bin_file", "bin_file"),
+        ("assembler", "assembler"),
+        ("binner", "binner"),
+        ("length", "sum"),
+        ("length", "N50")]]
+    
+    bins_report.columns = ["assembly_group", "bin_id", "bin_file", "assembler", "binner", "length", "N50"]
+    return bins_report

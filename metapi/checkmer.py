@@ -98,7 +98,9 @@ def checkm_reporter(checkm_list, output, threads):
         lambda x: SGB_quality_level(x), axis=1)
     df_["quality_score"] = df_.apply(lambda x: quality_score(x), axis=1)
 
-    df_.to_csv(output, sep="\t", index=False)
+    if output is not None:
+        df_.to_csv(output, sep="\t", index=False)
+
     return df_
 
 
