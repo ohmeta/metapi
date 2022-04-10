@@ -432,19 +432,13 @@ output:
   rmhost: "results/02.rmhost"
   qcreport: "results/03.qcreport"
   assembly: "results/04.assembly"
-  coassembly: "results/04.coassembly"
   alignment: "results/05.alignment"
-  coalignment: "results/05.coalignment"
   binning: "results/06.binning"
-  cobinning: "results/06.cobinning"
   multisplit_binning: "results/06.multisplit_binning"
   predict: "results/07.predict"
-  copredict: "results/07.copredict"
   checkm: "results/08.checkm"
-  cocheckm: "results/08.cocheckm"
-  classify: "results/09.classify"
-  coclassify: "results/09.coclassify"
-  dereplicate: "results/10.dereplicate"
+  dereplicate: "results/09.dereplicate"
+  classify: "results/10.classify"
   profiling: "results/11.profiling"
   upload: "results/99.upload"
 
@@ -499,7 +493,6 @@ upload:
 
 envs:
   bioenv3.7: "envs/bioenv3.7.yaml"
-  bioenv3.6: "envs/bioenv3.6.yaml" # drep
   bioenv2: "envs/bioenv2.yaml" # metaphlan2, humann2
   biobakery: "envs/biobakery.yaml" # metaphlan3, humann3
   metabat2: "envs/metabat2.yaml"
@@ -508,3 +501,4 @@ envs:
   dastools: "envs/dastools.yaml"
   vamb: "envs/vamb.yaml"
   checkm: "envs/checkm.yaml"
+  drep: "envs/drep.yaml"
