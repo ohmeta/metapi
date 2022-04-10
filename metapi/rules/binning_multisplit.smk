@@ -120,6 +120,8 @@ if config["params"]["binning"]["vamb"]["do"]:
                 "report/flagstat_minimap2/{binning_group}.{assembler}/{sample}.align2combined_scaftigs.flagstat"),
             bam = temp(os.path.join(config["output"]["multisplit_binning"],
                                     "bam/{binning_group}.{assembler}.out/{sample}/{sample}.align2combined_scaftigs.bam"))
+        priority:
+            28
         benchmark:
             os.path.join(config["output"]["multisplit_binning"],
                          "benchmark/minimap2/{binning_group}.{assembler}/{sample}.align2combined_scaftigs.benchmark.txt")
@@ -161,6 +163,8 @@ if config["params"]["binning"]["vamb"]["do"]:
                    temp(os.path.join(
                        config["output"]["multisplit_binning"],
                        "bam/{binning_group}.{assembler}.out/{sample}/{sample}.align2combined_scaftigs.sorted.bam"))
+        priority:
+            29
         benchmark:
             os.path.join(config["output"]["multisplit_binning"],
                          "benchmark/minimap2/{binning_group}.{assembler}/{sample}.sort_bam.benchmark.txt")
@@ -209,6 +213,8 @@ if config["params"]["binning"]["vamb"]["do"]:
             jgi = os.path.join(
                 config["output"]["multisplit_binning"],
                 "coverage/{binning_group}.{assembler}.out/{sample}.align2combined_scaftigs.jgi")
+        priority:
+            30
         benchmark:
             os.path.join(
                 config["output"]["multisplit_binning"],
