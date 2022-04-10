@@ -29,9 +29,9 @@ def run_prodigal(input_list):
     best_translation_table = prodigal_runner.run(bin_fa, True)
 
     if (best_translation_table in [4, 11]) and (os.path.exists(pep_file)) and (os.stat(pep_file)[stat.ST_SIZE]) > 0:
-        return (bin_id, best_translation_table)
+        return (bin_id, bin_fa, pep_file, best_translation_table)
     else:
-        return (bin_id, f"unknown: {best_translation_table}")
+        return (bin_id, bin_fa, "unknown: {pep_file}", f"unknown: {best_translation_table}")
 
 
 workers = int(sys.argv[1])
@@ -55,5 +55,5 @@ with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as executor:
     for table_df in executor.map(run_prodigal, input_list):
         table_list.append(table_df)
 
-table_df = pd.DataFrame(table_list, columns=["bin_id", "best_translation_table"])
+table_df = pd.DataFrame(table_list, columns=["bin_id", "bin_file", "pep_file", "best_translation_table"])
 table_df.to_csv(output_done, sep="\t", index=False)
