@@ -277,7 +277,12 @@ binning_vamb_index_scaftigs:
   error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_vamb_align_scaftigs:
-  mem: "1G"
+  mem: "20G"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.e"
+
+binning_vamb_sort_bam:
+  mem: "3G"
   output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.e"
 
@@ -412,11 +417,6 @@ classify_hmq_bins_gtdbtk_report:
   mem: "512M"
   output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
   error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
-
-dereplicate_mags_drep_prepare:
-  mem: "512M"
-  output: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
-  error: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
 dereplicate_mags_drep:
   mem: "2G"

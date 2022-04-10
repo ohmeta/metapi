@@ -25,6 +25,7 @@ def multisplit_binning_input_with_short_reads(wildcards):
         return get_reads_for_multisplit_binning(wildcards, "raw", False, False)
 
 
+# reference: https://github.com/RasmussenLab/vamb/blob/master/workflow/vamb.snake.conda.py
 if config["params"]["binning"]["vamb"]["do"]:
     rule binning_vamb_combine_scaftigs:
         input:
@@ -117,16 +118,13 @@ if config["params"]["binning"]["vamb"]["do"]:
             flagstat = os.path.join(
                 config["output"]["multisplit_binning"],
                 "report/flagstat_minimap2/{binning_group}.{assembler}/{sample}.align2combined_scaftigs.flagstat"),
-            bam = os.path.join(
-                config["output"]["multisplit_binning"],
-                "bam/{binning_group}.{assembler}.out/{sample}.align2combined_scaftigs.sorted.bam") \
-                if config["params"]["binning"]["vamb"]["save_bam"] else \
-                   temp(os.path.join(
-                       config["output"]["multisplit_binning"],
-                       "bam/{binning_group}.{assembler}.out/{sample}.align2combined_scaftigs.sorted.bam"))
+            bam = temp(os.path.join(config["output"]["multisplit_binning"],
+                                    "bam/{binning_group}.{assembler}.out/{sample}/{sample}.align2combined_scaftigs.bam"))
         benchmark:
             os.path.join(config["output"]["multisplit_binning"],
                          "benchmark/minimap2/{binning_group}.{assembler}/{sample}.align2combined_scaftigs.benchmark.txt")
+        params:
+            bam_dir = os.path.join(config["output"]["multisplit_binning"], "bam/{binning_group}.{assembler}.out/{sample}") 
         conda:
             config["envs"]["vamb"]
         log:
@@ -136,17 +134,53 @@ if config["params"]["binning"]["vamb"]["do"]:
             config["params"]["alignment"]["threads"]
         shell:
             '''
-            rm -rf {output.bam}*
+            rm -rf {params.bam_dir}
+            mkdir -p {params.bam_dir}
 
             minimap2 -t {threads} -ax sr {input.scaftigs_index} {input.reads} -N 5 2> {log} |
             tee >(samtools flagstat \
                   -@{threads} - > {output.flagstat}) | \
             grep -v "^@" | \
             cat {input.scaftigs_dict} - | \
-            samtools view -F 3584 -b - |
-            samtools sort -m 3G -@{threads} -T {output.bam} -O BAM -o {output.bam} -
+            samtools view -F 3584 -b - > {output.bam} 2> {log}
+            
+            #samtools sort -m 3G -@{threads} -T {output.bam} -O BAM -o {output.bam} -
             '''
 
+
+    rule binning_vamb_sort_bam:
+        input:
+            bam = os.path.join(
+                config["output"]["multisplit_binning"],
+                "bam/{binning_group}.{assembler}.out/{sample}/{sample}.align2combined_scaftigs.bam")
+        output:
+             bam = os.path.join(
+                config["output"]["multisplit_binning"],
+                "bam/{binning_group}.{assembler}.out/{sample}/{sample}.align2combined_scaftigs.sorted.bam") \
+                if config["params"]["binning"]["vamb"]["save_bam"] else \
+                   temp(os.path.join(
+                       config["output"]["multisplit_binning"],
+                       "bam/{binning_group}.{assembler}.out/{sample}/{sample}.align2combined_scaftigs.sorted.bam"))
+        benchmark:
+            os.path.join(config["output"]["multisplit_binning"],
+                         "benchmark/minimap2/{binning_group}.{assembler}/{sample}.sort_bam.benchmark.txt")
+        params:
+            bam_dir = os.path.join(config["output"]["multisplit_binning"], "bam/{binning_group}.{assembler}.out/{sample}") 
+        conda:
+            config["envs"]["vamb"]
+        log:
+            os.path.join(config["output"]["multisplit_binning"],
+                         "logs/alignment/{binning_group}.{assembler}/{sample}.sort_bam.log")
+        threads:
+            config["params"]["alignment"]["threads"]
+ 
+        shell:
+            '''
+            samtools sort {input.bam} -m 3G -@{threads} -T {params.bam_dir}/temp -O BAM -o {output.bam} 2> {log}
+            
+            rm -rf {params.bam_dir}/temp*
+            '''
+ 
 
     rule binning_vamb_align_scaftigs_report:
         input:
@@ -170,7 +204,7 @@ if config["params"]["binning"]["vamb"]["do"]:
         input:
             bam = os.path.join(
                 config["output"]["multisplit_binning"],
-                "bam/{binning_group}.{assembler}.out/{sample}.align2combined_scaftigs.sorted.bam")
+                "bam/{binning_group}.{assembler}.out/{sample}/{sample}.align2combined_scaftigs.sorted.bam")
         output:
             jgi = os.path.join(
                 config["output"]["multisplit_binning"],
