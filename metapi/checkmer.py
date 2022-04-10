@@ -1,11 +1,32 @@
 #!/usr/bin/env python3
 
-import pandas as pd
-import concurrent.futures
-import re
 import os
-import sys
 import argparse
+import concurrent.futures
+import subprocess
+import pandas as pd
+import numpy as np
+from natsort import index_natsorted
+
+
+def checkm_prepare(input_list, batch_num, bins_dir):
+    os.makedirs(bins_dir, exist_ok=True)
+
+    table_list = [pd.read_csv(table, sep="\t") for table in input_list]
+    table_df = pd.concat(table_list, axis=0)
+    table_df = table_df.sort_values(by="bin_id",
+                                    key=lambda x: np.argsort(index_natsorted(table_df["bin_id"])))\
+                       .reset_index(drop=True)
+
+    batchid = -1
+    if len(table_df) > 0:
+        for batch in range(0, len(table_df), batch_num):
+            batchid += 1
+            table_split = table_df.iloc[batch:batch+batch_num, ]
+            table_split.to_csv(os.path.join(bins_dir, f"bins_input.{batchid}.tsv"),
+                               sep="\t", index=False, header=None)
+    else:
+        subprocess.run(f'''touch {os.path.join(bins_dir, "bins_input.0.tsv")}''', shell=True)
 
 
 def MIMAG_quality_level(row):

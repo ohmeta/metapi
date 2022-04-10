@@ -3,114 +3,68 @@ if config["params"]["checkm"]["do"]:
         input:
             expand(os.path.join(
                 config["output"]["predict"],
-                "bins_gene/{{assembly_group}}.{{assembler}}.prodigal.out/{binner_checkm}/done"),
+                "bins_gene/{assembly_group}.{{assembler}}.prodigal.out/{{binner_checkm}}/predict_done"),
                 assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
         output:
-            links_dir = directory(os.path.join(config["output"]["checkm"],
-                                               "bins_input/{assembler}.{binner_checkm}.links")),
-            table_dir = directory(os.path.join(config["output"]["checkm"],
-                                               "table/{assembler}.{binner_checkm}.checkm_out")),
-            data_dir = directory(os.path.join(config["output"]["checkm"],
-                                              "data/{assembler}.{binner_checkm}.checkm_out"))
+            bins_dir = directory(os.path.join(config["output"]["checkm"],
+                                               "bins_input/{assembler}.{binner_checkm}.bins_input"))
         params:
-            suffix = "faa",
             batch_num = config["params"]["checkm"]["batch_num"]
         run:
-            import os
-            import glob
-            import pprint
+            metapi.checkm_prepare(input, params.batch_num, output.bins_dir)
 
-            os.makedirs(output.table_dir, exist_ok=True)
-            os.makedirs(output.data_dir, exist_ok=True)
-
-            if os.path.exists(output.links_dir):
-                os.rmdir(output.links_dir)
-
-            bin_list = []
-            for i in input:
-                bin_list += [os.path.realpath(j) \
-                             for j in glob.glob(os.path.join(os.path.dirname(i), "*.faa"))]
-
-            if len(bin_list) > 0:
-                for batch_id in range(0, len(bin_list), params.batch_num):
-                    batch_dir = os.path.join(output.links_dir, "bins_%d" % batch_id)
-                    os.makedirs(batch_dir, exist_ok=True)
-
-                    for bin_file in bin_list[batch_id:batch_id + params.batch_num]:
-                        os.symlink(bin_file,
-                                   os.path.join(batch_dir,
-                                                os.path.basename(bin_file)))
-            else:
-                os.makedirs(os.path.join(output.links_dir, "bins_0"), exist_ok=True)
 
     rule checkm_lineage_wf:
         input:
             os.path.join(config["output"]["checkm"],
-                         "bins_input/{assembler}.{binner_checkm}.links/bins_{batchid}")
+                         "bins_input/{assembler}.{binner_checkm}.bins_input/bins_input.{batchid}.tsv")
         output:
-            table = os.path.join(
-                config["output"]["checkm"],
-                "table/{assembler}.{binner_checkm}.checkm_out/bins_{batchid}.{assembler}.{binner_checkm}.checkm.table.tsv"),
-            data = os.path.join(
-                config["output"]["checkm"],
-                "data/{assembler}.{binner_checkm}.checkm_out/bins_{batchid}.{assembler}.{binner_checkm}.checkm.data.tar.gz")
+            table = os.path.join(config["output"]["checkm"],
+                                 "table/{assembler}.{binner_checkm}.checkm.table.{batchid}.tsv"),
+            data = directory(os.path.join(config["output"]["checkm"],
+                                          "data/{assembler}.{binner_checkm}.checkm.data.{batchid}"))
         wildcard_constraints:
             batchid="\d+"
         params:
-            suffix = "faa",
             pplacer_threads = config["params"]["checkm"]["pplacer_threads"],
             reduced_tree = "--reduced_tree" if config["params"]["checkm"]["reduced_tree"] else "",
-            data_dir_temp = os.path.join(
-                config["output"]["checkm"],
-                "data/{assembler}.{binner_checkm}.checkm_out/bins_{batchid}.{assembler}.{binner_checkm}")
+        conda:
+            config["envs"]["checkm"]
         log:
-            os.path.join(
-                config["output"]["checkm"],
-                "logs/bins_{batchid}.{assembler}.{binner_checkm}.checkm.log")
+            os.path.join(config["output"]["checkm"],
+                "logs/{assembler}.{binner_checkm}.checkm.{batchid}.log")
         benchmark:
             os.path.join(config["output"]["checkm"],
-                         "benchmark/bins_{batchid}.{assembler}.{binner_checkm}.checkm.benchmark.txt")
+                         "benchmark/{assembler}.{binner_checkm}.checkm.{batchid}.benchmark.txt")
         threads:
             config["params"]["checkm"]["threads"]
-        run:
-            import os
-            import glob
-
-            count = len(glob.glob(os.path.join(input[0], "*.%s" % params.suffix)))
-
-            if count > 0:
-                shell(
-                    '''
-                    checkm lineage_wf \
-                    --tab_table \
-                    --file {output.table} \
-                    --threads {threads} \
-                    --pplacer_threads {params.pplacer_threads} \
-                    {params.reduced_tree} \
-                    --extension {params.suffix} \
-                    --genes \
-                    {input}/ \
-                    {params.data_dir_temp}/ > {log}
-                    ''')
-            else:
-                shell('''touch {output.table}''')
-                shell('''mkdir -p {params.data_dir_temp}''')
-
-            shell('''tar --warning=no-file-changed -czvf {output.data} {params.data_dir_temp}/''')
-            shell('''rm -rf {params.data_dir_temp}''')
+        shell:
+            '''
+            checkm lineage_wf \
+            --tab_table \
+            --file {output.table} \
+            --threads {threads} \
+            --pplacer_threads {params.pplacer_threads} \
+            {params.reduced_tree} \
+            --extension faa \
+            --genes \
+            {input} \
+            {output.data} \
+            > {log}
+            '''
 
 
     def aggregate_checkm_output(wildcards):
-        checkpoint_output = checkpoints.checkm_prepare.get(**wildcards).output.links_dir
+        checkpoint_output = checkpoints.checkm_prepare.get(**wildcards).output.bins_dir
 
         return expand(os.path.join(
             config["output"]["checkm"],
-            "table/{assembler}.{binner_checkm}.checkm_out/bins_{batchid}.{assembler}.{binner_checkm}.checkm.table.tsv"),
+            "table/{assembler}.{binner_checkm}.checkm.table.{batchid}.tsv"),
                       assembler=wildcards.assembler,
                       binner_checkm=wildcards.binner_checkm,
                       batchid=list(set([i.split("/")[0] \
                                         for i in glob_wildcards(os.path.join(checkpoint_output,
-                                                                             "bins_{batchid}")).batchid])))
+                                                                             "bins_input.{batchid}.tsv")).batchid])))
 
    
     rule checkm_report:
@@ -171,7 +125,7 @@ if config["params"]["checkm"]["do"]:
               .to_csv(output.bins_lq, sep='\t', index=False, header=False)
 
 
-    rule single_checkm_all:
+    rule checkm_all:
         input:
             expand([
                 os.path.join(config["output"]["checkm"],
@@ -188,9 +142,8 @@ if config["params"]["checkm"]["do"]:
                 binner_checkm=BINNERS_CHECKM)
 
             #rules.predict_bins_gene_prodigal_all.input,
-            #rules.single_binning_all.input,
-            #rules.multisplit_binning_all.input
+            #rules.binning_all.input,
 
 else:
-    rule single_checkm_all:
+    rule checkm_all:
         input:
