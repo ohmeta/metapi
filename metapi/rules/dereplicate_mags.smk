@@ -6,29 +6,31 @@ if config["params"]["dereplicate"]["drep"]["do"]:
                 "report/assembly_stats_{assembler}_{binner_checkm}.tsv"),
             checkm_table = os.path.join(
                 config["output"]["checkm"],
-                "report/{assembler}_{binner_checkm}_checkm_table.tsv")
+                "report/checkm_table_{assembler}_{binner_checkm}.tsv")
         output:
             genome_info = os.path.join(
                 config["output"]["dereplicate"],
-                "mags/genomes_info_{assembler}_{binner_checkm}_checkm.csv")
+                "genomes_info/genomes_info_{assembler}_{binner_checkm}_checkm.csv")
         run:
             import pandas as pd
+
             bins_report = pd.read_csv(input.bins_report, sep='\t', header=[0, 1])\
                             .rename(columns={
-                                "Unnamed: 0_level_1": "sample_id",
+                                "Unnamed: 0_level_1": "assembly_group",
                                 "Unnamed: 1_level_1": "bin_id",
-                                "Unnamed: 2_level_1": "assembler",
-                                "Unnamed: 3_level_1": "binner",
+                                "Unnamed: 2_level_1": "bin_file",
+                                "Unnamed: 3_level_1": "assembler",
+                                "Unnamed: 4_level_1": "binner",
                             }, level=1)
             bins_report = bins_report[[
-                ("sample_id", "sample_id"),
+                ("assembly_group", "assembly_group"),
                 ("bin_id", "bin_id"),
+                ("bin_file", "bin_file"),
                 ("assembler", "assembler"),
                 ("binner", "binner"),
                 ("length", "sum"),
-                ("length", "N50")
-            ]]
-            bins_report.columns = ["sample_id", "bin_id", "assembler", "binner", "length", "N50"]
+                ("length", "N50")]]
+            bins_report.columns = ["assembly_group", "bin_id", "bin_file", "assembler", "binner", "length", "N50"]
             bins_report = bins_report.sort_values(by=["bin_id"]).set_index("bin_id")
 
             checkm_table = pd.read_csv(input.checkm_table, sep='\t')\
@@ -37,7 +39,7 @@ if config["params"]["dereplicate"]["drep"]["do"]:
             genome_info = pd.concat([bins_report, checkm_table], axis=1)\
                             .reset_index()\
                             .rename(columns={"index": "bin_id"})
-            genome_info["genome"] = genome_info["bin_id"] + ".fa"
+            genome_info = genome_info.rename(columns={"bin_file": "genome"})
             genome_info.to_csv(output.genome_info, index=False)
 
 
@@ -47,11 +49,10 @@ if config["params"]["dereplicate"]["drep"]["do"]:
                                     "report/{assembler}_{binner_checkm}_bins_hmq.tsv"),
             genome_info = os.path.join(
                 config["output"]["dereplicate"],
-                "mags/genomes_info_{assembler}_{binner_checkm}_checkm.csv")
+                "genomes_info/genomes_info_{assembler}_{binner_checkm}_checkm.csv")
         output:
-            directory(os.path.join(
-                config["output"]["dereplicate"],
-                "mags/hmq.bins.{assembler}.{binner_checkm}.drep.out"))
+            os.path.join(config["output"]["dereplicate"],
+                         "genomes/hmq.bins.{assembler}.{binner_checkm}.drep.out/drep_done")
         log:
             os.path.join(config["output"]["dereplicate"],
                          "logs/hmq.bins.{assembler}.{binner_checkm}.drep.log")
@@ -59,8 +60,10 @@ if config["params"]["dereplicate"]["drep"]["do"]:
             os.path.join(config["output"]["dereplicate"],
                          "benchmark/{assembler}.{binner_checkm}.drep.benchmark.txt")
         conda:
-            config["envs"]["bioenv3.6"]
+            config["envs"]["drep"]
         params:
+            output_dir = os.path.join(config["output"]["dereplicate"],
+                                      "genomes/hmq.bins.{assembler}.{binner_checkm}.drep.out"),
             filtering_genome_min_length = \
                 config["params"]["dereplicate"]["drep"]["filtering_genome_min_length"],
             filtering_completeness = \
@@ -78,7 +81,7 @@ if config["params"]["dereplicate"]["drep"]["do"]:
         shell:
             '''
             dRep dereplicate \
-            {output} \
+            {params.output_dir} \
             --processors {threads} \
             --length {params.filtering_genome_min_length} \
             --completeness {params.filtering_completeness} \
@@ -89,6 +92,8 @@ if config["params"]["dereplicate"]["drep"]["do"]:
             --genomes {input.bins_hmq} \
             --genomeInfo {input.genome_info} \
             2> {log}
+
+            touch {output}
             '''
 
 
@@ -97,10 +102,10 @@ if config["params"]["dereplicate"]["drep"]["do"]:
             expand([
                 os.path.join(
                     config["output"]["dereplicate"],
-                    "mags/genomes_info_{assembler}_{binner_checkm}_checkm.csv"),
+                    "genomes_info/genomes_info_{assembler}_{binner_checkm}_checkm.csv"),
                 os.path.join(
                     config["output"]["dereplicate"],
-                    "mags/hmq.bins.{assembler}.{binner_checkm}.drep.out")],
+                    "genomes/hmq.bins.{assembler}.{binner_checkm}.drep.out/drep_done")],
                    assembler=ASSEMBLERS,
                    binner_checkm=BINNERS_CHECKM)
 
