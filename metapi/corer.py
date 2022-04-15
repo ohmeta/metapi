@@ -136,7 +136,9 @@ def run_snakemake(args, unknown, snakefile, workflow):
         args.config
     ] + unknown
 
-    if args.conda_create_envs_only:
+    if "--touch" in unknown:
+        cmd += ["--cores", str(args.cores)]
+    elif args.conda_create_envs_only:
         cmd += ["--use-conda", "--conda-create-envs-only"]
         if args.conda_prefix is not None:
             cmd += ["--conda-prefix", args.conda_prefix]
@@ -399,7 +401,7 @@ def main():
     run_parser.add_argument(
         "--cores",
         type=int,
-        default=32,
+        default=240,
         help="all job cores, available on '--run-local'")
     run_parser.add_argument(
         "--local-cores",
@@ -410,7 +412,7 @@ def main():
     run_parser.add_argument(
         "--jobs",
         type=int,
-        default=80,
+        default=30,
         help="cluster job numbers, available on '--run-remote'")
     run_parser.add_argument(
         "--list",
