@@ -13,7 +13,7 @@ __default__:
   # we can comment it, use default, or specific it, use we defined.
   # eg: HPC2021 of HKU
   
-  #partition: "intel" # use default, can uncomment and change
+  partition: "intel,amd" # use default, can uncomment and change
   # partition | default;max job duration | # of nodes | cores/node | RAM/node(GB) | RAM/core(GB) | Features
   #########################################################################################################
   # intel     | 1 Day;4 Days             | 84         | 32         | 192          | 6            | GOLD6625R
@@ -293,7 +293,7 @@ binning_vamb_dict_scaftigs:
   error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_vamb_index_scaftigs:
-  mem: "1G"
+  mem: "50G"
   output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.e"
 
@@ -303,7 +303,7 @@ binning_vamb_align_scaftigs:
   error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.e"
 
 binning_vamb_sort_bam:
-  mem: "3G"
+  mem: "10G"
   output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.e"
 
@@ -323,8 +323,9 @@ binning_vamb_gen_abundance_matrix:
   error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_vamb:
-  #partition: "gpu"
-  mem: "1G"
+  partition: "gpu"
+  qos: "gpu"
+  mem: "12G"
   output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.e"
 
