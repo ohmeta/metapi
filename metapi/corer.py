@@ -133,11 +133,13 @@ def run_snakemake(args, unknown, snakefile, workflow):
         "--snakefile",
         snakefile,
         "--configfile",
-        args.config
+        args.config,
+        "--cores",
+        str(args.cores),
     ] + unknown
 
     if "--touch" in unknown:
-        cmd += ["--cores", str(args.cores)]
+        pass
     elif args.conda_create_envs_only:
         cmd += ["--use-conda", "--conda-create-envs-only"]
         if args.conda_prefix is not None:
@@ -159,10 +161,10 @@ def run_snakemake(args, unknown, snakefile, workflow):
 
         if args.list:
             cmd += ["--list"]
-        elif args.run_local:
-            cmd += ["--cores", str(args.cores)]
         elif args.run_remote:
-            cmd += ["--profile", args.profile, "--local-cores", str(args.local_cores), "--jobs", str(args.jobs)]
+            cmd += ["--profile", args.profile,
+                    "--local-cores", str(args.local_cores),
+                    "--jobs", str(args.jobs)]
         elif args.debug:
             cmd += ["--debug-dag", "--dry-run"]
         elif args.dry_run:
