@@ -161,14 +161,14 @@ def run_snakemake(args, unknown, snakefile, workflow):
 
         if args.list:
             cmd += ["--list"]
-        elif args.run_remote:
-            cmd += ["--profile", args.profile,
-                    "--local-cores", str(args.local_cores),
-                    "--jobs", str(args.jobs)]
         elif args.debug:
             cmd += ["--debug-dag", "--dry-run"]
         elif args.dry_run:
             cmd += ["--dry-run"]
+        elif args.run_remote:
+            cmd += ["--profile", args.profile,
+                    "--local-cores", str(args.local_cores),
+                    "--jobs", str(args.jobs)]
 
     cmd_str = " ".join(cmd).strip()
     print("Running metapi %s:\n%s" % (workflow, cmd_str))
