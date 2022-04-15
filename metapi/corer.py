@@ -161,15 +161,18 @@ def run_snakemake(args, unknown, snakefile, workflow):
 
         if args.list:
             cmd += ["--list"]
-        elif args.debug:
-            cmd += ["--debug-dag", "--dry-run"]
-        elif args.dry_run:
-            cmd += ["--dry-run"]
+        elif args.run_local:
+            cmd += ["--local-cores", str(args.local_cores),
+                    "--jobs", str(args.jobs)]
         elif args.run_remote:
             cmd += ["--profile", args.profile,
                     "--local-cores", str(args.local_cores),
                     "--jobs", str(args.jobs)]
-
+        elif args.debug:
+            cmd += ["--debug-dag", "--dry-run"]
+        elif args.dry_run:
+            cmd += ["--dry-run"]
+ 
     cmd_str = " ".join(cmd).strip()
     print("Running metapi %s:\n%s" % (workflow, cmd_str))
 
@@ -182,6 +185,8 @@ def run_snakemake(args, unknown, snakefile, workflow):
         env=env,
     )
     proc.communicate()
+
+    print(f'''\nReal running cmd:\n{cmd_str}''')
 
 
 def update_config_tools(conf, begin, trimmer, rmhoster, assemblers, binners):
