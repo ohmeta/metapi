@@ -180,6 +180,8 @@ if config["params"]["binning"]["vamb"]["do"]:
  
         shell:
             '''
+            rm -rf {params.bam_dir}/temp*
+            
             samtools sort {input.bam} -m 3G -@{threads} -T {params.bam_dir}/temp -O BAM -o {output.bam} 2> {log}
             
             rm -rf {params.bam_dir}/temp*
