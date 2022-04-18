@@ -157,7 +157,7 @@ rule alignment_report:
                                 "report/alignment_flagstat_{assembler}.tsv")
     run:
         input_list = [str(i) for i in input]
-        metapi.flagstats_summary(input_list, 1, output=output.flagstat)
+        metapi.flagstats_summary(input_list, 2, output=output.flagstat)
 
 
 rule alignment_report_all:

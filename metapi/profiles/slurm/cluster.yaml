@@ -245,7 +245,7 @@ alignment_base_depth:
 alignment_report:
   mem: "128M"
   output: "logs/05.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/05.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/05.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
 
 binning_metabat2_coverage:
   mem: "1G"
