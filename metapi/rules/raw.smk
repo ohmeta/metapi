@@ -421,3 +421,11 @@ rule raw_all:
         #rules.prepare_reads_all.input,
         rules.raw_fastqc_all.input,
         rules.raw_report_all.input
+
+
+localrules:
+    prepare_short_reads_all,
+    prepare_long_reads_all,
+    raw_fastqc_all,
+    raw_report_all,
+    raw_all

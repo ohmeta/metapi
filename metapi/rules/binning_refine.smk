@@ -320,3 +320,9 @@ if config["params"]["binning"]["dastools"]["do"]:
 else:
     rule binning_dastools_all:
         input:
+
+
+localrules:
+    binning_graphbin2_prepare_binned,
+    binning_graphbin2_all,
+    binning_dastools_all

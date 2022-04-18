@@ -94,4 +94,10 @@ rule upload_all:
         rules.upload_sequencing_all.input,
         rules.upload_assembly_all.input#,
 
-        #rules.single_assembly_all.input
+        #rules.assembly_all.input
+
+
+localrules:
+    upload_sequencing_all,
+    upload_assembly_all,
+    upload_all

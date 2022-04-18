@@ -384,3 +384,11 @@ rule trimming_all:
         rules.trimming_report_all.input#,
 
         #rules.raw_all.input
+
+
+localrules:
+    trimming_oas1_all,
+    trimming_fastp_all,
+    trimming_sickle_all,
+    trimming_report_all,
+    trimming_all

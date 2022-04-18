@@ -142,3 +142,10 @@ else:
 rule classify_all:
     input:
         rules.classify_gtdbtk_all.input
+
+
+localrules:
+    classify_gtdbtk_prepare,
+    classify_gtdbtk_all,
+    classify_gtdbtk_report,
+    classify_all

@@ -637,7 +637,7 @@ if "plass" in ASSEMBLERS:
             '''
 
 
-    rule assembly_nucleotides_plass_all:
+    rule assembly_plass_all:
         input:
             expand(os.path.join(
                 config["output"]["assembly"],
@@ -926,3 +926,15 @@ rule assembly_all:
 
         #rules.rmhost_all.input,
         rules.qcreport_all.input
+
+
+localrules:
+    assembly_spades_all,
+    assembly_idba_ud_all,
+    assembly_megahit_all,
+    assembly_metaspades_all,
+    assembly_opera_ms_all,
+    assembly_plass_all,
+    assembly_metaquast_all,
+    assembly_report_all,
+    assembly_all

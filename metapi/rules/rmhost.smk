@@ -936,3 +936,14 @@ rule rmhost_all:
         rules.rmhost_report_all.input,
 
         rules.trimming_all.input
+
+
+localrules:
+    rmhost_bwa_all,
+    rmhost_soap_all,
+    rmhost_bowtie2_all,
+    rmhost_kraken2_all,
+    rmhost_minimap2_all,
+    rmhost_kneaddata_all,
+    rmhost_report_all,
+    rmhost_all

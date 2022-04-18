@@ -140,3 +140,9 @@ if config["params"]["checkm"]["do"]:
 else:
     rule checkm_all:
         input:
+
+
+localrules:
+    checkm_prepare,
+    checkm_report,
+    checkm_all

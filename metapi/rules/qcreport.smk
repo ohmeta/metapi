@@ -41,5 +41,19 @@ if config["params"]["qcreport"]["do"]:
             #rules.rmhost_all.input
 
 else:
+    rule qcreport_summary:
+        input:
+
+
+    rule qcreport_plot:
+        input:
+
+
     rule qcreport_all:
         input:
+
+
+localrules:
+    qcreport_summary,
+    qcreport_plot,
+    qcreport_all

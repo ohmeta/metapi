@@ -174,3 +174,11 @@ rule alignment_all:
         #rules.alignment_reads_scaftigs_all,
         rules.alignment_base_depth_all.input,
         rules.alignment_report_all.input
+
+
+localrules:
+    alignment_base_depth_all,
+    alignment_reads_scaftigs_all,
+    alignment_report,
+    alignment_report_all,
+    alignment_all

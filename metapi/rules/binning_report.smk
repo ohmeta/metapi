@@ -95,3 +95,8 @@ rule binning_all:
         rules.binning_vamb_all.input,
         rules.binning_dastools_all.input,
         rules.binning_report_all.input
+
+
+localrules:
+    binning_report_all,
+    binning_all

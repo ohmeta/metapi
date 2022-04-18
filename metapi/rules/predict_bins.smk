@@ -182,3 +182,10 @@ rule predict_all:
     input:
         rules.predict_scaftigs_gene_all.input,
         rules.predict_bins_gene_all.input
+
+
+localrules:
+    predict_bins_gene_prodigal_report,
+    predict_bins_gene_prokka_all,
+    predict_bins_gene_all,
+    predict_all

@@ -488,3 +488,11 @@ if config["params"]["binning"]["concoct"]["do"]:
 else:
     rule binning_concoct_all:
         input:
+
+
+localrules:
+    binning_metabat2_all,
+    binning_metabat2_coverage_all,
+    binning_maxbin2_all,
+    binning_concoct_cut_bed_all,
+    binning_concoct_all

@@ -432,3 +432,9 @@ else:
 
     rule binning_vamb_all:
         input:
+
+
+localrules:
+    binning_vamb_prepare_all,
+    binning_vamb_postprocess,
+    binning_vamb_all

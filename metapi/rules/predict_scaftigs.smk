@@ -143,3 +143,9 @@ rule predict_scaftigs_gene_all:
     input:
         rules.predict_scaftigs_gene_prodigal_all.input,
         rules.predict_scaftigs_gene_prokka_all.input
+
+
+localrules:
+    predict_scaftigs_gene_prodigal_all,
+    predict_scaftigs_gene_prokka_all,
+    predict_scaftigs_gene_all,
