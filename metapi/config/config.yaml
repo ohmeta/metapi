@@ -492,3 +492,4 @@ envs:
   vamb: "envs/vamb.yaml"
   checkm: "envs/checkm.yaml"
   drep: "envs/drep.yaml"
+  gtdbtk: "envs/gtdbtk.yaml"

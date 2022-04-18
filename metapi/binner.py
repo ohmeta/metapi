@@ -67,3 +67,28 @@ def extract_bins_report(bins_report_table):
     
     bins_report.columns = ["assembly_group", "bin_id", "bin_file", "assembler", "binner", "length", "N50"]
     return bins_report
+
+
+'''
+            table_bins = pd.read_csv(input.table_bins, sep="\t", header=[0, 1])
+            table_bins = table_bins[
+                [
+                    ("bin_id", "Unnamed: 1_level_1"),
+                    ("chr", "count"),
+                    ("length", "sum"),
+                    ("length", "min"),
+                    ("length", "max"),
+                    ("length", "std"),
+                    ("length", "N50")
+                ]
+            ]
+            table_bins.columns = [
+                "user_genome",
+                "contig_number",
+                "contig_length_sum",
+                "contig_length_min",
+                "contig_length_max",
+                "contig_length_std",
+                "N50"
+            ]
+'''

@@ -84,9 +84,7 @@ if config["params"]["dereplicate"]["drep"]["do"]:
                                      "genomes/hmq.bins.drep.out/drep_done")
         output:
             rep_genomes_info = os.path.join(config["output"]["dereplicate"],
-                         "report/checkm_table_genomes_info.derep.tsv"),
-            rep_genomes_info_tidy = os.path.join(config["output"]["dereplicate"],
-                         "report/checkm_table_genomes_info.derep.tidy.tsv")
+                         "report/checkm_table_genomes_info.derep.tsv")
         run:
             import pandas as pd
             from glob import glob
@@ -101,10 +99,6 @@ if config["params"]["dereplicate"]["drep"]["do"]:
 
             rep_df_info.to_csv(output.rep_genomes_info, sep="\t", index=False)
 
-            rep_df_info.loc[:, ["bin_file", "bin_id", "best_translation_table"]]\
-                       .to_csv(output.rep_genomes_info_tidy,
-                               sep="\t", header=None, index=False)
-
 
     rule dereplicate_mags_drep_all:
         input:
@@ -115,9 +109,7 @@ if config["params"]["dereplicate"]["drep"]["do"]:
             os.path.join(config["output"]["dereplicate"],
                          "genomes/hmq.bins.drep.out/drep_done"),
             os.path.join(config["output"]["dereplicate"],
-                         "report/checkm_table_genomes_info.derep.tsv"),
-            os.path.join(config["output"]["dereplicate"],
-                         "report/checkm_table_genomes_info.derep.tidy.tsv")
+                         "report/checkm_table_genomes_info.derep.tsv")
  
 else:
     rule dereplicate_mags_drep_all:

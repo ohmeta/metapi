@@ -377,44 +377,14 @@ predict_bins_gene_prokka_multiqc:
   output: "logs/07.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
   error: "logs/07.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
-checkm_prepare:
-  mem: "512M"
-  output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
-  error: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
-
 checkm_lineage_wf:
   mem: "120G"
   output: "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
   error: "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
-checkm_report:
-  mem: "512M"
-  output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
-  error: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
-
-classify_short_reads_kraken2:
-  mem: "8G"
-  output: "logs/09.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
-  error: "logs/09.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
-
-classify_short_reads_kraken2_krona_report:
-  mem: "512M"
-  output: "logs/09.{rule}/{rule}.{jobid}.o"
-  error: "logs/09.{rule}/{rule}.{jobid}.e"
-
-classify_hmq_bins_gtdbtk_prepare:
-  mem: "512M"
-  output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
-  error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
-
-classify_hmq_bins_gtdbtk:
+classify_gtdbtk:
   #partition: "hugemem"
   mem: "130G"
-  output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
-  error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
-
-classify_hmq_bins_gtdbtk_report:
-  mem: "512M"
   output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
   error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 

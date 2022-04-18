@@ -40,6 +40,7 @@ from metapi.checkmer import checkm_prepare
 from metapi.checkmer import checkm_reporter
 
 from metapi.classifier import demultiplex
+from metapi.classifier import gtdbtk_prepare
 
 from metapi.profiler import profiler_init
 from metapi.profiler import get_all_abun_df
