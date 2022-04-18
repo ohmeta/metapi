@@ -249,15 +249,18 @@ if config["params"]["binning"]["vamb"]["do"]:
                          "logs/binning_vamb_gen_abundance_matrix.{binning_group}.{assembler}.log")
         run:
             import pandas as pd
+            import numpy as np
 
             first = False
             jgi_df_list = []
             for jgi in input.jgi:
+
                 if not first:
                     # jgi format
                     # contigName\tcontigLen\ttotalAvgDepth\t{sample_id}.align2combined_scaftigs.sorted.bam
                     jgi_df_first = pd.read_csv(jgi, sep="\t")\
                                  .loc[:, ["contigName", "contigLen", "totalAvgDepth"]]\
+                                 #.dtype({"contigName": str, "contigLen": np.int32, "totalAvgDepth": np.float64})
                                  .set_index("contigName")
                     jgi_df = pd.read_csv(jgi, sep="\t").iloc[:, [0, 3]].set_index("contigName")
                     jgi_df_list = [jgi_df_first, jgi_df]
@@ -265,8 +268,9 @@ if config["params"]["binning"]["vamb"]["do"]:
                 else:
                     jgi_df = pd.read_csv(jgi, sep="\t").iloc[:, [0, 3]].set_index("contigName")
                     jgi_df_list.append(jgi_df)
-            df_abundance = pd.concat(jgi_df_list, axis=1).reset_index()
-            df_abundance.to_csv(output.matrix, sep="\t", index=False)
+
+            # big table, huge memory
+            pd.concat(jgi_df_list, axis=1).reset_index().to_csv(output.matrix, sep="\t", index=False)
 
 
     rule binning_vamb_prepare_all:
