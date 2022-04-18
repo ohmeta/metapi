@@ -1,7 +1,0 @@
-channels:
-  - conda-forge
-  - bioconda
-  - defaults
-dependencies:
-  - humann2=2.8.1
-  - metaphlan2=2.8
