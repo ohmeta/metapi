@@ -224,7 +224,7 @@ alignment_base_depth:
 alignment_report:
   mem: "128M"
   output: "logs/05.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/05.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/05.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
 
 binning_metabat2_coverage:
   mem: "1G"
@@ -383,7 +383,7 @@ checkm_prepare:
   error: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
 checkm_lineage_wf:
-  mem: "30G"
+  mem: "120G"
   output: "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
   error: "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 

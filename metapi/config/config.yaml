@@ -268,7 +268,7 @@ params:
     check_binners: ["metabat2", "vamb", "dastools"]
     report: True
     threads: 8
-    pplacer_threads: 1
+    pplacer_threads: 4 # 1: 30G, 2: 60G, 3: 90G, 4: 120G
     reduced_tree: False
     completeness: 90
     contamination: 10
@@ -277,20 +277,6 @@ params:
 
   classify:
     threads: 8
-    kraken2:
-      do: True
-      database: "/home/zhujie/databases/ecogenomics/Struo2/GTDB_release202/kraken2"
-      quick: False
-      memory_mapping: False
-      use_names: True
-      use_mpa_style: False
-      report_zero_counts: False
-      confidence: 0
-      min_base_quality: 0
-      min_hit_groups: 2
-      unclassified_out: False
-      classified_out: False
-      save_table: False
     gtdbtk:
       do: True
       pplacer_threads: 1
