@@ -315,10 +315,7 @@ if config["params"]["binning"]["vamb"]["do"]:
             outdir_base = os.path.join(config["output"]["multisplit_binning"], "bins"),
             min_contig = config["params"]["binning"]["vamb"]["min_contig"],
             min_fasta = config["params"]["binning"]["vamb"]["min_fasta"],
-            cuda = "--cuda" if config["params"]["binning"]["vamb"]["cuda"] \
-                else "",
-            threads = "1" if config["params"]["binning"]["vamb"]["cuda"] \
-                else config["params"]["binning"]["threads"],
+            cuda = "--cuda" if config["params"]["binning"]["vamb"]["cuda"] else "",
             external_params = config["params"]["binning"]["vamb"]["external_params"]
         shell:
             '''
@@ -332,7 +329,7 @@ if config["params"]["binning"]["vamb"]["do"]:
             else
                 vamb \
                 {params.cuda} \
-                -p {params.threads} \
+                -p {threads} \
                 --outdir {params.outdir} \
                 --fasta {input.scaftigs} \
                 --jgi {input.matrix} \
