@@ -260,7 +260,6 @@ if config["params"]["binning"]["vamb"]["do"]:
                     # contigName\tcontigLen\ttotalAvgDepth\t{sample_id}.align2combined_scaftigs.sorted.bam
                     jgi_df_first = pd.read_csv(jgi, sep="\t")\
                                  .loc[:, ["contigName", "contigLen", "totalAvgDepth"]]\
-                                 #.dtype({"contigName": str, "contigLen": np.int32, "totalAvgDepth": np.float64})
                                  .set_index("contigName")
                     jgi_df = pd.read_csv(jgi, sep="\t").iloc[:, [0, 3]].set_index("contigName")
                     jgi_df_list = [jgi_df_first, jgi_df]
