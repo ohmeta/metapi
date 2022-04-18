@@ -289,7 +289,7 @@ params:
   dereplicate:
     drep:
       do: True
-      threads: 8
+      threads: 32
       filtering_genome_min_length: 50000
       filtering_completeness: 75
       filtering_contamination: 25
