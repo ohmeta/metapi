@@ -22,15 +22,32 @@ rule predict_bins_gene_prodigal:
         {output.predict_done}
         '''
 
+
+rule predict_bins_gene_prodigal_report:
+        input:
+            expand(os.path.join(
+                config["output"]["predict"],
+                "bins_gene/{assembly_group}.{{assembler}}.prodigal.out/{{binner_checkm}}/predict_done"),
+                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
+        output:
+            os.path.join(config["output"]["predict"],
+                         "report/bins_gene_stats_{assembler}_{binner_checkm}.tsv")
+        run:
+            import pandas as pd
+
+            shell(f'''mkdir -p {os.path.dirname(output[0])}''')
+
+            df_list = [pd.read_csv(i, sep="\t") for i in input]
+            pd.concat(df_list, axis=0).to_csv(output[0], sep="\t", index=False)
+
  
 rule predict_bins_gene_prodigal_all:
     input:
         expand(os.path.join(
             config["output"]["predict"],
-            "bins_gene/{assembly_group}.{assembler}.prodigal.out/{binner_checkm}/predict_done"),
-               assembler=ASSEMBLERS,
-               binner_checkm=BINNERS_CHECKM,
-               assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)#,
+            "report/bins_gene_stats_{assembler}_{binner_checkm}.tsv"),
+            assembler=ASSEMBLERS,
+            binner_checkm=BINNERS_CHECKM)
 
         #rules.binning_all.input
 

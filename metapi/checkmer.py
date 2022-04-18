@@ -9,11 +9,10 @@ import numpy as np
 from natsort import index_natsorted
 
 
-def checkm_prepare(input_list, batch_num, bins_dir):
+def checkm_prepare(gene_table, batch_num, bins_dir):
     os.makedirs(bins_dir, exist_ok=True)
 
-    table_list = [pd.read_csv(table, sep="\t") for table in input_list]
-    table_df = pd.concat(table_list, axis=0)
+    table_df = pd.read_csv(gene_table, sep="\t")
     table_df = table_df.sort_values(by="bin_id",
                                     key=lambda x: np.argsort(index_natsorted(table_df["bin_id"])))\
                        .reset_index(drop=True)

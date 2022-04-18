@@ -1,17 +1,17 @@
 if config["params"]["checkm"]["do"]:
     checkpoint checkm_prepare:
         input:
-            expand(os.path.join(
-                config["output"]["predict"],
-                "bins_gene/{assembly_group}.{{assembler}}.prodigal.out/{{binner_checkm}}/predict_done"),
-                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
+            gene_table = os.path.join(config["output"]["predict"],
+                                      "report/bins_gene_stats_{assembler}_{binner_checkm}.tsv")
         output:
             bins_dir = directory(os.path.join(config["output"]["checkm"],
                                                "bins_input/{assembler}.{binner_checkm}.bins_input"))
         params:
             batch_num = config["params"]["checkm"]["batch_num"]
         run:
-            metapi.checkm_prepare(input, params.batch_num, output.bins_dir)
+            metapi.checkm_prepare(input.gene_table, params.batch_num, output.bins_dir)
+            shell(f'''mkdir -p {output.bins_dir}/../../table''')
+            shell(f'''mkdir -p {output.bins_dir}/../../data''')
 
 
     rule checkm_lineage_wf:
@@ -70,9 +70,10 @@ if config["params"]["checkm"]["do"]:
     rule checkm_report:
         input:
             checkm_table = aggregate_checkm_output,
-            bins_report = os.path.join(
-                config["output"]["binning"],
-                "report/assembly_stats_{assembler}_{binner_checkm}.tsv")
+            gene_table = os.path.join(config["output"]["predict"],
+                                      "report/bins_gene_stats_{assembler}_{binner_checkm}.tsv"),
+            bins_report = os.path.join(config["output"]["binning"],
+                                       "report/assembly_stats_{assembler}_{binner_checkm}.tsv")
         output:
             genomes_info = os.path.join(config["output"]["checkm"],
                                  "report/checkm_table_{assembler}_{binner_checkm}.tsv"),
@@ -94,12 +95,13 @@ if config["params"]["checkm"]["do"]:
         run:
             import pandas as pd
 
-            checkm_table = metapi.checkm_reporter(input.checkm_table, None, threads).set_index("bin_id")
-            bins_report = metapi.extract_bins_report(input.bins_report).set_index("bin_id")
+            checkm_table = metapi.checkm_reporter(input.checkm_table, None, threads)
+            gene_table = pd.read_csv(input.gene_table, sep="\t")
+            bins_report = metapi.extract_bins_report(input.bins_report)
 
-            genomes_info = pd.concat([bins_report, checkm_table], axis=1)\
-                            .reset_index()\
-                            .rename(columns={"index": "bin_id"})
+            genomes_info = pd.merge(bins_report, gene_table, how="inner", on=["bin_id", "bin_file"])\
+                             .merge(checkm_table, how="inner", on="bin_id")
+
             genomes_info["genome"] = genomes_info["bin_id"] + ".fa"
             genomes_info.to_csv(output.genomes_info, sep='\t', index=False)
 

@@ -13,7 +13,6 @@ rule dereplicate_mags_prepare:
                                     "genomes_info/checkm_table_genomes_info.all.tsv"),
         bins_hmq = os.path.join(config["output"]["dereplicate"],
                                 "genomes_info/bins_hmq.all.tsv")
-
     run:
         import pandas as pd
 
@@ -32,14 +31,11 @@ if config["params"]["dereplicate"]["drep"]["do"]:
             bins_hmq = os.path.join(config["output"]["dereplicate"],
                                     "genomes_info/bins_hmq.all.tsv")
         output:
-            os.path.join(config["output"]["dereplicate"],
-                         "genomes/hmq.bins.drep.out/drep_done")
+            os.path.join(config["output"]["dereplicate"], "genomes/hmq.bins.drep.out/drep_done")
         log:
-            os.path.join(config["output"]["dereplicate"],
-                         "logs/hmq.bins.drep.log")
+            os.path.join(config["output"]["dereplicate"], "logs/hmq.bins.drep.log")
         benchmark:
-            os.path.join(config["output"]["dereplicate"],
-                         "benchmark/drep.benchmark.txt")
+            os.path.join(config["output"]["dereplicate"], "benchmark/drep.benchmark.txt")
         conda:
             config["envs"]["drep"]
         params:
@@ -80,26 +76,34 @@ if config["params"]["dereplicate"]["drep"]["do"]:
             '''
 
 
-    rule dereplicate_mags_drep_all_report:
+    rule dereplicate_mags_drep_report:
         input:
             genomes_info = os.path.join(config["output"]["dereplicate"],
                                         "genomes_info/checkm_table_genomes_info.all.tsv"),
             drep_done = os.path.join(config["output"]["dereplicate"],
                                      "genomes/hmq.bins.drep.out/drep_done")
         output:
-            os.path.join(config["output"]["dereplicate"],
-                         "report/hmq.bins.drep.stats.tsv")
+            rep_genomes_info = os.path.join(config["output"]["dereplicate"],
+                         "report/checkm_table_genomes_info.derep.tsv"),
+            rep_genomes_info_tidy = os.path.join(config["output"]["dereplicate"],
+                         "report/checkm_table_genomes_info.derep.tidy.tsv")
         run:
             import pandas as pd
             from glob import glob
 
-            drep_dir = os.path.join(os.path.dirname(input.drep_done), "dereplicated_genomes")
-            bins_list = sorted(glob(f'''{drep_dir}/*.fa'''))
+            genomes_info = pd.read_csv(input.genomes_info, sep="\t")
+            
+            rep_dir = os.path.join(os.path.dirname(input.drep_done), "dereplicated_genomes")
+            rep_list = [os.path.basename(i) for i in sorted(glob(f'''{rep_dir}/*.fa'''))]
 
+            rep_df = pd.DataFrame({"genome": rep_list})
+            rep_df_info = rep_df.merge(genomes_info, how="left", on="genome")
 
+            rep_df_info.to_csv(output.rep_genomes_info, sep="\t", index=False)
 
- 
-
+            rep_df_info.loc[:, ["bin_file", "bin_id", "best_translation_table"]]\
+                       .to_csv(output.rep_genomes_info_tidy,
+                               sep="\t", header=None, index=False)
 
 
     rule dereplicate_mags_drep_all:
@@ -109,8 +113,12 @@ if config["params"]["dereplicate"]["drep"]["do"]:
             os.path.join(config["output"]["dereplicate"],
                          "genomes_info/bins_hmq.all.tsv"),
             os.path.join(config["output"]["dereplicate"],
-                         "genomes/hmq.bins.drep.out/drep_done")
-
+                         "genomes/hmq.bins.drep.out/drep_done"),
+            os.path.join(config["output"]["dereplicate"],
+                         "report/checkm_table_genomes_info.derep.tsv"),
+            os.path.join(config["output"]["dereplicate"],
+                         "report/checkm_table_genomes_info.derep.tidy.tsv")
+ 
 else:
     rule dereplicate_mags_drep_all:
         input:
