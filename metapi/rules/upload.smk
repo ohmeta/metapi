@@ -38,6 +38,11 @@ if config["upload"]["do"]:
             os.path.join(config["output"]["upload"], "table/MIxS_Samples.xlsx")
 
 
+    localrules:
+        upload_generate_samples_info,
+        upload_generate_run_info,
+ 
+
     if len(ASSEMBLERS) != 0:
         rule upload_md5_scaftigs:
             input:
@@ -75,6 +80,11 @@ if config["upload"]["do"]:
                     config["output"]["upload"],
                     "table/Genome_Assembly_{assembler}.xlsx"),
                        assembler=ASSEMBLERS)
+
+
+        localrules:
+            upload_generate_assembly_info
+ 
 
     else:
         rule upload_assembly_all:
