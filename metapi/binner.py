@@ -2,6 +2,7 @@
 
 import os
 import subprocess
+import resource
 from Bio import SeqIO
 import pandas as pd
 
@@ -139,10 +140,10 @@ def combine_jgi(jgi_list, output_file):
     #        oh.write("\t".join(i) + "\n")
 
     # aovid OSError: Too many open files
-    max_num_file = int(subprocess.getoutput("ulimit -n"))
-    if max_num_file < len(jgi_list):
-        max_num_file += len(jgi_list)
-        subprocess.run(f'''ulimit -n {max_num_file}''', shell=True)
+    max_num_file = resource.getrlimit(resource.RLIMIT_NOFILE)[0]
+    if (len(jgi_list) - 100) > max_num_file:
+        max_num_file = len(jgi_list)
+        resource.setrlimit(resource.RLIMIT_NOFILE, (max_num_file, max_num_file))
 
     outdir = os.path.dirname(output_file)
     os.makedirs(outdir, exist_ok=True)
