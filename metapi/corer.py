@@ -33,7 +33,7 @@ WORKFLOWS_MAG = [
     "rmhost_report_all",
     "rmhost_all",
     "qcreport_all",
-    "assebmly_megahit_all",
+    "assembly_megahit_all",
     "assembly_idba_ud_all",
     "assembly_metaspades_all",
     "assembly_spades_all",
