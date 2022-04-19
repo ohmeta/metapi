@@ -65,18 +65,7 @@ WORKFLOWS_MAG = [
     "checkm_all",
     "dereplicate_mags_drep_all",
     "dereplicate_mags_all",
-    "classify_short_reads_kraken2_all",
-    "classify_hmq_bins_gtdbtk_all",
     "classify_all",
-    "profiling_bgi_soap_all",
-    "profiling_bowtie2_all",
-    "profiling_metaphlan2_all",
-    "profiling_metaphlan3_all",
-    "profiling_jgi_all",
-    "profiling_bracken_all",
-    "profiling_humann2_all",
-    "profiling_humann3_all",
-    "profiling_all",
     "upload_sequencing_all",
     "upload_assembly_all",
     "upload_all",
@@ -169,8 +158,11 @@ def run_snakemake(args, unknown, snakefile, workflow):
                     "--local-cores", str(args.local_cores),
                     "--jobs", str(args.jobs)]
         elif args.debug:
-            cmd += ["--debug-dag", "--dry-run"]
-        elif args.dry_run:
+            cmd += ["--debug-dag"]
+        else: 
+            cmd += ["--dry-run"]
+
+        if args.dry_run and ("--dry-run" not in cmd):
             cmd += ["--dry-run"]
  
     cmd_str = " ".join(cmd).strip()
@@ -435,7 +427,7 @@ def main():
     )
     run_parser.add_argument(
         "--dry-run",
-        default=True,
+        default=False,
         dest="dry_run",
         action="store_true",
         help="dry run pipeline",
