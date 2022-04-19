@@ -1,7 +1,6 @@
 [![bioconda-badge](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io)
 [![ohmeta-badge](https://img.shields.io/badge/install%20with-ohmeta-brightgreen.svg?style=flat)](http://anaconda.org/ohmeta)
 [![PyPI version](https://badge.fury.io/py/metapi.svg)](https://badge.fury.io/py/metapi)
-[![star this repo](http://githubbadges.com/star.svg?user=ohmeta&repo=metapi&style=flat)](https://github.com/ohmeta/metapi)
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/metapi/badges/downloads.svg)](https://anaconda.org/bioconda/metapi)
 
 <div align=center><img width="500" height="280" src="docs/logo.svg"/></div>
@@ -18,17 +17,16 @@ metapi works with Python 3.6+.
 You can install it via [bioconda](https://bioconda.github.io/):
 
 ```
-$ conda install -c bioconda metapi
-# or
-$ conda install -c ohmeta metapi
+➤ mamba install -c conda-forge -c bioconda metapi
+
 # specific version, recommand to install latest version
-$ conda install -c bioconda metapi=1.1.0
+➤ mamba install -c conda-forge -c bioconda metapi=1.1.0
 ```
 
 Or via pip:
 
 ```
-$ pip install metapi
+➤ pip3 install metapi=1.1.0
 ```
 
 ## Run
@@ -36,7 +34,7 @@ $ pip install metapi
 ### Help
 
 ```
-$ metapi --help
+➤ metapi --help
 
   .___  ___.  _______ .___________.    ___      .______    __
   |   \/   | |   ____||           |   /   \     |   _  \  |  |
@@ -64,37 +62,53 @@ $ metapi --help
 ### Init
 
 ```
-$ metapi init --help
+➤ metapi init --help
+usage: metapi init [-h] [-d WORKDIR] [--check-samples] [-s SAMPLES]
+                        [-b {simulate,trimming,rmhost,assembly,binning,checkm}]
+                        [--trimmer {oas1,sickle,fastp}]
+                        [--rmhoster {soap,bwa,bowtie2,minimap2,kraken2,kneaddata}]
+                        [--assembler {idba-ud,megahit,metaspades,spades,opera-ms} [{idba-ud,megahit,metaspades,spades,opera-ms} ...]]
+                        [--binner BINNER [BINNER ...]]
 
-  usage: metapi init [-h] [-d WORKDIR] [-s SAMPLES]
-                    [-b {simulate,trimmingrmhost,assembly}]
-
-  arguments:
-      -h, --help            show this help message and exit
-      -d, --workdir WORKDIR
-                            project workdir (default: ./)
-      -s, --samples SAMPLES
-                            desired input:
-                            samples list, tsv format required.
-
-                            if begin from trimming, rmhost, or assembly:
-                                if it is fastq:
-                                    the header is [id, fq1, fq2]
-                                if it is sra:
-                                    the header is [id, sra]
-                            if begin from simulate:
-                                the header is [id, genome, abundance, reads_num, model]
-
-    -b, --begin {simulate,trimming,rmhost,assembly,binning}
-                            pipeline starting point (default: trimming)
+optional arguments:
+  -h, --help            show this help message and exit
+  -d, --workdir WORKDIR
+                        project workdir (default: ./)
+  --check-samples       check samples, default: False
+  -s, --samples SAMPLES
+                        desired input:
+                        samples list, tsv format required.
+                        
+                        if begin from trimming, rmhost, or assembly:
+                            if it is fastq:
+                                the header is: [sample_id, assembly_group, binning_group, fq1, fq2]
+                            if it is sra:
+                                the header is: [sample_id, assembly_group, binning_group, sra]
+                        
+                        if begin from simulate:
+                                the header is: [id, genome, abundance, reads_num, model]
+                        
+  -b, --begin {simulate,trimming,rmhost,assembly,binning,checkm}
+                        pipeline starting point (default: trimming)
+  --trimmer {oas1,sickle,fastp}
+                        which trimmer used (default: fastp)
+  --rmhoster {soap,bwa,bowtie2,minimap2,kraken2,kneaddata}
+                        which rmhoster used (default: bowtie2)
+  --assembler {idba-ud,megahit,metaspades,spades,opera-ms} [{idba-ud,megahit,metaspades,spades,opera-ms} ...]
+                        which assembler used, required when begin with binning, can be changed in config.yaml (default: ['metaspades'])
+  --binner BINNER [BINNER ...]
+                        wchich binner used (default: ['metabat2', 'concoct', 'maxbin2', 'vamb', 'dastools'])
 ```
 - **Note**  
   * When we do `metapi init`, metapi will help us to create project structure,
-  include `config.yaml`, `cluster.yaml`, `envs/`, `logs/` and `results/`.
+  include `config.yaml`, `profiles/`, `envs/`, `logs/` and `results/`.
     - `config.yaml`: workflow configuration, can be edited
-    - `cluster.yaml`: used when run pipeline on cluster, can be edited
+    - `profiles/`: used when run pipeline on cluster, can be edited
+      + For `SGE` user, please see `profiles/sge/cluster.yaml`
+      + For `SLURM` user, please see `profiles/slurm/cluster.yaml`
+    - `envs/`: conda environment file for some rules, can be edited to update software version by yourself
 
-  * We recommand you to create a directory, and `cd` it, then do ```metapi init -d ./```.
+  * We recommand you to create a directory, and `cd` it and put `samples.tsv` in the directory, then do ```metapi init -s samples.tsv -d ./```.
 
   * Samples file is required when init project. Samples input format requirement can see [here](#inputtag).
 
@@ -103,225 +117,237 @@ $ metapi init --help
     - trimming: samples need trimming, do quality control
     - rmhost: samples is quality control well, only need to remove host sequence, will not do trimming
     - assembly: samples is clean, just do assembly, will not do trimming and rmhost
-    - binning: supply samples and assembly, then do binning, will no do trimming, rmhost and assembly
+    -  (WIP) binning: supply samples and assembly, then do binning, will no do trimming, rmhost and assembly
 
-  * When metapi init executed, then corresponding configuration will be writen into `config.yaml`. Of course, you can edit `config.yaml` to update config, then when run `metapi mag_wf` or `metapi gene_wf`, `metapi` will understand it. Just edit it, see what will happen.
+  * When metapi init executed, then corresponding configuration will be writen into `config.yaml`.  
+    Of course, you can edit `config.yaml` to update config, then when run `metapi mag_wf` or `metapi gene_wf`,  
+    `metapi` will understand it. Just edit it, see what will happen.
 
 
 ### mag_wf
 
 ```
-$ metapi mag_wf --help
+➤ metapi mag_wf --help
+          [--cluster-engine {slurm,sge,lsf,pbs-torque}]
+          [--wait WAIT] [--use-conda] [--conda-prefix CONDA_PREFIX]
+          [--conda-create-envs-only]
+          [TASK]
 
-  usage: metapi mag_wf [-h] [-d WORKDIR] [--config CONFIG] [--cluster CLUSTER]
-                            [--cores CORES] [--jobs JOBS] [--list] [--run] [--debug]
-                            [--dry-run] [--qsub] [--wait WAIT] [--use-conda]
-                            [--conda-prefix CONDA_PREFIX] [--conda-create-envs-only]
-                            [TASK]
+positional arguments:
+  TASK                  pipeline end point. Allowed values are
+  
+  simulate_all,
+  prepare_short_reads_all,
+  prepare_long_reads_all,
+  prepare_reads_all,
+  raw_fastqc_all,
+  raw_report_all, raw_all,
+  trimming_oas1_all,
+  trimming_sickle_all,
+  trimming_fastp_all,
+  trimming_report_all,
+  trimming_all,
+  rmhost_soap_all,
+  rmhost_bwa_all,
+  rmhost_bowtie2_all,
+  rmhost_minimap2_all,
+  rmhost_kraken2_all,
+  rmhost_kneaddata_all,
+  rmhost_report_all,
+  rmhost_all,
+  qcreport_all,
+  assembly_megahit_all,
+  assembly_idba_ud_all,
+  assembly_metaspades_all,
+  assembly_spades_all,
+  assembly_plass_all,
+  assembly_opera_ms_all, 
+  assembly_metaquast_all,
+  assembly_report_all,
+  assembly_all,
+  alignment_base_depth_all,
+  alignment_report_all,
+  alignment_all,
+  binning_metabat2_coverage_all,
+  binning_metabat2_all,
+  binning_maxbin2_all, 
+  binning_concoct_all,
+  binning_graphbin2_all,
+  binning_dastools_all,
+  binning_vamb_prepare_all, 
+  binning_vamb_all,
+  binning_report_all,
+  binning_all,
+  predict_scaftigs_gene_prodigal_all,
+  predict_scaftigs_gene_prokka_all,
+  predict_bins_gene_prodigal_all,
+  predict_bins_gene_prokka_all, 
+  predict_scaftigs_gene_all,
+  predict_bins_gene_all,
+  predict_all,
+  checkm_all,
+  dereplicate_mags_drep_all,
+  dereplicate_mags_all,
+  classify_all,
+  upload_sequencing_all,
+  upload_assembly_all,
+  upload_all,
+  all (default: all)
 
-  positional arguments:
-  TASK              pipeline end point. Allowed values are 
-       simulate_all, prepare_short_reads_all, prepare_long_reads_all,
-       prepare_reads_all,
-       raw_fastqc_all, raw_report_all, raw_all,
-       trimming_oas1_all, trimming_sickle_all,
-       trimming_fastp_all, trimming_report_all,
-       trimming_all,
-       rmhost_soap_all, rmhost_bwa_all, rmhost_bowtie2_all,
-       rmhost_minimap2_all, rmhost_kraken2_all,
-       rmhost_report_all, rmhost_all, qcreport_all,
-       assebmly_megahit_all, assembly_idba_ud_all,
-       assembly_metaspades_all, assembly_spades_all,
-       assembly_plass_all, assembly_opera_ms_all,
-       assembly_metaquast_all, assembly_report_all,
-       single_assembly_all, coassembly_megahit_all,
-       coassembly_all, assembly_all,
-       alignment_base_depth_all, single_alignment_all,
-       coalignment_base_depth_all,
-       coalignment_all, alignment_all,
-       binning_metabat2_coverage_all, binning_metabat2_all,
-       binning_maxbin2_all, binning_concoct_all, binning_graphbin2_all,
-       binning_dastools_all, binning_vamb_all,
-       binning_report_all, single_binning_all,
-       cobinning_metabat2_coverage_all, cobinning_metabat2_all,
-       cobinning_maxbin2_all, cobinning_concoct_all,
-       cobinning_graphbin2_all, cobinning_dastools_all, 
-       cobinning_report_all, cobinning_all, binning_all,
-       predict_scaftigs_gene_prodigal_all, predict_scaftigs_gene_prokka_all,
-       predict_bins_gene_prodigal_all, predict_bins_gene_prokka_all,
-       single_predict_scaftigs_gene_all, single_predict_bins_gene_all,
-       copredict_scaftigs_gene_prodigal_all,
-       copredict_scaftigs_gene_prokka_all,
-       copredict_bins_gene_prodigal_all, copredict_bins_gene_prokka_all,
-       copredict_scafitgs_gene_all, copredict_bins_gene_all,
-       predict_scaftigs_gene_all, predict_bins_gene_all,
-       copredict_all, predict_all,
-       single_checkm_all, cocheckm_all, checkm_all,
-       dereplicate_mags_drep_all, dereplicate_mags_all,
-       classify_short_reads_kraken2_all,
-       single_classify_hmq_bins_gtdbtk_all,
-       coclassify_hmq_bins_gtdbtk_all, classify_hmq_bins_gtdbtk_all,
-       single_classify_all, coclassify_all, classify_all,
-       profiling_bgi_soap_all, profiling_bowtie2_all,
-       profiling_metaphlan2_all, profiling_metaphlan3_all,
-       profiling_jgi_all, profiling_bracken_all,
-       profiling_humann2_all, profiling_humann3_all,
-       profiling_all, upload_sequencing_all, upload_assembly_all, upload_all,
-       all (default: all)
-
-  optional arguments:
+optional arguments:
   -h, --help            show this help message and exit
   -d, --workdir WORKDIR
                         project workdir (default: ./)
+  --check-samples       check samples, default: False
   --config CONFIG       config.yaml (default: ./config.yaml)
-  --cluster CLUSTER     cluster.yaml (default: ./cluster.yaml)
-  --cores CORES         CPU cores (default: 8)
-  --jobs JOBS           qsub job numbers (default: 80)
+  --profile PROFILE     cluster profile name (default: ./profiles/slurm)
+  --cores CORES         all job cores, available on '--run-local' (default: 240)
+  --local-cores LOCAL_CORES
+                        local job cores, available on '--run-remote' (default: 8)
+  --jobs JOBS           cluster job numbers, available on '--run-remote' (default: 30)
   --list                list pipeline rules
-  --run                 run pipeline
   --debug               debug pipeline
   --dry-run             dry run pipeline
-  --qsub                qsub pipeline
+  --run-local           run pipeline on local computer
+  --run-remote          run pipeline on remote cluster
+  --cluster-engine {slurm,sge,lsf,pbs-torque}
+                        cluster workflow manager engine, support slurm(sbatch) and sge(qsub) (default: slurm)
   --wait WAIT           wait given seconds (default: 60)
   --use-conda           use conda environment
   --conda-prefix CONDA_PREFIX
-                        conda environment prefix
-                        (default: /ldfssz1/ST_META/share/User/zhujie/.conda/envs)
+                        conda environment prefix (default: ~/.conda/envs)
   --conda-create-envs-only
-    conda create environments only
+                        conda create environments only
 ```
 
 ### mag_wf example
 
 ```
 # init project
-$ metapi init -d . -s samples.tsv -b trimming
+➤ metapi init -d . -s samples.tsv -b trimming
 
-# create conda environments
-# now support python3 and python2 environment
-# when use MetaPhlAn2 or HUMMaN2, recommand to create envs first
-$ metapi mag_wf --conda-create-envs-only
+# create conda environments, which will create envs at ~/.conda/envs
+➤ metapi mag_wf --conda-create-envs-only
 
 # run pipeline with conda
-# metapi mag_wf all --use-conda
-# metapi mag_wf all --use-conda --conda-prefix /path/to/your/default/envs/dir
+➤ metapi mag_wf all --use-conda --run-local
 
 # run raw_fastqc
-$ metapi mag_wf raw_fastqc_all --run
+➤ metapi mag_wf raw_fastqc_all --run-local
 
 # run trimming
-$ metapi mag_wf trimming_all --run
+➤ metapi mag_wf trimming_all --run-local
 
 # run rmhost
-$ metapi mag_wf rmhost_all --run
+➤ metapi mag_wf rmhost_all --run-local
 
 # run qc report
-$ metapi mag_wf qcreport_all --run
+➤ metapi mag_wf qcreport_all --run-local
 
 # run assembly
-$ metapi mag_wf assembly_all --run
+➤ metapi mag_wf assembly_all --run-local
 
 # run binning
-$ metapi mag_wf binning_all --run
+➤ metapi mag_wf binning_all --run-local
 
 # run gene predict
-$ metapi mag_wf predict_all --run
+➤ metapi mag_wf predict_all --run-local
 
-# run MAGs checkm
-$ metapi mag_wf checkm_all --run
+# run checkm
+➤ metapi mag_wf checkm_all --run-local
 
-# run MAGs classify
-$ metapi mag_wf classify_all --run
-
-# run MetaPhlAn2 profiling
-$ metapi mag_wf profiling_metaphlan2_all --run \
-  --use-conda --conda-prefix /ldfssz1/ST_META/share/User/zhujie/.conda/envs
-
-# run MetaPhlAn3 profiling
-$ metapi mag_wf profiling_metaphlan3_all --run
-
-# run MAGs jgi profling (using jgi_summarize_bam_contig_depths)
-$ metapi mag_wf profiling_jgi_all --run
-
-# run HUMAnN2 profiling
-$ metapi mag_wf profiling_humann2_all --run \
-  --use-conda --conda-prefix /ldfssz1/ST_META/share/User/zhujie/.conda/envs
+#run classify
+➤ metapi mag_wf classify_all --run-local
 
 # run mag_wf all
-$ metapi mag_wf --run
+➤ metapi mag_wf --run-local
 
-# run gene_wf all
-$ metapi gene_wf --run
+# run mag_wf all on SGE/SLURM cluster
+➤ metapi mag_wf --run-remote
 
-# run mag_wf all on SGE cluster
-$ metapi mag_wf --qsub
+# run mag_wf all on SGE/SLURM cluster using conda
+➤ metapi mag_wf --run-remote --use-conda
 ```
 
-## Input requirements:
+## Input details
 <a name="inputtag"></a>
 
-The input samples file: `samples.tsv` format:
++ The input fastq need gzip compress.
 
-Note: If `id` col contain same id, then the reads of each sample will be merged.
-Note: The fastq need gzip compress.
++ If `sample_id` col contain same id, then the reads of each sample will be merged.
 
++ For the same `assembly_group`, the reads will be combined together to do co-assembly,
+  then the reads of each sample will map to the co-assembled results to calculate co-abundance for each `assembly_group`,
+  then using MetaBAT2, MaxBin2, CONCOCT (You can specific which binner to use) to do binning.
+
++ For the same `binning_group`, the assembled results will be combined together to build minimap2 index,
+  then the reads of each sample will map to the combined index to calculate co-abundance,
+  then using vamb to do binning
+
++ `assembly_group` control the assembly and binning strategy; `binning_group` control the multisplit binning strategy developed by vamb.
+
++ If all `assembly_group` are unique, for MetaBAT2, MaxBin2, CONCOCT, etc., that is the traditional single-assembly and single-binning strategy.
+
++ If `binning_group` has multiple groups, then vamb will perform multisplit binning in each `binning_group` separately, which is useful for very large-scale data.
+  For example, if there are 10,000 samples, and multisplit binning is performed once for every thousand samples, the binning group can be set to 10 different groups.
+
+## Input format
 - begin from trimming, rmhost or assembly:
 
   - `Paired-end reads`
 
-  |  id   |    fq1     |    fq2     |
-  | :---: | :--------: | :--------: |
-  |  s1   | aa.1.fq.gz | aa.2.fq.gz |
-  |  s2   | bb.1.fq.gz | bb.2.fq.gz |
-  |  s2   | cc.1.fq.gz | cc.2.fq.gz |
-  |  s3   | dd.1.fq.gz | dd.2.fq.gz |
+  |  sample_id   |  assembly_group | binning_group |    fq1     |    fq2     |
+  | :----------: | :-------------: | :-----------: | :--------: | :--------: |
+  |  s1          | ag1             | bg1           | s1.1.fq.gz | s1.2.fq.gz |
+  |  s2          | ag1             | bg1           | s2.1.fq.gz | s2.2.fq.gz |
+  |  s3          | ag2             | bg2           | s3.1.fq.gz | s3.2.fq.gz |
+  |  s4          | ag2             | bg2           | s4.1.fq.gz | s4.2.fq.gz |
 
-  - `Paired-end reads(interleaved)`
+  - `Paired-end reads(interleaved)`, update `config.yaml::reads_interleaved=true`  
 
-  |  id   |     fq1     |  fq2  |
-  | :---: | :---------: | :---: |
-  |  s1   | aa.12.fq.gz |       |
-  |  s2   | bb.12.fq.gz |       |
-  |  s2   | cc.12.fq.gz |       |
-  |  s3   | dd.12.fq.gz |       |
+  |  sample_id   |  assembly_group | binning_group |    fq1     |    fq2     |
+  | :----------: | :-------------: | :-----------: | :--------: | :--------: |
+  |  s1          | ag1             | bg1           | s1.fq.gz   |            |
+  |  s2          | ag1             | bg1           | s2.fq.gz   |            |
+  |  s3          | ag2             | bg2           | s3.fq.gz   |            |
+  |  s4          | ag2             | bg2           | s4.fq.gz   |            |
 
-  - `Paired-end reads with long reads`
+  - (WIP) `Paired-end reads with long reads`, update `config.yaml::have_long=true`
 
-  |  id   |    fq1     |    fq2     |    fq_long    |
-  | :---: | :--------: | :--------: | :-----------: |
-  |  s1   | aa.1.fq.gz | aa.2.fq.gz | aa.long.fq.gz |
-  |  s2   | bb.1.fq.gz | bb.2.fq.gz | bb.long.fq.gz |
-  |  s2   | cc.1.fq.gz | cc.2.fq.gz | cc.long.fq.gz |
-  |  s3   | dd.1.fq.gz | dd.2.fq.gz | dd.long.fq.gz |
+  |  sample_id   |  assembly_group | binning_group |    fq1     |    fq2     |   fq_long      |
+  | :----------: | :-------------: | :-----------: | :--------: | :--------: | :------------: |
+  |  s1          | ag1             | bg1           | s1.1.fq.gz | s1.2.fq.gz |  s1.long.fq.gz |
+  |  s2          | ag1             | bg1           | s2.1.fq.gz | s2.2.fq.gz |  s2.long.fq.gz |
+  |  s3          | ag2             | bg2           | s3.1.fq.gz | s3.2.fq.gz |  s3.long.fq.gz |
+  |  s4          | ag2             | bg2           | s4.1.fq.gz | s4.2.fq.gz |  s4.long.fq.gz |
 
-  - `Paired-end reads(interleaved) with long reads`
+  - (WIP)`Paired-end reads(interleaved) with long reads`, update `config.yaml::reads_interleaved=true` and `config.yaml::have_long=true`
 
-  |  id   |     fq1     |  fq2  |    fq_long    |
-  | :---: | :---------: | :---: | :-----------: |
-  |  s1   | aa.12.fq.gz |       | aa.long.fq.gz |
-  |  s2   | bb.12.fq.gz |       | bb.long.fq.gz |
-  |  s2   | cc.12.fq.gz |       | cc.long.fq.gz |
-  |  s3   | dd.12.fq.gz |       | dd.long.fq.gz |
+  |  sample_id   |  assembly_group | binning_group |    fq1     |    fq2     |   fq_long      |
+  | :----------: | :-------------: | :-----------: | :--------: | :--------: | :------------: |
+  |  s1          | ag1             | bg1           | s1.fq.gz   |            |  s1.long.fq.gz |
+  |  s2          | ag1             | bg1           | s2.fq.gz   |            |  s2.long.fq.gz |
+  |  s3          | ag2             | bg2           | s3.fq.gz   |            |  s3.long.fq.gz |
+  |  s4          | ag2             | bg2           | s4.fq.gz   |            |  s4.long.fq.gz |
 
-  - `Single-end reads`
+  - `Single-end reads`, update `config.yaml::reads_layout=se`
 
-  |  id   |    fq1     |  fq2  |
-  | :---: | :--------: | :---: |
-  |  s1   | aa.1.fq.gz |       |
-  |  s2   | bb.1.fq.gz |       |
-  |  s2   | cc.1.fq.gz |       |
-  |  s3   | dd.1.fq.gz |       |
+  |  sample_id   |  assembly_group | binning_group |    fq1     |    fq2     |
+  | :----------: | :-------------: | :-----------: | :--------: | :--------: |
+  |  s1          | ag1             | bg1           | s1.fq.gz   |            |
+  |  s2          | ag1             | bg1           | s2.fq.gz   |            |
+  |  s3          | ag2             | bg2           | s3.fq.gz   |            |
+  |  s4          | ag2             | bg2           | s4.fq.gz   |            |
 
   - `SRA (only support paired-end reads)` :
-
   SRA can be dumpped to Paired-end fastq reads
 
-  |  id   |  sra   |
-  | :---: | :----: |
-  |  s1   | aa.sra |
-  |  s2   | bb.sra |
-  |  s2   | cc.sra |
-  |  s3   | dd.sra |
+  |  sample_id   |  assembly_group | binning_group |    sra     |
+  | :----------: | :-------------: | :-----------: | :--------: |
+  |  s1          | ag1             | bg1           | s1.sra     |
+  |  s2          | ag1             | bg1           | s2.sra     |
+  |  s3          | ag2             | bg2           | s3.sra     |
+  |  s4          | ag2             | bg2           | s4.sra     |
 
 - begin from simulate, only support paired-end reads
 
@@ -352,33 +378,30 @@ species g3 is 0.5.
 
 Then metapi will use [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq) to generate metagenomics shotgun reads.
 
-- begin from binning
-  |  id   |     fq1     |    fq2     |     scaftigs      |
-  | :---: | :---------: | :--------: | :---------------: |
-  |  s1   | s1.1.hfq.gz | s1.2.fq.gz | s1.scaftigs.fa.gz |
-  |  s2   | s2.1.fq.gz  | s2.2.fq.gz | s2.scafitgs.fa.gz |
-  |  s3   | s3.1.fq.gz  | s3.2.fq.gz | s3.scafitgs.fa.gz |
+- (WIP) begin from binning
+  |  sample_id   |  assembly_group | binning_group |    fq1     |    fq2     |   scaftigs          |
+  | :----------: | :-------------: | :-----------: | :--------: | :--------: | :-----------------: |
+  |  s1          | ag1             | bg1           | s1.1.fq.gz | s1.2.fq.gz |  ag1.scaftigs.fa.gz |
+  |  s2          | ag1             | bg1           | s2.1.fq.gz | s2.2.fq.gz |  ag1.scaftigs.fa.gz |
+  |  s3          | ag2             | bg2           | s3.1.fq.gz | s3.2.fq.gz |  ag2.scaftigs.fa.gz |
+  |  s4          | ag2             | bg2           | s4.1.fq.gz | s4.2.fq.gz |  ag2.scaftigs.fa.gz |
 
-- begin from checkm (fq1 and fq2 can be empty)
-  |  id   |  fq1  |  fq2  |     scaftigs      |    bins     |
-  | :---: | :---: | :---: | :---------------: | :---------: |
-  |  s1   |       |       | s1.scaftigs.fa.gz | s1.bin.1.fa |
-  |  s1   |       |       | s1.scaftigs.fa.gz | s1.bin.2.fa |
-  |  s1   |       |       | s1.scaftigs.fa.gz | s1.bin.3.fa |
-  |  s2   |       |       | s2.scaftigs.fa.gz | s2.bin.1.fa |
-  |  s2   |       |       | s2.scaftigs.fa.gz | s2.bin.2.fa |
-  |  s3   |       |       | s3.scaftigs.fa.gz | s3.bin.1.fa |
+- (WIP) begin from checkm, or dereplicate, or classify (fq1 and fq2 can be empty)
+  |  sample_id   |   bins          |
+  | :----------: | :-------------: |
+  |  s1          |   s1.bin.1.fa   |
+  |  s1          |   s1.bin.2.fa   |
+  |  s1          |   s1.bin.3.fa   |
+  |  s2          |   s2.bin.1.fa   |
+  |  s2          |   s2.bin.2.fa   |
+  |  s2          |   s3.bin.3.fa   |
 
-
-## Output Structure
+## Output Structure (begin from trimming)
 ```
-- cluster.yaml
 - config.yaml
+- logs/
+- profiles/
 - envs/
-    biobakery.yaml
-    bioenv2.yaml
-    bioenv3.6.yaml
-    bioenv3.7.yaml
 - results/
     00.raw/
     01.trimming/
@@ -389,9 +412,11 @@ Then metapi will use [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq) to g
     06.binning/
     07.predict/
     08.checkm/
-    09.classify/
+    09.dereplicate/
+    10.classify/
+    99.upload/
 ```
-**Note**: 
+
 - We will try our best to keep the directory structure uniform. Sequence files are generally placed in the reads directory, and report files are generally placed in the report directory. 
 - If you are not very clear about the output of the whole process, it is recommended to directly raise an issue or look at the code. 
 
@@ -418,6 +443,7 @@ pip `pip install black flake8 flake8-bugbear snakefmt`.
 - Jie Zhu - [@alienzj](https://github.com/alienzj)
 - Fangming Yang - [@yangfangming](https://github.com/yangfangming)
 - Yanmei Ju - [@juyanmei](https://github.com/juyanmei)
+- Weiting Liang - [@weiting-liang](https://github.com/weiting-liang)
 
 ## Citation
 

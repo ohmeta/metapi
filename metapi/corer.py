@@ -513,9 +513,9 @@ samples list, tsv format required.
 
 if begin from trimming, rmhost, or assembly:
     if it is fastq:
-        the header is: [id, fq1, fq2]
+        the header is: [sample_id, assembly_group, binning_group, fq1, fq2]
     if it is sra:
-        the header is: [id, sra]
+        the header is: [sample_id, assembly_group, binning_group, sra]
 
 if begin from simulate:
         the header is: [id, genome, abundance, reads_num, model]
