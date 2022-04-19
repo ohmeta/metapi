@@ -156,7 +156,7 @@ if config["params"]["raw"]["do"]:
                 config["output"]["raw"],
                 "short_reads/{sample}/{sample}.raw{read}.fq.gz"),
                 read=short_reads_suffix(),
-                sample=SAMPLES.index.unique())
+                sample=SAMPLES_ID_LIST)
 
 else:
     rule prepare_short_reads_all:
@@ -203,7 +203,7 @@ if config["params"]["raw"]["do"]:
                     config["output"]["raw"],
                     "long_reads/{sample}/{sample}.raw{read}.fq"),
                     read=long_reads_suffix(),
-                    sample=SAMPLES.index.unique())
+                    sample=SAMPLES_ID_LIST)
 
     else:
         rule prepare_long_reads_all:
@@ -261,7 +261,7 @@ def get_reads_(wildcards, step, have_single=False):
         sample_=wildcards.sample_)
 
 
-def get_short_reads_list(step):
+def get_short_reads_list(step, samples_id_list):
     if IS_PE:
         return [
             expand(
@@ -269,13 +269,13 @@ def get_short_reads_list(step):
                     config["output"][step],
                     "short_reads/{sample}/{sample}.{step}.1.fq.gz"),
                 step=step,
-                sample=SAMPLES.index.unique()),
+                sample=samples_id_list),
             expand(
                 os.path.join(
                     config["output"][step],
                     "short_reads/{sample}/{sample}.{step}.2.fq.gz"),
                 step=step,
-                sample=SAMPLES.index.unique())]
+                sample=samples_id_list)]
     else:
         return [
             expand(
@@ -283,7 +283,7 @@ def get_short_reads_list(step):
                     config["output"][step],
                     "short_reads/{sample}/{sample}.{step}.fq.gz"),
                 step=step,
-                sample=SAMPLES.index.unique())]
+                sample=samples_id_list)]
 
 
 if config["params"]["raw"]["fastqc"]["do"]:
@@ -315,7 +315,7 @@ if config["params"]["raw"]["fastqc"]["do"]:
             expand(os.path.join(
                 config["output"]["raw"],
                 "fastqc/{sample}.fastqc.out"),
-                   sample=SAMPLES.index.unique())
+                   sample=SAMPLES_ID_LIST)
         output:
             html = os.path.join(
                 config["output"]["raw"],
@@ -350,7 +350,7 @@ if config["params"]["raw"]["fastqc"]["do"]:
                 os.path.join(
                     config["output"]["raw"],
                     "report/fastqc_multiqc_report_data")],
-                   sample=SAMPLES.index.unique())
+                   sample=SAMPLES_ID_LIST)
 
 else:
     rule raw_fastqc_all:
@@ -398,7 +398,7 @@ if config["params"]["qcreport"]["do"]:
             expand(
                 os.path.join(config["output"]["raw"],
                              "report/stats/{sample}_raw_stats.tsv"),
-                sample=SAMPLES.index.unique())
+                sample=SAMPLES_ID_LIST)
         output:
             os.path.join(config["output"]["qcreport"], "raw_stats.tsv")
         threads:
@@ -421,3 +421,11 @@ rule raw_all:
         #rules.prepare_reads_all.input,
         rules.raw_fastqc_all.input,
         rules.raw_report_all.input
+
+
+localrules:
+    prepare_short_reads_all,
+    prepare_long_reads_all,
+    raw_fastqc_all,
+    raw_report_all,
+    raw_all

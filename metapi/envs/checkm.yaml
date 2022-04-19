@@ -1,0 +1,8 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - checkm-genome=1.1.9
+  - prodigal=2.6.3
+  - pandas=1.4.2

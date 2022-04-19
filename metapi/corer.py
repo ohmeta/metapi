@@ -41,16 +41,9 @@ WORKFLOWS_MAG = [
     "assembly_opera_ms_all",
     "assembly_metaquast_all",
     "assembly_report_all",
-    "single_assembly_all",
-    "coassembly_megahit_all",
-    "coassembly_all",
     "assembly_all",
     "alignment_base_depth_all",
     "alignment_report_all",
-    "single_alignment_all",
-    "coalignment_base_depth_all",
-    "coalignment_report_all",
-    "coalignment_all",
     "alignment_all",
     "binning_metabat2_coverage_all",
     "binning_metabat2_all",
@@ -61,53 +54,18 @@ WORKFLOWS_MAG = [
     "binning_vamb_prepare_all",
     "binning_vamb_all",
     "binning_report_all",
-    "single_binning_all",
-    "cobinning_metabat2_coverage_all",
-    "cobinning_metabat2_all",
-    "cobinning_maxbin2_all",
-    "cobinning_concoct_all",
-    "cobinning_graphbin2_all",
-    "cobinning_dastools_all",
-    "cobinning_report_all",
-    "cobinning_all",
     "binning_all",
     "predict_scaftigs_gene_prodigal_all",
     "predict_scaftigs_gene_prokka_all",
     "predict_bins_gene_prodigal_all",
     "predict_bins_gene_prokka_all",
-    "single_predict_scaftigs_gene_all",
-    "single_predict_bins_gene_all",
-    "copredict_scaftigs_gene_prodigal_all",
-    "copredict_scaftigs_gene_prokka_all",
-    "copredict_bins_gene_prodigal_all",
-    "copredict_bins_gene_prokka_all",
-    "copredict_scafitgs_gene_all",
-    "copredict_bins_gene_all",
     "predict_scaftigs_gene_all",
     "predict_bins_gene_all",
-    "copredict_all",
     "predict_all",
-    "single_checkm_all",
-    "cocheckm_all",
     "checkm_all",
     "dereplicate_mags_drep_all",
     "dereplicate_mags_all",
-    "classify_short_reads_kraken2_all",
-    "single_classify_hmq_bins_gtdbtk_all",
-    "coclassify_hmq_bins_gtdbtk_all",
-    "classify_hmq_bins_gtdbtk_all",
-    "single_classify_all",
-    "coclassify_all",
     "classify_all",
-    "profiling_bgi_soap_all",
-    "profiling_bowtie2_all",
-    "profiling_metaphlan2_all",
-    "profiling_metaphlan3_all",
-    "profiling_jgi_all",
-    "profiling_bracken_all",
-    "profiling_humann2_all",
-    "profiling_humann3_all",
-    "profiling_all",
     "upload_sequencing_all",
     "upload_assembly_all",
     "upload_all",
@@ -139,7 +97,6 @@ WORKFLOWS_GENE = [
     "assembly_plass_all",
     "assembly_metaquast_all",
     "assembly_report_all",
-    "single_assembly_all",
     "predict_scaftigs_gene_prodigal_all",
     "predict_scaftigs_gene_prokka_all",
     "predict_scafitgs_gene_all",
@@ -150,27 +107,6 @@ WORKFLOWS_GENE = [
     "upload_assembly_all",
     "upload_all",
     "all",
-]
-
-WORKFLOWS_PHAGE = [
-    "simulate_all",
-    "prepare_reads_all",
-    "raw_fastqc_all",
-    "raw_report_all",
-    "raw_all",
-    "trimming_oas1_all",
-    "trimming_sickle_all",
-    "trimming_fastp_all",
-    "trimming_report_all",
-    "trimming_all",
-    "rmhost_soap_all",
-    "rmhost_bwa_all",
-    "rmhost_bowtie2_all",
-    "rmhost_minimap2_all",
-    "rmhost_report_all",
-    "rmhost_all",
-    "qcreport_all",
-    "all"
 ]
 
 
@@ -186,11 +122,17 @@ def run_snakemake(args, unknown, snakefile, workflow):
         "--snakefile",
         snakefile,
         "--configfile",
-        args.config
+        args.config,
+        "--cores",
+        str(args.cores),
     ] + unknown
 
-    if args.conda_create_envs_only:
+    if "--touch" in unknown:
+        pass
+    elif args.conda_create_envs_only:
         cmd += ["--use-conda", "--conda-create-envs-only"]
+        if args.conda_prefix is not None:
+            cmd += ["--conda-prefix", args.conda_prefix]
     else:
         cmd += [
             "--rerun-incomplete",
@@ -209,14 +151,20 @@ def run_snakemake(args, unknown, snakefile, workflow):
         if args.list:
             cmd += ["--list"]
         elif args.run_local:
-            cmd += ["--cores", str(args.cores)]
+            cmd += ["--local-cores", str(args.local_cores),
+                    "--jobs", str(args.jobs)]
         elif args.run_remote:
-            cmd += ["--profile", args.profile, "--local-cores", str(args.local_cores), "--jobs", str(args.jobs)]
+            cmd += ["--profile", args.profile,
+                    "--local-cores", str(args.local_cores),
+                    "--jobs", str(args.jobs)]
         elif args.debug:
-            cmd += ["--debug-dag", "--dry-run"]
-        elif args.dry_run:
+            cmd += ["--debug-dag"]
+        else: 
             cmd += ["--dry-run"]
 
+        if args.dry_run and ("--dry-run" not in cmd):
+            cmd += ["--dry-run"]
+ 
     cmd_str = " ".join(cmd).strip()
     print("Running metapi %s:\n%s" % (workflow, cmd_str))
 
@@ -229,6 +177,8 @@ def run_snakemake(args, unknown, snakefile, workflow):
         env=env,
     )
     proc.communicate()
+
+    print(f'''\nReal running cmd:\n{cmd_str}''')
 
 
 def update_config_tools(conf, begin, trimmer, rmhoster, assemblers, binners):
@@ -311,12 +261,6 @@ def mag_wf(args, unknown):
 def gene_wf(args, unknown):
     snakefile = os.path.join(os.path.dirname(__file__), "snakefiles/gene_wf.smk")
     run_snakemake(args, unknown, snakefile, "gene_wf")
-
-
-def phage_wf(args, unknown):
-    snakefile = os.path.join(os.path.dirname(
-        __file__), "snakefiles/phage_wf.smk")
-    run_snakemake(args, unknown, snakefile, "phage_wf")
 
 
 def snakemake_summary(snakefile, configfile, task):
@@ -456,7 +400,7 @@ def main():
     run_parser.add_argument(
         "--cores",
         type=int,
-        default=32,
+        default=240,
         help="all job cores, available on '--run-local'")
     run_parser.add_argument(
         "--local-cores",
@@ -467,7 +411,7 @@ def main():
     run_parser.add_argument(
         "--jobs",
         type=int,
-        default=80,
+        default=30,
         help="cluster job numbers, available on '--run-remote'")
     run_parser.add_argument(
         "--list",
@@ -483,7 +427,7 @@ def main():
     )
     run_parser.add_argument(
         "--dry-run",
-        default=True,
+        default=False,
         dest="dry_run",
         action="store_true",
         help="dry run pipeline",
@@ -549,13 +493,6 @@ def main():
         parents=[common_parser, run_parser],
         prog="metapi gene_wf",
         help="metagenome-assembly-gene pipeline",
-    )
-    parser_phage_wf = subparsers.add_parser(
-        "phage_wf",
-        formatter_class=metapi.custom_help_formatter,
-        parents=[common_parser, run_parser],
-        prog="metapi phage_wf",
-        help="metagenome-assembly-phage pipeline",
     )
 
     parser_sync = subparsers.add_parser(
@@ -647,18 +584,6 @@ if begin from simulate:
         help="pipeline end point. Allowed values are " + ", ".join(WORKFLOWS_GENE),
     )
     parser_gene_wf.set_defaults(func=gene_wf)
-
-    parser_phage_wf.add_argument(
-        "task",
-        metavar="TASK",
-        nargs="?",
-        type=str,
-        default="all",
-        choices=WORKFLOWS_PHAGE,
-        help="pipeline end point. Allowed values are " +
-        ", ".join(WORKFLOWS_PHAGE),
-    )
-    parser_phage_wf.set_defaults(func=phage_wf)
 
     parser_sync.add_argument(
         "workflow",

@@ -1,0 +1,7 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - maxbin2=2.2.7
+  - fraggenescan=1.31

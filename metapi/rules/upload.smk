@@ -10,7 +10,7 @@ if config["upload"]["do"]:
 
     rule upload_md5_short_reads:
         input:
-            assembly_input_with_short_reads
+            alignment_input_with_short_reads
         output:
             os.path.join(config["output"]["upload"], "short_reads/{sample}.md5")
         shell:
@@ -23,7 +23,7 @@ if config["upload"]["do"]:
         input:
             expand(os.path.join(
                 config["output"]["upload"], "short_reads/{sample}.md5"),
-                   sample=SAMPLES.index.unique())
+                   sample=SAMPLES_ID_LIST)
         output:
             os.path.join(config["output"]["upload"], "table/Experiment_Run.xlsx")
         threads:
@@ -38,16 +38,21 @@ if config["upload"]["do"]:
             os.path.join(config["output"]["upload"], "table/MIxS_Samples.xlsx")
 
 
+    localrules:
+        upload_generate_samples_info,
+        upload_generate_run_info,
+ 
+
     if len(ASSEMBLERS) != 0:
         rule upload_md5_scaftigs:
             input:
                 os.path.join(
                     config["output"]["assembly"],
-                    "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz")
+                    "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa.gz")
             output:
                 os.path.join(
                     config["output"]["upload"],
-                    "scaftigs/{assembler}/{sample}.{assembler}.scaftigs.md5")
+                    "scaftigs/{assembler}/{assembly_group}.{assembler}.scaftigs.md5")
             shell:
                 '''
                 md5sum {input} > {output}
@@ -58,8 +63,8 @@ if config["upload"]["do"]:
             input:
                 expand(os.path.join(
                     config["output"]["upload"],
-                    "scaftigs/{{assembler}}/{sample}.{{assembler}}.scaftigs.md5"),
-                       sample=SAMPLES.index.unique())
+                    "scaftigs/{{assembler}}/{assembly_group}.{{assembler}}.scaftigs.md5"),
+                       assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
             output:
                 os.path.join(config["output"]["upload"],
                              "table/Genome_Assembly_{assembler}.xlsx")
@@ -75,6 +80,11 @@ if config["upload"]["do"]:
                     config["output"]["upload"],
                     "table/Genome_Assembly_{assembler}.xlsx"),
                        assembler=ASSEMBLERS)
+
+
+        localrules:
+            upload_generate_assembly_info
+ 
 
     else:
         rule upload_assembly_all:
@@ -94,4 +104,10 @@ rule upload_all:
         rules.upload_sequencing_all.input,
         rules.upload_assembly_all.input#,
 
-        #rules.single_assembly_all.input
+        #rules.assembly_all.input
+
+
+localrules:
+    upload_sequencing_all,
+    upload_assembly_all,
+    upload_all

@@ -81,7 +81,7 @@ rule all:
         rules.trimming_all.input,
         rules.rmhost_all.input,
         rules.qcreport_all.input,
-        rules.single_assembly_all.input,
-        rules.single_predict_scaftigs_gene_all.input,
+        rules.assembly_all.input,
+        rules.predict_scaftigs_gene_all.input,
         rules.dereplicate_gene_all.input,
         rules.upload_all.input

@@ -1,259 +1,35 @@
-if config["params"]["classify"]["kraken2"]["do"]:
-    rule classify_short_reads_kraken2:
-        input:
-            reads = assembly_input_with_short_reads
-        output:
-            report = protected(os.path.join(
-                config["output"]["classify"],
-                "short_reads/{sample}.kraken2.out/{sample}.kraken2.report")),
-            report_mpa_reads_count = protected(os.path.join(
-                config["output"]["classify"],
-                "short_reads/{sample}.kraken2.out/{sample}.kraken2.report.mpa.reads_count")),
-            report_mpa_percentages = protected(os.path.join(
-                config["output"]["classify"],
-                "short_reads/{sample}.kraken2.out/{sample}.kraken2.report.mpa.percentages"))
-        log:
-            os.path.join(config["output"]["classify"],
-                         "logs/{sample}.kraken2.log")
-        benchmark:
-            os.path.join(config["output"]["classify"],
-                         "benchmark/kraken2/{sample}.kraken2.benchmark.txt")
-        params:
-            save_table = config["params"]["classify"]["kraken2"]["save_table"],
-            paired = "--paired" if IS_PE else "",
-            database = config["params"]["classify"]["kraken2"]["database"],
-            quick = "--quick" \
-                if config["params"]["classify"]["kraken2"]["quick"] \
-                   else "",
-            memory_mapping = "--memory-mapping" \
-                if config["params"]["classify"]["kraken2"]["memory_mapping"] \
-                   else "",
-            use_names = "--use-names" \
-                if config["params"]["classify"]["kraken2"]["use_names"] \
-                   else "",
-            use_mpa_style = "--use-mpa-style" \
-                if config["params"]["classify"]["kraken2"]["use_mpa_style"] \
-                   else "",
-            report_zero_counts = "--report-zero-counts" \
-                if config["params"]["classify"]["kraken2"]["report_zero_counts"] \
-                   else "",
-            confidence = config["params"]["classify"]["kraken2"]["confidence"],
-            min_base_quality = config["params"]["classify"]["kraken2"]["min_base_quality"],
-            min_hit_groups = config["params"]["classify"]["kraken2"]["min_hit_groups"],
-            unclassified_out = "--unclassified-out %s" % \
-                os.path.join(
-                    config["output"]["classify"],
-                    "short_reads/{sample}.kraken2.out/{sample}.kraken2.unclassified%s.fq" \
-                    % "#" if IS_PE else "") \
-                    if config["params"]["classify"]["kraken2"]["unclassified_out"] \
-                       else "",
-            classified_out = "--classified-out %s" % \
-                os.path.join(
-                    config["output"]["classify"],
-                    "short_reads/{sample}.kraken2.out/{sample}.kraken2.classified%s.fq" \
-                    % "#" if IS_PE else "") \
-                    if config["params"]["classify"]["kraken2"]["classified_out"] \
-                       else "",
-            table = "--output %s" % \
-                os.path.join(
-                    config["output"]["classify"],
-                    "short_reads/{sample}.kraken2.out/{sample}.kraken2.table") \
-                if config["params"]["classify"]["kraken2"]["save_table"] \
-                    else "",
-        threads:
-            config["params"]["classify"]["threads"]
-        run:
-            shell(
-                '''
-                kraken2 \
-                {params.quick} \
-                {params.memory_mapping} \
-                {params.use_mpa_style} \
-                {params.use_names} \
-                {params.report_zero_counts} \
-                --threads {threads} \
-                --db {params.database} \
-                --confidence {params.confidence} \
-                --minimum-base-quality {params.min_base_quality} \
-                --minimum-hit-groups {params.min_hit_groups} \
-                {params.unclassified_out} \
-                {params.classified_out} \
-                {params.table} \
-                --report {output.report} \
-                --gzip-compressed \
-                {params.paired} \
-                {input.reads} \
-                2> {log}
-                ''')
-
-            shell(
-                '''
-                kreport2mpa.py \
-                --report-file {output.report} \
-                --display-header \
-                --no-intermediate-ranks \
-                --read_count \
-                --output {output.report_mpa_reads_count}
-
-                kreport2mpa.py \
-                --report {output.report} \
-                --no-intermediate-ranks \
-                --percentages \
-                --output {output.report_mpa_percentages}
-                ''')
-
-            if params.save_table:
-                shell('''pigz %s''' % params.table.split(" ")[-1])
-
-
-    rule classify_short_reads_kraken2_krona_report:
-        input:
-            expand(
-                os.path.join(
-                    config["output"]["classify"],
-                    "short_reads/{sample}.kraken2.out/{sample}.kraken2.report"),
-                sample=SAMPLES.index.unique())
-        output:
-            os.path.join(
-                config["output"]["classify"],
-                "report/kraken2_krona.all.html")
-        shell:
-            '''
-            ktImportTaxonomy -q 2 -t 3 {input} -o {output}
-            '''
-
-
-    rule classify_short_reads_kraken2_combine_kreport:
-        input:
-            expand(
-                os.path.join(
-                    config["output"]["classify"],
-                    "short_reads/{sample}.kraken2.out/{sample}.kraken2.report"),
-                sample=SAMPLES.index.unique())
-        output:
-            os.path.join(
-                config["output"]["classify"],
-                "report/kraken2_report.all.tsv")
-        params:
-            samples_name = " ".join(list(SAMPLES.index.unique()))
-        shell:
-            '''
-            combine_kreports.py \
-            --report-file {input} \
-            --sample-names {params.samples_name} \
-            --display-headers \
-            --output {output}
-            '''
-
-
-    rule classify_short_reads_kraken2_combine_kreport_mpa:
-        input:
-            report_mpa_reads_count = expand(os.path.join(
-                config["output"]["classify"],
-                "short_reads/{sample}.kraken2.out/{sample}.kraken2.report.mpa.reads_count"),
-                sample=SAMPLES.index.unique()),
-            report_mpa_percentages = expand(os.path.join(
-                config["output"]["classify"],
-                "short_reads/{sample}.kraken2.out/{sample}.kraken2.report.mpa.percentages"),
-                sample=SAMPLES.index.unique())
-        output:
-            report_mpa_reads_count = os.path.join(
-                config["output"]["classify"],
-                "report/kraken2_report.mpa.reads_count.tsv"),
-            report_mpa_percentages = os.path.join(
-                config["output"]["classify"],
-                "report/kraken2_report.mpa.percentages.tsv")
-        shell:
-            '''
-            combine_mpa.py \
-            --input {input.report_mpa_reads_count} \
-            --output {output.report_mpa_reads_count}
-
-            combine_mpa.py \
-            --input {input.report_mpa_percentages} \
-            --output {output.report_mpa_percentages}
-            '''
-
-
-    rule classify_short_reads_kraken2_all:
-        input:
-            expand([
-                os.path.join(
-                    config["output"]["classify"],
-                    "short_reads/{sample}.kraken2.out/{sample}.kraken2.report{suffix}"),
-                os.path.join(
-                    config["output"]["classify"],
-                    "report/kraken2_krona.all.html"),
-                os.path.join(
-                    config["output"]["classify"],
-                    "report/kraken2_report.{report}.tsv")
-                    ],
-                    suffix=["", ".mpa.reads_count", ".mpa.percentages"],
-                    report=["all", "mpa.reads_count", "mpa.percentages"],
-                    sample=SAMPLES.index.unique()),
-
-            #rules.rmhost_all.input,
-            rules.qcreport_all.input
-
-else:
-    rule classify_short_reads_kraken2_all:
-        input:
-
-
 if config["params"]["classify"]["gtdbtk"]["do"]:
-    checkpoint classify_hmq_bins_gtdbtk_prepare:
+    checkpoint classify_gtdbtk_prepare:
         input:
-            bins_hmq = os.path.join(
-                config["output"]["checkm"],
-                "report/{assembler}_{binner_checkm}_bins_hmq.tsv")
+            rep_genomes_info = os.path.join(config["output"]["dereplicate"],
+                         "report/checkm_table_genomes_info.derep.tsv")
         output:
-            out_dir = directory(
-                os.path.join(config["output"]["classify"],
-                             "bins_hmq_input/{assembler}_{binner_checkm}"))
+            bins_dir = directory(os.path.join(config["output"]["classify"], "bins_input"))
         params:
             batch_num = config["params"]["classify"]["gtdbtk"]["batch_num"]
         run:
-            import pandas as pd
-            import os
-
-            df = pd.read_csv(input.bins_hmq, names=["path"])
-            df["id"] = df.apply(lambda x: os.path.basename(x["path"]), axis=1)
-
-            os.makedirs(output.out_dir, exist_ok=True)
-
-            if len(df) > 0:
-                for batch_id in range(0, len(df), params.batch_num):
-                    df_ = df.iloc[batch_id:batch_id + params.batch_num][["path", "id"]]
-                    df_.to_csv(os.path.join(output.out_dir, "bins_hmq_%d.tsv" % batch_id),
-                               sep='\t', index=False, header=None)
-            else:
-                shell('''touch {output.out_dir}/bins_hmq_0.tsv''')
+            metapi.gtdbtk_prepare(input.rep_genomes_info, params.batch_num, output.bins_dir)
 
 
-    rule classify_hmq_bins_gtdbtk:
+    rule classify_gtdbtk:
         input:
-            bins_hmq = os.path.join(
-                config["output"]["classify"],
-                "bins_hmq_input/{assembler}_{binner_checkm}/bins_hmq_{batchid}.tsv")
+            bins_input = os.path.join(config["output"]["classify"], "bins_input/bins_input.{batchid}.tsv"),
+            gtdb_data_path = expand(os.path.join(
+                config["params"]["classify"]["gtdbtk"]["gtdb_data_path"], "{gtdbtk_dir}"),
+                gtdbtk_dir = ["fastani", "markers", "masks", "metadata",
+                              "mrca_red", "msa", "pplacer", "radii", "taxonomy"])
         output:
-            done = os.path.join(
-                config["output"]["classify"],
-                "table/{assembler}.{binner_checkm}.gtdbtk.out.{batchid}/done")
+            gtdbtk_done = os.path.join(config["output"]["classify"], "table/gtdbtk.out.{batchid}/gtdbtk_done")
         wildcard_constraints:
             batchid="\d+"
+        conda:
+            config["envs"]["gtdbtk"]
         log:
-            os.path.join(
-                config["output"]["classify"],
-                "logs/bins_hmq_{batchid}.{assembler}.{binner_checkm}.gtdbtk.log")
+            os.path.join(config["output"]["classify"], "logs/gtdbtk.{batchid}.log")
         benchmark:
-            os.path.join(
-                config["output"]["classify"],
-                "benchmark/gtdbtk/bins_hmq_{batchid}.{assembler}.{binner_checkm}.gtdbtk.benchmark.txt")
+            os.path.join(config["output"]["classify"], "benchmark/gtdbtk.{batchid}.benchmark.txt")
         params:
-            bin_suffix = config["params"]["binning"]["bin_suffix"],
-            out_dir = os.path.join(
-                config["output"]["classify"],
-                "table/{assembler}.{binner_checkm}.gtdbtk.out.{batchid}"),
+            out_dir = os.path.join(config["output"]["classify"], "table/gtdbtk.out.{batchid}"),
             gtdb_data_path = config["params"]["classify"]["gtdbtk"]["gtdb_data_path"],
             pplacer_threads = config["params"]["classify"]["gtdbtk"]["pplacer_threads"]
         threads:
@@ -263,50 +39,41 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             export GTDB_DATA_PATH={params.gtdb_data_path}
 
             gtdbtk classify_wf \
-            --batchfile {input.bins_hmq} \
+            --batchfile {input.bins_input} \
             --out_dir {params.out_dir} \
-            --extension {params.bin_suffix} \
+            --extension fa \
             --cpus {threads} \
             --pplacer_cpus {params.pplacer_threads} \
-            > {log}
+            2> {log} 2>&1
 
-            touch {output.done}
+            touch {output.gtdbtk_done}
             '''
 
 
     def aggregate_gtdbtk_report_input(wildcards):
-        checkpoint_output = checkpoints.classify_hmq_bins_gtdbtk_prepare.get(**wildcards).output[0]
+        checkpoint_output = checkpoints.classify_gtdbtk_prepare.get(**wildcards).output[0]
 
         return expand(os.path.join(
             config["output"]["classify"],
-            "table/{assembler}.{binner_checkm}.gtdbtk.out.{batchid}/done"),
-                      assembler=wildcards.assembler,
-                      binner_checkm=wildcards.binner_checkm,
+            "table/gtdbtk.out.{batchid}/gtdbtk_done"),
                       batchid=list(set([i.split("/")[0] \
                                         for i in glob_wildcards(
                                                 os.path.join(checkpoint_output,
-                                                             "bins_hmq_{batchid}.tsv")).batchid])))
+                                                             "bins_input.{batchid}.tsv")).batchid])))
 
 
-    rule classify_hmq_bins_gtdbtk_report:
+    rule classify_gtdbtk_report:
         input:
-            tables_gtdb = aggregate_gtdbtk_report_input,
-            table_checkm= os.path.join(
-                config["output"]["checkm"],
-                "report/{assembler}_{binner_checkm}_checkm_table.tsv"),
-            table_bins = os.path.join(
-                config["output"]["binning"],
-                "report/assembly_stats_{assembler}_{binner_checkm}.tsv")
+            gtdb_table = aggregate_gtdbtk_report_input,
+            rep_genomes_info = os.path.join(config["output"]["dereplicate"],
+                                            "report/checkm_table_genomes_info.derep.tsv")
         output:
-            table_gtdb = os.path.join(
-                config["output"]["classify"],
-                "report/bins_hmq.{assembler}.{binner_checkm}.gtdbtk.gtdb.tsv"),
-            table_ncbi = os.path.join(
-                config["output"]["classify"],
-                "report/bins_hmq.{assembler}.{binner_checkm}.gtdbtk.ncbi.tsv"),
-            table_all = os.path.join(
-                config["output"]["classify"],
-                "report/bins_hmq.{assembler}.{binner_checkm}.gtdbtk.all.tsv")
+            table_gtdb = os.path.join(config["output"]["classify"],
+                                      "report/bins.hmq.rep.gtdbtk.gtdb.tsv"),
+            table_ncbi = os.path.join(config["output"]["classify"],
+                                      "report/bins.hmq.rep.gtdbtk.ncbi.tsv"),
+            table_all = os.path.join(config["output"]["classify"],
+                                     "report/bins.hmq.rep.gtdbtk.all.tsv")
         params:
             ar122_metadata = config["params"]["classify"]["gtdbtk"]["ar122_metadata"],
             bac120_metadata = config["params"]["classify"]["gtdbtk"]["bac120_metadata"],
@@ -315,13 +82,12 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             8
         run:
             import os
-
             import pandas as pd
            
             gtdb_list = []
             ncbi_list = []
 
-            for i in input.tables_gtdb:
+            for i in input.gtdb_table:
                 out_dir = os.path.dirname(i)
                 ar122_tsv = os.path.join(out_dir, "gtdbtk.ar122.summary.tsv")
                 bac120_tsv = os.path.join(out_dir, "gtdbtk.bac120.summary.tsv")
@@ -335,14 +101,14 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
                 gtdb_to_ncbi_log = os.path.join(out_dir, "gtdbtk.to.ncbi.log")
            
                 shell(
-                    f"""
+                    f'''
                     python {params.gtdb_to_ncbi_script} \
                     --gtdbtk_output_dir {out_dir} \
                     --output_file {gtdb_to_ncbi_summary} \
                     --ar122_metadata_file {params.ar122_metadata} \
                     --bac120_metadata_file {params.bac120_metadata} \
                     > {gtdb_to_ncbi_log}
-                    """)
+                    ''')
            
                 if os.path.exists(gtdb_to_ncbi_summary):
                     ncbi_list.append(gtdb_to_ncbi_summary)
@@ -350,73 +116,22 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             metapi.merge(gtdb_list, metapi.parse, threads, output=output.table_gtdb)
             metapi.merge(ncbi_list, metapi.parse, threads, output=output.table_ncbi)
            
-            table_bins = pd.read_csv(input.table_bins, sep="\t", header=[0, 1])
-            table_bins = table_bins[
-                [
-                    ("bin_id", "Unnamed: 1_level_1"),
-                    ("chr", "count"),
-                    ("length", "sum"),
-                    ("length", "min"),
-                    ("length", "max"),
-                    ("length", "std"),
-                    ("length", "N50")
-                ]
-            ]
-            table_bins.columns = [
-                "user_genome",
-                "contig_number",
-                "contig_length_sum",
-                "contig_length_min",
-                "contig_length_max",
-                "contig_length_std",
-                "N50"
-            ]
-            table_bins["user_genome"] = table_bins.apply(
-                lambda x: x["user_genome"] + ".fa", axis=1)
-           
-            table_gtdb = pd.read_csv(output.table_gtdb, sep="\t").rename(
-                columns={"classification": "GTDB classification"})
-           
+            table_gtdb = pd.read_csv(output.table_gtdb, sep="\t").rename(columns={"classification": "GTDB classification"})
             table_ncbi = pd.read_csv(output.table_ncbi, sep="\t")
+            table_rep_genomes_info = pd.read_csv(input.rep_genomes_info, sep="\t").rename(columns={"genome": "user_genome"})
+
+            table_all = pd.merge(table_gtdb, table_ncbi, how="inner", on=["user_genome", "GTDB classification"]).\
+                           merge(table_rep_genomes_info, how="inner", on="user_genome")
            
-            table_checkm = pd.read_csv(input.table_checkm, sep="\t").rename(
-                columns={"bin_id": "user_genome"})
-            table_checkm["user_genome"] = table_checkm.apply(
-                lambda x: x["user_genome"] + ".fa", axis=1)
-           
-            table_gtdb.join(
-                table_ncbi.set_index(["user_genome", "GTDB classification"]),
-                on=["user_genome", "GTDB classification"]
-            ).join(table_checkm.set_index("user_genome"), on="user_genome").join(
-                table_bins.set_index("user_genome"), on="user_genome"
-            ).loc[
-                :,
-                [
-                    "user_genome",
-                    "GTDB classification",
-                    "NCBI classification",
-                    "completeness",
-                    "contamination",
-                    "strain_heterogeneity",
-                    "MIMAG_quality_level",
-                    "SGB_quality_level",
-                    "quality_score",
-                    "contig_number",
-                    "contig_length_sum",
-                    "contig_length_min",
-                    "contig_length_max",
-                    "contig_length_std",
-                    "N50"
-                ],
-            ].to_csv(output.table_all, sep="\t", index=False)
+            table_all.to_csv(output.table_all, sep="\t", index=False)
            
 
-    rule single_classify_hmq_bins_gtdbtk_all:
+    rule classify_gtdbtk_all:
         input:
             expand(
                 os.path.join(
                     config["output"]["classify"],
-                    "report/bins_hmq.{assembler}.{binner_checkm}.gtdbtk.{system}.tsv"),
+                    "report/bins.hmq.rep.gtdbtk.{system}.tsv"),
                 system=["gtdb", "ncbi", "all"],
                 assembler=ASSEMBLERS,
                 binner_checkm=BINNERS_CHECKM),
@@ -424,11 +139,17 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             #rules.checkm_all.input,
 
 else:
-    rule single_classify_hmq_bins_gtdbtk_all:
+    rule classify_gtdbtk_all:
         input:
 
 
-rule single_classify_all:
+rule classify_all:
     input:
-        rules.classify_short_reads_kraken2_all.input,
-        rules.single_classify_hmq_bins_gtdbtk_all.input
+        rules.classify_gtdbtk_all.input
+
+
+localrules:
+    classify_gtdbtk_prepare,
+    classify_gtdbtk_all,
+    classify_gtdbtk_report,
+    classify_all

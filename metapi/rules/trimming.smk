@@ -53,7 +53,7 @@ if config["params"]["trimming"]["oas1"]["do"]:
             expand(
                 os.path.join(config["output"]["trimming"],
                              "short_reads/{sample}/{sample}.oas1.stat_out"),
-                sample=SAMPLES.index.unique())
+                sample=SAMPLES_ID_LIST)
 
 else:
     rule trimming_oas1_all:
@@ -121,7 +121,7 @@ if config["params"]["trimming"]["sickle"]["do"]:
             expand(
                 os.path.join(config["output"]["trimming"],
                              "short_reads/{sample}/{sample}.sickle.done"),
-                sample=SAMPLES.index.unique())
+                sample=SAMPLES_ID_LIST)
 
 else:
     rule trimming_sickle_all:
@@ -279,7 +279,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
             expand(
                 os.path.join(config["output"]["trimming"],
                              "short_reads/{sample}/{sample}.fastp.json"),
-                sample=SAMPLES.index.unique())
+                sample=SAMPLES_ID_LIST)
         output:
             html = os.path.join(config["output"]["trimming"],
                                 "report/fastp_multiqc_report.html"),
@@ -311,7 +311,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
                              "report/fastp_multiqc_report.html"),
                 os.path.join(config["output"]["trimming"],
                              "report/fastp_multiqc_report_data")],
-                   sample=SAMPLES.index.unique())
+                   sample=SAMPLES_ID_LIST)
 
 else:
     rule trimming_fastp_all:
@@ -359,7 +359,7 @@ if TRIMMING_DO and config["params"]["qcreport"]["do"]:
             expand(
                 os.path.join(config["output"]["trimming"],
                              "report/stats/{sample}_trimming_stats.tsv"),
-                sample=SAMPLES.index.unique())
+                sample=SAMPLES_ID_LIST)
         output:
             os.path.join(config["output"]["qcreport"], "trimming_stats.tsv")
         threads:
@@ -384,3 +384,11 @@ rule trimming_all:
         rules.trimming_report_all.input#,
 
         #rules.raw_all.input
+
+
+localrules:
+    trimming_oas1_all,
+    trimming_fastp_all,
+    trimming_sickle_all,
+    trimming_report_all,
+    trimming_all

@@ -3,4 +3,4 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - drep=2.6.2
+  - metabat2=2.15

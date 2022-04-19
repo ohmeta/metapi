@@ -117,7 +117,7 @@ if config["params"]["rmhost"]["soap"]["do"]:
             expand(os.path.join(
                 config["output"]["rmhost"],
                 "short_reads/{sample}/{sample}.rmhost{read}.fq.gz"),
-                   sample=SAMPLES.index.unique(),
+                   sample=SAMPLES_ID_LIST,
                    read=[".1", ".2"] if IS_PE else "")
 
 else:
@@ -662,7 +662,7 @@ if config["params"]["rmhost"]["kraken2"]["do"]:
             expand(os.path.join(
                 config["output"]["rmhost"],
                 "short_reads/{sample}/{sample}.rmhost{read}.fq.gz"),
-                   sample=SAMPLES.index.unique(),
+                   sample=SAMPLES_ID_LIST,
                    read=[".1", ".2"] if IS_PE else "")
 
 else:
@@ -808,7 +808,7 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
             expand(os.path.join(
                 config["output"]["rmhost"],
                 "short_reads/{sample}/{sample}.rmhost{read}.fq.gz"),
-                   sample=SAMPLES.index.unique(),
+                   sample=SAMPLES_ID_LIST,
                    read=[".1", ".2"] if IS_PE else "")
 
 else:
@@ -825,7 +825,7 @@ and (not config["params"]["rmhost"]["kneaddata"]["do"]):
             expand(
                 os.path.join(config["output"]["rmhost"],
                              "report/flagstat/{sample}.align2host.flagstat"),
-                sample=SAMPLES.index.unique())
+                sample=SAMPLES_ID_LIST)
         output:
             flagstat = os.path.join(config["output"]["rmhost"],
                                     "report/rmhost_align2host_stats.tsv")
@@ -907,7 +907,7 @@ if RMHOST_DO and config["params"]["qcreport"]["do"]:
             expand(
                 os.path.join(config["output"]["rmhost"],
                              "report/stats/{sample}_rmhost_stats.tsv"),
-                sample=SAMPLES.index.unique())
+                sample=SAMPLES_ID_LIST)
         output:
             os.path.join(config["output"]["qcreport"], "rmhost_stats.tsv")
         threads:
@@ -936,3 +936,14 @@ rule rmhost_all:
         rules.rmhost_report_all.input,
 
         rules.trimming_all.input
+
+
+localrules:
+    rmhost_bwa_all,
+    rmhost_soap_all,
+    rmhost_bowtie2_all,
+    rmhost_kraken2_all,
+    rmhost_minimap2_all,
+    rmhost_kneaddata_all,
+    rmhost_report_all,
+    rmhost_all

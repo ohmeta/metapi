@@ -1,61 +1,76 @@
+def get_reads_for_assembly(wildcards, step, have_single=False, have_long=False):
+    samples_id_list = metapi.get_samples_id_by_assembly_group(SAMPLES, wildcards.assembly_group)
+    short_reads = get_short_reads_list(step, samples_id_list)
+
+    if have_long:
+        long_reads = expand(os.path.join(
+            config["output"]["raw"],
+            "long_reads/{sample}/{sample}.{step}{read}.fq"),
+            step="raw",
+            read=long_reads_suffix(),
+            sample=samples_id_list)
+        return [short_reads, long_reads]
+    else:
+        return short_reads
+
+
 def assembly_input_with_short_reads(wildcards):
     if RMHOST_DO:
-        return get_reads(wildcards, "rmhost", False)
+        return get_reads_for_assembly(wildcards, "rmhost", False, False)
     elif TRIMMING_DO:
-        return get_reads(wildcards, "trimming", False)
+        return get_reads_for_assembly(wildcards, "trimming", False, False)
     else:
-        return get_reads(wildcards, "raw", False)
+        return get_reads_for_assembly(wildcards, "raw", False, False)
 
 
 def assembly_input_with_short_and_long_reads(wildcards):
     if RMHOST_DO:
-        return get_reads(wildcards, "rmhost", False, True)
+        return get_reads_for_assembly(wildcards, "rmhost", False, True)
     elif TRIMMING_DO:
-        return get_reads(wildcards, "trimming", False, True)
+        return get_reads_for_assembly(wildcards, "trimming", False, True)
     else:
-        return get_reads(wildcards, "raw", False, True)
+        return get_reads_for_assembly(wildcards, "raw", False, True)
 
-   
+
 if "megahit" in ASSEMBLERS:
     rule assembly_megahit:
         input:
-            reads = assembly_input_with_short_reads
+            unpack(assembly_input_with_short_reads)
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.megahit.out/{sample}.megahit.scaftigs.fa.gz")),
+                "scaftigs/{assembly_group}.megahit.out/{assembly_group}.megahit.scaftigs.fa.gz")),
             gfa = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.megahit.out/{sample}.megahit.scaftigs.gfa.gz"
-            ))
+                "scaftigs/{assembly_group}.megahit.out/{assembly_group}.megahit.scaftigs.gfa.gz"))
         benchmark:
             os.path.join(config["output"]["assembly"],
-                         "benchmark/megahit/{sample}.megahit.benchmark.txt")
+                         "benchmark/megahit/{assembly_group}.megahit.benchmark.txt")
         priority:
             20
         params:
-            output_prefix = "{sample}",
+            output_prefix = "{assembly_group}",
             min_contig = config["params"]["assembly"]["megahit"]["min_contig"],
             k_list = ",".join(config["params"]["assembly"]["megahit"]["k_list"]),
             presets = config["params"]["assembly"]["megahit"]["presets"],
             output_dir = os.path.join(config["output"]["assembly"],
-                                      "scaftigs/{sample}.megahit.out"),
+                                      "scaftigs/{assembly_group}.megahit.out"),
             contigs = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.megahit.out/{sample}.contigs.fa"),
+                "scaftigs/{assembly_group}.megahit.out/{assembly_group}.contigs.fa"),
             fastg = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.megahit.out/{sample}.megahit.scaftigs.fastg"),
+                "scaftigs/{assembly_group}.megahit.out/{assembly_group}.megahit.scaftigs.fastg"),
             gfa = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.megahit.out/{sample}.megahit.scaftigs.gfa"),
+                "scaftigs/{assembly_group}.megahit.out/{assembly_group}.megahit.scaftigs.gfa"),
             only_save_scaftigs = \
                 config["params"]["assembly"]["megahit"]["only_save_scaftigs"]
         threads:
             config["params"]["assembly"]["threads"]
         log:
             os.path.join(config["output"]["assembly"],
-                         "logs/{sample}.megahit.log")
+                         "logs/{assembly_group}.megahit.log")
         run:
             from Bio import SeqIO
             import re
@@ -63,20 +78,28 @@ if "megahit" in ASSEMBLERS:
             if os.path.exists(os.path.join(params.output_dir, "options.json")):
                 shell('''megahit --continue --out-dir {params.output_dir}''')
             else:
+                reads_num = len(input)
+                input_str = ""
+                if IS_PE:
+                    if reads_num == 2:
+                        input_str = f'''-1 {input[0]} -2 {input[1]}'''
+                    else:
+                        input_str = f'''-1 {",".join(input[0:reads_num//2])} -2 {",".join(input[reads_num//2:])}'''
+                else:
+                    input_str = f'''-r {",".join(input)}'''
+
                 shell("rm -rf {params.output_dir}")
                 shell(
-                    '''
+                    f'''
                     megahit \
-                    %s \
+                    {input_str} \
                     -t {threads} \
                     %s \
                     --min-contig-len {params.min_contig} \
                     --out-dir {params.output_dir} \
                     --out-prefix {params.output_prefix} \
                     2> {log}
-                    ''' % ("-1 {input.reads[0]} -2 {input.reads[1]}" if IS_PE \
-                           else "-r {input.reads[0]}",
-                           "--presets %s" % params.presets \
+                    ''' % ("--presets %s" % params.presets \
                            if params.presets != "" \
                            else "--k-list {params.k_list}"))
 
@@ -110,11 +133,11 @@ if "megahit" in ASSEMBLERS:
             expand([
                 os.path.join(
                     config["output"]["assembly"],
-                    "scaftigs/{sample}.megahit.out/{sample}.megahit.scaftigs.fa.gz"),
+                    "scaftigs/{assembly_group}.megahit.out/{assembly_group}.megahit.scaftigs.fa.gz"),
                 os.path.join(
                     config["output"]["assembly"],
-                    "scaftigs/{sample}.megahit.out/{sample}.megahit.scaftigs.gfa.gz")],
-                   sample=SAMPLES.index.unique())
+                    "scaftigs/{assembly_group}.megahit.out/{assembly_group}.megahit.scaftigs.gfa.gz")],
+                   assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
 
 else:
     rule assembly_megahit_all:
@@ -124,20 +147,20 @@ else:
 if "idba_ud" in ASSEMBLERS:
     rule assembly_idba_ud:
         input:
-            reads = assembly_input_with_short_reads
+            unpack(assembly_input_with_short_reads)
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.idba_ud.out/{sample}.idba_ud.scaftigs.fa.gz"))
+                "scaftigs/{assembly_group}.idba_ud.out/{assembly_group}.idba_ud.scaftigs.fa.gz"))
         benchmark:
             os.path.join(config["output"]["assembly"],
-                         "benchmark/idba_ud/{sample}.idba_ud.benchmark.txt")
+                         "benchmark/idba_ud/{assembly_group}.idba_ud.benchmark.txt")
         priority:
             20
         params:
-            prefix = "{sample}",
+            prefix = "{assembly_group}",
             output_dir = os.path.join(config["output"]["assembly"],
-                                      "scaftigs/{sample}.idba_ud.out"),
+                                      "scaftigs/{assembly_group}.idba_ud.out"),
             mink = config["params"]["assembly"]["idba_ud"]["mink"],
             maxk = config["params"]["assembly"]["idba_ud"]["maxk"],
             step = config["params"]["assembly"]["idba_ud"]["step"],
@@ -148,7 +171,7 @@ if "idba_ud" in ASSEMBLERS:
             config["params"]["assembly"]["threads"]
         log:
             os.path.join(config["output"]["assembly"],
-                         "logs/{sample}.idba_ud.log")
+                         "logs/{assembly_group}.idba_ud.log")
         run:
             shell('''rm -rf {params.output_dir}''')
             shell('''mkdir {params.output_dir}''')
@@ -156,20 +179,39 @@ if "idba_ud" in ASSEMBLERS:
             reads = os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/%s.idba_ud.out/%s.fa" % (params.prefix, params.prefix))
+            reads_num = len(input)
 
             if IS_PE:
-                shell(
-                    '''
-                    seqtk mergepe {input.reads[0]} {input.reads[1]} | \
-                    seqtk seq -A - > %s
-                    ''' % reads)
+                if reads_num == 2:
+                    shell(
+                        f'''
+                        seqtk mergepe {input[0]} {input[1]} | \
+                        seqtk seq -A - > {reads}
+                        ''')
+                else:
+                    shell(
+                        f'''
+                        cat {input[0:reads_num//2]} > {reads}.1.fq.gz
+                        cat {input[reads_num//2:]} > {reads}.2.fq.gz
+                        seqtk mergepe {reads}.1.fq.gz {reads}.2.fq.gz | \
+                        seqtk seq -A - > {reads}
+                        rm -rf {reads}.1.fq.gz {reads}.2.fq.gz
+                        ''')
             else:
-                shell('''seqtk seq -A {input.reads[0]} > %s''' % reads)
+                if reads_num == 1:
+                    shell(f'''seqtk seq -A {input[0]} > {reads}''')
+                else:
+                    shell(
+                        f'''
+                        cat {input} > {reads}.fq.gz
+                        seqtk seq -A {input[0]} > {reads}
+                        rm -rf {reads}.fq.gz
+                        ''')
 
             shell(
-                '''
+                f'''
                 idba_ud \
-                -r %s \
+                -r {reads} \
                 --mink {params.mink} \
                 --maxk {params.maxk} \
                 --step {params.step} \
@@ -178,9 +220,9 @@ if "idba_ud" in ASSEMBLERS:
                 --num_threads {threads} \
                 --pre_correction \
                 > {log}
-                ''' % reads)
+                ''')
 
-            shell('''rm -rf %s''' % reads)
+            shell(f'''rm -rf {reads}''')
             shell('''sed -i 's#^>#>{params.prefix}_#g' {params.output_dir}/scaffold.fa''')
             shell('''pigz -p {threads} {params.output_dir}/scaffold.fa''')
             shell('''mv {params.output_dir}/scaffold.fa.gz {output.scaftigs}''')
@@ -198,8 +240,8 @@ if "idba_ud" in ASSEMBLERS:
         input:
             expand(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.idba_ud.out/{sample}.idba_ud.scaftigs.fa.gz"),
-                   sample=SAMPLES.index.unique())
+                "scaftigs/{assembly_group}.idba_ud.out/{assembly_group}.idba_ud.scaftigs.fa.gz"),
+                   assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
 
 else:
     rule assembly_idba_ud_all:
@@ -209,27 +251,27 @@ else:
 if "metaspades" in ASSEMBLERS:
     rule assembly_metaspades:
         input:
-            reads = assembly_input_with_short_reads
+            unpack(assembly_input_with_short_reads)
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.fa.gz")),
+                "scaftigs/{assembly_group}.metaspades.out/{assembly_group}.metaspades.scaftigs.fa.gz")),
             gfa = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.gfa.gz"))
+                "scaftigs/{assembly_group}.metaspades.out/{assembly_group}.metaspades.scaftigs.gfa.gz"))
         benchmark:
             os.path.join(config["output"]["assembly"],
-                         "benchmark/metaspades/{sample}.metaspades.benchmark.txt")
+                         "benchmark/metaspades/{assembly_group}.metaspades.benchmark.txt")
         priority:
             20
         params:
-            prefix = "{sample}",
+            prefix = "{assembly_group}",
             memory = str(config["params"]["assembly"]["metaspades"]["memory"]),
             kmers = "auto" \
                 if len(config["params"]["assembly"]["metaspades"]["kmers"]) == 0 \
                    else ",".join(config["params"]["assembly"]["metaspades"]["kmers"]),
             output_dir = os.path.join(config["output"]["assembly"],
-                                      "scaftigs/{sample}.metaspades.out"),
+                                      "scaftigs/{assembly_group}.metaspades.out"),
             only_assembler = "--only-assembler" \
                 if config["params"]["assembly"]["metaspades"]["only_assembler"] \
                    else "",
@@ -239,12 +281,12 @@ if "metaspades" in ASSEMBLERS:
                 config["params"]["assembly"]["metaspades"]["link_scaffolds"],
             tar_results = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.metaspades.out/{sample}.metaspades.tar")
+                "scaftigs/{assembly_group}.metaspades.out/{assembly_group}.metaspades.tar")
         threads:
             config["params"]["assembly"]["threads"]
         log:
             os.path.join(config["output"]["assembly"],
-                         "logs/{sample}.metaspades.log")
+                         "logs/{assembly_group}.metaspades.log")
         run:
             if IS_PE:
                 continue_assembly = False
@@ -270,19 +312,41 @@ if "metaspades" in ASSEMBLERS:
                         ''')
                 else:
                     shell('''rm -rf {params.output_dir}''')
-                    shell(
-                        '''
-                        metaspades.py \
-                        -1 {input.reads[0]} \
-                        -2 {input.reads[1]} \
-                        -k {params.kmers} \
-                        {params.only_assembler} \
-                        --memory {params.memory} \
-                        --threads {threads} \
-                        --checkpoints last \
-                        -o {params.output_dir} \
-                        > {log}
-                        ''')
+                    shell('''mkdir -p {params.output_dir}.reads''')
+
+                    reads_num = len(input)
+                    if reads_num == 2:
+                        shell(
+                            '''
+                            metaspades.py \
+                            -1 {input[0]} \
+                            -2 {input[1]} \
+                            -k {params.kmers} \
+                            {params.only_assembler} \
+                            --memory {params.memory} \
+                            --threads {threads} \
+                            --checkpoints last \
+                            -o {params.output_dir} \
+                            > {log}
+                            ''')
+                    else:
+                        shell(
+                            '''
+                            cat {input[0:reads_num//2]} > {params.output_dir}.reads/reads.1.fq.gz
+                            cat {input[reads_num//2:]} > {params.output_dir}.reads/reads.2.fq.gz
+
+                            metaspades.py \
+                            -1 {params.output_dir}.reads/reads.1.fq.gz \
+                            -2 {params.output_dir}.reads/reads.2.fq.gz \
+                            -k {params.kmers} \
+                            {params.only_assembler} \
+                            --memory {params.memory} \
+                            --threads {threads} \
+                            --checkpoints last \
+                            -o {params.output_dir} \
+                            > {log}
+                            ''')
+                        shell('''rm -rf {params.output_dir}.reads''')
 
                 shell(
                     '''
@@ -357,11 +421,11 @@ if "metaspades" in ASSEMBLERS:
             expand([
                 os.path.join(
                     config["output"]["assembly"],
-                    "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.fa.gz"),
+                    "scaftigs/{assembly_group}.metaspades.out/{assembly_group}.metaspades.scaftigs.fa.gz"),
                 os.path.join(
                     config["output"]["assembly"],
-                    "scaftigs/{sample}.metaspades.out/{sample}.metaspades.scaftigs.gfa.gz")],
-                   sample=SAMPLES.index.unique())
+                    "scaftigs/{assembly_group}.metaspades.out/{assembly_group}.metaspades.scaftigs.gfa.gz")],
+                    assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
 
 else:
     rule assembly_metaspades_all:
@@ -371,38 +435,38 @@ else:
 if "spades" in ASSEMBLERS:
     rule assembly_spades:
         input:
-            reads = assembly_input_with_short_reads
+            unpack(assembly_input_with_short_reads)
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.spades.out/{sample}.spades.scaftigs.fa.gz")),
+                "scaftigs/{assembly_group}.spades.out/{assembly_group}.spades.scaftigs.fa.gz")),
             gfa = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.spades.out/{sample}.spades.scaftigs.gfa.gz"))
+                "scaftigs/{assembly_group}.spades.out/{assembly_group}.spades.scaftigs.gfa.gz"))
         benchmark:
             os.path.join(config["output"]["assembly"],
-                         "benchmark/spades/{sample}.spades.benchmark.txt")
+                         "benchmark/spades/{assembly_group}.spades.benchmark.txt")
         priority:
             20
         params:
-            prefix = "{sample}",
+            prefix = "{assembly_group}",
             memory = config["params"]["assembly"]["spades"]["memory"],
             kmers = "auto" \
                 if len(config["params"]["assembly"]["spades"]["kmers"]) == 0 \
                    else ",".join(config["params"]["assembly"]["spades"]["kmers"]),
             output_dir = os.path.join(config["output"]["assembly"],
-                                      "scaftigs/{sample}.spades.out"),
+                                      "scaftigs/{assembly_group}.spades.out"),
             only_assembler = "--only-assembler" \
                 if config["params"]["assembly"]["spades"]["only_assembler"] \
                    else "",
             only_save_scaftigs = config["params"]["assembly"]["spades"]["only_save_scaftigs"],
             link_scaffolds = config["params"]["assembly"]["spades"]["link_scaffolds"],
             tar_results = os.path.join(config["output"]["assembly"],
-                                   "scaftigs/{sample}.spades.out/{sample}.spades.tar")
+                                   "scaftigs/{assembly_group}.spades.out/{assembly_group}.spades.tar")
         threads:
             config["params"]["assembly"]["threads"]
         log:
-            os.path.join(config["output"]["assembly"], "logs/{sample}.spades.log")
+            os.path.join(config["output"]["assembly"], "logs/{assembly_group}.spades.log")
         run:
             continue_assembly = False
             error_correct = False if params.only_assembler == "" else True
@@ -427,10 +491,28 @@ if "spades" in ASSEMBLERS:
                     ''')
             else:
                 shell('''rm -rf {params.output_dir}''')
+                reads_num = len(input)
+                input_str = ""
+                if IS_PE:
+                    if reads_num == 2:
+                        input_str = f'''-1 {input[0]} -2 {input[1]}'''
+                    else:
+                        shell('''makedir -p {params.output_dir}.reads''')
+                        shell(f'''cat {input[0:reads_num//2]} > {params.output_dir}.reads/reads.1.fq.gz''')
+                        shell(f'''cat {input[reads_num//2:]} > {params.output_dir}.reads/reads.2.fq.gz''')
+                        input_str = f'''-1 {params.output_dir}.reads/reads.1.fq.gz -2 {params.output_dir}.reads/reads.2.fq.gz'''
+                else:
+                    if reads_num == 1:
+                        input_str = f'''-s {input[0]}'''
+                    else:
+                        shell('''makedir -p {params.output_dir}.reads''')
+                        shell('''cat {input} > {params.output_dir}.reads/reads.fq.gz''')
+                        input_str = f'''-s {params.output_dir}.reads/reads.fq.gz'''
+
                 shell(
-                    '''
+                    f'''
                     spades.py \
-                    %s \
+                    {input_str} \
                     -k {params.kmers} \
                     {params.only_assembler} \
                     --memory {params.memory} \
@@ -438,8 +520,7 @@ if "spades" in ASSEMBLERS:
                     --checkpoints last \
                     -o {params.output_dir} \
                     > {log}
-                    ''' % "-1 {input.reads[0]} -2 {input.reads[1]}" if IS_PE \
-                    else "-s {input.reads[0]}")
+                    ''')
 
             shell(
                 '''
@@ -507,11 +588,11 @@ if "spades" in ASSEMBLERS:
             expand([
                 os.path.join(
                     config["output"]["assembly"],
-                    "scaftigs/{sample}.spades.out/{sample}.spades.scaftigs.fa.gz"),
+                    "scaftigs/{assembly_group}.spades.out/{assembly_group}.spades.scaftigs.fa.gz"),
                 os.path.join(
                     config["output"]["assembly"],
-                    "scaftigs/{sample}.spades.out/{sample}.spades.scaftigs.gfa.gz")],
-                   sample=SAMPLES.index.unique())
+                    "scaftigs/{assembly_group}.spades.out/{assembly_group}.spades.scaftigs.gfa.gz")],
+                    assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
 
 else:
     rule assembly_spades_all:
@@ -521,20 +602,20 @@ else:
 if "plass" in ASSEMBLERS:
     rule assembly_plass:
         input:
-            reads = assembly_input_with_short_reads
+            unpack(assembly_input_with_short_reads)
         output:
             proteins = os.path.join(
                 config["output"]["assembly"],
-                "proteins/{sample}.plass.out/{sample}.plass.proteins.fa.gz"),
+                "proteins/{assembly_group}.plass.out/{assembly_group}.plass.proteins.fa.gz"),
             tmp = directory(temp(os.path.join(
                 config["output"]["assembly"],
-                "proteins/{sample}.plass.out.tmp")))
+                "proteins/{assembly_group}.plass.out.tmp")))
         benchmark:
             os.path.join(config["output"]["assembly"],
-                         "benchmark/plass/{sample}.plass.benchmark.txt")
+                         "benchmark/plass/{assembly_group}.plass.benchmark.txt")
         log:
             os.path.join(config["output"]["assembly"],
-                         "logs/{sample}.plass.log")
+                         "logs/{assembly_group}.plass.log")
         threads:
             config["params"]["assembly"]["threads"]
         params:
@@ -556,12 +637,12 @@ if "plass" in ASSEMBLERS:
             '''
 
 
-    rule assembly_nucleotides_plass_all:
+    rule assembly_plass_all:
         input:
             expand(os.path.join(
                 config["output"]["assembly"],
-                "proteins/{sample}.plass.out/{sample}.plass.proteins.fa.gz"),
-                   sample=SAMPLES.index.unique())
+                "proteins/{assembly_group}.plass.out/{assembly_group}.plass.proteins.fa.gz"),
+                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
 
 else:
     rule assembly_plass_all:
@@ -572,7 +653,7 @@ def opera_ms_scaftigs_input(wildcards):
     return expand(
         os.path.join(
             config["output"]["assembly"],
-            "scaftigs/{sample}.{assembler}.out/{sample}.megahit.scaftigs.fa.gz"),
+            "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.megahit.scaftigs.fa.gz"),
         sample=wildcards.sample,
         assembler=config["params"]["assembly"]["opera_ms"]["short_read_assembler"])
 
@@ -585,18 +666,18 @@ if "opera_ms" in ASSEMBLERS:
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.opera_ms.out/{sample}.opera_ms.scaftigs.fa.gz"))
+                "scaftigs/{assembly_group}.opera_ms.out/{assembly_group}.opera_ms.scaftigs.fa.gz"))
         benchmark:
             os.path.join(config["output"]["assembly"],
-                         "benchmark/opera_ms/{sample}.opera_ms.benchmark.txt")
+                         "benchmark/opera_ms/{assembly_group}.opera_ms.benchmark.txt")
         log:
             os.path.join(config["output"]["assembly"],
-                         "logs/{sample}.opera_ms.log")
+                         "logs/{assembly_group}.opera_ms.log")
         params:
             opera_ms = config["params"]["assembly"]["opera_ms"]["path"],
-            prefix = "{sample}",
+            prefix = "{assembly_group}",
             out_dir = os.path.join(config["output"]["assembly"],
-                                   "scaftigs/{sample}.opera_ms.out"),
+                                   "scaftigs/{assembly_group}.opera_ms.out"),
             no_ref_clustering = "--no-ref-clustering" \
                 if config["params"]["assembly"]["opera_ms"]["no_ref_clustering"] else "",
             no_strain_clustering = "--no-strain-clustering" \
@@ -666,8 +747,8 @@ if "opera_ms" in ASSEMBLERS:
         input:
             expand(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.opera_ms.out/{sample}.opera_ms.scaftigs.fa.gz"),
-                   sample=SAMPLES.index.unique())
+                "scaftigs/{assembly_group}.opera_ms.out/{assembly_group}.opera_ms.scaftigs.fa.gz"),
+                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
 
 else:
     rule assembly_opera_ms_all:
@@ -681,23 +762,23 @@ if len(ASSEMBLERS) != 0:
                 reads = assembly_input_with_short_reads,
                 scaftigs = os.path.join(
                     config["output"]["assembly"],
-                    "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz")
+                    "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa.gz")
             output:
                 protected(os.path.join(
                     config["output"]["assembly"],
-                    "metaquast/{sample}.{assembler}.metaquast.out/combined_reference/report.tsv"))
+                    "metaquast/{assembly_group}.{assembler}.metaquast.out/combined_reference/report.tsv"))
             benchmark:
                 os.path.join(config["output"]["assembly"],
-                             "benchmark/metaquast_{assembler}/{sample}.{assembler}.metaquast.benchmark.txt")
+                             "benchmark/metaquast_{assembler}/{assembly_group}.{assembler}.metaquast.benchmark.txt")
 
             log:
                 os.path.join(config["output"]["assembly"],
-                             "logs/{sample}.{assembler}.metaquast.log")
+                             "logs/{assembly_group}.{assembler}.metaquast.log")
             params:
-                labels = "{sample}.{assembler}",
+                labels = "{assembly_group}.{assembler}",
                 output_dir = os.path.join(
                     config["output"]["assembly"],
-                    "metaquast/{sample}.{assembler}.metaquast.out")
+                    "metaquast/{assembly_group}.{assembler}.metaquast.out")
             threads:
                 config["params"]["assembly"]["metaquast"]["threads"]
             shell:
@@ -720,8 +801,8 @@ if len(ASSEMBLERS) != 0:
             input:
                 expand(os.path.join(
                     config["output"]["assembly"],
-                    "metaquast/{sample}.{{assembler}}.metaquast.out/combined_reference/report.tsv"),
-                       sample=SAMPLES.index.unique())
+                    "metaquast/{assembly_group}.{{assembler}}.metaquast.out/combined_reference/report.tsv"),
+                    assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
             output:
                 html = os.path.join(
                     config["output"]["assembly"],
@@ -752,7 +833,7 @@ if len(ASSEMBLERS) != 0:
                 expand([
                     os.path.join(
                         config["output"]["assembly"],
-                        "metaquast/{sample}.{assembler}.metaquast.out/combined_reference/report.tsv"),
+                        "metaquast/{assembly_group}.{assembler}.metaquast.out/combined_reference/report.tsv"),
                     os.path.join(
                         config["output"]["assembly"],
                         "report/{assembler}_metaquast/metaquast_multiqc_report.html"),
@@ -760,7 +841,7 @@ if len(ASSEMBLERS) != 0:
                         config["output"]["assembly"],
                         "report/{assembler}_metaquast/metaquast_multiqc_report_data")],
                        assembler=ASSEMBLERS,
-                       sample=SAMPLES.index.unique())
+                       assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
 
     else:
         rule assembly_metaquast_all:
@@ -771,23 +852,23 @@ if len(ASSEMBLERS) != 0:
         input:
             scaftigs = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{sample}.{assembler}.out/{sample}.{assembler}.scaftigs.fa.gz")
+                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa.gz")
         output:
             report = os.path.join(
                 config["output"]["assembly"],
-                "report/{assembler}_stats/{sample}.{assembler}.scaftigs.seqtk.comp.tsv.gz")
+                "report/{assembler}_stats/{assembly_group}.{assembler}.scaftigs.seqtk.comp.tsv.gz")
         priority:
             25
         params:
-            sample_id = "{sample}",
+            assembly_group = "{assembly_group}",
             assembler = "{assembler}"
         shell:
             '''
             seqtk comp {input.scaftigs} | \
             awk \
             'BEGIN \
-            {{print "sample_id\tassembler\tchr\tlength\t#A\t#C\t#G\t#T\t#2\t#3\t#4\t#CpG\t#tv\t#ts\t#CpG-ts"}}; \
-            {{print "{params.sample_id}" "\t" "{params.assembler}" "\t" $0}}' | \
+            {{print "assembly_group\tassembler\tchr\tlength\t#A\t#C\t#G\t#T\t#2\t#3\t#4\t#CpG\t#tv\t#ts\t#CpG-ts"}}; \
+            {{print "{params.assembly_group}" "\t" "{params.assembler}" "\t" $0}}' | \
             gzip -c > {output.report}
             '''
 
@@ -797,8 +878,8 @@ if len(ASSEMBLERS) != 0:
             comp_list = expand(
                 os.path.join(
                     config["output"]["assembly"],
-                    "report/{{assembler}}_stats/{sample}.{{assembler}}.scaftigs.seqtk.comp.tsv.gz"),
-                sample=SAMPLES.index.unique())
+                    "report/{{assembler}}_stats/{assembly_group}.{{assembler}}.scaftigs.seqtk.comp.tsv.gz"),
+                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
         output:
             summary = os.path.join(
                 config["output"]["assembly"],
@@ -810,7 +891,7 @@ if len(ASSEMBLERS) != 0:
             config["params"]["assembly"]["threads"]
         run:
             comp_list = [(i, params.min_length) for i in input.comp_list]
-            metapi.assembler_init(params.len_ranges, ["sample_id", "assembler"])
+            metapi.assembler_init(params.len_ranges, ["assembly_group", "assembler"])
             metapi.merge(comp_list, metapi.parse_assembly,
                          threads, output=output.summary)
 
@@ -831,7 +912,7 @@ else:
         input:
 
 
-rule single_assembly_all:
+rule assembly_all:
     input:
         rules.assembly_megahit_all.input,
         rules.assembly_idba_ud_all.input,
@@ -845,3 +926,15 @@ rule single_assembly_all:
 
         #rules.rmhost_all.input,
         rules.qcreport_all.input
+
+
+localrules:
+    assembly_spades_all,
+    assembly_idba_ud_all,
+    assembly_megahit_all,
+    assembly_metaspades_all,
+    assembly_opera_ms_all,
+    assembly_plass_all,
+    assembly_metaquast_all,
+    assembly_report_all,
+    assembly_all

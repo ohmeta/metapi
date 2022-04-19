@@ -42,7 +42,7 @@ checkm_coverage
 def flagstats_summary(flagstats, method, **kwargs):
     """
     get alignment rate from sorted bam file
-    samtools -flagstat --threads 8 sample.sort.bam
+    samtools flagstat --threads 8 sample.sort.bam
     """
     mapping_info = []
     getcontext().prec = 8
@@ -62,11 +62,15 @@ def flagstats_summary(flagstats, method, **kwargs):
             info["read_1_num"] = stat_list[6].split(" ")[0]
             info["read_2_num"] = stat_list[7].split(" ")[0]
 
-            mapped = re.split(r"\(|\s+", stat_list[4])
+            mapped = re.split(r"\(|\s+", stat_list[6])
             info["mapped_num"] = mapped[0]
             info["mapped_rate"] = Decimal(mapped[5].rstrip("%")) / Decimal(100)
-
-            paired = re.split(r"\(|\s+", stat_list[8])
+            
+            primary_mapped = re.split(r"\(|\s+", stat_list[7])
+            info["primary_mapped_num"] = primary_mapped[0]
+            info["primary_mapped_rate"] = Decimal(primary_mapped[6].rstrip("%")) / Decimal(100)
+            
+            paired = re.split(r"\(|\s+", stat_list[11])
             info["paired_num"] = paired[0]
             paired_rate = paired[6].rstrip("%")
             if paired_rate != "N/A":

@@ -53,14 +53,14 @@ params:
       n_base_limit: 5
 
   rmhost:
-    host_fasta: "~/databases/galaxy_indexes/hg38/seq/hg38full.fa"
+    host_fasta: "/home/zhujie/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"
     threads: 8
     save_reads: True
     save_bam: False
     compression: 6
     soap:
       do: False
-      index_prefix: "~/databases/galaxy_indexes/hg38/hg38full/soap_index/hg38full.fa.index"
+      index_prefix: "/home/zhujie/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"
       match_model: 4
       align_seed: 30
       report_repeat_hits: 1
@@ -69,22 +69,22 @@ params:
     bwa:
       do: False
       algorithms: "mem" # "mem2"
-      index_prefix: "~/databases/galaxy_indexes/hg38/hg38full/bwa_index/hg38full.fa"
+      index_prefix: "/home/zhujie/databases/genomics/human/CHM13/chm13v2.0_plusY/bwa_index/chm13v2.0.fa"
       # /ldfssz1/ST_META/share/User/zhujie/database/galaxy_indexes/hg38/hg38full/bwa_mem2_index/hg38full.fa
       # /ldfssz1/ST_META/share/User/zhujie/database/mouse/GRCm39/bwa_mem2_index/GRCm39.fna
       minimum_seed_length: 23
-    bowtie2:
+    bowtie2: # recommand
       do: True
-      index_prefix: "~/databases/galaxy_indexes/hg38/hg38full/bowtie2_index/hg38full"
+      index_prefix: "/home/zhujie/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"
       presets: "--very-sensitive"
     minimap2:
       do: False
       split_size: "4G"
       preset: "sr"
-      index: "~/databases/galaxy_indexes/hg38/hg38full/minimap2_index/hg38full.mmi"
+      index: "/home/zhujie/databases/genomics/human/CHM13/chm13v2.0_plusY/minimap_index/chm13v2.0.fa"
     kraken2:
       do: False
-      database: "~/databases/kraken/minikraken2_v2_8GB_201904_UPDATE"
+      database: "/home/zhujie/databases/kraken/minikraken2_v2_8GB_201904_UPDATE"
       host_taxid: 9606
       # must include human reference genome
       confidence: 0
@@ -100,7 +100,7 @@ params:
       do_bowtie2: True
       decontaminate_pairs: "strict" # ["strict", "lenient", "unpaired"]
       bowtie2_options: "--very-sensitive --dovetail"
-      bowtie2_database: "~/databases/kneaddata/human_genome_bowtie2/hg37dec_v0.1"
+      bowtie2_database: "/home/zhujie/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"
  
   qcreport:
     do: True
@@ -176,15 +176,6 @@ params:
       min_length: 500 # calculate Nx from min length
       len_ranges: [0, 1000, 1500, 2000, 2500, 3000]
 
-  coassembly:
-    megahit:
-      do: False
-      threads: 8
-      min_contig: 100
-      only_save_scaftigs: True
-      k_list: ["21", "33", "55", "77"]
-      presets: "" # choose from "meta-sensitive" or "meta-large"
-
   alignment:
     do: True
     threads: 8
@@ -194,7 +185,6 @@ params:
 
   binning:
     threads: 8
-    bin_suffix: "fa"
     metabat2:
       do: True
       percent_identity: 97
@@ -202,7 +192,7 @@ params:
       output_paired_contigs: False
       output_gc: False
       output_gc_window: False
-      min_contig: 1500
+      min_contig: 2000
       maxP: 95
       minS: 60
       maxEdges: 200
@@ -215,7 +205,7 @@ params:
       seed: 2020
     maxbin2:
       do: True
-      min_contig: 1500
+      min_contig: 2000
       max_iteration: 50
       prob_threshold: 0.9
       plotmarker: True
@@ -226,7 +216,7 @@ params:
       overlap_size: 0
       clusters: 400
       kmer_length: 4
-      length_threshold: 1000
+      length_threshold: 2000
       read_length: 100
       total_percentage_pca: 90
       iterations: 500
@@ -244,21 +234,18 @@ params:
       cuda: True
       save_bam: False
       min_contig: 2000
-      index_size: "12G"
+      min_fasta: 200000 # 200K, 500K # For viral genome, choose ? 1kb ?
+      index_size: "500G"
+      external_params: ""
     dastools:
       do: True
       search_engine: "diamond"
-      write_bin_evals: 1
-      write_bins: 1
-      write_unbinned: 0
-      create_plots: 1
       score_threshold: 0.5
       duplicate_penalty: 0.6
       megabin_penalty: 0.5
 
   predict:
     threads: 8
-    format: "gff"
     scaftigs_to_gene:
       prokka:
         do: False
@@ -272,7 +259,7 @@ params:
     check_binners: ["metabat2", "vamb", "dastools"]
     report: True
     threads: 8
-    pplacer_threads: 1
+    pplacer_threads: 4 # 1: 30G, 2: 60G, 3: 90G, 4: 120G
     reduced_tree: False
     completeness: 90
     contamination: 10
@@ -281,39 +268,29 @@ params:
 
   classify:
     threads: 8
-    kraken2:
-      do: True
-      database: "~/databases/kraken2/k2_standard_20210517"
-      quick: False
-      memory_mapping: False
-      use_names: True
-      use_mpa_style: False
-      report_zero_counts: False
-      confidence: 0
-      min_base_quality: 0
-      min_hit_groups: 2
-      unclassified_out: False
-      classified_out: False
-      save_table: False
     gtdbtk:
       do: True
       pplacer_threads: 1
       batch_num: 1000
-      gtdb_data_path: "~/databases/gtdb/db"
-      ar122_metadata: "~/databases/gtdb/ar122_metadata_r202.tsv"
-      bac120_metadata: "~/databases/gtdb/bac120_metadata_r202.tsv"
-      gtdb_to_ncbi_script: "~/toolkit/GTDBTk/scripts/gtdb_to_ncbi_majority_vote.py"
+      gtdb_data_path: "/home/zhujie/databases/ecogenomics/GTDB/release202"
+      ar122_metadata: "/home/zhujie/databases/ecogenomics/GTDB/release202/ar122_metadata_r202.tsv"
+      bac120_metadata: "/home/zhujie/databases/ecogenomics/GTDB/release202/bac120_metadata_r202.tsv"
+      gtdb_to_ncbi_script: "/home/zhujie/toolkit/GTDBTk/scripts/gtdb_to_ncbi_majority_vote.py"
 
   dereplicate:
     drep:
       do: True
-      threads: 8
+      threads: 32
       filtering_genome_min_length: 50000
       filtering_completeness: 75
       filtering_contamination: 25
       genome_comparison_algorithm: "ANImf"
       clustering_primary_ANI: 0.9
       clustering_secondary_ANI: 0.99
+      cov_thresh: 0.1
+      coverage_method: "larger"
+      cluster_algorithm: "average"
+      external_params: ""
     cdhit:
       do_gene: True
       do_proteins: False
@@ -333,102 +310,6 @@ params:
       prethreshold_ani: 95
       threads: 32
 
-  profiling:
-    threads: 8
-    index_taxonomy: "/path/to/mag_taxonomy"
-    bgi_soap: # for learning
-      do: False
-      index_prefix: "/path/to/mag_soap_index"
-      minimal_insert_size: 0
-      maximal_insert_size: 1000
-      report_repeat_hits: 1
-      match_model: 4
-      align_seed: 30
-      max_mismatch_num: 5
-      identity: 0.95
-    bowtie2: # for learning
-      do: False
-      index_prefix: "/path/to/mag_bowtie2_index"
-    metaphlan:
-      do_v2: False
-      do_v3: True
-      do_v3_one_way: False
-      bowtie2db: "~/databases/metaphlan"
-      index_v2: "v20_m200"
-      index_v3: "mpa_v30_CHOCOPhlAn_201901"
-      bowtie2_presets: "very-sensitive"
-      taxonomic_level: "a"
-      min_cu_len: 2000
-      ignore_markers: "/path/to/ignore_markers.txt"
-      avoid_disqm: True
-      analysis_type: "rel_ab_w_read_stats"
-      #  [
-      #    "rel_ab",
-      #    "rel_ab_w_read_stats",
-      #    "reads_map",
-      #    "clade_profiles",
-      #    "marker_ab_table",
-      #    "marker_counts",
-      #    "marker_pres_table",
-      #  ]
-      stat_q_v2: "0.1"
-      stat_q_v3: "0.2"
-      stat: "tavg_g"
-      unknown_estimation: True
-      add_viruses: True
-      read_min_len: 70
-      legacy_output: False
-      cami_format_output: False
-      no_map: True
-      biom: False
-    jgi: # for learning
-      oneway: False
-      do: false
-      fragment: 1200
-      memory_limit: "8G"
-      compression_level: 6
-      index_metadata: "/path/to/mag_metadata"
-      taxonomy: "/path/to/mag_taxonomy"
-      index_prefix: "/path/to/mag_bowtie2_index"
-    bracken:
-      do: True
-      reads_len: 100
-      level: ["G", "S"]
-    humann:
-      do_v2: False
-      do_v3: True
-      evalue: 1.0
-      prescreen_threshold: 0.01
-      identity_threshold: 50.0
-      nucleotide_identity_threshold: 0.0 # nucleotide: 0
-      translated_identity_threshold: 80.0 # uniref90: 80.0; uniref50: 50.0
-      nucleotide_subject_coverage_threshold: 50.0
-      translated_subject_coverage_threshold: 50.0
-      nucleotide_query_coverage_threshold: 90.0
-      translated_query_coverage_threshold: 90.0
-      translated-alignment: "diamond" # ["diamond", "usearch", "rapsearch"]
-      xipe: False
-      minpath: True
-      pick_frames: False
-      gap_fill: True
-      pathways: "metacyc" # ["metacyc", "unipathway"]
-      remove_temp_output: True
-      memory_use: "minimum"
-      normalize_method: "relab"
-      regroup_method: "sum"
-      map_database:
-        ["uniref90_go", "uniref90_ko", "uniref90_eggnog", "uniref90_pfam"]
-      #  "uniref90_level4ec",
-      #  "uniref90_infogo1000",
-      #  "uniref90_rxn",
-      update_config: False # humann save config to humann install dir
-      database_utility_mapping: "/path/to/humann/utility_mapping"
-      database_utility_mapping_v3: "~/databases/humann/utility_mapping"
-      database_protein: "/path/to/humann/uniref"
-      database_protein_v3: "~/databases/humann/uniref"
-      database_nucleotide: "/path/to/humann/chocophlan"
-      database_nucleotide_v3: "~/databases/humann/chocophlan"
-
 output:
   simulate: "results/00.simulate"
   raw: "results/00.raw"
@@ -436,20 +317,13 @@ output:
   rmhost: "results/02.rmhost"
   qcreport: "results/03.qcreport"
   assembly: "results/04.assembly"
-  coassembly: "results/04.coassembly"
   alignment: "results/05.alignment"
-  coalignment: "results/05.coalignment"
   binning: "results/06.binning"
-  cobinning: "results/06.cobinning"
   multisplit_binning: "results/06.multisplit_binning"
   predict: "results/07.predict"
-  copredict: "results/07.copredict"
   checkm: "results/08.checkm"
-  cocheckm: "results/08.cocheckm"
-  classify: "results/09.classify"
-  coclassify: "results/09.coclassify"
-  dereplicate: "results/10.dereplicate"
-  profiling: "results/11.profiling"
+  dereplicate: "results/09.dereplicate"
+  classify: "results/10.classify"
   upload: "results/99.upload"
 
 upload:
@@ -502,7 +376,11 @@ upload:
     reference_genome: ""
 
 envs:
-  bioenv3.7: "envs/bioenv3.7.yaml"
-  bioenv3.6: "envs/bioenv3.6.yaml" # drep
-  bioenv2: "envs/bioenv2.yaml" # metaphlan2, humann2
-  biobakery: "envs/biobakery.yaml" # metaphlan3, humann3
+  metabat2: "envs/metabat2.yaml"
+  maxbin2: "envs/maxbin2.yaml"
+  concoct: "envs/concoct.yaml"
+  dastools: "envs/dastools.yaml"
+  vamb: "envs/vamb.yaml"
+  checkm: "envs/checkm.yaml"
+  drep: "envs/drep.yaml"
+  gtdbtk: "envs/gtdbtk.yaml"

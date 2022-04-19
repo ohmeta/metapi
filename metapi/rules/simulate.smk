@@ -42,3 +42,7 @@ if config["params"]["simulate"]["do"]:
 else:
     rule simulate_all:
         input:
+
+
+localrules:
+    simulate_all

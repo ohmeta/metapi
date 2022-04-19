@@ -16,6 +16,10 @@ from metapi.sampler import parse_samples
 from metapi.sampler import get_reads
 from metapi.sampler import get_sample_id
 from metapi.sampler import get_sample_id_
+from metapi.sampler import get_samples_id_by_assembly_group
+from metapi.sampler import get_samples_id_by_binning_group
+from metapi.sampler import get_assembly_group_by_binning_group
+from metapi.sampler import get_multibinning_group_by_assembly_group
 
 from metapi.qcer import change
 from metapi.qcer import compute_host_rate
@@ -30,19 +34,13 @@ from metapi.aligner import flagstats_summary
 
 from metapi.binner import get_binning_info
 from metapi.binner import generate_bins
+from metapi.binner import extract_bins_report
 
+from metapi.checkmer import checkm_prepare
 from metapi.checkmer import checkm_reporter
 
 from metapi.classifier import demultiplex
-
-from metapi.profiler import profiler_init
-from metapi.profiler import get_all_abun_df
-from metapi.profiler import get_abun_df_bgi_soap
-from metapi.profiler import get_abun_df_bowtie2
-from metapi.profiler import get_abun_df_jgi
-from metapi.profiler import get_profile
-from metapi.profiler import metaphlan_init
-from metapi.profiler import merge_metaphlan_tables
+from metapi.classifier import gtdbtk_prepare
 
 from metapi.uploader import gen_samples_info
 from metapi.uploader import gen_info
