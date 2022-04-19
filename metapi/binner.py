@@ -144,6 +144,9 @@ def combine_jgi(jgi_list, output_file):
         max_num_file += len(jgi_list)
         subprocess.run(f'''ulimit -n {max_num_file}''', shell=True)
 
+    outdir = os.path.dirname(output_file)
+    os.makedirs(outdir, exist_ok=True)
+
     files_handle = []
     for jgi in jgi_list:
         files_handle.append(open(jgi, 'r'))
