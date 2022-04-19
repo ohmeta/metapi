@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 import os
+import subprocess
 from Bio import SeqIO
-
 import pandas as pd
 
 
@@ -137,6 +137,12 @@ def combine_jgi(jgi_list, output_file):
     #with open(output.matrix, 'w') as oh:
     #    for i in matrix_list:
     #        oh.write("\t".join(i) + "\n")
+
+    # aovid OSError: Too many open files
+    max_num_file = int(subprocess.getoutput("ulimit -n"))
+    if max_num_file < len(jgi_list):
+        max_num_file += len(jgi_list)
+        subprocess.run(f'''ulimit -n {max_num_file}''', shell=True)
 
     files_handle = []
     for jgi in jgi_list:
