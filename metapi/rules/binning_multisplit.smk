@@ -281,12 +281,9 @@ if config["params"]["binning"]["vamb"]["do"]:
                 if not first:
                     first = True
                     with open(jgi, 'r') as ih:
-                        count = -1
                         for line in ih:
-                            count += 1
-                            matrix_list[count] = []
                             line_list = line.strip().split("\t")
-                            matrix_list[count] += line_list
+                            matrix_list.append(line_list)
                 else:
                     with open(jgi, 'r') as ih:
                         count = -1
