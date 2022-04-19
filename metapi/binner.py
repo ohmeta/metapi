@@ -146,7 +146,8 @@ def combine_jgi(jgi_list, output_file):
         for line in files_handle[0]:
             oh.write(line.strip())
             for handle in files_handle[1:]:
-                oh.write(f'''\t{handle.readline().strip().split("\t")[3]}''')
+                depth = handle.readline().strip().split("\t")[3]
+                oh.write(f'''\t{depth}''')
             oh.write("\n")
 
     for handle in files_handle:
