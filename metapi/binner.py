@@ -141,8 +141,8 @@ def combine_jgi(jgi_list, output_file):
 
     # aovid OSError: Too many open files
     max_num_file = resource.getrlimit(resource.RLIMIT_NOFILE)[0]
-    if (len(jgi_list) - 100) > max_num_file:
-        max_num_file = len(jgi_list)
+    if len(jgi_list) > max_num_file:
+        max_num_file += len(jgi_list)
         resource.setrlimit(resource.RLIMIT_NOFILE, (max_num_file, max_num_file))
 
     outdir = os.path.dirname(output_file)
