@@ -38,6 +38,10 @@ if config["params"]["binning"]["graphbin2"]["do"]:
                                     params.assembler)
 
 
+    localrules:
+        binning_graphbin2_prepare_binned
+
+
     rule binning_graphbin2:
         input:
             scaftigs = os.path.join(
@@ -323,6 +327,5 @@ else:
 
 
 localrules:
-    binning_graphbin2_prepare_binned,
     binning_graphbin2_all,
     binning_dastools_all

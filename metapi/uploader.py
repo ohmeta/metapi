@@ -81,9 +81,9 @@ def gen_samples_info(samples, output, config):
     ]
 
     samples_df = pd.DataFrame(columns=header)
-    samples_df["*sample_name"] = samples.index.get_index_values("sample_id").unique()
-    samples_df["sample_title"] = samples.index.get_index_values("sample_id").unique()
-    samples_df["source_material_id"] = samples.index.get_index_values("sample_id").unique()
+    samples_df["*sample_name"] = samples.index.get_level_values("sample_id").unique()
+    samples_df["sample_title"] = samples.index.get_level_values("sample_id").unique()
+    samples_df["source_material_id"] = samples.index.get_level_values("sample_id").unique()
     for key in config["upload"]["samples"]:
         samples_df["*" + key] = config["upload"]["samples"][key]
     samples_df.to_excel(output, index=False, startrow=12)

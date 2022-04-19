@@ -98,12 +98,12 @@ class metaconfig:
         "logs/07.predict_bins_gene_prokka",
         "logs/07.predict_bins_gene_prokka_multiqc",
         "logs/08.checkm_lineage_wf",
-        "logs/09.classify_gtdbtk",
-        "logs/10.dereplicate_mags_drep",
-        "logs/10.dereplicate_gene_prepare",
-        "logs/10.dereplicate_gene_cdhit",
-        "logs/12.upload_md5_short_reads",
-        "logs/12.upload_md5_scaftigs"
+        "logs/09.dereplicate_mags_drep",
+        "logs/09.dereplicate_gene_prepare",
+        "logs/09.dereplicate_gene_cdhit",
+        "logs/10.classify_gtdbtk",
+        "logs/99.upload_md5_short_reads",
+        "logs/99.upload_md5_scaftigs"
     ]
 
     def __init__(self, work_dir):
