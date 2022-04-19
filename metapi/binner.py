@@ -92,3 +92,62 @@ def extract_bins_report(bins_report_table):
                 "N50"
             ]
 '''
+
+
+def combine_jgi(jgi_list, output_file):
+    #first = False
+    #jgi_df_list = []
+    #for jgi in input.jgi:
+    #    if not first:
+    #        # jgi format
+    #        # contigName\tcontigLen\ttotalAvgDepth\t{sample_id}.align2combined_scaftigs.sorted.bam
+    #        jgi_df_first = pd.read_csv(jgi, sep="\t")\
+    #                     .loc[:, ["contigName", "contigLen", "totalAvgDepth"]]\
+    #                     .dtype({"contigName": str, "contigLen": np.int32, "totalAvgDepth": np.float32})\
+    #                     .set_index("contigName")
+    #        jgi_df = pd.read_csv(jgi, sep="\t").iloc[:, [0, 3]]\
+    #                   .dtype({"contigName": str})
+    #        jgi_df[jgi_df.columns[1]] = jgi_df[jgi_df.columns[1]].astype(np.float32)
+    #        jgi_df_list = [jgi_df_first, jgi_df.set_index("contigName")]
+    #        first = True
+    #    else:
+    #        jgi_df = pd.read_csv(jgi, sep="\t").iloc[:, [0, 3]]\
+    #                   .dtype({"contigName": str})
+    #        jgi_df[jgi_df.columns[1]] = jgi_df[jgi_df.columns[1]].astype(np.float32)
+    #        jgi_df_list.append(jgi_df.set_index("contigName"))
+    ## big table, huge memory
+    #pd.concat(jgi_df_list, axis=1).reset_index().to_csv(output.matrix, sep="\t", index=False)
+
+    #matrix_list = []
+    #for jgi in input.jgi:
+    #    if not first:
+    #        first = True
+    #        with open(jgi, 'r') as ih:
+    #            for line in ih:
+    #                line_list = line.strip().split("\t")
+    #                matrix_list.append(line_list)
+    #    else:
+    #        with open(jgi, 'r') as ih:
+    #            count = -1
+    #            for line in ih:
+    #                count += 1
+    #                line_list = line.strip().split("\t")
+    #                matrix_list[count].append(line_list[3])
+
+    #with open(output.matrix, 'w') as oh:
+    #    for i in matrix_list:
+    #        oh.write("\t".join(i) + "\n")
+
+    files_handle = []
+    for jgi in jgi_list:
+        files_handle.append(open(jgi, 'r'))
+
+    with open(output_file, 'w') as oh:
+        for line in files_handle[0]:
+            oh.write(line.strip())
+            for handle in files_handle[1:]:
+                oh.write(f'''\t{handle.readline().strip().split("\t")[3]}''')
+            oh.write("\n")
+
+    for handle in files_handle:
+        handle.close()
