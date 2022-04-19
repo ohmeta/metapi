@@ -58,19 +58,34 @@ def flagstats_summary(flagstats, method, **kwargs):
             info = {}
             info["sample_id"] = os.path.basename(flagstat_file.strip()).split(".")[0]
             stat_list = open(flagstat_file.strip(), "r").readlines()
-            info["total_num"] = stat_list[0].split(" ")[0]
-            info["read_1_num"] = stat_list[6].split(" ")[0]
-            info["read_2_num"] = stat_list[7].split(" ")[0]
 
-            mapped = re.split(r"\(|\s+", stat_list[6])
-            info["mapped_num"] = mapped[0]
-            info["mapped_rate"] = Decimal(mapped[5].rstrip("%")) / Decimal(100)
+            info["total_num"] = stat_list[0].split(" ")[0]
+
+            if len(stat_list) == 13:
+                info["read_1_num"] = stat_list[6].split(" ")[0]
+                info["read_2_num"] = stat_list[7].split(" ")[0]
+
+                mapped = re.split(r"\(|\s+", stat_list[4])
+                info["mapped_num"] = mapped[0]
+                info["mapped_rate"] = Decimal(mapped[5].rstrip("%")) / Decimal(100)
             
-            primary_mapped = re.split(r"\(|\s+", stat_list[7])
-            info["primary_mapped_num"] = primary_mapped[0]
-            info["primary_mapped_rate"] = Decimal(primary_mapped[6].rstrip("%")) / Decimal(100)
+                #primary_mapped = re.split(r"\(|\s+", stat_list[5])
+                #info["primary_mapped_num"] = primary_mapped[0]
+                #info["primary_mapped_rate"] = Decimal(primary_mapped[6].rstrip("%")) / Decimal(100)
+
+            elif len(stat_list) == 16:
+                info["read_1_num"] = stat_list[9].split(" ")[0]
+                info["read_2_num"] = stat_list[10].split(" ")[0]
+
+                mapped = re.split(r"\(|\s+", stat_list[6])
+                info["mapped_num"] = mapped[0]
+                info["mapped_rate"] = Decimal(mapped[5].rstrip("%")) / Decimal(100)
             
-            paired = re.split(r"\(|\s+", stat_list[11])
+                primary_mapped = re.split(r"\(|\s+", stat_list[7])
+                info["primary_mapped_num"] = primary_mapped[0]
+                info["primary_mapped_rate"] = Decimal(primary_mapped[6].rstrip("%")) / Decimal(100)
+ 
+            paired = re.split(r"\(|\s+", stat_list[-5])
             info["paired_num"] = paired[0]
             paired_rate = paired[6].rstrip("%")
             if paired_rate != "N/A":
