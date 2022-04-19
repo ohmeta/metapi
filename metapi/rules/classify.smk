@@ -13,7 +13,11 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
 
     rule classify_gtdbtk:
         input:
-            bins_input = os.path.join(config["output"]["classify"], "bins_input/bins_input.{batchid}.tsv")
+            bins_input = os.path.join(config["output"]["classify"], "bins_input/bins_input.{batchid}.tsv"),
+            gtdb_data_path = expand(os.path.join(
+                config["params"]["classify"]["gtdbtk"]["gtdb_data_path"], "{gtdbtk_dir}"),
+                gtdbtk_dir = ["fastani", "markers", "masks", "metadata",
+                              "mrca_red", "msa", "pplacer", "radii", "taxonomy"])
         output:
             gtdbtk_done = os.path.join(config["output"]["classify"], "table/gtdbtk.out.{batchid}/gtdbtk_done")
         wildcard_constraints:
