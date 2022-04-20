@@ -372,7 +372,7 @@ dereplicate_gene_cdhit:
   output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
   error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
 
-classify_gtdbtk:
+taxonomic_gtdbtk:
   #partition: "hugemem"
   mem: "130G"
   output: "logs/10.{rule}/{rule}.{wildcards.batchid}.{jobid}.o"
