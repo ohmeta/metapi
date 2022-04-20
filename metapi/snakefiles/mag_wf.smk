@@ -147,7 +147,7 @@ include: "../rules/binning_report.smk"
 include: "../rules/predict_bins.smk"
 include: "../rules/checkm.smk"
 include: "../rules/dereplicate_mags.smk"
-include: "../rules/classify.smk"
+include: "../rules/taxonomic.smk"
 include: "../rules/upload.smk"
 
 
@@ -165,5 +165,5 @@ rule all:
         rules.predict_bins_gene_all.input,
         rules.checkm_all.input,
         rules.dereplicate_mags_all.input,
-        rules.classify_all.input,
+        rules.taxonomic_all.input,
         rules.upload_all.input

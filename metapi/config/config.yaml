@@ -266,7 +266,7 @@ params:
     standard: "MIMAG" # SGB
     batch_num: 500
 
-  classify:
+  taxonomic:
     threads: 8
     gtdbtk:
       do: True
@@ -323,7 +323,7 @@ output:
   predict: "results/07.predict"
   checkm: "results/08.checkm"
   dereplicate: "results/09.dereplicate"
-  classify: "results/10.classify"
+  taxonomic: "results/10.taxonomic"
   upload: "results/99.upload"
 
 upload:

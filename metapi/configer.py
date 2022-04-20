@@ -101,7 +101,7 @@ class metaconfig:
         "logs/09.dereplicate_mags_drep",
         "logs/09.dereplicate_gene_prepare",
         "logs/09.dereplicate_gene_cdhit",
-        "logs/10.classify_gtdbtk",
+        "logs/10.taxonomic_gtdbtk",
         "logs/99.upload_md5_short_reads",
         "logs/99.upload_md5_scaftigs"
     ]
