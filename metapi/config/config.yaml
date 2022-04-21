@@ -244,6 +244,18 @@ params:
       duplicate_penalty: 0.6
       megabin_penalty: 0.5
 
+  identify:
+    threads: 8
+    virsorter2:
+      do: True
+      db: /home/zhujie/databases/ecogenomics/VirSorter2/db
+    deepvirfinder:
+      do: True
+    phamb:
+      do: True
+      micompletedb: "/home/zhujie/databases/ecogenomics/miComplete/Bact105.hmm"
+      vogdb: "/home/zhujie/databases/ecogenomics/VOGDB/vog211/ALLVOG.hmm"
+
   predict:
     threads: 8
     scaftigs_to_gene:
@@ -320,6 +332,7 @@ output:
   alignment: "results/05.alignment"
   binning: "results/06.binning"
   multisplit_binning: "results/06.multisplit_binning"
+  classify: "results/06.classify"
   predict: "results/07.predict"
   checkm: "results/08.checkm"
   dereplicate: "results/09.dereplicate"

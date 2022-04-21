@@ -65,7 +65,7 @@ WORKFLOWS_MAG = [
     "checkm_all",
     "dereplicate_mags_drep_all",
     "dereplicate_mags_all",
-    "classify_all",
+    "taxonomic_all",
     "upload_sequencing_all",
     "upload_assembly_all",
     "upload_all",
@@ -591,8 +591,8 @@ if begin from simulate:
         nargs="?",
         type=str,
         default="mag_wf",
-        choices=["mag_wf", "gene_wf", "phage_wf"],
-        help="workflow. Allowed values are mag_wf, gene_wf and phage_wf",
+        choices=["mag_wf", "gene_wf"],
+        help="workflow. Allowed values are mag_wf, gene_wf",
     )
     parser_sync.add_argument(
         "task", 
