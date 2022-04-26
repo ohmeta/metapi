@@ -177,7 +177,6 @@ if config["params"]["binning"]["vamb"]["do"]:
                          "logs/alignment/{binning_group}.{assembler}/{sample}.sort_bam.log")
         threads:
             config["params"]["alignment"]["threads"]
- 
         shell:
             '''
             rm -rf {params.bam_dir}/temp*

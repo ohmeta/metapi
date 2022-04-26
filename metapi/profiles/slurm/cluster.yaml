@@ -218,7 +218,7 @@ alignment_scaftigs_index:
   error: "logs/05.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 alignment_reads_scaftigs:
-  mem: "1G"
+  mem: "5G"
   output: "logs/05.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.o"
   error: "logs/05.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.e"
 
@@ -370,6 +370,8 @@ predict_bins_gene_prokka_multiqc:
   error: "logs/07.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
 checkm_lineage_wf:
+  partition: "hugemem"
+  qos: "hugemem"
   mem: "120G"
   output: "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
   error: "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
