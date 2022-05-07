@@ -93,6 +93,8 @@ class metaconfig:
         "logs/06.binning_report_merge",
         "logs/06.identify_virsorter2",
         "logs/06.identify_deepvirfinder",
+        "logs/06.identify_phamb_micomplete",
+        "logs/06.identify_phamb_vog",
         "logs/07.predict_scaftigs_gene_prodigal",
         "logs/07.predict_scaftigs_gene_prokka",
         "logs/07.predict_scaftigs_gene_prokka_multiqc",

@@ -41,13 +41,17 @@ def parse_gff(gff_file, min_len):
     return pep_id_list
 
 
-def extract_faa(faa_file, pep_id_list, out_file):
+def extract_faa(faa_file, pep_id_list, out_file, assembly_group=None):
     if os.path.dirname(out_file) != "":
         os.makedirs(os.path.dirname(out_file), exist_ok=True)
 
     with open(out_file, "w") as oh:
         for seq in SeqIO.parse(faa_file, "fasta"):
             if seq.id in pep_id_list:
+                if assembly_group is not None:
+                    seq.id = f'''{assembly_group}C{seq.id}'''
+                    seq.name = f'''{assembly_group}C{seq.name}'''
+                    seq.description = f'''{assembly_group}C{seq.description}'''
                 SeqIO.write(seq, oh, "fasta")
 
 

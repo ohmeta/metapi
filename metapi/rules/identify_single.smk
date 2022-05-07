@@ -154,7 +154,7 @@ else:
         input:
 
 
-rule identify_all:
+rule identify_single_all:
     input:
         rules.identify_virsorter2_all.input,
         rules.identify_deepvirfinder_all.input
@@ -165,4 +165,4 @@ localrules:
     identify_virsorter2_config,
     identify_virsorter2_all,
     identify_deepvirfinder_all,
-    identify_all
+    identify_single_all
