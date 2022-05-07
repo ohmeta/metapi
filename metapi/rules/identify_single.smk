@@ -54,10 +54,12 @@ if config["params"]["identify"]["virsorter2"]["do"]:
             virsorter run \
             {params.prep_for_dramv} \
             {params.provirus_off} \
+            {params.rm_tmpdir} \
             --working-dir {params.working_dir} \
-            --seq-file {input.scaftigs} \
+            --seqfile {input.scaftigs} \
             --include-groups {params.include_groups} \
             --min-length {params.min_length} \
+            --min-score {params.min_score} \
             --jobs {threads} all \
             >{log} 2>&1
             '''
