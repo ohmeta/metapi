@@ -1,5 +1,5 @@
 if config["params"]["identify"]["virsorter2"]["do"]:
-    rule identify_virsorter2_setup_db_and_update_config:
+    rule identify_virsorter2_setup_db:
         output:
             os.path.join(config["params"]["identify"]["virsorter2"]["db"], "Done_all_setup")
         params:
@@ -24,8 +24,30 @@ if config["params"]["identify"]["virsorter2"]["do"]:
             '''
 
 
+    rule identify_virsorter2_config:
+        input:
+            os.path.join(config["params"]["identify"]["virsorter2"]["db"], "Done_all_setup")
+        output:
+            os.path.join(config["params"]["identify"]["virsorter2"]["db"], "Done_all_config")
+        log:
+            os.path.join(config["output"]["identify"], "logs/virsorter2_config.log")
+        conda:
+            config["envs"]["virsorter2"]
+        threads:
+            config["params"]["identify"]["threads"]
+        shell:
+            '''
+            virsorter config --set GENERAL_THREADS={threads} >{log} 2>&1
+            virsorter config --set HMMSEARCH_THREADS={threads} >>{log} 2>&1
+            virsorter config --set CLASSIFY_THREADS={threads} >>{log} 2>&1
+
+            touch {output}
+            '''
+
+
     rule identify_virsorter2_run:
         input:
+            config_done = os.path.join(config["params"]["identify"]["virsorter2"]["db"], "Done_all_config"),
             scaftigs = os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa.gz")
@@ -84,6 +106,7 @@ rule identify_all:
 
 
 localrules:
-    identify_virsorter2_setup_db_and_update_config,
+    identify_virsorter2_setup_db,
+    identify_virsorter2_config,
     identify_virsorter2_run_all,
     identify_all
