@@ -2,8 +2,6 @@ if config["params"]["identify"]["virsorter2"]["do"]:
     rule identify_virsorter2_setup_db:
         output:
             os.path.join(config["params"]["identify"]["virsorter2"]["db"], "Done_all_setup")
-        params:
-            db_dir = config["params"]["identify"]["virsorter2"]["db"]
         conda:
             config["envs"]["virsorter2"]
         benchmark:
@@ -12,15 +10,13 @@ if config["params"]["identify"]["virsorter2"]["do"]:
             os.path.join(config["output"]["identify"], "logs/virsorter2_setup_db.log")
         threads:
             config["params"]["identify"]["threads"]
+        params:
+            db_dir = config["params"]["identify"]["virsorter2"]["db"]
         shell:
             '''
             mkdir -p {params.db_dir}
 
             virsorter setup --db-dir {params.db_dir} --jobs {threads} >{log} 2>&1
-
-            virsorter config --set GENERAL_THREADS={threads}
-            virsorter config --set HMMSEARCH_THREADS={threads}
-            virsorter config --set CLASSIFY_THREADS={threads}
             '''
 
 
@@ -35,9 +31,13 @@ if config["params"]["identify"]["virsorter2"]["do"]:
             config["envs"]["virsorter2"]
         threads:
             config["params"]["identify"]["threads"]
+        params:
+            db_dir = config["params"]["identify"]["virsorter2"]["db"]
         shell:
             '''
-            virsorter config --set GENERAL_THREADS={threads} >{log} 2>&1
+            virsorter config --init-source --db-dir={params.db_dir} >{log} 2>&1
+
+            virsorter config --set GENERAL_THREADS={threads} >>{log} 2>&1
             virsorter config --set HMMSEARCH_THREADS={threads} >>{log} 2>&1
             virsorter config --set CLASSIFY_THREADS={threads} >>{log} 2>&1
 
