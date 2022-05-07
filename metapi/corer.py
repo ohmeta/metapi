@@ -233,7 +233,7 @@ def init(args, unknown):
         conf = project.get_config()
 
         for env_name in conf["envs"]:
-            conf["envs"][env_name] = os.path.join(args.workdir, f"envs/{env_name}.yaml")
+            conf["envs"][env_name] = os.path.join(os.path.realpath(args.workdir), f"envs/{env_name}.yaml")
 
         conf = update_config_tools(
             conf, args.begin, args.trimmer, args.rmhoster, args.assembler, args.binner

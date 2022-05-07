@@ -42,6 +42,7 @@ if config["params"]["identify"]["virsorter2"]["do"]:
         threads:
             config["params"]["identify"]["threads"]
         params:
+            working_dir = os.path.join(config["output"]["identify"], "virsorter2/{assembly_group}.{assembler}.vs2.out"),
             include_groups = ",".join(config["params"]["identify"]["virsorter2"]["include_groups"]),
             min_length = config["params"]["identify"]["virsorter2"]["min_length"],
             min_score = config["params"]["identify"]["virsorter2"]["min_score"],
@@ -53,7 +54,7 @@ if config["params"]["identify"]["virsorter2"]["do"]:
             virsorter run \
             {params.prep_for_dramv} \
             {params.provirus_off} \
-            --working-dir {output} \
+            --working-dir {params.working_dir} \
             --seq-file {input.scaftigs} \
             --include-groups {params.include_groups} \
             --min-length {params.min_length} \
