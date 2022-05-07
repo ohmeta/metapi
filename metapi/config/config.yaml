@@ -258,6 +258,8 @@ params:
       keep_original_seq: True # CheckV need
     deepvirfinder:
       do: True
+      script: /home/jiezhu/toolkit/DeepVirFinder/dvf.py
+      min_length: 2000
     phamb:
       do: True
       micompletedb: "/home/jiezhu/databases/ecogenomics/miComplete/Bact105.hmm"
@@ -402,6 +404,7 @@ envs:
   dastools: "envs/dastools.yaml"
   vamb: "envs/vamb.yaml"
   virsorter2: "envs/virsorter2.yaml"
+  deepvirfinder: "envs/deepvirfinder.yaml"
   checkm: "envs/checkm.yaml"
   drep: "envs/drep.yaml"
   gtdbtk: "envs/gtdbtk.yaml"

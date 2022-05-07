@@ -322,8 +322,13 @@ binning_report_merge:
   output: "logs/06.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
-identify_virsorter2_run:
+identify_virsorter2:
   mem: "20G"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+
+identify_deepvirfinder:
+  mem: "5G"
   output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 

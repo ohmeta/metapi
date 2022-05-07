@@ -45,7 +45,7 @@ if config["params"]["identify"]["virsorter2"]["do"]:
             '''
 
 
-    rule identify_virsorter2_run:
+    rule identify_virsorter2:
         input:
             config_done = os.path.join(config["params"]["identify"]["virsorter2"]["db"], "Done_all_config"),
             scaftigs = os.path.join(
@@ -91,7 +91,7 @@ if config["params"]["identify"]["virsorter2"]["do"]:
             '''
 
 
-    rule identify_virsorter2_run_all:
+    rule identify_virsorter2_all:
         input:
             expand(os.path.join(config["output"]["identify"],
                                 "virsorter2/{assembly_group}.{assembler}.vs2.out/{assembly_group}.{assembler}-final-viral-{suffix}"),
@@ -100,17 +100,69 @@ if config["params"]["identify"]["virsorter2"]["do"]:
                    suffix=["combined.fa", "score.tsv", "boundary.tsv"])
  
 else:
-    rule identify_virsorter2_run_all:
+    rule identify_virsorter2_all:
+        input:
+
+
+if config["params"]["identify"]["deepvirfinder"]["do"]:
+    rule identify_deepvirfinder:
+        input:
+            os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa.gz")
+        output:
+            expand(
+                os.path.join(
+                    config["output"]["identify"],
+                    "deepvirfinder/{{assembly_group}}.{{assembler}}.dvf.out/{{assembly_group}}.{{assembler}}.scaftigs.fa.gz_gt{min_length}bp_dvfpred.txt"),
+                min_length=config["params"]["identify"]["deepvirfinder"]["min_length"])
+        benchmark:
+            os.path.join(config["output"]["identify"], "benchmark/deepvirfinder/deepvirfinder.{assembly_group}.{assembler}.benchmark.txt")
+        log:
+            os.path.join(config["output"]["identify"], "logs/deepvirfinder/deepvirfinder.{assembly_group}.{assembler}.log")
+        conda:
+            config["envs"]["deepvirfinder"]
+        params:
+            deepvirfinder = config["params"]["identify"]["deepvirfinder"]["script"],
+            out_dir = os.path.join(config["output"]["identify"], "deepvirfinder/{assembly_group}.{assembler}.dvf.out"),
+            min_length=config["params"]["identify"]["deepvirfinder"]["min_length"]
+        threads:
+            config["params"]["identify"]["threads"]
+        shell:
+            '''
+            python {params.deepvirfinder} \
+            --in {input} \
+            --out {params.out_dir} \
+            --len {params.min_length} \
+            --core {threads} \
+            >{log} 2>&1
+            '''
+ 
+    
+    rule identify_deepvirfinder_all:
+        input:
+            expand(
+                os.path.join(
+                    config["output"]["identify"],
+                    "deepvirfinder/{assembly_group}.{assembler}.dvf.out/{assembly_group}.{assembler}.scaftigs.fa.gz_gt{min_length}bp_dvfpred.txt"),
+                min_length=config["params"]["identify"]["deepvirfinder"]["min_length"],
+                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST,
+                assembler=ASSEMBLERS)
+
+else:
+    rule identify_deepvirfinder_all:
         input:
 
 
 rule identify_all:
     input:
-        rules.identify_virsorter2_run_all.input
+        rules.identify_virsorter2_all.input,
+        rules.identify_deepvirfinder_all.input
 
 
 localrules:
     identify_virsorter2_setup_db,
     identify_virsorter2_config,
-    identify_virsorter2_run_all,
+    identify_virsorter2_all,
+    identify_deepvirfinder_all,
     identify_all
