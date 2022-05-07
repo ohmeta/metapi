@@ -53,7 +53,7 @@ if config["params"]["identify"]["virsorter2"]["do"]:
                 "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa.gz")
         output:
             expand(os.path.join(config["output"]["identify"],
-                                "virsorter2/{{assembly_group}}.{{assembler}}.vs2.out/final-viral-{suffix}"),
+                                "virsorter2/{{assembly_group}}.{{assembler}}.vs2.out/{{assembly_group}}.{{assembler}}-final-viral-{suffix}"),
                    suffix=["combined.fa", "score.tsv", "boundary.tsv"])
         benchmark:
             os.path.join(config["output"]["identify"], "benchmark/virsorter2/virsorter2.{assembly_group}.{assembler}.benchmark.txt")
@@ -64,21 +64,25 @@ if config["params"]["identify"]["virsorter2"]["do"]:
         threads:
             config["params"]["identify"]["threads"]
         params:
+            label = "{assembly_group}.{assembler}",
             working_dir = os.path.join(config["output"]["identify"], "virsorter2/{assembly_group}.{assembler}.vs2.out"),
             include_groups = ",".join(config["params"]["identify"]["virsorter2"]["include_groups"]),
             min_length = config["params"]["identify"]["virsorter2"]["min_length"],
             min_score = config["params"]["identify"]["virsorter2"]["min_score"],
             provirus_off = "--provirus-off" if config["params"]["identify"]["virsorter2"]["provirus_off"] else "",
             prep_for_dramv = "--prep-for-dramv" if config["params"]["identify"]["virsorter2"]["prep_for_dramv"] else "",
-            rm_tmpdir = "--rm-tmpdir" if config["params"]["identify"]["virsorter2"]["rm_tmpdir"] else ""
+            rm_tmpdir = "--rm-tmpdir" if config["params"]["identify"]["virsorter2"]["rm_tmpdir"] else "",
+            keep_original_seq = "--keep-original-seq" if config["params"]["identify"]["virsorter2"]["keep_original_seq"] else ""
         shell:
             '''
             virsorter run \
             {params.prep_for_dramv} \
             {params.provirus_off} \
             {params.rm_tmpdir} \
+            {params.keep_original_seq} \
             --working-dir {params.working_dir} \
             --seqfile {input.scaftigs} \
+            --label {params.label} \
             --include-groups {params.include_groups} \
             --min-length {params.min_length} \
             --min-score {params.min_score} \
@@ -90,7 +94,7 @@ if config["params"]["identify"]["virsorter2"]["do"]:
     rule identify_virsorter2_run_all:
         input:
             expand(os.path.join(config["output"]["identify"],
-                                "virsorter2/{assembly_group}.{assembler}.vs2.out/final-viral-{suffix}"),
+                                "virsorter2/{assembly_group}.{assembler}.vs2.out/{assembly_group}.{assembler}.final-viral-{suffix}"),
                    assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST,
                    assembler=ASSEMBLERS,
                    suffix=["combined.fa", "score.tsv", "boundary.tsv"])

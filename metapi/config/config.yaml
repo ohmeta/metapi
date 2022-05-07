@@ -255,6 +255,7 @@ params:
       prep_for_dramv: True
       provirus_off: False
       rm_tmpdir: True
+      keep_original_seq: True # CheckV need
     deepvirfinder:
       do: True
     phamb:
