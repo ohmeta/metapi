@@ -1,5 +1,14 @@
 MULTIALIGN_GROUP = SAMPLES.reset_index().loc[:, ["sample_id", "assembly_group", "binning_group"]].drop_duplicates()
 
+MULTIBINING_INDEX = {}
+for binning_group in SAMPLES_BINNING_GROUP_LIST:
+    MULTIBINING_INDEX[binning_group] = {}
+    assembly_groups = sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, binning_group))
+    count = 0
+    for assembly_group in assembly_groups:
+        count += 1 
+        MULTIBINING_INDEX[binning_group][assembly_group] = f'''S{count}'''
+
 MULTIBINNING_GROUP = SAMPLES.reset_index().loc[:, ["assembly_group", "binning_group"]].drop_duplicates()
 
 multibinning_df_list = []
@@ -347,11 +356,17 @@ if config["params"]["binning"]["vamb"]["do"]:
         run:
             from glob import glob
             import os
+            import sys
             import pandas as pd
 
             metadata = []
             assembly_groups = sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, params.binning_group))
             assembly_index = int(assembly_groups.index(params.assembly_group)) + 1
+            assembly_index = f'''S{assembly_index}'''
+
+            ## Double check
+            if assembly_index != MULTIBINING_INDEX[params.binning_group][params.assembly_group]:
+                sys.exit("assembly_group index error")
 
             outdir = os.path.dirname(output.binning_done)
             bins_dir = os.path.dirname(input.binning_done)
@@ -359,7 +374,7 @@ if config["params"]["binning"]["vamb"]["do"]:
             bin_index = 0
 
             if os.path.exists(f'{bins_dir}/bins'):
-                fna_list = sorted(glob(f'{bins_dir}/bins/S{assembly_index}C*.fna'))
+                fna_list = sorted(glob(f'{bins_dir}/bins/{assembly_index}C*.fna'))
 
                 for fna in fna_list:
                     bin_index += 1

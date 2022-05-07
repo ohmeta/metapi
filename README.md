@@ -188,7 +188,7 @@ positional arguments:
   checkm_all,
   dereplicate_mags_drep_all,
   dereplicate_mags_all,
-  classify_all,
+  taxonomic_all,
   upload_sequencing_all,
   upload_assembly_all,
   upload_all,
@@ -256,8 +256,8 @@ optional arguments:
 # run checkm
 ➤ metapi mag_wf checkm_all --run-local
 
-#run classify
-➤ metapi mag_wf classify_all --run-local
+#run taxonomic 
+➤ metapi mag_wf taxonomic_all --run-local
 
 # run mag_wf all
 ➤ metapi mag_wf --run-local
@@ -386,7 +386,7 @@ Then metapi will use [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq) to g
   |  s3          | ag2             | bg2           | s3.1.fq.gz | s3.2.fq.gz |  ag2.scaftigs.fa.gz |
   |  s4          | ag2             | bg2           | s4.1.fq.gz | s4.2.fq.gz |  ag2.scaftigs.fa.gz |
 
-- (WIP) begin from checkm, or dereplicate, or classify (fq1 and fq2 can be empty)
+- (WIP) begin from checkm, or dereplicate, or taxonomic assignment (fq1 and fq2 can be empty)
   |  sample_id   |   bins          |
   | :----------: | :-------------: |
   |  s1          |   s1.bin.1.fa   |
@@ -413,7 +413,7 @@ Then metapi will use [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq) to g
     07.predict/
     08.checkm/
     09.dereplicate/
-    10.classify/
+    10.taxonomic/
     99.upload/
 ```
 

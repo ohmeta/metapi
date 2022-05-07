@@ -32,6 +32,9 @@ from metapi.assembler import parse_spades_params
 
 from metapi.aligner import flagstats_summary
 
+from metapi.predictor import parse_gff
+from metapi.predictor import extract_faa
+
 from metapi.binner import get_binning_info
 from metapi.binner import generate_bins
 from metapi.binner import extract_bins_report

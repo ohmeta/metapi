@@ -55,6 +55,8 @@ WORKFLOWS_MAG = [
     "binning_vamb_all",
     "binning_report_all",
     "binning_all",
+    "identify_virsorter2_run_all",
+    "identify_all",
     "predict_scaftigs_gene_prodigal_all",
     "predict_scaftigs_gene_prokka_all",
     "predict_bins_gene_prodigal_all",
@@ -65,7 +67,7 @@ WORKFLOWS_MAG = [
     "checkm_all",
     "dereplicate_mags_drep_all",
     "dereplicate_mags_all",
-    "classify_all",
+    "taxonomic_all",
     "upload_sequencing_all",
     "upload_assembly_all",
     "upload_all",
@@ -231,9 +233,7 @@ def init(args, unknown):
         conf = project.get_config()
 
         for env_name in conf["envs"]:
-            conf["envs"][env_name] = os.path.join(
-                os.path.realpath(args.workdir), f"envs/{env_name}.yaml"
-            )
+            conf["envs"][env_name] = os.path.join(os.path.realpath(args.workdir), f"envs/{env_name}.yaml")
 
         conf = update_config_tools(
             conf, args.begin, args.trimmer, args.rmhoster, args.assembler, args.binner
@@ -591,8 +591,8 @@ if begin from simulate:
         nargs="?",
         type=str,
         default="mag_wf",
-        choices=["mag_wf", "gene_wf", "phage_wf"],
-        help="workflow. Allowed values are mag_wf, gene_wf and phage_wf",
+        choices=["mag_wf", "gene_wf"],
+        help="workflow. Allowed values are mag_wf, gene_wf",
     )
     parser_sync.add_argument(
         "task", 

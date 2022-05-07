@@ -244,6 +244,24 @@ params:
       duplicate_penalty: 0.6
       megabin_penalty: 0.5
 
+  identify:
+    threads: 8
+    virsorter2:
+      do: True
+      db: /home/jiezhu/databases/ecogenomics/VirSorter2/db
+      include_groups: ["dsDNAphage", "ssDNA"] # ["dsDNAphage", "NCLDV", "RNA", "ssDNA", "lavidaviridae"]
+      min_score: 0.5
+      min_length: 2000
+      prep_for_dramv: True
+      provirus_off: False
+      rm_tmpdir: True
+    deepvirfinder:
+      do: True
+    phamb:
+      do: True
+      micompletedb: "/home/jiezhu/databases/ecogenomics/miComplete/Bact105.hmm"
+      vogdb: "/home/jiezhu/databases/ecogenomics/VOGDB/vog211/ALLVOG.hmm"
+
   predict:
     threads: 8
     scaftigs_to_gene:
@@ -266,7 +284,7 @@ params:
     standard: "MIMAG" # SGB
     batch_num: 500
 
-  classify:
+  taxonomic:
     threads: 8
     gtdbtk:
       do: True
@@ -320,10 +338,11 @@ output:
   alignment: "results/05.alignment"
   binning: "results/06.binning"
   multisplit_binning: "results/06.multisplit_binning"
+  identify: "results/06.identify"
   predict: "results/07.predict"
   checkm: "results/08.checkm"
   dereplicate: "results/09.dereplicate"
-  classify: "results/10.classify"
+  taxonomic: "results/10.taxonomic"
   upload: "results/99.upload"
 
 upload:
@@ -381,6 +400,7 @@ envs:
   concoct: "envs/concoct.yaml"
   dastools: "envs/dastools.yaml"
   vamb: "envs/vamb.yaml"
+  virsorter2: "envs/virsorter2.yaml"
   checkm: "envs/checkm.yaml"
   drep: "envs/drep.yaml"
   gtdbtk: "envs/gtdbtk.yaml"

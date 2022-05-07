@@ -1,39 +1,39 @@
-if config["params"]["classify"]["gtdbtk"]["do"]:
-    checkpoint classify_gtdbtk_prepare:
+if config["params"]["taxonomic"]["gtdbtk"]["do"]:
+    checkpoint taxonomic_gtdbtk_prepare:
         input:
             rep_genomes_info = os.path.join(config["output"]["dereplicate"],
                          "report/checkm_table_genomes_info.derep.tsv")
         output:
-            bins_dir = directory(os.path.join(config["output"]["classify"], "bins_input"))
+            bins_dir = directory(os.path.join(config["output"]["taxonomic"], "bins_input"))
         params:
-            batch_num = config["params"]["classify"]["gtdbtk"]["batch_num"]
+            batch_num = config["params"]["taxonomic"]["gtdbtk"]["batch_num"]
         run:
             metapi.gtdbtk_prepare(input.rep_genomes_info, params.batch_num, output.bins_dir)
 
 
-    rule classify_gtdbtk:
+    rule taxonomic_gtdbtk:
         input:
-            bins_input = os.path.join(config["output"]["classify"], "bins_input/bins_input.{batchid}.tsv"),
+            bins_input = os.path.join(config["output"]["taxonomic"], "bins_input/bins_input.{batchid}.tsv"),
             gtdb_data_path = expand(os.path.join(
-                config["params"]["classify"]["gtdbtk"]["gtdb_data_path"], "{gtdbtk_dir}"),
+                config["params"]["taxonomic"]["gtdbtk"]["gtdb_data_path"], "{gtdbtk_dir}"),
                 gtdbtk_dir = ["fastani", "markers", "masks", "metadata",
                               "mrca_red", "msa", "pplacer", "radii", "taxonomy"])
         output:
-            gtdbtk_done = os.path.join(config["output"]["classify"], "table/gtdbtk.out.{batchid}/gtdbtk_done")
+            gtdbtk_done = os.path.join(config["output"]["taxonomic"], "table/gtdbtk.out.{batchid}/gtdbtk_done")
         wildcard_constraints:
             batchid="\d+"
         conda:
             config["envs"]["gtdbtk"]
         log:
-            os.path.join(config["output"]["classify"], "logs/gtdbtk.{batchid}.log")
+            os.path.join(config["output"]["taxonomic"], "logs/gtdbtk.{batchid}.log")
         benchmark:
-            os.path.join(config["output"]["classify"], "benchmark/gtdbtk.{batchid}.benchmark.txt")
+            os.path.join(config["output"]["taxonomic"], "benchmark/gtdbtk.{batchid}.benchmark.txt")
         params:
-            out_dir = os.path.join(config["output"]["classify"], "table/gtdbtk.out.{batchid}"),
-            gtdb_data_path = config["params"]["classify"]["gtdbtk"]["gtdb_data_path"],
-            pplacer_threads = config["params"]["classify"]["gtdbtk"]["pplacer_threads"]
+            out_dir = os.path.join(config["output"]["taxonomic"], "table/gtdbtk.out.{batchid}"),
+            gtdb_data_path = config["params"]["taxonomic"]["gtdbtk"]["gtdb_data_path"],
+            pplacer_threads = config["params"]["taxonomic"]["gtdbtk"]["pplacer_threads"]
         threads:
-            config["params"]["classify"]["threads"]
+            config["params"]["taxonomic"]["threads"]
         shell:
             '''
             export GTDB_DATA_PATH={params.gtdb_data_path}
@@ -51,10 +51,10 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
 
 
     def aggregate_gtdbtk_report_input(wildcards):
-        checkpoint_output = checkpoints.classify_gtdbtk_prepare.get(**wildcards).output[0]
+        checkpoint_output = checkpoints.taxonomic_gtdbtk_prepare.get(**wildcards).output[0]
 
         return expand(os.path.join(
-            config["output"]["classify"],
+            config["output"]["taxonomic"],
             "table/gtdbtk.out.{batchid}/gtdbtk_done"),
                       batchid=list(set([i.split("/")[0] \
                                         for i in glob_wildcards(
@@ -62,22 +62,22 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
                                                              "bins_input.{batchid}.tsv")).batchid])))
 
 
-    rule classify_gtdbtk_report:
+    rule taxonomic_gtdbtk_report:
         input:
             gtdb_table = aggregate_gtdbtk_report_input,
             rep_genomes_info = os.path.join(config["output"]["dereplicate"],
                                             "report/checkm_table_genomes_info.derep.tsv")
         output:
-            table_gtdb = os.path.join(config["output"]["classify"],
+            table_gtdb = os.path.join(config["output"]["taxonomic"],
                                       "report/bins.hmq.rep.gtdbtk.gtdb.tsv"),
-            table_ncbi = os.path.join(config["output"]["classify"],
+            table_ncbi = os.path.join(config["output"]["taxonomic"],
                                       "report/bins.hmq.rep.gtdbtk.ncbi.tsv"),
-            table_all = os.path.join(config["output"]["classify"],
+            table_all = os.path.join(config["output"]["taxonomic"],
                                      "report/bins.hmq.rep.gtdbtk.all.tsv")
         params:
-            ar122_metadata = config["params"]["classify"]["gtdbtk"]["ar122_metadata"],
-            bac120_metadata = config["params"]["classify"]["gtdbtk"]["bac120_metadata"],
-            gtdb_to_ncbi_script = config["params"]["classify"]["gtdbtk"]["gtdb_to_ncbi_script"]
+            ar122_metadata = config["params"]["taxonomic"]["gtdbtk"]["ar122_metadata"],
+            bac120_metadata = config["params"]["taxonomic"]["gtdbtk"]["bac120_metadata"],
+            gtdb_to_ncbi_script = config["params"]["taxonomic"]["gtdbtk"]["gtdb_to_ncbi_script"]
         threads:
             8
         run:
@@ -126,11 +126,11 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             table_all.to_csv(output.table_all, sep="\t", index=False)
            
 
-    rule classify_gtdbtk_all:
+    rule taxonomic_gtdbtk_all:
         input:
             expand(
                 os.path.join(
-                    config["output"]["classify"],
+                    config["output"]["taxonomic"],
                     "report/bins.hmq.rep.gtdbtk.{system}.tsv"),
                 system=["gtdb", "ncbi", "all"],
                 assembler=ASSEMBLERS,
@@ -139,17 +139,17 @@ if config["params"]["classify"]["gtdbtk"]["do"]:
             #rules.checkm_all.input,
 
 else:
-    rule classify_gtdbtk_all:
+    rule taxonomic_gtdbtk_all:
         input:
 
 
-rule classify_all:
+rule taxonomic_all:
     input:
-        rules.classify_gtdbtk_all.input
+        rules.taxonomic_gtdbtk_all.input
 
 
 localrules:
-    classify_gtdbtk_prepare,
-    classify_gtdbtk_all,
-    classify_gtdbtk_report,
-    classify_all
+    taxonomic_gtdbtk_prepare,
+    taxonomic_gtdbtk_all,
+    taxonomic_gtdbtk_report,
+    taxonomic_all

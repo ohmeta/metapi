@@ -322,6 +322,11 @@ binning_report_merge:
   output: "logs/06.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
+identify_virsorter2_run:
+  mem: "20G"
+  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+
 predict_scaftigs_gene_prodigal:
   mem: "1G"
   output: "logs/07.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
@@ -372,7 +377,7 @@ dereplicate_gene_cdhit:
   output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
   error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
 
-classify_gtdbtk:
+taxonomic_gtdbtk:
   #partition: "hugemem"
   mem: "130G"
   output: "logs/10.{rule}/{rule}.{wildcards.batchid}.{jobid}.o"

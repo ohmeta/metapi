@@ -91,6 +91,7 @@ class metaconfig:
         "logs/06.binning_vamb",
         "logs/06.binning_report",
         "logs/06.binning_report_merge",
+        "logs/06.identify_virsorter2_run",
         "logs/07.predict_scaftigs_gene_prodigal",
         "logs/07.predict_scaftigs_gene_prokka",
         "logs/07.predict_scaftigs_gene_prokka_multiqc",
@@ -101,7 +102,7 @@ class metaconfig:
         "logs/09.dereplicate_mags_drep",
         "logs/09.dereplicate_gene_prepare",
         "logs/09.dereplicate_gene_cdhit",
-        "logs/10.classify_gtdbtk",
+        "logs/10.taxonomic_gtdbtk",
         "logs/99.upload_md5_short_reads",
         "logs/99.upload_md5_scaftigs"
     ]
