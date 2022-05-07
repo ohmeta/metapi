@@ -55,6 +55,8 @@ WORKFLOWS_MAG = [
     "binning_vamb_all",
     "binning_report_all",
     "binning_all",
+    "identify_virsorter2_run_all",
+    "identify_all",
     "predict_scaftigs_gene_prodigal_all",
     "predict_scaftigs_gene_prokka_all",
     "predict_bins_gene_prodigal_all",
@@ -231,9 +233,7 @@ def init(args, unknown):
         conf = project.get_config()
 
         for env_name in conf["envs"]:
-            conf["envs"][env_name] = os.path.join(
-                os.path.realpath(args.workdir), f"envs/{env_name}.yaml"
-            )
+            conf["envs"][env_name] = os.path.join(args.workdir, f"envs/{env_name}.yaml")
 
         conf = update_config_tools(
             conf, args.begin, args.trimmer, args.rmhoster, args.assembler, args.binner

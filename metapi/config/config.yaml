@@ -248,13 +248,19 @@ params:
     threads: 8
     virsorter2:
       do: True
-      db: /home/zhujie/databases/ecogenomics/VirSorter2/db
+      db: /home/jiezhu/databases/ecogenomics/VirSorter2/db
+      include_groups: ["dsDNAphage", "ssDNA"] # ["dsDNAphage", "NCLDV", "RNA", "ssDNA", "lavidaviridae"]
+      min_score: 0.5
+      min_length: 2000
+      prep_for_dramv: True
+      provirus_off: False
+      rm_tmpdir: True
     deepvirfinder:
       do: True
     phamb:
       do: True
-      micompletedb: "/home/zhujie/databases/ecogenomics/miComplete/Bact105.hmm"
-      vogdb: "/home/zhujie/databases/ecogenomics/VOGDB/vog211/ALLVOG.hmm"
+      micompletedb: "/home/jiezhu/databases/ecogenomics/miComplete/Bact105.hmm"
+      vogdb: "/home/jiezhu/databases/ecogenomics/VOGDB/vog211/ALLVOG.hmm"
 
   predict:
     threads: 8
@@ -332,7 +338,7 @@ output:
   alignment: "results/05.alignment"
   binning: "results/06.binning"
   multisplit_binning: "results/06.multisplit_binning"
-  classify: "results/06.classify"
+  identify: "results/06.identify"
   predict: "results/07.predict"
   checkm: "results/08.checkm"
   dereplicate: "results/09.dereplicate"
@@ -394,6 +400,7 @@ envs:
   concoct: "envs/concoct.yaml"
   dastools: "envs/dastools.yaml"
   vamb: "envs/vamb.yaml"
+  virsorter2: "envs/virsorter2.yaml"
   checkm: "envs/checkm.yaml"
   drep: "envs/drep.yaml"
   gtdbtk: "envs/gtdbtk.yaml"

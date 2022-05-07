@@ -91,6 +91,7 @@ class metaconfig:
         "logs/06.binning_vamb",
         "logs/06.binning_report",
         "logs/06.binning_report_merge",
+        "logs/06.identify_virsorter2_run",
         "logs/07.predict_scaftigs_gene_prodigal",
         "logs/07.predict_scaftigs_gene_prokka",
         "logs/07.predict_scaftigs_gene_prokka_multiqc",
