@@ -94,11 +94,11 @@ if config["params"]["identify"]["virsorter2"]["do"]:
     rule identify_virsorter2_run_all:
         input:
             expand(os.path.join(config["output"]["identify"],
-                                "virsorter2/{assembly_group}.{assembler}.vs2.out/{assembly_group}.{assembler}.final-viral-{suffix}"),
+                                "virsorter2/{assembly_group}.{assembler}.vs2.out/{assembly_group}.{assembler}-final-viral-{suffix}"),
                    assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST,
                    assembler=ASSEMBLERS,
                    suffix=["combined.fa", "score.tsv", "boundary.tsv"])
-    
+ 
 else:
     rule identify_virsorter2_run_all:
         input:
