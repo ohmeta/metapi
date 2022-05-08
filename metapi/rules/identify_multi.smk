@@ -1,6 +1,6 @@
 # reference: https://github.com/RasmussenLab/phamb/blob/master/workflows/mag_annotation/Snakefile 
 
-if config["params"]["identify"]["phamb"]["do"]:
+if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"]["deepvirfinder"]["do"]:
     rule identify_phamb_filter_pep:
         input:
             pep = os.path.join(config["output"]["predict"],
@@ -134,14 +134,49 @@ if config["params"]["identify"]["phamb"]["do"]:
             '''
 
 
+    rule identify_phamb_deepvirfinder_merge:
+        input:
+            lambda wildcards: expand(
+                os.path.join(
+                    config["output"]["identify"],
+                    "deepvirfinder/{assembly_group}.{{assembler}}.dvf.out/{assembly_group}.{{assembler}}.scaftigs.fa.gz_gt{min_length}bp_dvfpred.txt"),
+                min_length=config["params"]["identify"]["deepvirfinder"]["min_length"],
+                assembly_group=sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, wildcards.binning_group)))
+        output:
+            dvf = os.path.join(config["output"]["identify"], "phamb/dvf_merge/{binning_group}.{assembler}.DVF.predictions.txt")
+        params:
+            binning_group = "{binning_group}"
+        run:
+            assembly_groups = sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, params.binning_group))
+            with open(output.dvf, "w") as oh:
+                assembly_group = os.path.basename(input[0]).split(".")[0]
+                assembly_index = int(assembly_groups.index(assembly_group)) + 1
+                assembly_group = f'''S{assembly_index}'''
+                with open(input[0], "r") as ih:
+                    oh.write(ih.readline())
+                    for line in ih:
+                        oh.write(f'''{assembly_group}C{line}''')
+                for dvfpred in input[1:]:
+                    assembly_group = os.path.basename(dvfpred).split(".")[0]
+                    assembly_index = int(assembly_groups.index(assembly_group)) + 1
+                    assembly_group = f'''S{assembly_index}'''
+                    with open(dvfpred, "r") as ih:
+                        ih.readline()
+                        for line in ih:
+                            oh.write(f'''{assembly_group}C{line}''')
+
+
     rule identify_phamb_all:
         input:
-            expand(
+            expand([
                 os.path.join(config["output"]["identify"],
                              "phamb/hmm_merge/{binning_group}.{assembler}.{suffix}.tbl"),
+                os.path.join(config["output"]["identify"],
+                             "phamb/dvf_merge/{binning_group}.{assembler}.DVF.predictions.txt")],
                 binning_group=SAMPLES_BINNING_GROUP_LIST,
                 assembler=ASSEMBLERS,
                 suffix=["hmmMiComplete105", "hmmVOG"])
+            
 
 else:
     rule identify_phamb_all:
@@ -163,6 +198,7 @@ localrules:
     identify_phamb_filter_pep,
     identify_phamb_micomplete_merge,
     identify_phamb_vog_merge,
+    identify_phamb_deepvirfinder_merge,
     identify_phamb_all,
     identify_multi_all,
     identify_all
