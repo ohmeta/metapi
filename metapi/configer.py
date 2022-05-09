@@ -95,6 +95,7 @@ class metaconfig:
         "logs/06.identify_deepvirfinder",
         "logs/06.identify_phamb_micomplete",
         "logs/06.identify_phamb_vog",
+        "logs/06.identify_phamb_randomforest",
         "logs/07.predict_scaftigs_gene_prodigal",
         "logs/07.predict_scaftigs_gene_prokka",
         "logs/07.predict_scaftigs_gene_prokka_multiqc",

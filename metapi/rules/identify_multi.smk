@@ -1,6 +1,6 @@
 # reference: https://github.com/RasmussenLab/phamb/blob/master/workflows/mag_annotation/Snakefile 
 
-if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"]["deepvirfinder"]["do"]:
+if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"]["deepvirfinder"]["do"] and config["params"]["binning"]["vamb"]["do"]:
     rule identify_phamb_filter_pep:
         input:
             pep = os.path.join(config["output"]["predict"],
@@ -44,7 +44,6 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
         params:
             tmp = os.path.join(config["output"]["identify"],
                                "phamb/hmm/{assembly_group}.{assembler}.hmmsearch.out/{assembly_group}.{assembler}.hmmMiComplete105.tmp"),
-            min_contig = config["params"]["binning"]["vamb"]["min_contig"],
             hmmsearch_evalue = config["params"]["identify"]["phamb"]["hmmsearch_evalue"]
         threads:
             config["params"]["identify"]["threads"]
@@ -71,7 +70,7 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
                     "phamb/hmm/{assembly_group}.{{assembler}}.hmmsearch.out/{assembly_group}.{{assembler}}.hmmMiComplete105.tbl"),
                     assembly_group=sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, wildcards.binning_group)))
         output:
-            os.path.join(config["output"]["identify"], "phamb/hmm_merge/{binning_group}.{assembler}.hmmMiComplete105.tbl")
+            os.path.join(config["output"]["identify"], "phamb/annotations/{binning_group}.{assembler}/all.hmmMiComplete105.tbl")
         log:
             os.path.join(config["output"]["identify"], "logs/phamb_micomplete_merge.{binning_group}.{assembler}.log")
         shell:
@@ -99,7 +98,6 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
         params:
             tmp = os.path.join(config["output"]["identify"],
                                "phamb/hmm/{assembly_group}.{assembler}.hmmsearch.out/{assembly_group}.{assembler}.hmmVOG.tmp"),
-            min_contig = config["params"]["binning"]["vamb"]["min_contig"],
             hmmsearch_evalue = config["params"]["identify"]["phamb"]["hmmsearch_evalue"]
         threads:
             config["params"]["identify"]["threads"]
@@ -125,7 +123,7 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
                 "phamb/hmm/{assembly_group}.{{assembler}}.hmmsearch.out/{assembly_group}.{{assembler}}.hmmVOG.tbl"),
                 assembly_group=sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, wildcards.binning_group)))
         output:
-            os.path.join(config["output"]["identify"], "phamb/hmm_merge/{binning_group}.{assembler}.hmmVOG.tbl")
+            os.path.join(config["output"]["identify"], "phamb/annotations/{binning_group}.{assembler}/all.hmmVOG.tbl")
         log:
             os.path.join(config["output"]["identify"], "logs/phamb_vog_merge.{binning_group}.{assembler}.log")
         shell:
@@ -143,7 +141,7 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
                 min_length=config["params"]["identify"]["deepvirfinder"]["min_length"],
                 assembly_group=sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, wildcards.binning_group)))
         output:
-            dvf = os.path.join(config["output"]["identify"], "phamb/dvf_merge/{binning_group}.{assembler}.DVF.predictions.txt")
+            dvf = os.path.join(config["output"]["identify"], "phamb/annotations/{binning_group}.{assembler}/all.DVF.predictions.txt")
         params:
             binning_group = "{binning_group}"
         run:
@@ -166,18 +164,73 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
                             oh.write(f'''{assembly_group}C{line}''')
 
 
+    rule identify_phamb_randomforest:
+        input:
+            scaftigs = os.path.join(
+                config["output"]["multisplit_binning"],
+                "scaftigs/{binning_group}.{assembler}.combined.out/{binning_group}.{assembler}.combined.scaftigs.fa.gz"),
+            binning_done = os.path.join(
+                config["output"]["multisplit_binning"],
+                "bins/{binning_group}.{assembler}.vamb.out/binning_done"),
+            micomplete = os.path.join(
+                config["output"]["identify"],
+                "phamb/annotations/{binning_group}.{assembler}/all.hmmMiComplete105.tbl"),
+            vog = os.path.join(
+                config["output"]["identify"],
+                "phamb/annotations/{binning_group}.{assembler}/all.hmmVOG.tbl"),
+            dvf = os.path.join(
+                config["output"]["identify"],
+                "phamb/annotations/{binning_group}.{assembler}/all.DVF.predictions.txt")
+        output:
+            #annotation = os.path.join(config["output"]["identify"], "phamb/randomforest/{binning_group}.{assembler}/vambbins_aggregated_annotation.txt"),
+            #prediction = os.path.join(config["output"]["identify"], "phamb/randomforest/{binning_group}.{assembler}/vambbins_RF_predictions.txt"),
+            #vamb_bins = directory(os.path.join(config["output"]["identify"], "phamb/randomforest/{binning_group}.{assembler}/vamb_bins")),
+            os.path.join(config["output"]["identify"], "phamb/randomforest/{binning_group}.{assembler}/phamb_randomforest_done")
+        log:
+            os.path.join(config["output"]["identify"],
+                         "logs/phamb_randomforest/{binning_group}.{assembler}.phamb_randomforest.log")
+        benchmark:
+            os.path.join(config["output"]["identify"],
+                         "benchmark/phamb_randomforest/{binning_group}.{assembler}.phamb_randomforest.benchmark.txt")
+        conda:
+            config["envs"]["phamb"]
+        params:
+            randomforest_script = config["params"]["identify"]["phamb"]["randomforest_script"],
+            min_binsize = config["params"]["identify"]["phamb"]["min_binsize"],
+            bins_dir = os.path.join(config["output"]["multisplit_binning"], "bins/{binning_group}.{assembler}.vamb.out"),
+            annotations_dir = os.path.join(config["output"]["identify"], "phamb/annotations/{binning_group}.{assembler}"),
+            output_dir = os.path.join(config["output"]["identify"], "phamb/randomforest/{binning_group}.{assembler}")
+        shell:
+            '''
+            if [ -f {params.bins_dir}/cluster.tsv ]
+            then
+                python {params.randomforest_script} \
+                -m {params.min_binsize} \
+                -s C \
+                {input.scaftigs} \
+                {input.cluster} \
+                {params.annotations_dir} \
+                {params.output_dir} \
+                > {log} 2>&1
+
+                touch {output}
+            else
+                touch {output}
+            fi
+            '''
+
+
     rule identify_phamb_all:
         input:
             expand([
                 os.path.join(config["output"]["identify"],
-                             "phamb/hmm_merge/{binning_group}.{assembler}.{suffix}.tbl"),
+                             "phamb/annotations/{binning_group}.{assembler}/all.{annotations}"),
                 os.path.join(config["output"]["identify"],
-                             "phamb/dvf_merge/{binning_group}.{assembler}.DVF.predictions.txt")],
+                             "phamb/randomforest/{binning_group}.{assembler}/phamb_randomforest_done")],
                 binning_group=SAMPLES_BINNING_GROUP_LIST,
                 assembler=ASSEMBLERS,
-                suffix=["hmmMiComplete105", "hmmVOG"])
+                annotations=["hmmMiComplete105.tbl", "hmmVOG.tbl", "DVF.predictions.txt"])
             
-
 else:
     rule identify_phamb_all:
         input:
