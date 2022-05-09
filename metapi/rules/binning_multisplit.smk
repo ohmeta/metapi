@@ -102,7 +102,7 @@ if config["params"]["binning"]["vamb"]["do"]:
                 config["output"]["multisplit_binning"],
                 "benchmark/binning_vamb_index_scaftigs.{binning_group}.{assembler}.benchmark.txt")
         conda:
-            config["envs"]["vamb"]
+            config["envs"]["minimap2"]
         log:
             os.path.join(config["output"]["multisplit_binning"],
                          "logs/binning_vamb_index_scaftigs.{binning_group}.{assembler}.log")
@@ -137,7 +137,7 @@ if config["params"]["binning"]["vamb"]["do"]:
         params:
             bam_dir = os.path.join(config["output"]["multisplit_binning"], "bam/{binning_group}.{assembler}.out/{sample}") 
         conda:
-            config["envs"]["vamb"]
+            config["envs"]["minimap2"]
         log:
             os.path.join(config["output"]["multisplit_binning"],
                          "logs/alignment/{binning_group}.{assembler}/{sample}.align2combined_scaftigs.log")
@@ -180,7 +180,7 @@ if config["params"]["binning"]["vamb"]["do"]:
         params:
             bam_dir = os.path.join(config["output"]["multisplit_binning"], "bam/{binning_group}.{assembler}.out/{sample}") 
         conda:
-            config["envs"]["vamb"]
+            config["envs"]["minimap2"]
         log:
             os.path.join(config["output"]["multisplit_binning"],
                          "logs/alignment/{binning_group}.{assembler}/{sample}.sort_bam.log")
@@ -230,7 +230,7 @@ if config["params"]["binning"]["vamb"]["do"]:
                 config["output"]["multisplit_binning"],
                 "benchmark/jgi_summarize_bam_contig_depths/{binning_group}.{assembler}/{sample}.jgi_summarize_bam_contig_depths.benchmark.txt")
         conda:
-            config["envs"]["vamb"]
+            config["envs"]["metabat2"]
         log:
             os.path.join(config["output"]["multisplit_binning"],
                          "logs/coverage/{binning_group}.{assembler}/{sample}.align2combined_scaftigs.jgi.coverage.log")
@@ -284,11 +284,11 @@ if config["params"]["binning"]["vamb"]["do"]:
             matrix = os.path.join(config["output"]["multisplit_binning"],
                 "matrix/{binning_group}.{assembler}.align2combined_scaftigs.jgi.abundance.matrix.tsv")
         output:
-            vamb_output = expand(
-                os.path.join(config["output"]["multisplit_binning"],
-                             "bins/{{binning_group}}.{{assembler}}.vamb.out/{results}"),
-                results=["clusters.tsv", "latent.npz", "lengths.npz",
-                         "log.txt", "model.pt", "mask.npz", "tnf.npz"]),
+            #vamb_output = expand(
+            #    os.path.join(config["output"]["multisplit_binning"],
+            #                 "bins/{{binning_group}}.{{assembler}}.vamb.out/{results}"),
+            #    results=["clusters.tsv", "latent.npz", "lengths.npz",
+            #             "log.txt", "model.pt", "mask.npz", "tnf.npz"]),
             binning_done = os.path.join(config["output"]["multisplit_binning"],
                                         "bins/{binning_group}.{assembler}.vamb.out/binning_done")
         benchmark:
@@ -399,13 +399,13 @@ if config["params"]["binning"]["vamb"]["do"]:
                 binning_group=SAMPLES_BINNING_GROUP_LIST,
                 assembler=ASSEMBLERS,
                 results=[
-                    "clusters.tsv",
-                    "latent.npz",
-                    "lengths.npz",
-                    "log.txt",
-                    "model.pt",
-                    "mask.npz",
-                    "tnf.npz",
+                    #"clusters.tsv",
+                    #"latent.npz",
+                    #"lengths.npz",
+                    #"log.txt",
+                    #"model.pt",
+                    #"mask.npz",
+                    #"tnf.npz",
                     "binning_done"]),
             expand([
                 os.path.join(
