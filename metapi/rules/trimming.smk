@@ -282,9 +282,9 @@ if config["params"]["trimming"]["fastp"]["do"]:
                 sample=SAMPLES_ID_LIST)
         output:
             html = os.path.join(config["output"]["trimming"],
-                                "report/fastp_multiqc_report.html"),
-            data_dir = directory(os.path.join(config["output"]["trimming"],
-                                              "report/fastp_multiqc_report_data"))
+                                "report/fastp_multiqc_report.html")#,
+            #data_dir = directory(os.path.join(config["output"]["trimming"],
+            #                                  "report/fastp_multiqc_report_data"))
         log:
             os.path.join(config["output"]["trimming"], "logs/multiqc.fastp.log")
         params:
@@ -309,8 +309,9 @@ if config["params"]["trimming"]["fastp"]["do"]:
                              "short_reads/{sample}/{sample}.fastp.json"),
                 os.path.join(config["output"]["trimming"],
                              "report/fastp_multiqc_report.html"),
-                os.path.join(config["output"]["trimming"],
-                             "report/fastp_multiqc_report_data")],
+                #os.path.join(config["output"]["trimming"],
+                #             "report/fastp_multiqc_report_data")
+                ],
                    sample=SAMPLES_ID_LIST)
 
 else:

@@ -113,6 +113,10 @@ def get_assembly_group_by_binning_group(sample_df, binning_group):
     return sample_df.loc[:, :, binning_group, :].index.get_level_values("assembly_group").unique()
 
 
+def get_binning_group_by_assembly_group(sample_df, assembly_group):
+    return sample_df.loc[:, assembly_group, :, :].index.get_level_values("binning_group").unique()
+
+
 def get_multibinning_group_by_assembly_group(sample_df, assembly_group):
     return sample_df.loc[:, assembly_group, :, :].index.get_level_values("multibinning_group").unique()
 

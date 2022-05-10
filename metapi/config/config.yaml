@@ -53,14 +53,14 @@ params:
       n_base_limit: 5
 
   rmhost:
-    host_fasta: "/home/zhujie/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"
+    host_fasta: "/home/jiezhu/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"
     threads: 8
     save_reads: True
     save_bam: False
     compression: 6
     soap:
       do: False
-      index_prefix: "/home/zhujie/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"
+      index_prefix: "/home/jiezhu/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"
       match_model: 4
       align_seed: 30
       report_repeat_hits: 1
@@ -69,22 +69,22 @@ params:
     bwa:
       do: False
       algorithms: "mem" # "mem2"
-      index_prefix: "/home/zhujie/databases/genomics/human/CHM13/chm13v2.0_plusY/bwa_index/chm13v2.0.fa"
+      index_prefix: "/home/jiezhu/databases/genomics/human/CHM13/chm13v2.0_plusY/bwa_index/chm13v2.0.fa"
       # /ldfssz1/ST_META/share/User/zhujie/database/galaxy_indexes/hg38/hg38full/bwa_mem2_index/hg38full.fa
       # /ldfssz1/ST_META/share/User/zhujie/database/mouse/GRCm39/bwa_mem2_index/GRCm39.fna
       minimum_seed_length: 23
     bowtie2: # recommand
       do: True
-      index_prefix: "/home/zhujie/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"
+      index_prefix: "/home/jiezhu/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"
       presets: "--very-sensitive"
     minimap2:
       do: False
       split_size: "4G"
       preset: "sr"
-      index: "/home/zhujie/databases/genomics/human/CHM13/chm13v2.0_plusY/minimap_index/chm13v2.0.fa"
+      index: "/home/jiezhu/databases/genomics/human/CHM13/chm13v2.0_plusY/minimap_index/chm13v2.0.fa"
     kraken2:
       do: False
-      database: "/home/zhujie/databases/kraken/minikraken2_v2_8GB_201904_UPDATE"
+      database: "/home/jiezhu/databases/kraken/minikraken2_v2_8GB_201904_UPDATE"
       host_taxid: 9606
       # must include human reference genome
       confidence: 0
@@ -100,7 +100,7 @@ params:
       do_bowtie2: True
       decontaminate_pairs: "strict" # ["strict", "lenient", "unpaired"]
       bowtie2_options: "--very-sensitive --dovetail"
-      bowtie2_database: "/home/zhujie/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"
+      bowtie2_database: "/home/jiezhu/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"
  
   qcreport:
     do: True
@@ -258,10 +258,15 @@ params:
       keep_original_seq: True # CheckV need
     deepvirfinder:
       do: True
+      script: /home/jiezhu/toolkit/DeepVirFinder/dvf.py
+      min_length: 2000
     phamb:
       do: True
-      micompletedb: "/home/jiezhu/databases/ecogenomics/miComplete/Bact105.hmm"
-      vogdb: "/home/jiezhu/databases/ecogenomics/VOGDB/vog211/ALLVOG.hmm"
+      micompletedb: /home/jiezhu/databases/ecogenomics/miComplete/Bact105.hmm
+      vogdb: /home/jiezhu/databases/ecogenomics/VOGDB/vog211/ALLVOG.hmm
+      hmmsearch_evalue: 1.0e-05
+      randomforest_script: /home/jiezhu/toolkit/phamb/workflows/mag_annotation/scripts/run_RF.py
+      min_binsize: 2000 # default: 5000
 
   predict:
     threads: 8
@@ -275,7 +280,7 @@ params:
 
   checkm:
     do: True
-    check_binners: ["metabat2", "vamb", "dastools"]
+    check_binners: ["metabat2", "concoct", "maxbin2", "vamb", "dastools"]
     report: True
     threads: 8
     pplacer_threads: 4 # 1: 30G, 2: 60G, 3: 90G, 4: 120G
@@ -291,10 +296,10 @@ params:
       do: True
       pplacer_threads: 1
       batch_num: 1000
-      gtdb_data_path: "/home/zhujie/databases/ecogenomics/GTDB/release202"
-      ar122_metadata: "/home/zhujie/databases/ecogenomics/GTDB/release202/ar122_metadata_r202.tsv"
-      bac120_metadata: "/home/zhujie/databases/ecogenomics/GTDB/release202/bac120_metadata_r202.tsv"
-      gtdb_to_ncbi_script: "/home/zhujie/toolkit/GTDBTk/scripts/gtdb_to_ncbi_majority_vote.py"
+      gtdb_data_path: "/home/jiezhu/databases/ecogenomics/GTDB/release202"
+      ar122_metadata: "/home/jiezhu/databases/ecogenomics/GTDB/release202/ar122_metadata_r202.tsv"
+      bac120_metadata: "/home/jiezhu/databases/ecogenomics/GTDB/release202/bac120_metadata_r202.tsv"
+      gtdb_to_ncbi_script: "/home/jiezhu/toolkit/GTDBTk/scripts/gtdb_to_ncbi_majority_vote.py"
 
   dereplicate:
     drep:
@@ -396,12 +401,15 @@ upload:
     reference_genome: ""
 
 envs:
+  minimap2: "envs/minimap2.yaml"
   metabat2: "envs/metabat2.yaml"
   maxbin2: "envs/maxbin2.yaml"
   concoct: "envs/concoct.yaml"
   dastools: "envs/dastools.yaml"
   vamb: "envs/vamb.yaml"
   virsorter2: "envs/virsorter2.yaml"
+  deepvirfinder: "envs/deepvirfinder.yaml"
+  phamb: "envs/phamb.yaml"
   checkm: "envs/checkm.yaml"
   drep: "envs/drep.yaml"
   gtdbtk: "envs/gtdbtk.yaml"

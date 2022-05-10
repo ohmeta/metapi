@@ -922,10 +922,10 @@ rule assembly_all:
         rules.assembly_opera_ms_all.input,
 
         rules.assembly_report_all.input,
-        rules.assembly_metaquast_all.input,
+        rules.assembly_metaquast_all.input#,
 
         #rules.rmhost_all.input,
-        rules.qcreport_all.input
+        #rules.qcreport_all.input
 
 
 localrules:
