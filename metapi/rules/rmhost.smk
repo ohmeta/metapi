@@ -5,6 +5,15 @@ def rmhost_input(wildcards, have_single=False):
         return get_reads(wildcards, "raw", have_single)
 
 
+def trimming_stats_input(wildcards, have_single=False):
+    if TRIMMING_DO and config["params"]["qcreport"]["do"]:
+        return expand(os.path.join(config["output"]["trimming"],
+                                   "report/stats/{sample}_trimming_stats.tsv"),
+                      sample=wildcards.sample)
+    else:
+        return []
+ 
+
 if config["params"]["rmhost"]["soap"]["do"]:
     rule rmhost_soap_index:
         input:
@@ -31,6 +40,7 @@ if config["params"]["rmhost"]["soap"]["do"]:
 
     rule rmhost_soap:
         input:
+            lambda wildcards: trimming_stats_input(wildcards),
             reads = lambda wildcards: rmhost_input(wildcards),
             index = expand("{prefix}.{suffix}",
                    prefix=config["params"]["rmhost"]["soap"]["index_prefix"],
@@ -153,6 +163,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
 
     rule rmhost_bwa:
         input:
+            lambda wildcards: trimming_stats_input(wildcards),
             reads = lambda wildcards: rmhost_input(wildcards),
             index = expand("{prefix}.{suffix}",
                            prefix=config["params"]["rmhost"]["bwa"]["index_prefix"],
@@ -277,6 +288,19 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                         ''')
 
 
+    rule rmhost_bwa_all:
+        input:
+            expand(os.path.join(
+                config["output"]["rmhost"],
+                "short_reads/{sample}/{sample}.rmhost{read}.fq.gz"),
+                   sample=SAMPLES_ID_LIST,
+                   read=[".1", ".2"] if IS_PE else "")
+
+else:
+    rule rmhost_bwa_all:
+        input:
+
+
 if config["params"]["rmhost"]["bowtie2"]["do"]:
     rule rmhost_bowtie2_index:
         input:
@@ -297,6 +321,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
 
     rule rmhost_bowtie2:
         input:
+            lambda wildcards: trimming_stats_input(wildcards),
             reads = lambda wildcards: rmhost_input(wildcards),
             index = expand("{prefix}.{suffix}",
                            prefix=config["params"]["rmhost"]["bowtie2"]["index_prefix"],
@@ -422,6 +447,19 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                         ''')
 
 
+    rule rmhost_bowtie2_all:
+        input:
+            expand(os.path.join(
+                config["output"]["rmhost"],
+                "short_reads/{sample}/{sample}.rmhost{read}.fq.gz"),
+                   sample=SAMPLES_ID_LIST,
+                   read=[".1", ".2"] if IS_PE else "")
+
+else:
+    rule rmhost_bowtie2_all:
+        input:
+
+
 if config["params"]["rmhost"]["minimap2"]["do"]:
     rule rmhost_minimap2_index:
         input:
@@ -438,6 +476,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
 
     rule rmhost_minimap2:
         input:
+            lambda wildcards: trimming_stats_input(wildcards),
             reads = lambda wildcards: rmhost_input(wildcards),
             index = config["params"]["rmhost"]["minimap2"]["index"] 
         output:
@@ -557,9 +596,23 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                         ''')
 
 
+    rule rmhost_minimap2_all:
+        input:
+            expand(os.path.join(
+                config["output"]["rmhost"],
+                "short_reads/{sample}/{sample}.rmhost{read}.fq.gz"),
+                   sample=SAMPLES_ID_LIST,
+                   read=[".1", ".2"] if IS_PE else "")
+
+else:
+    rule rmhost_minimap2_all:
+        input:
+
+
 if config["params"]["rmhost"]["kraken2"]["do"]:
     rule rmhost_kraken2:
         input:
+            lambda wildcards: trimming_stats_input(wildcards),
             reads = lambda wildcards: rmhost_input(wildcards),
             database = config["params"]["rmhost"]["kraken2"]["database"] 
         output:
@@ -673,6 +726,7 @@ else:
 if config["params"]["rmhost"]["kneaddata"]["do"]:
     rule rmhost_kneaddata:
         input:
+            lambda wildcards: trimming_stats_input(wildcards),
             reads = lambda wildcards: rmhost_input(wildcards)
         output:
             reads = expand(os.path.join(
@@ -833,36 +887,10 @@ and (not config["params"]["rmhost"]["kneaddata"]["do"]):
             input_list = [str(i) for i in input]
             metapi.flagstats_summary(input_list, 2, output=output.flagstat)
 
-
-if config["params"]["rmhost"]["bwa"]["do"]:
-    rule rmhost_bwa_all:
-        input:
-            os.path.join(config["output"]["rmhost"],
-                         "report/rmhost_align2host_stats.tsv")
 else:
-    rule rmhost_bwa_all:
+    rule rmhost_alignment_report:
         input:
 
-
-if config["params"]["rmhost"]["bowtie2"]["do"]:
-    rule rmhost_bowtie2_all:
-        input:
-            os.path.join(config["output"]["rmhost"],
-                         "report/rmhost_align2host_stats.tsv")
-else:
-    rule rmhost_bowtie2_all:
-        input:
-
-
-if config["params"]["rmhost"]["minimap2"]["do"]:
-    rule rmhost_minimap2_all:
-        input:
-            os.path.join(config["output"]["rmhost"],
-                         "report/rmhost_align2host_stats.tsv")
-else:
-    rule rmhost_minimap2_all:
-        input:
- 
 
 if RMHOST_DO and config["params"]["qcreport"]["do"]:
     rule rmhost_report:
@@ -933,9 +961,8 @@ rule rmhost_all:
         rules.rmhost_minimap2_all.input,
         rules.rmhost_kraken2_all.input,
         rules.rmhost_kneaddata_all.input,
-        rules.rmhost_report_all.input,
-
-        rules.trimming_all.input
+        rules.rmhost_alignment_report.input,
+        rules.rmhost_report_all.input
 
 
 localrules:
