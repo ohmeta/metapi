@@ -280,7 +280,7 @@ params:
 
   checkm:
     do: True
-    check_binners: ["metabat2", "concoct, "maxbin2", "vamb", "dastools"]
+    check_binners: ["metabat2", "concoct", "maxbin2", "vamb", "dastools"]
     report: True
     threads: 8
     pplacer_threads: 4 # 1: 30G, 2: 60G, 3: 90G, 4: 120G
