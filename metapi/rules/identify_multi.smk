@@ -51,14 +51,19 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
             config["envs"]["phamb"]
         shell:
             '''
-            hmmsearch \
-            --cpu {threads} \
-            -E {params.hmmsearch_evalue} \
-            -o {params.tmp} \
-            --tblout {output.hmm} \
-            {input.db} \
-            {input.pep} \
-            2> {log}
+            if [[ `cat {input.pep} | wc -l` -eq 0 ]];
+            then
+                touch {output.hmm} 2> {log}
+            else
+                hmmsearch \
+                --cpu {threads} \
+                -E {params.hmmsearch_evalue} \
+                -o {params.tmp} \
+                --tblout {output.hmm} \
+                {input.db} \
+                {input.pep} \
+                2> {log}
+            fi
             '''
 
 
@@ -105,14 +110,19 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
             config["envs"]["phamb"]
         shell:
             '''
-            hmmsearch \
-            --cpu {threads} \
-            -E {params.hmmsearch_evalue} \
-            -o {params.tmp} \
-            --tblout {output.hmm} \
-            {input.db} \
-            {input.pep} \
-            2> {log}
+            if [[ `cat {input.pep} | wc -l` -eq 0 ]];
+            then
+                touch {output.hmm} 2> {log}
+            else
+                hmmsearch \
+                --cpu {threads} \
+                -E {params.hmmsearch_evalue} \
+                -o {params.tmp} \
+                --tblout {output.hmm} \
+                {input.db} \
+                {input.pep} \
+                2> {log}
+            fi
             '''
 
 
@@ -202,7 +212,7 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
             output_dir = os.path.join(config["output"]["identify"], "phamb/randomforest/{binning_group}.{assembler}")
         shell:
             '''
-            if [ -f {params.bins_dir}/cluster.tsv ]
+            if [ -e {params.bins_dir}/clusters.tsv ];
             then
                 python {params.randomforest_script} \
                 -m {params.min_binsize} \
