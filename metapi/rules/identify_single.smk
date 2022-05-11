@@ -75,6 +75,8 @@ if config["params"]["identify"]["virsorter2"]["do"]:
             keep_original_seq = "--keep-original-seq" if config["params"]["identify"]["virsorter2"]["keep_original_seq"] else ""
         shell:
             '''
+            set +e
+
             virsorter run \
             {params.prep_for_dramv} \
             {params.provirus_off} \
@@ -88,6 +90,16 @@ if config["params"]["identify"]["virsorter2"]["do"]:
             --min-score {params.min_score} \
             --jobs {threads} all \
             >{log} 2>&1
+
+            exitcode=$?
+            if [ $exitcode -eq 234 ];
+            then
+                touch {output[0]} 2>> {log}
+                touch {output[1]} 2>> {log}
+                touch {output[2]} 2>> {log}
+                echo "No genes from the contigs are left in {input.scaftigs} after preprocess" >> {log}
+                exit 0
+            fi
             '''
 
 
