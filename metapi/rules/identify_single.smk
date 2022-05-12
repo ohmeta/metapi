@@ -98,21 +98,31 @@ if config["params"]["identify"]["virsorter2"]["do"]:
             then
                 grep -oEi "No genes from the contigs are left in iter-0/all.pdg.faa after preprocess" {log} 
                 grepcode=$?
-
                 if [ $grepcode -eq 0 ];
                 then
                     touch {output[0]} 2>> {log}
                     touch {output[1]} 2>> {log}
                     touch {output[2]} 2>> {log}
-
                     echo "Touch empty file: {output[0]}" >> {log}
                     echo "Touch empty file: {output[1]}" >> {log}
                     echo "Touch empty file: {output[2]}" >> {log}
-
                     exit 0
                 else
-                    echo "Runing failed, check Virsorter log please." >> {log}
-                    exit $exitcode
+                    grep -oEi "Error in rule circular_linear_split" {log}
+                    grepcode=$?
+                    if [ $grepcode -eq 0 ];
+                    then
+                        touch {output[0]} 2>> {log}
+                        touch {output[1]} 2>> {log}
+                        touch {output[2]} 2>> {log}
+                        echo "Touch empty file: {output[0]}" >> {log}
+                        echo "Touch empty file: {output[1]}" >> {log}
+                        echo "Touch empty file: {output[2]}" >> {log}
+                        exit 0
+                    else
+                        echo "Runing failed, check Virsorter log please." >> {log}
+                        exit $exitcode
+                    fi
                 fi
             fi
             '''
@@ -157,12 +167,30 @@ if config["params"]["identify"]["deepvirfinder"]["do"]:
             config["params"]["identify"]["threads"]
         shell:
             '''
+            set +e
+
             python {params.deepvirfinder} \
             --in {input} \
             --out {params.out_dir} \
             --len {params.min_length} \
             --core {threads} \
             >{log} 2>&1
+
+            exitcode=$?
+            echo "Exit code is: $exitcode" >> {log}
+
+            if [ exitcode -eq 1 ];
+            then
+                grep -oEi "ValueError: not enough values to unpack" {log} 
+                $grepcode=$?
+                if [ $grepcode -eq 0 ];
+                then
+                    touch {output} 2>>{log} 2>&1
+                    exit 0
+                else
+                    exit $exitcode
+                fi
+            fi
             '''
  
     
