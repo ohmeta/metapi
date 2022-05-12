@@ -218,7 +218,7 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
                 -m {params.min_binsize} \
                 -s C \
                 {input.scaftigs} \
-                {params.bins_dir}/cluster.tsv \
+                {params.bins_dir}/clusters.tsv \
                 {params.annotations_dir} \
                 {params.output_dir} \
                 > {log} 2>&1
