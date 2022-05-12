@@ -92,13 +92,28 @@ if config["params"]["identify"]["virsorter2"]["do"]:
             >{log} 2>&1
 
             exitcode=$?
-            if [ $exitcode -eq 234 ];
+            echo "Exit code is: $exitcode" >> {log}
+
+            if [ $exitcode -eq 1 ];
             then
-                touch {output[0]} 2>> {log}
-                touch {output[1]} 2>> {log}
-                touch {output[2]} 2>> {log}
-                echo "No genes from the contigs are left in {input.scaftigs} after preprocess" >> {log}
-                exit 0
+                grep -oEi "No genes from the contigs are left in iter-0/all.pdg.faa after preprocess" {log} 
+                grepcode=$?
+
+                if [ $grepcode -eq 0 ];
+                then
+                    touch {output[0]} 2>> {log}
+                    touch {output[1]} 2>> {log}
+                    touch {output[2]} 2>> {log}
+
+                    echo "Touch empty file: {output[0]}" >> {log}
+                    echo "Touch empty file: {output[1]}" >> {log}
+                    echo "Touch empty file: {output[2]}" >> {log}
+
+                    exit 0
+                else
+                    echo "Runing failed, check Virsorter log please." >> {log}
+                    exit $exitcode
+                fi
             fi
             '''
 
