@@ -308,6 +308,8 @@ if config["params"]["binning"]["vamb"]["do"]:
             min_contig = config["params"]["binning"]["vamb"]["min_contig"],
             min_fasta = config["params"]["binning"]["vamb"]["min_fasta"],
             cuda = "--cuda" if config["params"]["binning"]["vamb"]["cuda"] else "",
+            cuda_module = config["params"]["binning"]["vamb"]["cuda_module"],
+            use_cuda_module = int(config["params"]["binning"]["vamb"]["use_cuda_module"]),
             external_params = config["params"]["binning"]["vamb"]["external_params"]
         shell:
             '''
@@ -317,8 +319,29 @@ if config["params"]["binning"]["vamb"]["do"]:
             if [[ `zcat {input.scaftigs} | grep -c "^>"` -lt 4096 ]];
             then
                 mkdir -p {params.outdir}
+                echo "The total of contig's number of {input.scaftigs} is less than 4096, exit" > {log} 2>&1
+
                 touch {output.binning_done}
             else
+                if [ {params.use_cuda_module} -eq 1 ];
+                then
+                    module load {params.cuda_module}
+                    echo "module load {params.cuda_module}" > {log} 2>&1
+                fi
+
+                if [ {params.cuda} == "--cuda" ];
+                then
+                    lspci | grep -i nvidia >> {log} 2>&1
+                    which nvcc >> {log} 2>&1
+                    which python >> {log} 2>&1
+                    which vamb >> {log} 2>&1
+
+                    python -c 'import torch;print(torch.__file__)' >> {log} 2>&1
+                    python -c 'import torch;print(f"Torch CUDA: f{torch.cuda.is_available()}")' >> {log} 2>&1
+                    python -c 'from torch.utils.cpp_extension import CUDA_HOME;print(CUDA_HOME)' >> {log} 2>&1
+                    python -c 'import os; print(os.environ.get("CUDA_PATH"))' >> {log} 2>&1
+                fi
+
                 vamb \
                 {params.cuda} \
                 -p {threads} \
@@ -329,7 +352,8 @@ if config["params"]["binning"]["vamb"]["do"]:
                 -m {params.min_contig} \
                 --minfasta {params.min_fasta} \
                 {params.external_params} \
-                2> {log}
+                >> {log} 2>&1
+
                 touch {output.binning_done}
             fi
             '''

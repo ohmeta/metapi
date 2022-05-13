@@ -9,4 +9,4 @@ dependencies:
   - cudatoolkit =11.2
   - pysam
   - pip: 
-     - git+https://github.com/RasmussenLab/vamb@v3.0.3
+     - git+https://github.com/RasmussenLab/vamb@v3.0.7
