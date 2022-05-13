@@ -7,5 +7,5 @@ dependencies:
   - joblib
   - pandas
   - numpy
-  - scikit-learn=0.24.1
+  - scikit-learn=1.0.2
   - biopython
