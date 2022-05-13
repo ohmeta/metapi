@@ -337,7 +337,7 @@ if config["params"]["binning"]["vamb"]["do"]:
                     which vamb >> {log} 2>&1
 
                     python -c 'import torch;print(torch.__file__)' >> {log} 2>&1
-                    python -c 'import torch;print(f"Torch CUDA: f{torch.cuda.is_available()}")' >> {log} 2>&1
+                    python -c 'import torch;print(f"Torch CUDA: {{torch.cuda.is_available()}}")' >> {log} 2>&1
                     python -c 'from torch.utils.cpp_extension import CUDA_HOME;print(CUDA_HOME)' >> {log} 2>&1
                     python -c 'import os; print(os.environ.get("CUDA_PATH"))' >> {log} 2>&1
                 fi
