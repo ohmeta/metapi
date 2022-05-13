@@ -319,7 +319,7 @@ if config["params"]["binning"]["vamb"]["do"]:
             if [[ `zcat {input.scaftigs} | grep -c "^>"` -lt 4096 ]];
             then
                 mkdir -p {params.outdir}
-                echo "The total of contig's number of {input.scaftigs} is less than 4096, exit" > {log} 2>&1
+                echo "The total number of contigs of {input.scaftigs} are less than 4096, exit" > {log} 2>&1
 
                 touch {output.binning_done}
             else
@@ -329,7 +329,7 @@ if config["params"]["binning"]["vamb"]["do"]:
                     echo "module load {params.cuda_module}" > {log} 2>&1
                 fi
 
-                if [ {params.cuda} == "--cuda" ];
+                if [ "{params.cuda}" == "--cuda" ];
                 then
                     lspci | grep -i nvidia >> {log} 2>&1
                     which nvcc >> {log} 2>&1
