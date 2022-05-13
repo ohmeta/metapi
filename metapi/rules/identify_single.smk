@@ -100,27 +100,27 @@ if config["params"]["identify"]["virsorter2"]["do"]:
                 grepcode=$?
                 if [ $grepcode -eq 0 ];
                 then
-                    touch {output[0]} 2>> {log}
-                    touch {output[1]} 2>> {log}
-                    touch {output[2]} 2>> {log}
-                    echo "Touch empty file: {output[0]}" >> {log}
-                    echo "Touch empty file: {output[1]}" >> {log}
-                    echo "Touch empty file: {output[2]}" >> {log}
+                    touch {output[0]} >> {log} 2>&1
+                    touch {output[1]} >> {log} 2>&1
+                    touch {output[2]} >> {log} 2>&1
+                    echo "Touch empty file: {output[0]}" >> {log} 2>&1
+                    echo "Touch empty file: {output[1]}" >> {log} 2>&1
+                    echo "Touch empty file: {output[2]}" >> {log} 2>&1
                     exit 0
                 else
                     grep -oEi "Error in rule circular_linear_split" {log}
                     grepcode=$?
                     if [ $grepcode -eq 0 ];
                     then
-                        touch {output[0]} 2>> {log}
-                        touch {output[1]} 2>> {log}
-                        touch {output[2]} 2>> {log}
-                        echo "Touch empty file: {output[0]}" >> {log}
-                        echo "Touch empty file: {output[1]}" >> {log}
-                        echo "Touch empty file: {output[2]}" >> {log}
+                        touch {output[0]} >> {log} 2>&1
+                        touch {output[1]} >> {log} 2>&1
+                        touch {output[2]} >> {log} 2>&1
+                        echo "Touch empty file: {output[0]}" >> {log} 2>&1
+                        echo "Touch empty file: {output[1]}" >> {log} 2>&1
+                        echo "Touch empty file: {output[2]}" >> {log} 2>&1
                         exit 0
                     else
-                        echo "Runing failed, check Virsorter log please." >> {log}
+                        echo "Runing failed, check Virsorter log please." >> {log} 2>&1
                         exit $exitcode
                     fi
                 fi
@@ -177,7 +177,7 @@ if config["params"]["identify"]["deepvirfinder"]["do"]:
             >{log} 2>&1
 
             exitcode=$?
-            echo "Exit code is: $exitcode" >> {log}
+            echo "Exit code is: $exitcode" >> {log} 2>&1
 
             if [ exitcode -eq 1 ];
             then
@@ -185,9 +185,11 @@ if config["params"]["identify"]["deepvirfinder"]["do"]:
                 $grepcode=$?
                 if [ $grepcode -eq 0 ];
                 then
-                    touch {output} 2>>{log} 2>&1
+                    touch {output} >> {log} 2>&1
+                    echo "Touch empty file: {output}" >> {log} 2>&1
                     exit 0
                 else
+                    echo "Runing failed, check DeepVirFinder log please." >> {log} 2>&1
                     exit $exitcode
                 fi
             fi

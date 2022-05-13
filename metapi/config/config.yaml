@@ -352,7 +352,7 @@ output:
   upload: "results/99.upload"
 
 upload:
-  do: True
+  do: False
   threads: 8
   project_accession: "CNP0000000"
 
