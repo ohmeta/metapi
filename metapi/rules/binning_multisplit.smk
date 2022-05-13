@@ -313,6 +313,7 @@ if config["params"]["binning"]["vamb"]["do"]:
             external_params = config["params"]["binning"]["vamb"]["external_params"]
         shell:
             '''
+            set +e
             rm -rf {params.outdir}
             mkdir -p {params.outdir_base}
 
@@ -327,12 +328,12 @@ if config["params"]["binning"]["vamb"]["do"]:
                 then
                     module load {params.cuda_module}
                     echo "module load {params.cuda_module}" > {log} 2>&1
+                    which nvcc >> {log} 2>&1
                 fi
 
                 if [ "{params.cuda}" == "--cuda" ];
                 then
                     lspci | grep -i nvidia >> {log} 2>&1
-                    which nvcc >> {log} 2>&1
                     which python >> {log} 2>&1
                     which vamb >> {log} 2>&1
 
@@ -356,6 +357,7 @@ if config["params"]["binning"]["vamb"]["do"]:
 
                 touch {output.binning_done}
             fi
+            exit 0
             '''
 
 
