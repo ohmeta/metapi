@@ -22,8 +22,8 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
             assembly_group = f'''S{assembly_index}'''
 
             pep_id_list = metapi.parse_gff(str(input.gff), int(params.min_contig))
-            metapi.extract_faa(str(input.pep), pep_id_list, str(output.pep), assembly_group)
-      
+            metapi.extract_faa(str(input.pep), pep_id_list, str(output.pep), assembly_group) 
+
 
     rule identify_phamb_micomplete:
         input:
@@ -258,10 +258,6 @@ rule identify_all:
 
 
 localrules:
-    identify_phamb_filter_pep,
-    identify_phamb_micomplete_merge,
-    identify_phamb_vog_merge,
-    identify_phamb_deepvirfinder_merge,
     identify_phamb_all,
     identify_multi_all,
     identify_all
