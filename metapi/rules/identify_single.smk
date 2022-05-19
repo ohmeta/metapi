@@ -179,7 +179,7 @@ if config["params"]["identify"]["deepvirfinder"]["do"]:
             exitcode=$?
             echo "Exit code is: $exitcode" >> {log} 2>&1
 
-            if [ exitcode -eq 1 ];
+            if [ $exitcode -eq 1 ];
             then
                 grep -oEi "ValueError: not enough values to unpack" {log} 
                 $grepcode=$?
