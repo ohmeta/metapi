@@ -131,3 +131,16 @@ def get_sample_id_(sample_df, wildcards, col):
 
 def get_bin_id(bin_df, wildcards, col):
     return bin_df.loc[wildcards.bin, [col]].dropna()[0]
+
+
+def sample_cluster_info(sample_df):
+    '''
+    vamb cluster
+    '''
+    binning_groups = sample_df.index.get_level_values("binning_group").unique()
+
+    for binning_group in binning_groups:
+        assembly_groups = sample_df.loc[:, :, binning_group].index.get_level_values("assembly_group").unique()
+        assembly_groups = sorted(assembly_groups)
+        for i in range(0, len(assembly_groups)):
+            print(f'''{assembly_groups[i]}\tS{i+1}''')
