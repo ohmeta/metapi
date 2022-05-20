@@ -182,7 +182,7 @@ if config["params"]["identify"]["deepvirfinder"]["do"]:
             if [ $exitcode -eq 1 ];
             then
                 grep -oEi "ValueError: not enough values to unpack" {log} 
-                $grepcode=$?
+                grepcode=$?
                 if [ $grepcode -eq 0 ];
                 then
                     touch {output} >> {log} 2>&1
