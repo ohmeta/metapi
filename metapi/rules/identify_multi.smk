@@ -51,9 +51,11 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
             config["envs"]["phamb"]
         shell:
             '''
+            set +e
             if [[ `cat {input.pep} | wc -l` -eq 0 ]];
             then
-                touch {output.hmm} 2> {log}
+                touch {output.hmm} >> {log} 2>&1
+                exit 0
             else
                 hmmsearch \
                 --cpu {threads} \
@@ -62,7 +64,27 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
                 --tblout {output.hmm} \
                 {input.db} \
                 {input.pep} \
-                2> {log}
+                >> {log} 2>&1
+
+                exitcode=$?
+                if [ $exitcode -eq 0 ];
+                then
+                    grep -oEi "ok" {output.hmm}
+                    grepcode=$?
+                    if [ $grepcode -eq 1 ];
+                    then
+                        rm -rf {output.hmm}
+                        echo "hmmsearch failed" >> {log} 2>&1
+                        exit 1
+                    else
+                        echo "hmmsearch done" >> {log} 2>&1
+                        exit 0
+                    fi
+                else
+                    rm -rf {output.hmm}
+                    echo "hmmsearch failed" >> {log} 2>&1
+                    exit 1
+                fi
             fi
             '''
 
@@ -112,7 +134,8 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
             '''
             if [[ `cat {input.pep} | wc -l` -eq 0 ]];
             then
-                touch {output.hmm} 2> {log}
+                touch {output.hmm} >> {log} 2>&1
+                exit 0
             else
                 hmmsearch \
                 --cpu {threads} \
@@ -121,7 +144,27 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
                 --tblout {output.hmm} \
                 {input.db} \
                 {input.pep} \
-                2> {log}
+                >> {log} 2>&1
+
+                exitcode=$?
+                if [ $exitcode -eq 0 ];
+                then
+                    grep -oEi "ok" {output.hmm}
+                    grepcode=$?
+                    if [ $grepcode -eq 1 ];
+                    then
+                        rm -rf {output.hmm}
+                        echo "hmmsearch failed" >> {log} 2>&1
+                        exit 1
+                    else
+                        echo "hmmsearch done" >> {log} 2>&1
+                        exit 0
+                    fi
+                else
+                    rm -rf {output.hmm}
+                    echo "hmmsearch failed" >> {log} 2>&1
+                    exit 1
+                fi
             fi
             '''
 
