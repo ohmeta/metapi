@@ -19,7 +19,8 @@ if config["params"]["identify"]["virsorter2"]["do"]:
             virsorter setup --db-dir {params.db_dir} --jobs {threads} >{log} 2>&1
             '''
 
-
+# https://github.com/EddyRivasLab/hmmer/issues/161
+# hmmsearch threads: 2 (recommand)
     rule identify_virsorter2_config:
         input:
             os.path.join(config["params"]["identify"]["virsorter2"]["db"], "Done_all_setup")
