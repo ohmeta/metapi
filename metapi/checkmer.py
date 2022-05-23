@@ -63,7 +63,7 @@ def quality_score(row):
     return row["completeness"] - 5 * row["contamination"]
 
 
-def parse(checkm_table):
+def parse_checkm_table(checkm_table):
     if os.path.getsize(checkm_table) > 0:
         checkm_df = pd.read_csv(checkm_table, sep="\t")
         return checkm_df
@@ -74,22 +74,32 @@ def parse(checkm_table):
 def checkm_reporter(checkm_list, output, threads):
     df_list = []
     with concurrent.futures.ProcessPoolExecutor(max_workers=threads) as executor:
-        for df in executor.map(parse, checkm_list):
+        for df in executor.map(parse_checkm_table, checkm_list):
             if df is not None:
                 df_list.append(df)
 
-    df_ = pd.concat(df_list).rename(
-        columns={
-            "Bin Id": "bin_id",
-            "Marker lineage": "marker_lineage",
-            "# genomes": "genomes",
-            "# markers": "markers",
-            "# marker sets": "marker_sets",
-            "Completeness": "completeness",
-            "Contamination": "contamination",
-            "Strain heterogeneity": "strain_heterogeneity",
-        }
-    )
+    df_ = pd.DataFrame(columns=["bin_id",
+                "marker_lineage",
+                "genomes",
+                "markers",
+                "marker_sets",
+                "completeness",
+                "contamination",
+                "strain_heterogeneity"])
+
+    if len(df_list) > 1:
+        df_ = pd.concat(df_list).rename(
+            columns={
+                "Bin Id": "bin_id",
+                "Marker lineage": "marker_lineage",
+                "# genomes": "genomes",
+                "# markers": "markers",
+                "# marker sets": "marker_sets",
+                "Completeness": "completeness",
+                "Contamination": "contamination",
+                "Strain heterogeneity": "strain_heterogeneity",
+            }
+        )
 
     df_["MIMAG_quality_level"] = df_.apply(
         lambda x: MIMAG_quality_level(x), axis=1)
