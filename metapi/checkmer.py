@@ -78,16 +78,21 @@ def checkm_reporter(checkm_list, output, threads):
             if df is not None:
                 df_list.append(df)
 
-    df_ = pd.DataFrame(columns=["bin_id",
-                "marker_lineage",
-                "genomes",
-                "markers",
-                "marker_sets",
-                "completeness",
-                "contamination",
-                "strain_heterogeneity"])
+    df_ = pd.DataFrame(
+        columns=[
+            "bin_id",
+            "marker_lineage",
+            "genomes",
+            "markers",
+            "marker_sets",
+            "completeness",
+            "contamination",
+            "strain_heterogeneity",
+            "MIMAG_quality_level",
+            "SGB_quality_level",
+            "quality_score"])
 
-    if len(df_list) > 1:
+    if len(df_list) >= 1:
         df_ = pd.concat(df_list).rename(
             columns={
                 "Bin Id": "bin_id",
@@ -101,11 +106,12 @@ def checkm_reporter(checkm_list, output, threads):
             }
         )
 
-    df_["MIMAG_quality_level"] = df_.apply(
-        lambda x: MIMAG_quality_level(x), axis=1)
-    df_["SGB_quality_level"] = df_.apply(
-        lambda x: SGB_quality_level(x), axis=1)
-    df_["quality_score"] = df_.apply(lambda x: quality_score(x), axis=1)
+    if not df_.empty:
+        df_["MIMAG_quality_level"] = df_.apply(
+            lambda x: MIMAG_quality_level(x), axis=1)
+        df_["SGB_quality_level"] = df_.apply(
+            lambda x: SGB_quality_level(x), axis=1)
+        df_["quality_score"] = df_.apply(lambda x: quality_score(x), axis=1)
 
     if output is not None:
         df_.to_csv(output, sep="\t", index=False)
