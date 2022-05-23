@@ -40,17 +40,25 @@ if config["params"]["checkm"]["do"]:
             config["params"]["checkm"]["threads"]
         shell:
             '''
-            checkm lineage_wf \
-            --tab_table \
-            --file {output.table} \
-            --threads {threads} \
-            --pplacer_threads {params.pplacer_threads} \
-            {params.reduced_tree} \
-            --extension faa \
-            --genes \
-            {input} \
-            {output.data} \
-            > {log}
+            if [[ `wc -l {input}` -eq 0 ]];
+            then
+                echo "No bins found, please check the input again" > {log} 2>&1
+                echo "Touch empty file and directory" >> {log} 2>&1
+                touch {output.table} >> {log} 2>&1
+                mkdir -p {output.data} >> {log} 2>&1
+            else
+                checkm lineage_wf \
+                --tab_table \
+                --file {output.table} \
+                --threads {threads} \
+                --pplacer_threads {params.pplacer_threads} \
+                {params.reduced_tree} \
+                --extension faa \
+                --genes \
+                {input} \
+                {output.data} \
+                > {log} 2>&1
+            fi
             '''
 
 
