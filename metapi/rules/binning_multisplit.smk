@@ -326,7 +326,7 @@ if config["params"]["binning"]["vamb"]["do"]:
                 echo "The total number of contigs of {input.scaftigs} is $nums, less than 4096" > {log} 2>&1
                 echo "See here for help: https://github.com/RasmussenLab/vamb/issues/35" >> {log} 2>&1
 
-                if [ {params.allow_small_scaftigs} -eq 0 ]:
+                if [ {params.allow_small_scaftigs} -eq 0 ];
                 then
                     mkdir -p {params.outdir}
                     touch {output.binning_done}
