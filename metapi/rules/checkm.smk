@@ -40,7 +40,7 @@ if config["params"]["checkm"]["do"]:
             config["params"]["checkm"]["threads"]
         shell:
             '''
-            if [[ `wc -l {input}` -eq 0 ]];
+            if [[ `wc -l {input} | awk '{{print $1}}'` -eq 0 ]];
             then
                 echo "No bins found, please check the input again" > {log} 2>&1
                 echo "Touch empty file and directory" >> {log} 2>&1
