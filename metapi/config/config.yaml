@@ -235,6 +235,7 @@ params:
       cuda_module: "cuda/11.2" # take effect only when use_cuda_module
       use_cuda_module: False # avoid conda's CUDA issue
       save_bam: False
+      allow_small_scaftigs: False
       min_contig: 2000
       min_fasta: 200000 # 200K, 500K # For viral genome, choose ? 1kb ?
       index_size: "500G"

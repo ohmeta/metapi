@@ -310,53 +310,75 @@ if config["params"]["binning"]["vamb"]["do"]:
             cuda = "--cuda" if config["params"]["binning"]["vamb"]["cuda"] else "",
             cuda_module = config["params"]["binning"]["vamb"]["cuda_module"],
             use_cuda_module = int(config["params"]["binning"]["vamb"]["use_cuda_module"]),
+            allow_small_scaftigs = 1 if config["params"]["binning"]["vamb"]["allow_small_scaftigs"] else 0,
             external_params = config["params"]["binning"]["vamb"]["external_params"]
         shell:
             '''
             set +e
+
             rm -rf {params.outdir}
             mkdir -p {params.outdir_base}
 
-            if [[ `zcat {input.scaftigs} | grep -c "^>"` -lt 4096 ]];
+            nums=`zcat {input.scaftigs} | grep -c "^>"`
+
+            if [ $nums -lt 4096 ];
             then
-                mkdir -p {params.outdir}
-                echo "The total number of contigs of {input.scaftigs} are less than 4096, exit" > {log} 2>&1
+                echo "The total number of contigs of {input.scaftigs} is $nums, less than 4096" > {log} 2>&1
+                echo "See here for help: https://github.com/RasmussenLab/vamb/issues/35" >> {log} 2>&1
 
-                touch {output.binning_done}
+                if [ {params.allow_small_scaftigs} -eq 0 ]:
+                then
+                    mkdir -p {params.outdir}
+                    touch {output.binning_done}
+                    echo "Allow small scaftigs: False" >> {log} 2>&1
+                    echo "Touch binning_done" >> {log} 2>&1
+                    exit 0
+                else
+                    echo "Allow small scaftigs: True" >> {log} 2>&1
+                    echo "Maybe you need to adjust the number of epochs and start batch size" >> {log} 2>&1
+                    echo "Running vamb" >> {log} 2>&1
+                fi
             else
-                if [ {params.use_cuda_module} -eq 1 ];
-                then
-                    module load {params.cuda_module}
-                    echo "module load {params.cuda_module}" > {log} 2>&1
-                    which nvcc >> {log} 2>&1
-                fi
-
-                if [ "{params.cuda}" == "--cuda" ];
-                then
-                    lspci | grep -i nvidia >> {log} 2>&1
-                    which python >> {log} 2>&1
-                    which vamb >> {log} 2>&1
-
-                    python -c 'import torch;print(torch.__file__)' >> {log} 2>&1
-                    python -c 'import torch;print(f"Torch CUDA: {{torch.cuda.is_available()}}")' >> {log} 2>&1
-                    python -c 'from torch.utils.cpp_extension import CUDA_HOME;print(CUDA_HOME)' >> {log} 2>&1
-                    python -c 'import os; print(os.environ.get("CUDA_PATH"))' >> {log} 2>&1
-                fi
-
-                vamb \
-                {params.cuda} \
-                -p {threads} \
-                --outdir {params.outdir} \
-                --fasta {input.scaftigs} \
-                --jgi {input.matrix} \
-                -o C \
-                -m {params.min_contig} \
-                --minfasta {params.min_fasta} \
-                {params.external_params} \
-                >> {log} 2>&1
-
-                touch {output.binning_done}
+                echo "The total number of contigs of {input.scaftigs} is $nums, greater than 4096" > {log} 2>&1
+                echo "Running vamb" >> {log} 2>&1
             fi
+
+
+            if [ {params.use_cuda_module} -eq 1 ];
+            then
+                module load {params.cuda_module}
+                echo "module load {params.cuda_module}" >> {log} 2>&1
+                which nvcc >> {log} 2>&1
+            fi
+
+            if [ "{params.cuda}" == "--cuda" ];
+            then
+                lspci | grep -i nvidia >> {log} 2>&1
+                which python >> {log} 2>&1
+                which vamb >> {log} 2>&1
+
+                python -c 'import torch;print(torch.__file__)' >> {log} 2>&1
+                python -c 'import torch;print(f"Torch CUDA: {{torch.cuda.is_available()}}")' >> {log} 2>&1
+                python -c 'from torch.utils.cpp_extension import CUDA_HOME;print(CUDA_HOME)' >> {log} 2>&1
+                python -c 'import os; print(os.environ.get("CUDA_PATH"))' >> {log} 2>&1
+            fi
+
+            vamb \
+            {params.cuda} \
+            -p {threads} \
+            --outdir {params.outdir} \
+            --fasta {input.scaftigs} \
+            --jgi {input.matrix} \
+            -o C \
+            -m {params.min_contig} \
+            --minfasta {params.min_fasta} \
+            {params.external_params} \
+            >> {log} 2>&1
+
+            echo "Running vamb completed" >> {log} 2>&1
+            echo "Touch binning_done" >> {log} 2>&1
+            touch {output.binning_done}
+
             exit 0
             '''
 
