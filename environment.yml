@@ -10,4 +10,5 @@ dependencies:
   - ruamel.yaml
   - snakemake >=6.10
   - openpyxl
+  - natsort
   - biopython >=1.73

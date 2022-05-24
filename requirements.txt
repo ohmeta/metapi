@@ -3,4 +3,5 @@ pandas
 openpyxl
 snakemake
 ruamel.yaml
+natsort
 biopython >=1.73
