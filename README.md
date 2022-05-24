@@ -8,25 +8,25 @@
 A general metagenomics data mining system focus on robust microbiome research.
 
 ## Overview
-### MAG workflow
+### MAG workflow (WIP figure)
 <div align=center><img width="600" height="800" src="docs/mag_workflow.svg"></div>
 
 ## Installation
 
-metapi works with Python 3.6+.
+metapi works with Python 3.7+.
 You can install it via [bioconda](https://bioconda.github.io/):
 
 ```
 ➤ mamba install -c conda-forge -c bioconda metapi
 
-# specific version, recommand to install latest version
-➤ mamba install -c conda-forge -c bioconda metapi=1.1.0
+# It is recommended to install the latest version
+➤ mamba install -c conda-forge -c bioconda metapi=2.1.0
 ```
 
 Or via pip:
 
 ```
-➤ pip3 install metapi=1.1.0
+➤ pip3 install metapi=2.1.0
 ```
 
 ## Run
@@ -178,10 +178,16 @@ positional arguments:
   binning_vamb_all,
   binning_report_all,
   binning_all,
+  identify_virsorter2_all,
+  identify_deepvirfinder_all,
+  identify_single_all,
+  identify_phamb_all,
+  identify_multi_all,
+  identify_all,
   predict_scaftigs_gene_prodigal_all,
   predict_scaftigs_gene_prokka_all,
   predict_bins_gene_prodigal_all,
-  predict_bins_gene_prokka_all, 
+  predict_bins_gene_prokka_all,
   predict_scaftigs_gene_all,
   predict_bins_gene_all,
   predict_all,
@@ -247,8 +253,11 @@ optional arguments:
 # run assembly
 ➤ metapi mag_wf assembly_all --run-local
 
-# run binning
+# run binning (microbial MAG)
 ➤ metapi mag_wf binning_all --run-local
+
+# run identify (virus MAG)
+➤ metapi mag_wf identify_all --run-local
 
 # run gene predict
 ➤ metapi mag_wf predict_all --run-local
@@ -396,7 +405,7 @@ Then metapi will use [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq) to g
   |  s2          |   s2.bin.2.fa   |
   |  s2          |   s3.bin.3.fa   |
 
-## Output Structure (begin from trimming)
+## Default output structure (begin from trimming)
 ```
 - config.yaml
 - logs/
@@ -410,6 +419,7 @@ Then metapi will use [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq) to g
     04.assembly/
     05.alignment/
     06.binning/
+    06.identify/
     07.predict/
     08.checkm/
     09.dereplicate/

@@ -6,35 +6,8 @@ channels:
 dependencies:
   - setuptools
   - pandas
-  - ruamel.yaml
-  - snakemake >=5.10
   - numpy
-  - pandas
-  - openpyxl
-  - biopython>=1.73
   - ruamel.yaml
-  - snakemake >=5.10
-  - insilicoseq
-  - fastqc
-  - seqtk
-  - seqkit
-  - multiqc
-  - pigz
-  - fastp
-  - sickle-trim
-  - bwa
-  - bowtie2
-  - samtools
-  - megahit
-  - idba
-  - spades
-  - quast
-  - metabat2
-  - maxbin2
-  - vsearch
-  - prodigal
-  - prokka
-  - checkm-genome
-  - drep
-  - kraken
-  - gtdbtk
+  - snakemake >=6.10
+  - openpyxl
+  - biopython >=1.73
