@@ -8,7 +8,9 @@ dependencies:
   - pandas
   - numpy
   - ruamel.yaml
-  - snakemake >=6.10
+  - snakemake >=7.0
   - openpyxl
   - natsort
   - biopython >=1.73
+  - seaborn
+  - matplotlib

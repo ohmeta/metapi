@@ -3,6 +3,9 @@
 import sys
 import metapi
 import pandas as pd
+from snakemake.utils import min_version
+
+min_version(7.0)
 
 shell.executable("bash")
 
