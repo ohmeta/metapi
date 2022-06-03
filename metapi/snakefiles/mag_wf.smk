@@ -6,7 +6,7 @@ import pandas as pd
 from pprint import pprint
 from snakemake.utils import min_version
 
-min_version(7.0)
+min_version("7.0")
 
 shell.executable("bash")
 
