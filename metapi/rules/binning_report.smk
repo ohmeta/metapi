@@ -61,7 +61,7 @@ if len(BINNERS_CHECKM) != 0:
             import glob
             comp_list = []
             for i in input:
-                comp_list += glob.glob(i + "/*bin*.seqtk.comp.tsv.gz")
+                comp_list += glob.glob(i + "/*.seqtk.comp.tsv.gz")
 
             if len(comp_list) != 0:
                 metapi.assembler_init(params.len_ranges,
