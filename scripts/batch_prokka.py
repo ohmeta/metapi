@@ -12,7 +12,7 @@ def run(dir_list, outdir, logdir):
     with open(dir_list) as f:
         for dir in f:
             count += 1
-            bin_list = glob.glob(dir.strip() + "/*bin*fa")
+            bin_list = glob.glob(dir.strip() + "/*.fa")
             for bin in bin_list:
                 bin_id = os.path.basename(bin).rstrip(".fa")
                 prokka_dir = os.path.join(outdir,

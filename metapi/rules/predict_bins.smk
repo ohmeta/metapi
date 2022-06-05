@@ -78,7 +78,7 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
             import time
             import subprocess
 
-            bin_list = glob.glob(input.bins_dir + "/*bin*fa")
+            bin_list = glob.glob(input.bins_dir + "/*.fa")
             gff_count = 0
 
             for bin_fa in bin_list:

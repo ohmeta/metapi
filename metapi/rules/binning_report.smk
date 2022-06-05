@@ -19,7 +19,7 @@ if len(BINNERS_CHECKM) != 0:
             shell('''rm -rf {output.report_dir}''')
             shell('''mkdir -p {output.report_dir}''')
 
-            bin_list =  glob.glob(os.path.dirname(input[0]) + "/*bin*fa")
+            bin_list =  glob.glob(os.path.dirname(input[0]) + "/*.fa")
             header_list = ["assembly_group", "bin_id", "bin_file", "assembler", "binner",
                            "chr", "length", "#A", "#C", "#G", "#T",
                            "#2", "#3", "#4", "#CpG", "#tv", "#ts", "#CpG-ts"]

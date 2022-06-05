@@ -9,7 +9,7 @@ import pandas
 
 def parse_bins(bins_dir):
     bin_list = []
-    pattern = bins_dir + "/*/*bin*fa"
+    pattern = bins_dir + "/*/*.fa"
     for bin in glob.glob(pattern):
         bin_dict = {}
         bin_fa = os.path.basename(bin)

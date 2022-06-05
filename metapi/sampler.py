@@ -88,7 +88,7 @@ def parse_samples(
 
 def parse_bins(bins_dir):
     bin_list = []
-    for bin_ in glob.glob(bins_dir + "/*/*bin*fa"):
+    for bin_ in glob.glob(bins_dir + "/*/*.fa"):
         bin_dict = dict()
         bin_dict["path"] = bin_.strip()
         bin_dict["id"] = os.path.basename(bin_).rstrip(".fa")
