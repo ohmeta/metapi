@@ -3,7 +3,7 @@ if len(BINNERS_CHECKM) != 0:
         input:
             lambda wildcards: get_binning_done(wildcards, [wildcards.binner_checkm])
         output:
-            report_dir = directory(
+            directory(
                 os.path.join(
                     config["output"]["binning"],
                     "report/{assembler}_{binner_checkm}_stats/{assembly_group}"))
@@ -16,8 +16,8 @@ if len(BINNERS_CHECKM) != 0:
         run:
             import glob
 
-            shell('''rm -rf {output.report_dir}''')
-            shell('''mkdir -p {output.report_dir}''')
+            shell('''rm -rf {output}''')
+            shell('''mkdir -p {output}''')
 
             bin_list =  glob.glob(os.path.dirname(input[0]) + "/*.fa")
             header_list = ["assembly_group", "bin_id", "bin_file", "assembler", "binner",
@@ -29,7 +29,7 @@ if len(BINNERS_CHECKM) != 0:
                 bin_id = os.path.basename(os.path.splitext(bin_fa)[0])
                 bin_file = os.path.abspath(bin_fa)
                 header_content = "\\t".join([params.assembly_group, bin_id, bin_file, params.assembler, params.binner])
-                stats_file = os.path.join(output.report_dir, bin_id + ".seqtk.comp.tsv.gz")
+                stats_file = os.path.join(output[0], bin_id + ".seqtk.comp.tsv.gz")
 
                 shell(
                     '''
