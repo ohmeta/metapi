@@ -76,6 +76,8 @@ if config["params"]["identify"]["virsorter2"]["do"]:
             keep_original_seq = "--keep-original-seq" if config["params"]["identify"]["virsorter2"]["keep_original_seq"] else ""
         shell:
             '''
+            rm -rf {params.working_dir}
+
             set +e
 
             virsorter run \
@@ -168,6 +170,8 @@ if config["params"]["identify"]["deepvirfinder"]["do"]:
             config["params"]["identify"]["threads"]
         shell:
             '''
+            rm -rf {params.out_dir}
+
             set +e
 
             python {params.deepvirfinder} \
