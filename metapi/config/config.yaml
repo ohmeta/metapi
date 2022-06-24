@@ -252,6 +252,7 @@ params:
     virsorter2:
       do: True
       db: /home/jiezhu/databases/ecogenomics/VirSorter2/db
+      split_contigs_num: 80000
       include_groups: ["dsDNAphage", "ssDNA"] # ["dsDNAphage", "NCLDV", "RNA", "ssDNA", "lavidaviridae"]
       min_score: 0.5
       min_length: 2000
