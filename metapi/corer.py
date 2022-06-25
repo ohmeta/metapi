@@ -131,6 +131,8 @@ def run_snakemake(args, unknown, snakefile, workflow):
         args.config,
         "--cores",
         str(args.cores),
+        "--until",
+        args.task
     ] + unknown
 
     if "--touch" in unknown:
@@ -145,8 +147,6 @@ def run_snakemake(args, unknown, snakefile, workflow):
             "--keep-going",
             "--printshellcmds",
             "--reason",
-            "--until",
-            args.task
         ]
 
         if args.use_conda:
