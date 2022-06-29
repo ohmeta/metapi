@@ -20,13 +20,13 @@ You can install it via [bioconda](https://bioconda.github.io/):
 ➤ mamba install -c conda-forge -c bioconda metapi
 
 # It is recommended to install the latest version
-➤ mamba install -c conda-forge -c bioconda metapi=2.1.4
+➤ mamba install -c conda-forge -c bioconda metapi=2.2.0
 ```
 
 Or via pip:
 
 ```
-➤ pip3 install metapi=2.1.4
+➤ pip3 install metapi=2.2.0
 ```
 
 ## Run
