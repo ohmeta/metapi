@@ -71,6 +71,7 @@ WORKFLOWS_MAG = [
     "checkm_all",
     "dereplicate_mags_drep_all",
     "dereplicate_mags_all",
+    "taxonomic_gtdbtk_all",
     "taxonomic_all",
     "upload_sequencing_all",
     "upload_assembly_all",

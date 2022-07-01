@@ -300,9 +300,9 @@ params:
       do: True
       pplacer_threads: 1
       batch_num: 1000
-      gtdb_data_path: "/home/jiezhu/databases/ecogenomics/GTDB/release202"
-      ar122_metadata: "/home/jiezhu/databases/ecogenomics/GTDB/release202/ar122_metadata_r202.tsv"
-      bac120_metadata: "/home/jiezhu/databases/ecogenomics/GTDB/release202/bac120_metadata_r202.tsv"
+      gtdb_data_path: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release207_v2"
+      ar122_metadata: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release207_v2/ar122_metadata_r202.tsv"
+      bac120_metadata: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release207_v2/bac120_metadata_r202.tsv"
       gtdb_to_ncbi_script: "/home/jiezhu/toolkit/GTDBTk/scripts/gtdb_to_ncbi_majority_vote.py"
 
   dereplicate:
