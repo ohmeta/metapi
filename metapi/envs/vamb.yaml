@@ -4,9 +4,9 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - pytorch =*=*cuda112*
+  - pytorch
   - torchvision 
-  - cudatoolkit =11.2
+  - cudatoolkit
   - pysam
   - pip
   - pip: 
