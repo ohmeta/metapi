@@ -192,28 +192,29 @@ def compute_host_rate(df, steps, samples_id_list, allow_miss_samples=True, **kwa
             sys.exit(1)
     
     for sample_id in df.index.unique():
-        if sample_id in sample_reads:
-            if "rmhost" in steps:
-                if "trimming" in steps:
-                    if ("trimming" in sample_reads[sample_id]) and ("rmhost" in sample_reads[sample_id]):
-                        host_rate[sample_id] = (
-                            sample_reads[sample_id]["trimming"]
-                            - sample_reads[sample_id]["rmhost"]
-                            ) / sample_reads[sample_id]["trimming"]
-                    else:
-                        host_rate[sample_id] = np.nan
-                elif "raw" in steps:
-                    if ("raw" in sample_reads[sample_id]) and ("rmhost" in sample_reads[sample_id]):
-                        host_rate[sample_id] = (
-                            sample_reads[sample_id]["raw"]
-                            - sample_reads[sample_id]["rmhost"]
-                            ) / sample_reads[sample_id]["raw"]
-                    else:
-                        host_rate[sample_id] = np.nan
+        if not pd.isnull(sample_id):
+            if sample_id in sample_reads:
+                if "rmhost" in steps:
+                    if "trimming" in steps:
+                        if ("trimming" in sample_reads[sample_id]) and ("rmhost" in sample_reads[sample_id]):
+                            host_rate[sample_id] = (
+                                sample_reads[sample_id]["trimming"]
+                                - sample_reads[sample_id]["rmhost"]
+                                ) / sample_reads[sample_id]["trimming"]
+                        else:
+                            host_rate[sample_id] = np.nan
+                    elif "raw" in steps:
+                        if ("raw" in sample_reads[sample_id]) and ("rmhost" in sample_reads[sample_id]):
+                            host_rate[sample_id] = (
+                                sample_reads[sample_id]["raw"]
+                                - sample_reads[sample_id]["rmhost"]
+                                ) / sample_reads[sample_id]["raw"]
+                        else:
+                            host_rate[sample_id] = np.nan
+                else:
+                    host_rate[sample_id] = np.nan
             else:
                 host_rate[sample_id] = np.nan
-        else:
-            host_rate[sample_id] = np.nan
 
     df = df.reset_index()
     df["host_rate"] = df.apply(lambda x: host_rate[x["id"]], axis=1)
