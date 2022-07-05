@@ -143,7 +143,7 @@ def change(output, sample_id, step, fq_type, reads_list):
     df.to_csv(output, sep="\t", index=False)
 
 
-def compute_host_rate(df, steps, samples_id_list, **kwargs):
+def compute_host_rate(df, steps, samples_id_list, allow_miss_samples=True, **kwargs):
     all_state_set = set()
     have_state_set = set()
     sample_reads = {}
@@ -157,6 +157,7 @@ def compute_host_rate(df, steps, samples_id_list, **kwargs):
     for sample_id in df.index.unique():
         if not pd.isnull(sample_id):
             sample_reads[sample_id] = {}
+
             for step in steps:
                 step_df = df.loc[
                     [sample_id],
@@ -186,25 +187,33 @@ def compute_host_rate(df, steps, samples_id_list, **kwargs):
     if len(not_have_state_set) > 0:
         for j in not_have_state_set:
             print(f"""WARNING: there are no {j[0]} full stats report for {j[1]} step""")
-        print("Please check stats report again for each sample")
-        sys.exit(1)
-    else:
-        for sample_id in df.index.unique():
+        if not allow_miss_samples:
+            print("Please check stats report again for each sample")
+            sys.exit(1)
+    
+    for sample_id in df.index.unique():
+        if sample_id in sample_reads:
             if "rmhost" in steps:
                 if "trimming" in steps:
-                    host_rate[sample_id] = (
-                        sample_reads[sample_id]["trimming"]
-                        - sample_reads[sample_id]["rmhost"]
-                    ) / sample_reads[sample_id]["trimming"]
+                    if ("trimming" in sample_reads[sample_id]) and ("rmhost" in sample_reads[sample_id]):
+                        host_rate[sample_id] = (
+                            sample_reads[sample_id]["trimming"]
+                            - sample_reads[sample_id]["rmhost"]
+                            ) / sample_reads[sample_id]["trimming"]
+                    else:
+                        host_rate[sample_id] = np.nan
                 elif "raw" in steps:
-                    host_rate[sample_id] = (
-                        sample_reads[sample_id]["raw"]
-                        - sample_reads[sample_id]["rmhost"]
-                    ) / sample_reads[sample_id]["raw"]
-                else:
-                    host_rate[sample_id] = np.nan
+                    if ("raw" in sample_reads[sample_id]) and ("rmhost" in sample_reads[sample_id]):
+                        host_rate[sample_id] = (
+                            sample_reads[sample_id]["raw"]
+                            - sample_reads[sample_id]["rmhost"]
+                            ) / sample_reads[sample_id]["raw"]
+                    else:
+                        host_rate[sample_id] = np.nan
             else:
                 host_rate[sample_id] = np.nan
+        else:
+            host_rate[sample_id] = np.nan
 
     df = df.reset_index()
     df["host_rate"] = df.apply(lambda x: host_rate[x["id"]], axis=1)
@@ -322,6 +331,7 @@ def main():
         df,
         ["raw", "trimming", "rmhost"],
         df.set_index("id").index.unique(),
+        allow_miss_samples=True,
         output=os.path.join(args.output, ".stats.tsv"),
     )
     qc_bar_plot(df_, "seaborn", output=os.path.join(args.output, ".plot.pdf"))
