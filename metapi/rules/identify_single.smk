@@ -114,7 +114,7 @@ if config["params"]["identify"]["virsorter2"]["do"]:
             {params.provirus_off} \
             {params.rm_tmpdir} \
             {params.keep_original_seq} \
-            --working-dir {params.working_dir}} \
+            --working-dir {params.working_dir} \
             --seqfile {input.scaftigs} \
             --label {params.label} \
             --include-groups {params.include_groups} \
