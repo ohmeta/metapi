@@ -60,6 +60,8 @@ if config["params"]["raw"]["do"]:
                         config["output"]["raw"],
                         "short_reads/{{sample}}/{{sample}}.raw{read}.fq.gz"),
                     read=short_reads_suffix()))
+        conda:
+            config["envs"]["raw"]
         params:
             output_dir = os.path.join(config["output"]["raw"],
                                    "short_reads/{sample}"),
@@ -180,6 +182,8 @@ if config["params"]["raw"]["do"]:
                             config["output"]["raw"],
                             "long_reads/{{sample}}/{{sample}}.raw{read}.fq"),
                         read=long_reads_suffix()))
+            conda:
+                config["envs"]["raw"]
             run:
                 reads_num = len(input)
 
