@@ -82,6 +82,8 @@ if config["params"]["trimming"]["sickle"]["do"]:
         benchmark:
             os.path.join(config["output"]["trimming"],
                          "benchmark/sickle/{sample}.sickle.benchmark.txt")
+        conda:
+            config["envs"]["trimming"]
         params:
             output_prefix = os.path.join(config["output"]["trimming"],
                                          "short_reads/{sample}/{sample}"),
@@ -183,6 +185,8 @@ if config["params"]["trimming"]["fastp"]["do"]:
         benchmark:
             os.path.join(config["output"]["trimming"],
                          "benchmark/fastp/{sample}.fastp.benchmark.txt")
+        conda:
+            config["envs"]["trimming"]
         threads:
             config["params"]["trimming"]["fastp"]["threads"]
         run:
@@ -289,6 +293,8 @@ if config["params"]["trimming"]["fastp"]["do"]:
             os.path.join(config["output"]["trimming"], "logs/multiqc.fastp.log")
         params:
             outdir = os.path.join(config["output"]["trimming"], "report")
+        conda:
+            config["envs"]["multiqc"]
         shell:
             '''
             multiqc \
@@ -332,6 +338,8 @@ if TRIMMING_DO and config["params"]["qcreport"]["do"]:
         params:
             sample_id = "{sample}",
             fq_encoding = config["params"]["fq_encoding"]
+        conda:
+            config["envs"]["seqkit"]
         threads:
             config["params"]["qcreport"]["seqkit"]["threads"]
         run:

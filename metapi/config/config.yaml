@@ -407,6 +407,9 @@ upload:
 envs:
   simulate: "envs/simulate.yaml"
   raw: "envs/raw.yaml"
+  trimming: "envs/trimming.yaml"
+  multiqc: "envs/multiqc.yaml"
+  seqkit: "envs/seqkit.yaml"
   minimap2: "envs/minimap2.yaml"
   metabat2: "envs/metabat2.yaml"
   maxbin2: "envs/maxbin2.yaml"

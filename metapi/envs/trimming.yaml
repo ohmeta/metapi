@@ -1,0 +1,7 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - sickle-trim=1.33
+  - fastp=0.23.2
