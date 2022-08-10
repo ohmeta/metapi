@@ -13,6 +13,8 @@ if config["params"]["simulate"]["do"]:
             os.path.join(config["output"]["simulate"], "logs/{sample}.iss.log")
         benchmark:
             os.path.join(config["output"]["simulate"], "benchmark/iss/{sample}.iss.benchmark.txt")
+        conda:
+            config["envs"]["simulate"]
         params:
             output_prefix = os.path.join(config["output"]["simulate"],
                                          "short_reads/{sample}"),

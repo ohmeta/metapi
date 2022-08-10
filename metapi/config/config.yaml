@@ -405,6 +405,7 @@ upload:
     reference_genome: ""
 
 envs:
+  simulate: "envs/simulate.yaml"
   minimap2: "envs/minimap2.yaml"
   metabat2: "envs/metabat2.yaml"
   maxbin2: "envs/maxbin2.yaml"
