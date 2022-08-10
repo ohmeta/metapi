@@ -3,6 +3,6 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - minimap2=2.24
-  - samtools=1.15.1
+  - kraken2=2.1.2
+  - krakentools=1.2
   - pigz

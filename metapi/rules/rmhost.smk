@@ -23,6 +23,8 @@ if config["params"]["rmhost"]["soap"]["do"]:
                    prefix=config["params"]["rmhost"]["soap"]["index_prefix"],
                    suffix=["amb", "ann", "bwt", "fmv", "hot", "lkt", "pac",
                            "rev.bwt", "rev.fmv", "rev.lkt", "rev.pac", "sa", ".sai"])
+        conda:
+            config["envs"]["soapaligner"]
         log:
             os.path.join(config["output"]["rmhost"],
                          "logs/build_host_index_for_soap.log")
@@ -56,6 +58,8 @@ if config["params"]["rmhost"]["soap"]["do"]:
                                   config["output"]["rmhost"],
                                   "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
                                           read=[".1", ".2"] if IS_PE else ""))
+        conda:
+            config["envs"]["soapaligner"]
         log:
             os.path.join(config["output"]["rmhost"], "logs/{sample}.soap.log")
         benchmark:
@@ -146,6 +150,8 @@ if config["params"]["rmhost"]["bwa"]["do"]:
             expand("{prefix}.{suffix}",
                    prefix=config["params"]["rmhost"]["bwa"]["index_prefix"],
                    suffix=BWA_INDEX_SUFFIX)
+        conda:
+            config["envs"]["bwa"]
         benchmark:
             os.path.join(config["output"]["rmhost"],
                          "benchmark/bwa.index.benchmark.txt")
@@ -180,6 +186,8 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                                   config["output"]["rmhost"],
                                   "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
                                           read=[".1", ".2"] if IS_PE else ""))
+        conda:
+            config["envs"]["bwa"]
         log:
             os.path.join(config["output"]["rmhost"], "logs/{sample}.bwa.log")
         benchmark:
@@ -309,6 +317,8 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
             expand("{prefix}.{suffix}",
                    prefix=config["params"]["rmhost"]["bowtie2"]["index_prefix"],
                    suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
+        conda:
+            config["envs"]["bowtie2"]
         log:
             os.path.join(config["output"]["rmhost"], "logs/build_host_index_for_bowtie2.log")
         params:
@@ -338,6 +348,8 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                                   config["output"]["rmhost"],
                                   "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
                                           read=[".1", ".2"] if IS_PE else ""))
+        conda:
+            config["envs"]["bowtie2"]
         log:
             os.path.join(config["output"]["rmhost"], "logs/{sample}.bowtie2.log")
         benchmark:
@@ -468,6 +480,8 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
             config["params"]["rmhost"]["minimap2"]["index"]
         params:
             split_size = config["params"]["rmhost"]["minimap2"]["split_size"]
+        conda:
+            config["envs"]["minimap2"]
         shell:
             '''
             minimap2 -I {params.split_size} -d {output} {intput}
@@ -491,6 +505,8 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                                   config["output"]["rmhost"],
                                   "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
                                           read=[".1", ".2"] if IS_PE else ""))
+        conda:
+            config["envs"]["minimap2"]
         log:
             os.path.join(config["output"]["rmhost"], "logs/{sample}.minimap2.log")
         benchmark:
@@ -629,6 +645,8 @@ if config["params"]["rmhost"]["kraken2"]["do"]:
                                   config["output"]["rmhost"],
                                   "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
                                           read=[".1", ".2"] if IS_PE else ""))
+        conda:
+            config["envs"]["kraken2"]
         log:
             os.path.join(config["output"]["rmhost"], "logs/{sample}.kraken2.log")
         benchmark:
@@ -738,6 +756,8 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
                                   config["output"]["rmhost"],
                                   "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
                                           read=[".1", ".2"] if IS_PE else ""))
+        conda:
+            config["envs"]["kneaddata"]
         log:
             os.path.join(config["output"]["rmhost"], "logs/{sample}.kneaddata.log")
         benchmark:
