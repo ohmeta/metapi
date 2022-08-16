@@ -55,6 +55,8 @@ if config["params"]["identify"]["virsorter2"]["do"]:
             scaftigs_dir = directory(
                 os.path.join(config["output"]["identify"], 
                              "virsorter2/{assembly_group}.{assembler}.vs2.out/scaftigs"))
+        conda:
+            config["envs"]["report"]
         log:
             os.path.join(config["output"]["identify"],
                          "logs/seqkit_split/seqkit_split.{assembly_group}.{assembler}.log")
