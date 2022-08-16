@@ -7,8 +7,6 @@ if len(BINNERS_CHECKM) != 0:
                 os.path.join(
                     config["output"]["binning"],
                     "report/{assembler}_{binner_checkm}_stats/{assembly_group}"))
-        conda:
-            config["envs"]["report"]
         priority:
             35
         params:
