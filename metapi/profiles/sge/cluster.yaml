@@ -136,6 +136,11 @@ rmhost_report:
   output: "logs/02.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/02.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
+rmhost_report_refine:
+  mem: "1G"
+  output: "logs/02.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
+  error: "logs/02.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
+
 rmhost_report_merge:
   mem: "512M"
   output: "logs/02.{rule}/{rule}.{jobid}.o"

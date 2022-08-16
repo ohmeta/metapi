@@ -74,101 +74,101 @@ if config["params"]["rmhost"]["bwa"]["do"]:
             bwa = "bwa-mem2" if config["params"]["rmhost"]["bwa"]["algorithms"] == "mem2" else "bwa",
             minimum_seed_length = config["params"]["rmhost"]["bwa"]["minimum_seed_length"],
             index_prefix = config["params"]["rmhost"]["bwa"]["index_prefix"],
-            bam = os.path.join(config["output"]["rmhost"],
-                               "bam/{sample}/{sample}.align2host.sorted.bam")
+            bam = os.path.join(config["output"]["rmhost"], "bam/{sample}/{sample}.align2host.sorted.bam"),
+            bam_dir = os.path.join(config["output"]["rmhost"], "bam/{sample}"),
+            pe = "pe" if IS_PE else "se",
+            save_bam = "yes" if config["params"]["rmhost"]["save_bam"] else "no"
         threads:
             config["params"]["rmhost"]["threads"]
-        run:
-            if IS_PE:
-                if config["params"]["rmhost"]["save_bam"]:
-                    shell("mkdir -p %s" % os.path.dirname(params.bam))
-                    shell(
-                        '''
-                        {params.bwa} mem \
-                        -k {params.minimum_seed_length} \
-                        -t {threads} \
-                        {params.index_prefix} \
-                        {input.reads[0]} {input.reads[1]} | \
-                        tee >(samtools flagstat \
-                              -@{threads} - \
-                              > {output.flagstat}) | \
-                        tee >(samtools fastq \
-                              -@{threads} \
-                              -c {params.compression} \
-                              -N -f 12 -F 256 \
-                              -1 {output.reads[0]} \
-                              -2 {output.reads[1]} -) | \
-                        samtools sort \
-                        -m 3G \
-                        -@{threads} \
-                        -T {params.bam} \
-                        -O BAM -o {params.bam} - \
-                        2> {log}
-                        ''')
-                else:
-                    shell(
-                        '''
-                        {params.bwa} mem \
-                        -k {params.minimum_seed_length} \
-                        -t {threads} \
-                        {params.index_prefix} \
-                        {input.reads[0]} {input.reads[1]} | \
-                        tee >(samtools flagstat \
-                              -@{threads} - \
-                              > {output.flagstat}) | \
-                        samtools fastq \
-                        -@{threads} \
-                        -c {params.compression} \
-                        -N -f 12 -F 256 \
-                        -1 {output.reads[0]} \
-                        -2 {output.reads[1]} - \
-                        2> {log}
-                        ''')
-            else:
-                if config["params"]["rmhost"]["save_bam"]:
-                    shell('''mkdir -p %s''' % os.path.dirname(params.bam))
-                    shell(
-                        '''
-                        {params.bwa} mem \
-                        -k {params.minimum_seed_length} \
-                        -t {threads} \
-                        {params.index_prefix} \
-                        {input.reads[0]} | \
-                        tee >(samtools flagstat \
-                              -@{threads} - \
-                              > {output.flagstat}) | \
-                        tee >(samtools fastq \
-                              -@{threads} \
-                              -c {params.compression} \
-                              -N -f 4 -F 256 - | \
-                              pigz -c -p {threads} \
-                              > {output.reads[0]}) | \
-                        samtools sort \
-                        -m 3G \
-                        -@{threads} \
-                        -T {params.bam} \
-                        -O BAM -o {params.bam} - \
-                        2> {log}
-                        ''')
-                else:
-                    shell(
-                        '''
-                        {params.bwa} mem \
-                        -k {params.minimum_seed_length} \
-                        -t {threads} \
-                        {params.index_prefix} \
-                        {input.reads[0]} | \
-                        tee >(samtools flagstat \
-                              -@{threads} - \
-                              > {output.flagstat}) | \
-                        samtools fastq \
-                        -@{threads} \
-                        -c {params.compression} \
-                        -N -f 4 -F 256 - | \
-                        pigz -c -p {threads} \
-                        > {output.reads[0]} \
-                        2> {log}
-                        ''')
+        shell:
+            '''
+            if [ "{params.pe}" == "pe" ];
+            then
+                if [ "{params.save_bam}" == "yes" ];
+                then
+                    mkdir -p {params.bam_dir}
+
+                    {params.bwa} mem \
+                    -k {params.minimum_seed_length} \
+                    -t {threads} \
+                    {params.index_prefix} \
+                    {input.reads[0]} {input.reads[1]} | \
+                    tee >(samtools flagstat \
+                          -@{threads} - \
+                          > {output.flagstat}) | \
+                    tee >(samtools fastq \
+                          -@{threads} \
+                          -c {params.compression} \
+                          -N -f 12 -F 256 \
+                          -1 {output.reads[0]} \
+                          -2 {output.reads[1]} -) | \
+                    samtools sort \
+                    -m 3G \
+                    -@{threads} \
+                    -T {params.bam} \
+                    -O BAM -o {params.bam} - \
+                    2> {log}
+                else
+                    {params.bwa} mem \
+                    -k {params.minimum_seed_length} \
+                    -t {threads} \
+                    {params.index_prefix} \
+                    {input.reads[0]} {input.reads[1]} | \
+                    tee >(samtools flagstat \
+                          -@{threads} - \
+                          > {output.flagstat}) | \
+                    samtools fastq \
+                    -@{threads} \
+                    -c {params.compression} \
+                    -N -f 12 -F 256 \
+                    -1 {output.reads[0]} \
+                    -2 {output.reads[1]} - \
+                    2> {log}
+                fi
+            else
+                if [ "{params.save_bam}" == "yes" ];
+                then
+                    mkdir -p {params.bam_dir}
+
+                    {params.bwa} mem \
+                    -k {params.minimum_seed_length} \
+                    -t {threads} \
+                    {params.index_prefix} \
+                    {input.reads[0]} | \
+                    tee >(samtools flagstat \
+                          -@{threads} - \
+                          > {output.flagstat}) | \
+                    tee >(samtools fastq \
+                          -@{threads} \
+                          -c {params.compression} \
+                          -N -f 4 -F 256 - | \
+                          pigz -c -p {threads} \
+                          > {output.reads[0]}) | \
+                    samtools sort \
+                    -m 3G \
+                    -@{threads} \
+                    -T {params.bam} \
+                    -O BAM -o {params.bam} - \
+                    2> {log}
+                else
+                    {params.bwa} mem \
+                    -k {params.minimum_seed_length} \
+                    -t {threads} \
+                    {params.index_prefix} \
+                    {input.reads[0]} | \
+                    tee >(samtools flagstat \
+                          -@{threads} - \
+                          > {output.flagstat}) | \
+                    samtools fastq \
+                    -@{threads} \
+                    -c {params.compression} \
+                    -N -f 4 -F 256 - | \
+                    pigz -c -p {threads} \
+                    > {output.reads[0]} \
+                    2> {log}
+                fi
+            fi
+            '''
 
 
     rule rmhost_bwa_all:
@@ -235,103 +235,103 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
             presets = config["params"]["rmhost"]["bowtie2"]["presets"],
             compression = config["params"]["rmhost"]["compression"],
             index_prefix = config["params"]["rmhost"]["bowtie2"]["index_prefix"],
-            bam = os.path.join(config["output"]["rmhost"],
-                               "bam/{sample}/{sample}.align2host.sorted.bam")
+            bam = os.path.join(config["output"]["rmhost"], "bam/{sample}/{sample}.align2host.sorted.bam"),
+            bam_dir = os.path.join(config["output"]["rmhost"], "bam/{sample}"),
+            pe = "pe" if IS_PE else "se",
+            save_bam = "yes" if config["params"]["rmhost"]["save_bam"] else "no"
         threads:
             config["params"]["rmhost"]["threads"]
-        run:
-            if IS_PE:
-                if config["params"]["rmhost"]["save_bam"]:
-                    shell('''mkdir -p %s''' % os.path.dirname(params.bam))
-                    shell(
-                        '''
-                        bowtie2 \
-                        --threads {threads} \
-                        -x {params.index_prefix} \
-                        -1 {input.reads[0]} \
-                        -2 {input.reads[1]} \
-                        {params.presets} \
-                        2> {log} | \
-                        tee >(samtools flagstat \
-                              -@{threads} - \
-                              > {output.flagstat}) | \
-                        tee >(samtools fastq \
-                              -@{threads} \
-                              -c {params.compression} \
-                              -N -f 12 -F 256 \
-                              -1 {output.reads[0]} \
-                              -2 {output.reads[1]} -) | \
-                        samtools sort \
-                        -m 3G \
-                        -@{threads} \
-                        -T {params.bam} \
-                        -O BAM -o {params.bam} -
-                        ''')
-                else:
-                    shell(
-                        '''
-                        bowtie2 \
-                        --threads {threads} \
-                        -x {params.index_prefix} \
-                        -1 {input.reads[0]} \
-                        -2 {input.reads[1]} \
-                        {params.presets} \
-                        2> {log} | \
-                        tee >(samtools flagstat \
-                              -@{threads} - \
-                              > {output.flagstat}) | \
-                        samtools fastq \
-                        -@{threads} \
-                        -c {params.compression} \
-                        -N -f 12 -F 256 \
-                        -1 {output.reads[0]} \
-                        -2 {output.reads[1]} -
-                        ''')
-            else:
-                if config["params"]["rmhost"]["save_bam"]:
-                    shell('''mkdir -p %s''' % os.path.dirname(params.bam))
-                    shell(
-                        '''
-                        bowtie2 \
-                        {params.presets} \
-                        --threads {threads} \
-                        -x {params.index_prefix} \
-                        -U {input.reads[0]} \
-                        2> {log} | \
-                        tee >(samtools flagstat \
-                              -@{threads} - \
-                              > {output.flagstat}) | \
-                        tee >(samtools fastq \
-                              -@{threads} \
-                              -c {params.compression} \
-                              -N -f 4 -F 256 - | \
-                              pigz -c -p {threads} \
-                              > {output.reads[0]}) | \
-                        samtools sort \
-                        -m 3G \
-                        -@{threads} \
-                        -T {params.bam} \
-                        -O BAM -o {params.bam} -
-                        ''')
-                else:
-                    shell(
-                        '''
-                        bowtie2 \
-                        {params.presets} \
-                        --threads {threads} \
-                        -x {params.index_prefix} \
-                        -U {input.reads[0]} \
-                        2> {log} | \
-                        tee >(samtools flagstat \
-                              -@{threads} - \
-                              > {output.flagstat}) | \
-                        samtools fastq \
-                        -@{threads} \
-                        -c {params.compression} \
-                        -N -f 4 -F 256 - | \
-                        pigz -c -p {threads} \
-                        > {output.reads[0]}
-                        ''')
+        shell:
+            '''
+            if [ "{params.pe}" == "pe" ];
+            then
+                if [ "{params.save_bam}" == "yes" ];
+                then
+                    mkdir -p {params.bam_dir}
+
+                    bowtie2 \
+                    --threads {threads} \
+                    -x {params.index_prefix} \
+                    -1 {input.reads[0]} \
+                    -2 {input.reads[1]} \
+                    {params.presets} \
+                    2> {log} | \
+                    tee >(samtools flagstat \
+                          -@{threads} - \
+                          > {output.flagstat}) | \
+                    tee >(samtools fastq \
+                          -@{threads} \
+                          -c {params.compression} \
+                          -N -f 12 -F 256 \
+                          -1 {output.reads[0]} \
+                          -2 {output.reads[1]} -) | \
+                    samtools sort \
+                    -m 3G \
+                    -@{threads} \
+                    -T {params.bam} \
+                    -O BAM -o {params.bam} -
+                else
+                    bowtie2 \
+                    --threads {threads} \
+                    -x {params.index_prefix} \
+                    -1 {input.reads[0]} \
+                    -2 {input.reads[1]} \
+                    {params.presets} \
+                    2> {log} | \
+                    tee >(samtools flagstat \
+                          -@{threads} - \
+                          > {output.flagstat}) | \
+                    samtools fastq \
+                    -@{threads} \
+                    -c {params.compression} \
+                    -N -f 12 -F 256 \
+                    -1 {output.reads[0]} \
+                    -2 {output.reads[1]} -
+                fi
+            else
+                if [ "{params.save_bam}" == "yes" ];
+                then
+                    mkdir -p {params.bam_dir}
+
+                    bowtie2 \
+                    {params.presets} \
+                    --threads {threads} \
+                    -x {params.index_prefix} \
+                    -U {input.reads[0]} \
+                    2> {log} | \
+                    tee >(samtools flagstat \
+                          -@{threads} - \
+                          > {output.flagstat}) | \
+                    tee >(samtools fastq \
+                          -@{threads} \
+                          -c {params.compression} \
+                          -N -f 4 -F 256 - | \
+                          pigz -c -p {threads} \
+                          > {output.reads[0]}) | \
+                    samtools sort \
+                    -m 3G \
+                    -@{threads} \
+                    -T {params.bam} \
+                    -O BAM -o {params.bam} -
+                else
+                    bowtie2 \
+                    {params.presets} \
+                    --threads {threads} \
+                    -x {params.index_prefix} \
+                    -U {input.reads[0]} \
+                    2> {log} | \
+                    tee >(samtools flagstat \
+                          -@{threads} - \
+                          > {output.flagstat}) | \
+                    samtools fastq \
+                    -@{threads} \
+                    -c {params.compression} \
+                    -N -f 4 -F 256 - | \
+                    pigz -c -p {threads} \
+                    > {output.reads[0]}
+                fi
+            fi
+            '''
 
 
     rule rmhost_bowtie2_all:
@@ -392,99 +392,99 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
         params:
             preset = config["params"]["rmhost"]["minimap2"]["preset"],
             compression = config["params"]["rmhost"]["compression"],
-            bam = os.path.join(config["output"]["rmhost"],
-                               "bam/{sample}/{sample}.align2host.sorted.bam")
+            bam = os.path.join(config["output"]["rmhost"], "bam/{sample}/{sample}.align2host.sorted.bam"),
+            bam_dir = os.path.join(config["output"]["rmhost"], "bam/{sample}"),
+            pe = "pe" if IS_PE else "se",
+            save_bam = "yes" if config["params"]["rmhost"]["save_bam"] else "no"
         threads:
             config["params"]["rmhost"]["threads"]
-        run:
-            if IS_PE:
-                if config["params"]["rmhost"]["save_bam"]:
-                    shell("mkdir -p %s" % os.path.dirname(params.bam))
-                    shell(
-                        '''
-                        minimap2 \
-                        -t {threads} \
-                        -ax {params.preset} \
-                        {input.index} \
-                        {input.reads[0]} {input.reads[1]} | \
-                        tee >(samtools flagstat \
-                              -@{threads} - \
-                              > {output.flagstat}) | \
-                        tee >(samtools fastq \
-                              -@{threads} \
-                              -c {params.compression} \
-                              -N -f 12 -F 256 \
-                              -1 {output.reads[0]} \
-                              -2 {output.reads[1]} -) | \
-                        samtools sort \
-                        -m 3G \
-                        -@{threads} \
-                        -T {params.bam} \
-                        -O BAM -o {params.bam} - \
-                        2> {log}
-                        ''')
-                else:
-                    shell(
-                        '''
-                        minimap2 \
-                        -t {threads} \
-                        -ax {params.preset} \
-                        {input.index} \
-                        {input.reads[0]} {input.reads[1]} | \
-                        tee >(samtools flagstat \
-                              -@{threads} - \
-                              > {output.flagstat}) | \
-                        samtools fastq \
-                        -@{threads} \
-                        -c {params.compression} \
-                        -N -f 12 -F 256 \
-                        -1 {output.reads[0]} \
-                        -2 {output.reads[1]} - \
-                        2> {log}
-                        ''')
-            else:
-                if config["params"]["rmhost"]["save_bam"]:
-                    shell('''mkdir -p %s''' % os.path.dirname(params.bam))
-                    shell(
-                        '''
-                        minimap2 \
-                        -t {threads} \
-                        {input.index} \
-                        {input.reads[0]} | \
-                        tee >(samtools flagstat \
-                              -@{threads} - \
-                              > {output.flagstat}) | \
-                        tee >(samtools fastq \
-                              -@{threads} \
-                              -c {params.compression} \
-                              -N -f 4 -F 256 - | \
-                              pigz -c -p {threads} \
-                              > {output.reads[0]}) | \
-                        samtools sort \
-                        -m 3G \
-                        -@{threads} \
-                        -T {params.bam} \
-                        -O BAM -o {params.bam} - \
-                        2> {log}
-                        ''')
-                else:
-                    shell(
-                        '''
-                        minimap2 \
-                        -t {threads} \
-                        {input.index} \
-                        {input.reads[0]} | \
-                        tee >(samtools flagstat \
-                              -@{threads} - \
-                              > {output.flagstat}) | \
-                        samtools fastq \
-                        -@{threads} \
-                        -c {params.compression} \
-                        -N -f 4 -F 256 - | \
-                        pigz -c -p {threads} \
-                        > {output.reads[0]} \
-                        2> {log}
-                        ''')
+        shell:
+            '''
+            if [ "{params.pe}" == "pe" ];
+            then
+                if [ "{params.save_bam}" == "yes" ];
+                then
+                    mkdir -p {params.bam_dir}
+
+                    minimap2 \
+                    -t {threads} \
+                    -ax {params.preset} \
+                    {input.index} \
+                    {input.reads[0]} {input.reads[1]} | \
+                    tee >(samtools flagstat \
+                          -@{threads} - \
+                          > {output.flagstat}) | \
+                    tee >(samtools fastq \
+                          -@{threads} \
+                          -c {params.compression} \
+                          -N -f 12 -F 256 \
+                          -1 {output.reads[0]} \
+                          -2 {output.reads[1]} -) | \
+                    samtools sort \
+                    -m 3G \
+                    -@{threads} \
+                    -T {params.bam} \
+                    -O BAM -o {params.bam} - \
+                    2> {log}
+                else
+                    minimap2 \
+                    -t {threads} \
+                    -ax {params.preset} \
+                    {input.index} \
+                    {input.reads[0]} {input.reads[1]} | \
+                    tee >(samtools flagstat \
+                          -@{threads} - \
+                          > {output.flagstat}) | \
+                    samtools fastq \
+                    -@{threads} \
+                    -c {params.compression} \
+                    -N -f 12 -F 256 \
+                    -1 {output.reads[0]} \
+                    -2 {output.reads[1]} - \
+                    2> {log}
+                fi
+            else
+                if [ "{params.save_bam}" == "yes" ];
+                then
+                    mkdir -p {params.bam_dir}
+
+                    minimap2 \
+                    -t {threads} \
+                    {input.index} \
+                    {input.reads[0]} | \
+                    tee >(samtools flagstat \
+                          -@{threads} - \
+                          > {output.flagstat}) | \
+                    tee >(samtools fastq \
+                          -@{threads} \
+                          -c {params.compression} \
+                          -N -f 4 -F 256 - | \
+                          pigz -c -p {threads} \
+                          > {output.reads[0]}) | \
+                    samtools sort \
+                    -m 3G \
+                    -@{threads} \
+                    -T {params.bam} \
+                    -O BAM -o {params.bam} - \
+                    2> {log}
+                else
+                    minimap2 \
+                    -t {threads} \
+                    {input.index} \
+                    {input.reads[0]} | \
+                    tee >(samtools flagstat \
+                          -@{threads} - \
+                          > {output.flagstat}) | \
+                    samtools fastq \
+                    -@{threads} \
+                    -c {params.compression} \
+                    -N -f 4 -F 256 - | \
+                    pigz -c -p {threads} \
+                    > {output.reads[0]} \
+                    2> {log}
+                fi
+            fi
+            '''
 
 
     rule rmhost_minimap2_all:
@@ -528,79 +528,77 @@ if config["params"]["rmhost"]["kraken2"]["do"]:
             os.path.join(config["output"]["rmhost"],
                          "benchmark/kraken2/{sample}.kraken2.txt")
         params:
+            report = os.path.join(config["output"]["rmhost"],
+                                  "short_reads/{sample}/{sample}.kraken2.report"),
             confidence = config["params"]["rmhost"]["kraken2"]["confidence"],
             min_base_quality = config["params"]["rmhost"]["kraken2"]["min_base_quality"],
             min_hit_groups = config["params"]["rmhost"]["kraken2"]["min_hit_groups"],
-            host_taxid = config["params"]["rmhost"]["kraken2"]["host_taxid"]
+            host_taxid = config["params"]["rmhost"]["kraken2"]["host_taxid"],
+            pe = "pe" if IS_PE else "se"
         priority:
             10
         threads:
             config["params"]["rmhost"]["threads"]
-        run:
-            import os
-            report = os.path.splitext(output.report)[0]
+        shell:
+            '''
+            if [ "{params.pe}" == "pe" ];
+            then
+                kraken2 \
+                --threads {threads} \
+                --db {input.database} \
+                --use-names \
+                --confidence {params.confidence} \
+                --minimum-base-quality {params.min_base_quality} \
+                --minimum-hit-groups {params.min_hit_groups} \
+                --output {output.table} \
+                --report {params.report} \
+                --gzip-compressed \
+                --paired \
+                {input.reads} \
+                >{log} 2>&1
 
-            if IS_PE:
-                shell(
-                    '''
-                    kraken2 \
-                    --threads {threads} \
-                    --db {input.database} \
-                    --use-names \
-                    --confidence {params.confidence} \
-                    --minimum-base-quality {params.min_base_quality} \
-                    --minimum-hit-groups {params.min_hit_groups} \
-                    --output {output.table} \
-                    --report {report} \
-                    --gzip-compressed \
-                    --paired \
-                    {input.reads} \
-                    >{log} 2>&1
+                pigz -p {threads} {params.report}
 
-                    pigz -p {threads} {report}
+                extract_kraken2_reads.py \
+                -k {output.table} \
+                --taxid {params.host_taxid} \
+                --noappend \
+                --exclude \
+                --fastq-output \
+                --gzip-output \
+                -s {input.reads[0]} \
+                -s2 {input.reads[1]} \
+                -o {output.reads[0]} \
+                -o2 {output.reads[1]} \
+                >>{log} 2>&1
+            else
+                kraken2 \
+                --threads {threads} \
+                --db {input.database} \
+                --use-names \
+                --confidence {params.confidence} \
+                --minimum-base-quality {params.min_base_quality} \
+                --minimum-hit-groups {params.min_hit_groups} \
+                --output {output.table} \
+                --report {params.report} \
+                --gzip-compressed \
+                {input.reads[0]} \
+                >{log} 2>&1
 
-                    extract_kraken2_reads.py \
-                    -k {output.table} \
-                    --taxid {params.host_taxid} \
-                    --noappend \
-                    --exclude \
-                    --fastq-output \
-                    --gzip-output \
-                    -s {input.reads[0]} \
-                    -s2 {input.reads[1]} \
-                    -o {output.reads[0]} \
-                    -o2 {output.reads[1]} \
-                    >>{log} 2>&1
-                    ''')
-            else:
-                shell(
-                    '''
-                    kraken2 \
-                    --threads {threads} \
-                    --db {input.database} \
-                    --use-names \
-                    --confidence {params.confidence} \
-                    --minimum-base-quality {params.min_base_quality} \
-                    --minimum-hit-groups {params.min_hit_groups} \
-                    --output {output.table} \
-                    --report {report} \
-                    --gzip-compressed \
-                    {input.reads[0]} \
-                    >{log} 2>&1
+                pigz -p {threads} {params.report}
 
-                    pigz -p {threads} {report}
-
-                    extract_kraken2_reads.py \
-                    -k {output.table} \
-                    --taxid {params.host_taxid} \
-                    --noappend \
-                    --exclude \
-                    --fastq-output \
-                    --gzip-output \
-                    -s {input.reads[0]} \
-                    -o {output.reads[0]} \
-                    >>{log} 2>&1
-                    ''')
+                extract_kraken2_reads.py \
+                -k {output.table} \
+                --taxid {params.host_taxid} \
+                --noappend \
+                --exclude \
+                --fastq-output \
+                --gzip-output \
+                -s {input.reads[0]} \
+                -o {output.reads[0]} \
+                >>{log} 2>&1
+            fi
+            '''
 
 
     rule rmhost_kraken2_all:
@@ -640,69 +638,70 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
                          "benchmark/kneaddata/{sample}.kneaddata.txt")
         params:
             trf_options = "--run-trf" if config["params"]["rmhost"]["kneaddata"]["do_trf"] else "--bypass-trf",
-            do_trimmomatic = config["params"]["rmhost"]["kneaddata"]["do_trimmomatic"],
+            do_trimmomatic = "yes" if config["params"]["rmhost"]["kneaddata"]["do_trimmomatic"] else "no",
             trimmomatic_options = config["params"]["rmhost"]["kneaddata"]["trimmomatic_options"],
             sequencer_source = config["params"]["rmhost"]["kneaddata"]["sequencer_source"],
-            do_bowtie2 = config["params"]["rmhost"]["kneaddata"]["do_bowtie2"],
+            do_bowtie2 = "yes" if config["params"]["rmhost"]["kneaddata"]["do_bowtie2"] else "no",
             bowtie2_options = config["params"]["rmhost"]["kneaddata"]["bowtie2_options"],
             decontaminate_pairs = config["params"]["rmhost"]["kneaddata"]["decontaminate_pairs"],
             bowtie2_database = config["params"]["rmhost"]["kneaddata"]["bowtie2_database"],
-            do_bmtagger = config["params"]["rmhost"]["kneaddata"]["do_bmtagger"],
+            do_bmtagger = "yes" if config["params"]["rmhost"]["kneaddata"]["do_bmtagger"] else "no",
             output_dir = os.path.join(config["output"]["rmhost"], "short_reads/{sample}"),
-            output_prefix = "{sample}.rmhost"
+            output_prefix = "{sample}.rmhost",
         priority:
             10
         threads:
             config["params"]["rmhost"]["threads"]
-        run:
-            import shutil
-            import os
-            trimmomatic_dir = os.path.dirname(os.path.realpath(shutil.which("trimmomatic")))
+        shell:
+            '''
+            rm -rf {params.output_dir}
 
-            shell('''rm -rf {params.output_dir}''')
+            input_reads="" 
+            if [ "{params.pe}" == "pe" ];
+            then
+                input_reads="-i {input.reads[0]} -i {input.reads[1]}"
+            else
+                input_reads="-i {input.reads}"
+            fi
 
-            if params.do_bowtie2:
-                if params.do_trimmomatic:
-                    shell(
-                        '''
-                        kneaddata %s \
-                        {params.trf_options} \
-                        --output {params.output_dir} \
-                        --output-prefix {params.output_prefix} \
-                        --reference-db {params.bowtie2_database} \
-                        --trimmomatic {trimmomatic_dir} \
-                        --trimmomatic-options '{params.trimmomatic_options}' \
-                        --sequencer-source {params.sequencer_source} \
-                        --bowtie2-options '{params.bowtie2_options} ' \
-                        --decontaminate-pairs {params.decontaminate_pairs} \
-                        --remove-intermediate-output \
-                        --threads {threads} \
-                        --reorder \
-                        --log {log}
-                        ''' % "-i {input.reads[0]} -i {input.reads[1]}" if IS_PE else "-i {input.reads}")
-
-                else:
-                    shell(
-                        '''
-                        kneaddata %s \
-                        {params.trf_options} \
-                        --bypass-trim \
-                        --output {params.output_dir} \
-                        --output-prefix {params.output_prefix} \
-                        --reference-db {params.bowtie2_database} \
-                        --bowtie2-options '{params.bowtie2_options} ' \
-                        --decontaminate-pairs {params.decontaminate_pairs} \
-                        --remove-intermediate-output \
-                        --threads {threads} \
-                        --reorder \
-                        --log {log}
-                        ''' % "-i {input.reads[0]} -i {input.reads[1]}" if IS_PE else "-i {input.reads}")
-
-            elif params.do_bmtagger:
-                if params.do_trimmomatic:
-                    shell(
-                        '''
-                        kneaddata %s \
+            if [ "{params.do_bowtie2}" == "yes" ];
+            then
+                if [ "{params.do_trimmomatic}" == "yes" ];
+                then
+                    kneaddata $input_reads \
+                    {params.trf_options} \
+                    --output {params.output_dir} \
+                    --output-prefix {params.output_prefix} \
+                    --reference-db {params.bowtie2_database} \
+                    --trimmomatic {trimmomatic_dir} \
+                    --trimmomatic-options '{params.trimmomatic_options}' \
+                    --sequencer-source {params.sequencer_source} \
+                    --bowtie2-options '{params.bowtie2_options} ' \
+                    --decontaminate-pairs {params.decontaminate_pairs} \
+                    --remove-intermediate-output \
+                    --threads {threads} \
+                    --reorder \
+                    --log {log}
+                else
+                    kneaddata $input_reads \
+                    {params.trf_options} \
+                    --bypass-trim \
+                    --output {params.output_dir} \
+                    --output-prefix {params.output_prefix} \
+                    --reference-db {params.bowtie2_database} \
+                    --bowtie2-options '{params.bowtie2_options} ' \
+                    --decontaminate-pairs {params.decontaminate_pairs} \
+                    --remove-intermediate-output \
+                    --threads {threads} \
+                    --reorder \
+                    --log {log}
+                fi
+            else 
+                if [ "{params.do_bmtagger}" == "yes" ];
+                then
+                    if [ "{params.do_trimmomatic}" == "yes" ];
+                    then
+                        kneaddata $input_reads \
                         {params.trf_options} \
                         --output {params.output_dir} \
                         --output-prefix {params.output_prefix} \
@@ -714,12 +713,8 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
                         --threads {threads} \
                         --reorder \
                         --log {log}
-                        ''' % "-i {input.reads[0]} -i {input.reads[1]}" if IS_PE else "-i {input.reads}")
-
-                else:
-                    shell(
-                        '''
-                        kneaddata %s \
+                    else
+                        kneaddata $input_reads \
                         {params.trf_options} \
                         --bypass-trim \
                         --output {params.output_dir} \
@@ -729,27 +724,21 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
                         --threads {threads} \
                         --reorder \
                         --log {log}
-                        ''' % "-i {input.reads[0]} -i {input.reads[1]}" if IS_PE else "-i {input.reads}")
-                 
-            shell(
-                '''
-                pigz -p {threads} {params.output_dir}/* 
-                ''')
+                    fi 
+                fi
+            fi
+
+            pigz -p {threads} {params.output_dir}/* 
             
-            if IS_PE:
-                shell(
-                    '''
-                    mv {params.output_dir}/{params.output_prefix}_paired_1.fastq.gz \
-                    {output.reads[0]}
-                    mv {params.output_dir}/{params.output_prefix}_paired_2.fastq.gz \
-                    {output.reads[1]}
-                    ''')
-            else:
-                shell(
-                    '''
-                    mv {params.output_dir}/{params.output_prefix}.fastq.gz \
-                    {output.reads}
-                    ''')
+
+            if [ "{params.pe}" == "pe" ];
+            then
+                mv {params.output_dir}/{params.output_prefix}_paired_1.fastq.gz {output.reads[0]}
+                mv {params.output_dir}/{params.output_prefix}_paired_2.fastq.gz {output.reads[1]}
+            else
+                mv {params.output_dir}/{params.output_prefix}.fastq.gz {output.reads}
+            fi
+            '''
 
 
     rule rmhost_kneaddata_all:
@@ -791,8 +780,8 @@ if RMHOST_DO and config["params"]["qcreport"]["do"]:
         input:
             lambda wildcards: get_reads(wildcards, "rmhost")
         output:
-            os.path.join(config["output"]["rmhost"],
-                         "report/stats/{sample}_rmhost_stats.tsv")
+            temp(os.path.join(config["output"]["rmhost"],
+                              "report/stats/{sample}_rmhost_stats.tsv"))
         conda:
             config["envs"]["report"]
         log:
@@ -805,24 +794,32 @@ if RMHOST_DO and config["params"]["qcreport"]["do"]:
             fq_encoding = config["params"]["fq_encoding"]
         threads:
             config["params"]["qcreport"]["seqkit"]["threads"]
-        run:
-            shell(
-                '''
-                seqkit stats \
-                --all \
-                --basename \
-                --tabular \
-                --fq-encoding {params.fq_encoding} \
-                --out-file {output} \
-                --threads {threads} \
-                {input} 2> {log}
-                ''')
+        shell:
+            '''
+            seqkit stats \
+            --all \
+            --basename \
+            --tabular \
+            --fq-encoding {params.fq_encoding} \
+            --out-file {output} \
+            --threads {threads} \
+            {input} 2> {log}
+            '''
 
+
+    rule rmhost_report_refine:
+        input:
+            os.path.join(config["output"]["rmhost"],
+                         "report/stats/{sample}_rmhost_stats.tsv.raw")
+        output:
+            os.path.join(config["output"]["rmhost"],
+                         "report/stats/{sample}_rmhost_stats.tsv")
+        run:
             if IS_PE:
-                metapi.change(output[0], params.sample_id, "rmhost",
+                metapi.change(input[0], output[0], params.sample_id, "rmhost",
                               "pe", ["fq1", "fq2"])
             else:
-                metapi.change(output[0], params.sample_id, "rmhost",
+                metapi.change(input[0], output[0], params.sample_id, "rmhost",
                               "se", ["fq1"])
 
 
