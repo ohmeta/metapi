@@ -124,68 +124,8 @@ if "idba_ud" in ASSEMBLERS:
         log:
             os.path.join(config["output"]["assembly"],
                          "logs/{assembly_group}.idba_ud.log")
-        run:
-            shell('''rm -rf {params.output_dir}''')
-            shell('''mkdir {params.output_dir}''')
-
-            reads = os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/%s.idba_ud.out/%s.fa" % (params.prefix, params.prefix))
-            reads_num = len(input)
-
-            if IS_PE:
-                if reads_num == 2:
-                    shell(
-                        f'''
-                        seqtk mergepe {input[0]} {input[1]} | \
-                        seqtk seq -A - > {reads}
-                        ''')
-                else:
-                    shell(
-                        f'''
-                        cat {input[0:reads_num//2]} > {reads}.1.fq.gz
-                        cat {input[reads_num//2:]} > {reads}.2.fq.gz
-                        seqtk mergepe {reads}.1.fq.gz {reads}.2.fq.gz | \
-                        seqtk seq -A - > {reads}
-                        rm -rf {reads}.1.fq.gz {reads}.2.fq.gz
-                        ''')
-            else:
-                if reads_num == 1:
-                    shell(f'''seqtk seq -A {input[0]} > {reads}''')
-                else:
-                    shell(
-                        f'''
-                        cat {input} > {reads}.fq.gz
-                        seqtk seq -A {input[0]} > {reads}
-                        rm -rf {reads}.fq.gz
-                        ''')
-
-            shell(
-                f'''
-                idba_ud \
-                -r {reads} \
-                --mink {params.mink} \
-                --maxk {params.maxk} \
-                --step {params.step} \
-                --min_contig {params.min_contig} \
-                -o {params.output_dir} \
-                --num_threads {threads} \
-                --pre_correction \
-                > {log}
-                ''')
-
-            shell(f'''rm -rf {reads}''')
-            shell('''sed -i 's#^>#>{params.prefix}_#g' {params.output_dir}/scaffold.fa''')
-            shell('''pigz -p {threads} {params.output_dir}/scaffold.fa''')
-            shell('''mv {params.output_dir}/scaffold.fa.gz {output.scaftigs}''')
-
-            if params.only_save_scaftigs:
-                shell(
-                    '''
-                    find {params.output_dir} \
-                    -type f \
-                    ! -wholename "{output.scaftigs}" -delete
-                    ''')
+        script:
+            "../wrappers/idbaud_wrapper.py"
 
 
     rule assembly_idba_ud_all:
