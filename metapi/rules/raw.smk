@@ -298,6 +298,8 @@ if config["params"]["raw"]["fastqc"]["do"]:
             directory(os.path.join(
                 config["output"]["raw"],
                 "fastqc/{sample}.fastqc.out"))
+        conda:
+            config["envs"]["fastqc"]
         threads:
             config["params"]["raw"]["threads"]
         log:
@@ -327,6 +329,8 @@ if config["params"]["raw"]["fastqc"]["do"]:
             data_dir = directory(os.path.join(
                 config["output"]["raw"],
                 "report/fastqc_multiqc_report_data"))
+        conda:
+            config["envs"]["multiqc"]
         params:
             output_dir = os.path.join(config["output"]["raw"],
                                       "report")
@@ -368,6 +372,8 @@ if config["params"]["qcreport"]["do"]:
         output:
             os.path.join(config["output"]["raw"],
                          "report/stats/{sample}_raw_stats.tsv")
+        conda:
+            config["envs"]["seqkit"]
         params:
             sample_id = "{sample}",
             fq_encoding = config["params"]["fq_encoding"]
