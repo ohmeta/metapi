@@ -28,6 +28,8 @@ rule alignment_scaftigs_index:
                 config["output"]["alignment"],
                 "index/{{assembly_group}}.{{assembler}}.out/{{assembly_group}}.scaftigs.fa.gz.{suffix}"),
             suffix=BWA_INDEX_SUFFIX))
+    conda:
+        config["envs"]["align"]
     log:
         os.path.join(
             config["output"]["alignment"],
@@ -60,6 +62,8 @@ rule alignment_reads_scaftigs:
         bai = temp(os.path.join(
             config["output"]["alignment"],
             "bam/{assembly_group}.{assembler}.out/{sample}.align2scaftigs.sorted.bam.bai"))
+    conda:
+        config["envs"]["align"]
     log:
         os.path.join(config["output"]["alignment"],
                      "logs/alignment/{assembly_group}.{assembler}/{sample}.align2scaftigs.log")
@@ -122,6 +126,8 @@ if config["params"]["alignment"]["cal_base_depth"]:
             os.path.join(
                 config["output"]["alignment"],
                 "depth/{assembly_group}.{assembler}.out/{sample}.align2scaftigs.depth.gz")
+        conda:
+            config["envs"]["align"]
         shell:
             '''
             samtools depth {input} | gzip -c > {output}

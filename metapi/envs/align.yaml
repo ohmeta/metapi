@@ -3,6 +3,9 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - bowtie2=2.4.5
+  - minimap2=2.24
   - samtools=1.15.1
+  - bwa=0.7.17
+  - bwa-mem2=2.2.1
+  - bowtie2=2.4.5
   - pigz

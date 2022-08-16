@@ -151,7 +151,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                    prefix=config["params"]["rmhost"]["bwa"]["index_prefix"],
                    suffix=BWA_INDEX_SUFFIX)
         conda:
-            config["envs"]["bwa"]
+            config["envs"]["align"]
         benchmark:
             os.path.join(config["output"]["rmhost"],
                          "benchmark/bwa.index.benchmark.txt")
@@ -187,7 +187,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                                   "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
                                           read=[".1", ".2"] if IS_PE else ""))
         conda:
-            config["envs"]["bwa"]
+            config["envs"]["align"]
         log:
             os.path.join(config["output"]["rmhost"], "logs/{sample}.bwa.log")
         benchmark:
@@ -318,7 +318,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                    prefix=config["params"]["rmhost"]["bowtie2"]["index_prefix"],
                    suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
         conda:
-            config["envs"]["bowtie2"]
+            config["envs"]["align"]
         log:
             os.path.join(config["output"]["rmhost"], "logs/build_host_index_for_bowtie2.log")
         params:
@@ -481,7 +481,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
         params:
             split_size = config["params"]["rmhost"]["minimap2"]["split_size"]
         conda:
-            config["envs"]["minimap2"]
+            config["envs"]["align"]
         shell:
             '''
             minimap2 -I {params.split_size} -d {output} {intput}
@@ -506,7 +506,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                                   "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
                                           read=[".1", ".2"] if IS_PE else ""))
         conda:
-            config["envs"]["minimap2"]
+            config["envs"]["align"]
         log:
             os.path.join(config["output"]["rmhost"], "logs/{sample}.minimap2.log")
         benchmark:
