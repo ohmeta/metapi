@@ -65,7 +65,7 @@ Or via pip:
 ➤ metapi init --help
 usage: metapi init [-h] [-d WORKDIR] [--check-samples] [-s SAMPLES]
                         [-b {simulate,trimming,rmhost,assembly,binning,checkm}]
-                        [--trimmer {oas1,sickle,fastp}]
+                        [--trimmer {sickle,fastp}]
                         [--rmhoster {soap,bwa,bowtie2,minimap2,kraken2,kneaddata}]
                         [--assembler {idba-ud,megahit,metaspades,spades,opera-ms} [{idba-ud,megahit,metaspades,spades,opera-ms} ...]]
                         [--binner BINNER [BINNER ...]]
@@ -90,7 +90,7 @@ optional arguments:
                         
   -b, --begin {simulate,trimming,rmhost,assembly,binning,checkm}
                         pipeline starting point (default: trimming)
-  --trimmer {oas1,sickle,fastp}
+  --trimmer {sickle,fastp}
                         which trimmer used (default: fastp)
   --rmhoster {soap,bwa,bowtie2,minimap2,kraken2,kneaddata}
                         which rmhoster used (default: bowtie2)
@@ -142,7 +142,6 @@ positional arguments:
   prepare_reads_all,
   raw_fastqc_all,
   raw_report_all, raw_all,
-  trimming_oas1_all,
   trimming_sickle_all,
   trimming_fastp_all,
   trimming_report_all,

@@ -19,7 +19,6 @@ WORKFLOWS_MAG = [
     "raw_fastqc_all",
     "raw_report_all",
     "raw_all",
-    "trimming_oas1_all",
     "trimming_sickle_all",
     "trimming_fastp_all",
     "trimming_report_all",
@@ -85,7 +84,6 @@ WORKFLOWS_GENE = [
     "raw_fastqc_all",
     "raw_report_all",
     "raw_all",
-    "trimming_oas1_all",
     "trimming_sickle_all",
     "trimming_fastp_all",
     "trimming_report_all",
@@ -192,7 +190,7 @@ def update_config_tools(conf, begin, trimmer, rmhoster, assemblers, binners):
     conf["params"]["simulate"]["do"] = False
     conf["params"]["begin"] = begin
 
-    for trimmer_ in ["oas1", "sickle", "fastp"]:
+    for trimmer_ in ["sickle", "fastp"]:
         if trimmer_ == trimmer:
             conf["params"]["trimming"][trimmer_]["do"] = True
         else:

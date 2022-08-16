@@ -1,65 +1,3 @@
-if config["params"]["trimming"]["oas1"]["do"]:
-    rule trimming_oas1:
-        input:
-            lambda wildcards: get_reads(wildcards, "raw")
-        output:
-            stat_out = os.path.join(config["output"]["trimming"],
-                                    "short_reads/{sample}/{sample}.oas1.stat_out"),
-            reads = expand(
-                os.path.join(
-                    config["output"]["trimming"],
-                    "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                read=[".1", ".2", ".single"] if IS_PE else "") \
-                if config["params"]["trimming"]["save_reads"] else \
-                   temp(expand(os.path.join(
-                       config["output"]["trimming"],
-                       "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                               read=[".1", ".2", ".single"] if IS_PE else ""))
-        log:
-            os.path.join(config["output"]["trimming"], "logs/{sample}.oas1.log")
-        benchmark:
-            os.path.join(config["output"]["trimming"],
-                         "benchmark/oas1/{sample}.oas1.benchmark.txt")
-        params:
-            output_prefix = os.path.join(config["output"]["trimming"],
-                                         "short_reads/{sample}/{sample}"),
-            quality_system = config["params"]["trimming"]["oas1"]["quality_system"],
-            min_length = config["params"]["trimming"]["oas1"]["min_length"],
-            seed_oa = config["params"]["trimming"]["oas1"]["seed_oa"],
-            fragment_oa = config["params"]["trimming"]["oas1"]["fragment_oa"]
-        run:
-            reads_str = ",".join(input)
-            shell(
-                '''
-                OAs1 %s \
-                {params.output_prefix} \
-                {params.quality_system} \
-                {params.min_length} \
-                {params.seed_oa} \
-                {params.fragment_oa} 2> {log}
-                ''' % reads_str)
-            if IS_PE:
-                shell('''mv {params.output_prefix}.clean.1.fq.gz {output.reads[0]}''')
-                shell('''mv {params.output_prefix}.clean.2.fq.gz {output.reads[1]}''')
-                shell('''mv {params.output_prefix}.clean.single.fq.gz {output.reads[2]}''')
-                shell('''mv {params.output_prefix}.clean.stat_out {output.stat_out}''')
-            else:
-                shell('''mv {params.output_prefix}.clean.fq.gz {output.reads[0]}''')
-                shell('''mv {params.output_prefix}.clean.stat_out {output.stat_out}''')
-
-
-    rule trimming_oas1_all:
-        input:
-            expand(
-                os.path.join(config["output"]["trimming"],
-                             "short_reads/{sample}/{sample}.oas1.stat_out"),
-                sample=SAMPLES_ID_LIST)
-
-else:
-    rule trimming_oas1_all:
-        input:
-
-
 if config["params"]["trimming"]["sickle"]["do"]:
     rule trimming_sickle:
         input:
@@ -387,7 +325,6 @@ else:
 
 rule trimming_all:
     input:
-        rules.trimming_oas1_all.input,
         rules.trimming_sickle_all.input,
         rules.trimming_fastp_all.input,
         rules.trimming_report_all.input#,
@@ -396,7 +333,6 @@ rule trimming_all:
 
 
 localrules:
-    trimming_oas1_all,
     trimming_fastp_all,
     trimming_sickle_all,
     trimming_report_all,

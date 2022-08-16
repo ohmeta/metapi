@@ -19,12 +19,6 @@ params:
 
   trimming:
     save_reads: False
-    oas1:
-      do: False
-      quality_system: 33
-      min_length: 30
-      seed_oa: 0.9
-      fragment_oa: 0.8
     sickle:
       do: False
       quality_type: "sanger"
