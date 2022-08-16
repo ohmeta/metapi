@@ -277,7 +277,7 @@ if TRIMMING_DO and config["params"]["qcreport"]["do"]:
             sample_id = "{sample}",
             fq_encoding = config["params"]["fq_encoding"]
         conda:
-            config["envs"]["seqkit"]
+            config["envs"]["report"]
         threads:
             config["params"]["qcreport"]["seqkit"]["threads"]
         run:

@@ -43,6 +43,8 @@ if "megahit" in ASSEMBLERS:
             gfa = protected(os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{assembly_group}.megahit.out/{assembly_group}.megahit.scaftigs.gfa.gz"))
+        conda:
+            config["envs"]["megahit"]
         benchmark:
             os.path.join(config["output"]["assembly"],
                          "benchmark/megahit/{assembly_group}.megahit.benchmark.txt")
@@ -152,6 +154,8 @@ if "idba_ud" in ASSEMBLERS:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{assembly_group}.idba_ud.out/{assembly_group}.idba_ud.scaftigs.fa.gz"))
+        conda:
+            config["envs"]["idbaud"]
         benchmark:
             os.path.join(config["output"]["assembly"],
                          "benchmark/idba_ud/{assembly_group}.idba_ud.benchmark.txt")
@@ -259,6 +263,8 @@ if "metaspades" in ASSEMBLERS:
             gfa = protected(os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{assembly_group}.metaspades.out/{assembly_group}.metaspades.scaftigs.gfa.gz"))
+        conda:
+            config["envs"]["spades"]
         benchmark:
             os.path.join(config["output"]["assembly"],
                          "benchmark/metaspades/{assembly_group}.metaspades.benchmark.txt")
@@ -443,6 +449,8 @@ if "spades" in ASSEMBLERS:
             gfa = protected(os.path.join(
                 config["output"]["assembly"],
                 "scaftigs/{assembly_group}.spades.out/{assembly_group}.spades.scaftigs.gfa.gz"))
+        conda:
+            config["envs"]["spades"]
         benchmark:
             os.path.join(config["output"]["assembly"],
                          "benchmark/spades/{assembly_group}.spades.benchmark.txt")
@@ -610,6 +618,8 @@ if "plass" in ASSEMBLERS:
             tmp = directory(temp(os.path.join(
                 config["output"]["assembly"],
                 "proteins/{assembly_group}.plass.out.tmp")))
+        conda:
+            config["envs"]["plass"]
         benchmark:
             os.path.join(config["output"]["assembly"],
                          "benchmark/plass/{assembly_group}.plass.benchmark.txt")
@@ -767,6 +777,8 @@ if len(ASSEMBLERS) != 0:
                 protected(os.path.join(
                     config["output"]["assembly"],
                     "metaquast/{assembly_group}.{assembler}.metaquast.out/combined_reference/report.tsv"))
+            conda:
+                config["envs"]["quast"]
             benchmark:
                 os.path.join(config["output"]["assembly"],
                              "benchmark/metaquast_{assembler}/{assembly_group}.{assembler}.metaquast.benchmark.txt")
@@ -811,6 +823,8 @@ if len(ASSEMBLERS) != 0:
                     os.path.join(
                         config["output"]["assembly"],
                         "report/{assembler}_metaquast/metaquast_multiqc_report_data"))
+            conda:
+                config["envs"]["multiqc"]
             log:
                 os.path.join(config["output"]["assembly"], "logs/multiqc_{assembler}_metaquast.log")
             params:
@@ -857,6 +871,8 @@ if len(ASSEMBLERS) != 0:
             report = os.path.join(
                 config["output"]["assembly"],
                 "report/{assembler}_stats/{assembly_group}.{assembler}.scaftigs.seqtk.comp.tsv.gz")
+        conda:
+            config["envs"]["report"]
         priority:
             25
         params:

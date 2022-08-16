@@ -373,7 +373,7 @@ if config["params"]["qcreport"]["do"]:
             os.path.join(config["output"]["raw"],
                          "report/stats/{sample}_raw_stats.tsv")
         conda:
-            config["envs"]["seqkit"]
+            config["envs"]["report"]
         params:
             sample_id = "{sample}",
             fq_encoding = config["params"]["fq_encoding"]

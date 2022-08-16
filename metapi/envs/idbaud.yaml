@@ -1,0 +1,8 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - idba=1.1.3
+  - seqtk=1.3
+  - pigz
