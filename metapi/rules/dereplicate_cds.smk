@@ -37,6 +37,8 @@ if config["params"]["dereplicate"]["cdhit"]["do_gene"]:
         output:
             os.path.join(config["output"]["dereplicate"],
                          "genes/{assembler}.prodigal.scaftigs.gene.merged.nr.ffn")
+        conda:
+            config["envs"]["cdhit"]
         log:
             os.path.join(config["output"]["dereplicate"],
                          "logs/{assembler}.prodigal.scaftigs.gene.cdhit.log")
