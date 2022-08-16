@@ -78,7 +78,7 @@ if config["params"]["binning"]["vamb"]["do"]:
                 config["output"]["multisplit_binning"],
                 "benchmark/binning_vamb_dict_scaftigs.{binning_group}.{assembler}.benchmark.txt")
         conda:
-            config["envs"]["vamb"]
+            config["envs"]["align"]
         log:
             os.path.join(config["output"]["multisplit_binning"],
                          "logs/binning_vamb_dict_scaftigs.{binning_group}.{assembler}.log")
@@ -102,7 +102,7 @@ if config["params"]["binning"]["vamb"]["do"]:
                 config["output"]["multisplit_binning"],
                 "benchmark/binning_vamb_index_scaftigs.{binning_group}.{assembler}.benchmark.txt")
         conda:
-            config["envs"]["minimap2"]
+            config["envs"]["align"]
         log:
             os.path.join(config["output"]["multisplit_binning"],
                          "logs/binning_vamb_index_scaftigs.{binning_group}.{assembler}.log")
@@ -137,7 +137,7 @@ if config["params"]["binning"]["vamb"]["do"]:
         params:
             bam_dir = os.path.join(config["output"]["multisplit_binning"], "bam/{binning_group}.{assembler}.out/{sample}") 
         conda:
-            config["envs"]["minimap2"]
+            config["envs"]["align"]
         log:
             os.path.join(config["output"]["multisplit_binning"],
                          "logs/alignment/{binning_group}.{assembler}/{sample}.align2combined_scaftigs.log")
@@ -180,7 +180,7 @@ if config["params"]["binning"]["vamb"]["do"]:
         params:
             bam_dir = os.path.join(config["output"]["multisplit_binning"], "bam/{binning_group}.{assembler}.out/{sample}") 
         conda:
-            config["envs"]["minimap2"]
+            config["envs"]["align"]
         log:
             os.path.join(config["output"]["multisplit_binning"],
                          "logs/alignment/{binning_group}.{assembler}/{sample}.sort_bam.log")

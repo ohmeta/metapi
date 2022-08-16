@@ -6,7 +6,7 @@ if config["params"]["binning"]["graphbin2"]["do"]:
                 "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa.gz"),
             gfa = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.gfa.gz"),
+                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.gfa.gz")
         output:
              scaftigs = temp(os.path.join(
                 config["output"]["binning"],
@@ -14,6 +14,8 @@ if config["params"]["binning"]["graphbin2"]["do"]:
              gfa = temp(os.path.join(
                  config["output"]["binning"],
                  "bins/{assembly_group}.{assembler}.out/graphbin2/scaftigs.gfa"))
+        conda:
+            config["envs"]["report"]
         shell:
             '''
             pigz -dc {input.scaftigs} > {output.scaftigs}
