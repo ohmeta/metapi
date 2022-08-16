@@ -14,131 +14,6 @@ def trimming_stats_input(wildcards, have_single=False):
         return []
  
 
-if config["params"]["rmhost"]["soap"]["do"]:
-    rule rmhost_soap_index:
-        input:
-            config["params"]["rmhost"]["host_fasta"]
-        output:
-            expand("{prefix}.{suffix}",
-                   prefix=config["params"]["rmhost"]["soap"]["index_prefix"],
-                   suffix=["amb", "ann", "bwt", "fmv", "hot", "lkt", "pac",
-                           "rev.bwt", "rev.fmv", "rev.lkt", "rev.pac", "sa", ".sai"])
-        conda:
-            config["envs"]["soapaligner"]
-        log:
-            os.path.join(config["output"]["rmhost"],
-                         "logs/build_host_index_for_soap.log")
-        params:
-            host_fasta = os.path.basename(config["params"]["rmhost"]["host_fasta"]),
-            index_dir = os.path.dirname(config["params"]["rmhost"]["soap"]["index_prefix"])
-        shell:
-            '''
-            mkdir -p {params.index_dir}
-            pushd {params.index_dir} && \
-            ln -s {input} && \
-            2bwt-builder {params.host_fasta} 2> {log} && popd
-            '''
-
-
-    rule rmhost_soap:
-        input:
-            lambda wildcards: trimming_stats_input(wildcards),
-            reads = lambda wildcards: rmhost_input(wildcards),
-            index = expand("{prefix}.{suffix}",
-                   prefix=config["params"]["rmhost"]["soap"]["index_prefix"],
-                   suffix=["amb", "ann", "bwt", "fmv", "hot", "lkt", "pac",
-                           "rev.bwt", "rev.fmv", "rev.lkt", "rev.pac", "sa", "sai"])
-        output:
-            reads = expand(os.path.join(
-                config["output"]["rmhost"],
-                "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
-                           read=[".1", ".2"] if IS_PE else "") \
-                           if config["params"]["rmhost"]["save_reads"] else \
-                              temp(expand(os.path.join(
-                                  config["output"]["rmhost"],
-                                  "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
-                                          read=[".1", ".2"] if IS_PE else ""))
-        conda:
-            config["envs"]["soapaligner"]
-        log:
-            os.path.join(config["output"]["rmhost"], "logs/{sample}.soap.log")
-        benchmark:
-            os.path.join(config["output"]["rmhost"], "benchmark/soap/{sample}.soap.txt")
-        priority:
-            10
-        params:
-            index_prefix = config["params"]["rmhost"]["soap"]["index_prefix"],
-            match_model = config["params"]["rmhost"]["soap"]["match_model"],
-            align_seed = config["params"]["rmhost"]["soap"]["align_seed"],
-            report_repeat_hits = config["params"]["rmhost"]["soap"]["report_repeat_hits"],
-            max_mismatch_num = config["params"]["rmhost"]["soap"]["max_mismatch_num"],
-            identity = config["params"]["rmhost"]["soap"]["identity"]
-        threads:
-            config["params"]["rmhost"]["threads"]
-        run:
-            outdir = os.path.dirname(output.reads[0])
-            shell(f'''mkdir -p {outdir}''')
-
-            if IS_PE:
-                shell(
-                    f'''
-                    soap2.22 \
-                    -a {input.reads[0]} -b {input.reads[1]} \
-                    -D {params.index_prefix} \
-                    -M {params.match_model} \
-                    -l {params.align_seed} \
-                    -r {params.report_repeat_hits} \
-                    -v {params.max_mismatch_num} \
-                    -c {params.identity} \
-                    -p {threads} \
-                    -S \
-                    -o {outdir}/soap.pe \
-                    -2 {outdir}/soap.se \
-                    -u {outdir}/unmapped.fq 2> {log}
-
-                    seqtk dropse {outdir}/unmapped.fq |
-                    tee >(seqtk seq -1 - | pigz > {output.reads[0]}) |
-                    seqtk seq -2 - | pigz > {output.reads[1]}
-
-                    rm -rf {outdir}/soap.pe
-                    rm -rf {outdir}/soap.se
-                    rm -rf {outdir}/unmapped.fq
-                    ''')
-            else:
-                shell(
-                    f'''
-                    soap2.22 \
-                    -a {input.reads[0]} \
-                    -D {params.index_prefix} \
-                    -M {params.match_model} \
-                    -l {params.align_seed} \
-                    -r {params.report_repeat_hits} \
-                    -v {params.max_mismatch_num} \
-                    -c {params.identity} \
-                    -p {threads} \
-                    -S \
-                    -o {outdir}/soap.se \
-                    -u {outdir}/unmapped.fq 2> {log}
-
-                    rm -rf {outdir}/soap.se
-                    pigz {outdir}/unmapped.fq
-                    mv {outdir}/unmapped.fq.gz {output.reads[0]}
-                    ''')
-
-
-    rule rmhost_soap_all:
-        input:
-            expand(os.path.join(
-                config["output"]["rmhost"],
-                "short_reads/{sample}/{sample}.rmhost{read}.fq.gz"),
-                   sample=SAMPLES_ID_LIST,
-                   read=[".1", ".2"] if IS_PE else "")
-
-else:
-    rule rmhost_soap_all:
-        input:
-
-
 BWA_INDEX_SUFFIX = ["0123", "amb", "ann", "bwt.2bit.64", "pac"] if config["params"]["rmhost"]["bwa"]["algorithms"] == "mem2" \
 else ["amb", "ann", "bwt", "pac", "sa"]
 
@@ -349,7 +224,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                                   "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
                                           read=[".1", ".2"] if IS_PE else ""))
         conda:
-            config["envs"]["bowtie2"]
+            config["envs"]["align"]
         log:
             os.path.join(config["output"]["rmhost"], "logs/{sample}.bowtie2.log")
         benchmark:
@@ -891,7 +766,6 @@ else:
 
 
 if RMHOST_DO \
-and (not config["params"]["rmhost"]["soap"]["do"]) \
 and (not config["params"]["rmhost"]["kraken2"]["do"]) \
 and (not config["params"]["rmhost"]["kneaddata"]["do"]):
     rule rmhost_alignment_report:
@@ -979,7 +853,6 @@ rule rmhost_all:
     input:
         rules.rmhost_bwa_all.input,
         rules.rmhost_bowtie2_all.input,
-        rules.rmhost_soap_all.input,
         rules.rmhost_minimap2_all.input,
         rules.rmhost_kraken2_all.input,
         rules.rmhost_kneaddata_all.input,
@@ -989,7 +862,6 @@ rule rmhost_all:
 
 localrules:
     rmhost_bwa_all,
-    rmhost_soap_all,
     rmhost_bowtie2_all,
     rmhost_kraken2_all,
     rmhost_minimap2_all,

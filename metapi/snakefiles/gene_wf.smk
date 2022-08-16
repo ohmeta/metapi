@@ -35,8 +35,7 @@ RMHOST_DO = True \
 
 
 TRIMMING_DO = True \
-    if config["params"]["trimming"]["oas1"]["do"] or \
-       config["params"]["trimming"]["sickle"]["do"] or \
+    if config["params"]["trimming"]["sickle"]["do"] or \
        config["params"]["trimming"]["fastp"]["do"] \
        else False
 

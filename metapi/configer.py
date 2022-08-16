@@ -46,8 +46,6 @@ class metaconfig:
         "logs/01.trimming_report",
         "logs/01.trimming_report_refine",
         "logs/01.trimming_report_merge",
-        "logs/02.rmhost_soap_index",
-        "logs/02.rmhost_soap",
         "logs/02.rmhost_bwa_index",
         "logs/02.rmhost_bwa",
         "logs/02.rmhost_bowtie2_index",

@@ -1,8 +1,0 @@
-channels:
-  - conda-forge
-  - bioconda
-  - defaults
-dependencies:
-  - soapaligner=2.21
-  - pigz
-  - seqtk

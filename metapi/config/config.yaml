@@ -52,14 +52,6 @@ params:
     save_reads: True
     save_bam: False
     compression: 6
-    soap:
-      do: False
-      index_prefix: "/home/jiezhu/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"
-      match_model: 4
-      align_seed: 30
-      report_repeat_hits: 1
-      max_mismatch_num: 7
-      identity: 0.9
     bwa:
       do: False
       algorithms: "mem" # "mem2"
@@ -404,7 +396,6 @@ envs:
   trimming: "envs/trimming.yaml"
   multiqc: "envs/multiqc.yaml"
   report: "envs/report.yaml"
-  soapaligner: "envs/soapaligner.yaml"
   align: "envs/align.yaml"
   kraken2: "envs/kraken2.yaml"
   kneaddata: "envs/kneaddata.yaml"
