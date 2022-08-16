@@ -74,41 +74,8 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
                          "logs/bins_gene/{assembly_group}.{assembler}.{binner_checkm}.prokka.log")
         threads:
             config["params"]["predict"]["threads"]
-        run:
-            import glob
-            import os
-            import time
-            import subprocess
-
-            bin_list = glob.glob(input.bins_dir + "/*.fa")
-            gff_count = 0
-
-            for bin_fa in bin_list:
-                bin_id = os.path.basename(os.path.splitext(bin_fa)[0])
-                output_dir = os.path.join(params.output_dir, bin_id)
-                gff_file = os.path.join(output_dir, bin_id + ".gff")
-
-                shell(
-                    f'''
-                    echo "\nProcessing {bin_fa}\n" >> {log}
-
-                    prokka {bin_fa} \
-                    --force \
-                    --centre X \
-                    --compliant \
-                    --cpus {threads} \
-                    --outdir {output_dir} \
-                    --locustag {bin_id} \
-                    --prefix {bin_id} \
-                    --kingdom {params.kingdom} \
-                    2>> {log} 
-                    ''')
-
-                if os.path.exists(gff_file):
-                    gff_count += 1
-
-            if gff_count == len(bin_list):
-                shell('''touch {output.done}''')
+        script:
+            "../wrappers/prokka_wrapper.py"
 
 
     rule predict_bins_gene_prokka_multiqc:
