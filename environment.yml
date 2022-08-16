@@ -14,3 +14,8 @@ dependencies:
   - biopython >=1.73
   - seaborn
   - matplotlib
+  - seqtk
+  - seqkit
+  - pigz
+  - fd-find
+  - sra-tools=2.11.0

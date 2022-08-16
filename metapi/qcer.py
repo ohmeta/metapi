@@ -134,8 +134,8 @@ def parse_fastp_json(json_f, paired):
         return trimming_dict
 
 
-def change(output, sample_id, step, fq_type, reads_list):
-    df = pd.read_csv(output, sep="\t").sort_values("file", ascending=True)
+def change(input, output, sample_id, step, fq_type, reads_list):
+    df = pd.read_csv(input, sep="\t").sort_values("file", ascending=True)
     df["id"] = sample_id
     df["reads"] = reads_list
     df["step"] = step

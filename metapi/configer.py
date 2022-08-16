@@ -38,6 +38,7 @@ class metaconfig:
         "logs/00.raw_fastqc",
         "logs/00.raw_fastqc_multiqc",
         "logs/00.raw_report",
+        "logs/00.raw_report_refine",
         "logs/00.raw_report_merge",
         "logs/01.trimming_sickle",
         "logs/01.trimming_fastp",

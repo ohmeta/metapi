@@ -67,6 +67,11 @@ raw_report:
   output: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
+raw_report_refine:
+  mem: "1G"
+  output: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
+  error: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
+
 raw_report_merge:
   mem: "512M"
   output: "logs/00.{rule}/{rule}.{jobid}.o"

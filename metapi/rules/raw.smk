@@ -60,8 +60,6 @@ if config["params"]["raw"]["do"]:
                         config["output"]["raw"],
                         "short_reads/{{sample}}/{{sample}}.raw{read}.fq.gz"),
                     read=short_reads_suffix()))
-        conda:
-            config["envs"]["raw"]
         params:
             output_dir = os.path.join(config["output"]["raw"],
                                    "short_reads/{sample}"),
@@ -182,8 +180,6 @@ if config["params"]["raw"]["do"]:
                             config["output"]["raw"],
                             "long_reads/{{sample}}/{{sample}}.raw{read}.fq"),
                         read=long_reads_suffix()))
-            conda:
-                config["envs"]["raw"]
             run:
                 reads_num = len(input)
 
@@ -370,8 +366,8 @@ if config["params"]["qcreport"]["do"]:
         input:
             lambda wildcards: get_reads(wildcards, "raw")
         output:
-            os.path.join(config["output"]["raw"],
-                         "report/stats/{sample}_raw_stats.tsv")
+            temp(os.path.join(config["output"]["raw"],
+                         "report/stats/{sample}_raw_stats.tsv.raw"))
         conda:
             config["envs"]["report"]
         params:
@@ -382,24 +378,32 @@ if config["params"]["qcreport"]["do"]:
                          "logs/{sample}.seqkit.log")
         threads:
             config["params"]["qcreport"]["seqkit"]["threads"]
-        run:
-            shell(
-                '''
-                seqkit stats \
-                --all \
-                --basename \
-                --tabular \
-                --fq-encoding {params.fq_encoding} \
-                --out-file {output} \
-                --threads {threads} \
-                {input} 2> {log}
-                ''')
+        shell:
+            '''
+            seqkit stats \
+            --all \
+            --basename \
+            --tabular \
+            --fq-encoding {params.fq_encoding} \
+            --out-file {output} \
+            --threads {threads} \
+            {input} 2> {log}
+            '''
 
+
+    rule raw_report_refine:
+        input:
+            os.path.join(config["output"]["raw"],
+                         "report/stats/{sample}_raw_stats.tsv.raw")
+        output:
+            os.path.join(config["output"]["raw"],
+                         "report/stats/{sample}_raw_stats.tsv")
+        run:
             if IS_PE:
-                metapi.change(output[0], params.sample_id, "raw",
+                metapi.change(input[0], output[0], params.sample_id, "raw",
                               "pe", ["fq1", "fq2"])
             else:
-                metapi.change(output[0], params.sample_id, "raw",
+                metapi.change(input[0], output[0], params.sample_id, "raw",
                               "se", ["fq1"])
 
 
