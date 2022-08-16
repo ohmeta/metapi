@@ -66,7 +66,7 @@ Or via pip:
 usage: metapi init [-h] [-d WORKDIR] [--check-samples] [-s SAMPLES]
                         [-b {simulate,trimming,rmhost,assembly,binning,checkm}]
                         [--trimmer {sickle,fastp}]
-                        [--rmhoster {soap,bwa,bowtie2,minimap2,kraken2,kneaddata}]
+                        [--rmhoster {bwa,bowtie2,minimap2,kraken2,kneaddata}]
                         [--assembler {idba-ud,megahit,metaspades,spades,opera-ms} [{idba-ud,megahit,metaspades,spades,opera-ms} ...]]
                         [--binner BINNER [BINNER ...]]
 
@@ -92,7 +92,7 @@ optional arguments:
                         pipeline starting point (default: trimming)
   --trimmer {sickle,fastp}
                         which trimmer used (default: fastp)
-  --rmhoster {soap,bwa,bowtie2,minimap2,kraken2,kneaddata}
+  --rmhoster {bwa,bowtie2,minimap2,kraken2,kneaddata}
                         which rmhoster used (default: bowtie2)
   --assembler {idba-ud,megahit,metaspades,spades,opera-ms} [{idba-ud,megahit,metaspades,spades,opera-ms} ...]
                         which assembler used, required when begin with binning, can be changed in config.yaml (default: ['metaspades'])
@@ -146,7 +146,6 @@ positional arguments:
   trimming_fastp_all,
   trimming_report_all,
   trimming_all,
-  rmhost_soap_all,
   rmhost_bwa_all,
   rmhost_bowtie2_all,
   rmhost_minimap2_all,

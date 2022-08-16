@@ -23,7 +23,6 @@ WORKFLOWS_MAG = [
     "trimming_fastp_all",
     "trimming_report_all",
     "trimming_all",
-    "rmhost_soap_all",
     "rmhost_bwa_all",
     "rmhost_bowtie2_all",
     "rmhost_minimap2_all",
@@ -88,7 +87,6 @@ WORKFLOWS_GENE = [
     "trimming_fastp_all",
     "trimming_report_all",
     "trimming_all",
-    "rmhost_soap_all",
     "rmhost_bwa_all",
     "rmhost_bowtie2_all",
     "rmhost_minimap2_all",
@@ -196,7 +194,7 @@ def update_config_tools(conf, begin, trimmer, rmhoster, assemblers, binners):
         else:
             conf["params"]["trimming"][trimmer_]["do"] = False
 
-    for rmhoster_ in ["soap", "bwa", "bowtie2", "minimap2", "kraken2", "kneaddata"]:
+    for rmhoster_ in ["bwa", "bowtie2", "minimap2", "kraken2", "kneaddata"]:
         if rmhoster_ == rmhoster:
             conf["params"]["rmhost"][rmhoster_]["do"] = True
         else:
@@ -538,7 +536,7 @@ if begin from simulate:
         type=str,
         default="fastp",
         required=False,
-        choices=["oas1", "sickle", "fastp"],
+        choices=["sickle", "fastp"],
         help="which trimmer used",
     )
     parser_init.add_argument(
@@ -546,7 +544,7 @@ if begin from simulate:
         type=str,
         default="bowtie2",
         required=False,
-        choices=["soap", "bwa", "bowtie2", "minimap2", "kraken2", "kneaddata"],
+        choices=["bwa", "bowtie2", "minimap2", "kraken2", "kneaddata"],
         help="which rmhoster used",
     )
     parser_init.add_argument(
