@@ -919,6 +919,8 @@ if RMHOST_DO and config["params"]["qcreport"]["do"]:
         output:
             os.path.join(config["output"]["rmhost"],
                          "report/stats/{sample}_rmhost_stats.tsv")
+        conda:
+            config["envs"]["seqkit"]
         log:
             os.path.join(config["output"]["rmhost"],
                          "logs/{sample}.seqkit.log")
