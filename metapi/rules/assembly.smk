@@ -67,67 +67,15 @@ if "megahit" in ASSEMBLERS:
                 config["output"]["assembly"],
                 "scaftigs/{assembly_group}.megahit.out/{assembly_group}.megahit.scaftigs.gfa"),
             only_save_scaftigs = \
-                config["params"]["assembly"]["megahit"]["only_save_scaftigs"]
+                config["params"]["assembly"]["megahit"]["only_save_scaftigs"],
+            wrapper_dir = WRAPPER_DIR
         threads:
             config["params"]["assembly"]["threads"]
         log:
             os.path.join(config["output"]["assembly"],
                          "logs/{assembly_group}.megahit.log")
-        run:
-            from Bio import SeqIO
-            import re
-
-            if os.path.exists(os.path.join(params.output_dir, "options.json")):
-                shell('''megahit --continue --out-dir {params.output_dir}''')
-            else:
-                reads_num = len(input)
-                input_str = ""
-                if IS_PE:
-                    if reads_num == 2:
-                        input_str = f'''-1 {input[0]} -2 {input[1]}'''
-                    else:
-                        input_str = f'''-1 {",".join(input[0:reads_num//2])} -2 {",".join(input[reads_num//2:])}'''
-                else:
-                    input_str = f'''-r {",".join(input)}'''
-
-                shell("rm -rf {params.output_dir}")
-                shell(
-                    f'''
-                    megahit \
-                    {input_str} \
-                    -t {threads} \
-                    %s \
-                    --min-contig-len {params.min_contig} \
-                    --out-dir {params.output_dir} \
-                    --out-prefix {params.output_prefix} \
-                    2> {log}
-                    ''' % ("--presets %s" % params.presets \
-                           if params.presets != "" \
-                           else "--k-list {params.k_list}"))
-
-            k_num = 0
-            for seq_record in SeqIO.parse(params.contigs, "fasta"):
-                k_num = int(re.search('k(.*)_', seq_record.id).group(1))
-                break
-
-            shell(
-                '''
-                megahit_toolkit contig2fastg \
-                %d \
-                {params.contigs} \
-                > {params.fastg}
-                ''' % k_num)
-
-            shell('''fastg2gfa {params.fastg} > {params.gfa}''')
-            shell('''pigz -p {threads} {params.fastg}''')
-            shell('''pigz -p {threads} {params.gfa}''')
-
-            shell('''pigz -p {threads} {params.contigs}''')
-            shell('''mv {params.contigs}.gz {output.scaftigs}''')
-
-            if params.only_save_scaftigs:
-                shell('''fd -t f -E "*.gz" . {params.output_dir} -x rm -rf {{}}''')
-                shell('''rm -rf {params.output_dir}/intermediate_contigs''')
+        script:
+            "../wrappers/megahit_wrapper.py"
 
 
     rule assembly_megahit_all:
