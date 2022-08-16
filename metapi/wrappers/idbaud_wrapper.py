@@ -21,22 +21,18 @@ if IS_PE:
             seqtk seq -A - > {reads}
             ''', shell=True)
     else:
-        subprocess(
-            f'''
-            cat {snakemake.input[0:reads_num//2]} > {reads}.1.fq.gz
-            cat {snakemake.input[reads_num//2:]} > {reads}.2.fq.gz
-            seqtk mergepe {reads}.1.fq.gz {reads}.2.fq.gz | \
-            seqtk seq -A - > {reads}
-            rm -rf {reads}.1.fq.gz {reads}.2.fq.gz
-            ''', shell=True)
+        subprocess(f'''cat {snakemake.input[0:reads_num//2]} > {reads}.1.fq.gz''', shell=True)
+        subprocess(f'''cat {snakemake.input[reads_num//2:]} > {reads}.2.fq.gz''', shell=True)
+        subprocess(f'''seqtk mergepe {reads}.1.fq.gz {reads}.2.fq.gz | seqtk seq -A - > {reads}''', shell=True)
+        subprocess(f'''rm -rf {reads}.1.fq.gz {reads}.2.fq.gz''', shell=True)
 else:
     if reads_num == 1:
         subprocess(f'''seqtk seq -A {snakemake.input[0]} > {reads}''', shell=True)
     else:
         subprocess(
             f'''
-            cat {snakemake.input} > {reads}.fq.gz
-            seqtk seq -A {snakemake.input[0]} > {reads}
+            cat {snakemake.input} > {reads}.fq.gz && \
+            seqtk seq -A {snakemake.input[0]} > {reads} && \
             rm -rf {reads}.fq.gz
             ''', shell=True)
 

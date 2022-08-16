@@ -29,7 +29,6 @@ from metapi.qcer import parse_fastp_json
 
 from metapi.assembler import assembler_init
 from metapi.assembler import parse_assembly
-from metapi.assembler import parse_spades_params
 
 from metapi.aligner import flagstats_summary
 

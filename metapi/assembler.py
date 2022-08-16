@@ -5,23 +5,6 @@ import numpy as np
 from metapi import tooler
 
 
-def parse_spades_params(params_file):
-    with open(params_file, "r") as ih:
-        cmd = ih.readline().strip()
-
-        matches = re.match(r".*-k\t(.*?)\t--memory\t(\d+)\t--threads\t(\d+).*", cmd)
-        if matches:
-            kmers = str(matches.group(1))
-            memory = str(matches.group(2))
-            threads = str(matches.group(3))
-            if "--only-assembler" in cmd:
-                return [kmers, memory, threads, True]
-            else:
-                return [kmers, memory, threads, False]
-        else:
-            return None
-
-
 def assembler_init(contigs_length_range, groups):
     global CONTIGS_LENGTH_RANGES__
     global GROUP_BY_
