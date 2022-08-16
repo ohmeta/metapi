@@ -97,6 +97,11 @@ trimming_report:
   output: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
+trimming_refine:
+  mem: "1G"
+  output: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
+  error: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
+
 trimming_report_merge:
   mem: "512M"
   output: "logs/01.{rule}/{rule}.{jobid}.o"

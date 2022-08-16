@@ -27,33 +27,32 @@ if config["params"]["trimming"]["sickle"]["do"]:
                                          "short_reads/{sample}/{sample}"),
             quality_type = config["params"]["trimming"]["sickle"]["quality_type"],
             quality_cutoff = config["params"]["trimming"]["sickle"]["quality_cutoff"],
-            length_cutoff = config["params"]["trimming"]["sickle"]["length_cutoff"]
-        run:
-            if IS_PE:
-                shell(
-                    '''
-                    sickle pe \
-                    --pe-file1 {input[0]} \
-                    --pe-file2 {input[1]} \
-                    --output-pe1 {output.reads[0]} \
-                    --output-pe2 {output.reads[1]} \
-                    --output-single {output.reads[2]} \
-                    --qual-type {params.quality_type} \
-                    --qual-threshold {params.quality_cutoff} \
-                    --length-threshold {params.length_cutoff} \
-                    --gzip-output 2> {log}
-                    ''')
-            else:
-                shell(
-                    '''
-                    sickle se \
-                    --fastq-file {input[0]} \
-                    --output-file {output.reads[0]} \
-                    --qual-type {params.quality_type} \
-                    --qual-threshold {params.quality_cutoff} \
-                    --length-threshold {params.length_cutoff} \
-                    --gzip-output 2> {log}
-                    ''')
+            length_cutoff = config["params"]["trimming"]["sickle"]["length_cutoff"],
+            pe = "pe" if IS_PE else "se"
+        shell:
+            '''
+            if [ "{params.pe}" == "pe" ];
+            then
+                sickle pe \
+                --pe-file1 {input[0]} \
+                --pe-file2 {input[1]} \
+                --output-pe1 {output.reads[0]} \
+                --output-pe2 {output.reads[1]} \
+                --output-single {output.reads[2]} \
+                --qual-type {params.quality_type} \
+                --qual-threshold {params.quality_cutoff} \
+                --length-threshold {params.length_cutoff} \
+                --gzip-output 2> {log}
+            else
+                sickle se \
+                --fastq-file {input[0]} \
+                --output-file {output.reads[0]} \
+                --qual-type {params.quality_type} \
+                --qual-threshold {params.quality_cutoff} \
+                --length-threshold {params.length_cutoff} \
+                --gzip-output 2> {log}
+            fi
+            '''
 
 
     rule trimming_sickle_all:
@@ -117,7 +116,9 @@ if config["params"]["trimming"]["fastp"]["do"]:
             cut_right_window_size = config["params"]["trimming"]["fastp"]["cut_right_window_size"],
             cut_right_mean_quality = config["params"]["trimming"]["fastp"]["cut_right_mean_quality"],
             length_required = config["params"]["trimming"]["fastp"]["length_required"],
-            n_base_limit = config["params"]["trimming"]["fastp"]["n_base_limit"]
+            n_base_limit = config["params"]["trimming"]["fastp"]["n_base_limit"],
+            use_slide_window = "yes" if config["params"]["trimming"]["fastp"]["use_slide_window"] else "no",
+            pe = "pe" if IS_PE else "se"
         log:
             os.path.join(config["output"]["trimming"], "logs/{sample}.fastp.log")
         benchmark:
@@ -127,93 +128,89 @@ if config["params"]["trimming"]["fastp"]["do"]:
             config["envs"]["trimming"]
         threads:
             config["params"]["trimming"]["fastp"]["threads"]
-        run:
-            if IS_PE:
-                if config["params"]["trimming"]["fastp"]["use_slide_window"]:
-                    shell(
-                        f'''
-                        fastp \
-                        --in1 {input[0]} \
-                        --in2 {input[1]} \
-                        --out1 {output.reads[0]} \
-                        --out2 {output.reads[1]} \
-                        --compression {params.compression} \
-                        {ADAPTER_OPERATION} \
-                        --cut_front \
-                        --cut_right \
-                        --cut_front_window_size {params.cut_front_window_size} \
-                        --cut_front_mean_quality {params.cut_front_mean_quality} \
-                        --cut_right_window_size {params.cut_right_window_size} \
-                        --cut_right_mean_quality {params.cut_right_mean_quality} \
-                        --n_base_limit {params.n_base_limit} \
-                        --length_required {params.length_required} \
-                        --thread {threads} \
-                        --html {output.html} \
-                        --json {output.json} 2> {log}
-                        ''')
-                else:
-                    shell(
-                        f'''
-                        fastp \
-                        --in1 {input[0]} \
-                        --in2 {input[1]} \
-                        --out1 {output.reads[0]} \
-                        --out2 {output.reads[1]} \
-                        --compression {params.compression} \
-                        {ADAPTER_OPERATION} \
-                        --cut_front \
-                        --cut_tail \
-                        --cut_front_window_size {params.cut_front_window_size} \
-                        --cut_front_mean_quality {params.cut_front_mean_quality} \
-                        --cut_tail_window_size {params.cut_tail_window_size} \
-                        --cut_tail_mean_quality {params.cut_tail_mean_quality} \
-                        --n_base_limit {params.n_base_limit} \
-                        --length_required {params.length_required} \
-                        --thread {threads} \
-                        --html {output.html} \
-                        --json {output.json} 2> {log}
-                        ''')
-            else:
-                if config["params"]["trimming"]["fastp"]["use_slide_window"]:
-                    shell(
-                        f'''
-                        fastp \
-                        --in1 {input[0]} \
-                        --out1 {output.reads[0]} \
-                        --compression {params.compression} \
-                        {ADAPTER_OPERATION} \
-                        --cut_front \
-                        --cut_right \
-                        --cut_front_window_size {params.cut_front_window_size} \
-                        --cut_front_mean_quality {params.cut_front_mean_quality} \
-                        --cut_right_window_size {params.cut_right_window_size} \
-                        --cut_right_mean_quality {params.cut_right_mean_quality} \
-                        --n_base_limit {params.n_base_limit} \
-                        --length_required {params.length_required} \
-                        --thread {threads} \
-                        --html {output.html} \
-                        --json {output.json} 2> {log}
-                        ''')
-                else:
-                    shell(
-                        f'''
-                        fastp \
-                        --in1 {input[0]} \
-                        --out1 {output.reads[0]} \
-                        --compression {params.compression} \
-                        {ADAPTER_OPERATION} \
-                        --cut_front \
-                        --cut_tail \
-                        --cut_front_window_size {params.cut_front_window_size} \
-                        --cut_front_mean_quality {params.cut_front_mean_quality} \
-                        --cut_tail_window_size {params.cut_tail_window_size} \
-                        --cut_tail_mean_quality {params.cut_tail_mean_quality} \
-                        --n_base_limit {params.n_base_limit} \
-                        --length_required {params.length_required} \
-                        --thread {threads} \
-                        --html {output.html} \
-                        --json {output.json} 2> {log}
-                        ''')
+        shell:
+            '''
+            if [ "{params.pe}" == "pe" ];
+            then
+                if [ "{params.use_slide_window}" == "yes" ];
+                then
+                    fastp \
+                    --in1 {input[0]} \
+                    --in2 {input[1]} \
+                    --out1 {output.reads[0]} \
+                    --out2 {output.reads[1]} \
+                    --compression {params.compression} \
+                    {ADAPTER_OPERATION} \
+                    --cut_front \
+                    --cut_right \
+                    --cut_front_window_size {params.cut_front_window_size} \
+                    --cut_front_mean_quality {params.cut_front_mean_quality} \
+                    --cut_right_window_size {params.cut_right_window_size} \
+                    --cut_right_mean_quality {params.cut_right_mean_quality} \
+                    --n_base_limit {params.n_base_limit} \
+                    --length_required {params.length_required} \
+                    --thread {threads} \
+                    --html {output.html} \
+                    --json {output.json} 2> {log}
+                else
+                    fastp \
+                    --in1 {input[0]} \
+                    --in2 {input[1]} \
+                    --out1 {output.reads[0]} \
+                    --out2 {output.reads[1]} \
+                    --compression {params.compression} \
+                    {ADAPTER_OPERATION} \
+                    --cut_front \
+                    --cut_tail \
+                    --cut_front_window_size {params.cut_front_window_size} \
+                    --cut_front_mean_quality {params.cut_front_mean_quality} \
+                    --cut_tail_window_size {params.cut_tail_window_size} \
+                    --cut_tail_mean_quality {params.cut_tail_mean_quality} \
+                    --n_base_limit {params.n_base_limit} \
+                    --length_required {params.length_required} \
+                    --thread {threads} \
+                    --html {output.html} \
+                    --json {output.json} 2> {log}
+                fi
+            else
+                if [ "{params.use_slide_window}" == "yes" ];
+                then
+                    fastp \
+                    --in1 {input[0]} \
+                    --out1 {output.reads[0]} \
+                    --compression {params.compression} \
+                    {ADAPTER_OPERATION} \
+                    --cut_front \
+                    --cut_right \
+                    --cut_front_window_size {params.cut_front_window_size} \
+                    --cut_front_mean_quality {params.cut_front_mean_quality} \
+                    --cut_right_window_size {params.cut_right_window_size} \
+                    --cut_right_mean_quality {params.cut_right_mean_quality} \
+                    --n_base_limit {params.n_base_limit} \
+                    --length_required {params.length_required} \
+                    --thread {threads} \
+                    --html {output.html} \
+                    --json {output.json} 2> {log}
+                else
+                    fastp \
+                    --in1 {input[0]} \
+                    --out1 {output.reads[0]} \
+                    --compression {params.compression} \
+                    {ADAPTER_OPERATION} \
+                    --cut_front \
+                    --cut_tail \
+                    --cut_front_window_size {params.cut_front_window_size} \
+                    --cut_front_mean_quality {params.cut_front_mean_quality} \
+                    --cut_tail_window_size {params.cut_tail_window_size} \
+                    --cut_tail_mean_quality {params.cut_tail_mean_quality} \
+                    --n_base_limit {params.n_base_limit} \
+                    --length_required {params.length_required} \
+                    --thread {threads} \
+                    --html {output.html} \
+                    --json {output.json} 2> {log}
+                fi
+            fi
+            '''
 
 
     rule trimming_fastp_multiqc:
@@ -268,8 +265,8 @@ if TRIMMING_DO and config["params"]["qcreport"]["do"]:
         input:
             lambda wildcards: get_reads(wildcards, "trimming")
         output:
-            os.path.join(config["output"]["trimming"],
-                              "report/stats/{sample}_trimming_stats.tsv")
+            temp(os.path.join(config["output"]["trimming"],
+                              "report/stats/{sample}_trimming_stats.tsv.raw"))
         log:
             os.path.join(config["output"]["trimming"],
                          "logs/{sample}.seqkit.log")
@@ -280,24 +277,32 @@ if TRIMMING_DO and config["params"]["qcreport"]["do"]:
             config["envs"]["report"]
         threads:
             config["params"]["qcreport"]["seqkit"]["threads"]
-        run:
-            shell(
-                '''
-                seqkit stats \
-                --all \
-                --basename \
-                --tabular \
-                --fq-encoding {params.fq_encoding} \
-                --out-file {output} \
-                --threads {threads} \
-                {input} 2> {log}
-                ''')
+        shell:
+            '''
+            seqkit stats \
+            --all \
+            --basename \
+            --tabular \
+            --fq-encoding {params.fq_encoding} \
+            --out-file {output} \
+            --threads {threads} \
+            {input} 2> {log}
+            '''
+        
 
+    rule trimming_report_refine:
+        input:
+            os.path.join(config["output"]["trimming"],
+                              "report/stats/{sample}_trimming_stats.tsv.raw")
+        output:
+            os.path.join(config["output"]["trimming"],
+                              "report/stats/{sample}_trimming_stats.tsv")
+        run:
             if IS_PE:
-                metapi.change(output[0], params.sample_id, "trimming",
+                metapi.change(input[0], output[0], params.sample_id, "trimming",
                               "pe", ["fq1", "fq2"])
             else:
-                metapi.change(output[0], params.sample_id, "trimming",
+                metapi.change(input[0], output[0], params.sample_id, "trimming",
                               "se", ["fq1"])
 
 

@@ -44,6 +44,7 @@ class metaconfig:
         "logs/01.trimming_fastp",
         "logs/01.trimming_fastp_multiqc",
         "logs/01.trimming_report",
+        "logs/01.trimming_report_refine",
         "logs/01.trimming_report_merge",
         "logs/02.rmhost_soap_index",
         "logs/02.rmhost_soap",
