@@ -16,6 +16,8 @@ rule predict_scaftigs_gene_prodigal:
         gff = os.path.join(
             config["output"]["predict"],
             "scaftigs_gene/{assembly_group}.{assembler}.prodigal.out/{assembly_group}.{assembler}.gff")
+    conda:
+        config["envs"]["predict"]
     log:
         os.path.join(config["output"]["predict"],
                      "logs/scaftigs_gene/{assembly_group}.{assembler}.prodigal.log")
@@ -56,6 +58,8 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
                 config["output"]["predict"],
                 "scaftigs_gene/{{assembly_group}}.{{assembler}}.prokka.out/{{assembly_group}}.{{assembler}}.{ext}"),
                    ext=PROKKA_SUFFIX)
+        conda:
+            config["envs"]["predict"]
         log:
             os.path.join(config["output"]["predict"],
                          "logs/scaftigs_gene/{assembly_group}.{assembler}.prokka.log")
@@ -96,6 +100,8 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
             data_dir = directory(os.path.join(
                 config["output"]["predict"],
                 "report/scaftigs_gene_{assembler}.multiqc.out/prokka_multiqc_report_data"))
+        conda:
+            config["envs"]["multiqc"]
         log:
             os.path.join(
                 config["output"]["predict"],

@@ -419,6 +419,7 @@ envs:
   concoct: "envs/concoct.yaml"
   dastools: "envs/dastools.yaml"
   vamb: "envs/vamb.yaml"
+  predict: "envs/predict.yaml"
   virsorter2: "envs/virsorter2.yaml"
   deepvirfinder: "envs/deepvirfinder.yaml"
   phamb: "envs/phamb.yaml"

@@ -62,6 +62,8 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
             done = os.path.join(
                 config["output"]["predict"],
                 "bins_gene/{assembly_group}.{assembler}.prokka.out/{binner_checkm}/predict_done")
+        conda:
+            config["envs"]["predict"]
         params:
             output_dir = os.path.join(
                 config["output"]["predict"],
@@ -123,6 +125,8 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
             data_dir = directory(os.path.join(
                 config["output"]["predict"],
                 "report/bins_gene_{assembler}.{binner_checkm}.multiqc.out/prokka_multiqc_report_data"))
+        conda:
+            config["envs"]["multiqc"]
         log:
             os.path.join(
                 config["output"]["predict"],
