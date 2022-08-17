@@ -34,7 +34,6 @@ def assembly_input_with_short_and_long_reads(wildcards):
 
 def get_megahit_input_str(wildcards):
     input_list = assembly_input_with_short_reads(wildcards)
-    reads_num = len(input_list)
     if IS_PE:
         inputstr = f'''-1 {",".join(input_list[0])} -2 {",".join(input_list[1])}'''
     else:
@@ -144,6 +143,28 @@ else:
         input:
 
 
+def prepare_idbaud_input(wildcards, reads):
+    input_list = assembly_input_with_short_reads(wildcards)
+    cmd = []
+
+    if IS_PE:
+        if len(input_list[0]) == 1:
+            cmd = [f'''seqtk mergepe {input_list[0][0]} {input_list[1][0]} | seqtk seq -A - > {reads}''']
+        else:
+            cmd = [f'''cat {" ".join(input_list[0])} > {reads}.1.fq.gz''']
+            cmd.append(f'''cat {" ".join(input_list[1])} > {reads}.2.fq.gz''')
+            cmd.append(f'''seqtk mergepe {reads}.1.fq.gz {reads}.2.fq.gz | seqtk seq -A - > {reads}''')
+            cmd.append(f'''rm -rf {reads}.1.fq.gz {reads}.2.fq.gz''')
+    else:
+        if len(input_list[0]) == 1:
+            cmd = [f'''seqtk seq -A {input_list[0][0]} > {reads}''']
+        else:
+            cmd = [f'''cat {" ".join(input_list[0])} > {reads}.fq.gz''']
+            cmd.append(f'''seqtk seq -A {reads}.fq.gz > {reads}''')
+            cmd.append(f'''rm -rf {reads}.fq.gz''')
+    return cmd
+
+
 if "idba_ud" in ASSEMBLERS:
     rule assembly_idba_ud:
         input:
@@ -161,21 +182,54 @@ if "idba_ud" in ASSEMBLERS:
             20
         params:
             prefix = "{assembly_group}",
-            output_dir = os.path.join(config["output"]["assembly"],
-                                      "scaftigs/{assembly_group}.idba_ud.out"),
+            output_dir = os.path.join(config["output"]["assembly"], "scaftigs/{assembly_group}.idba_ud.out"),
             mink = config["params"]["assembly"]["idba_ud"]["mink"],
             maxk = config["params"]["assembly"]["idba_ud"]["maxk"],
             step = config["params"]["assembly"]["idba_ud"]["step"],
             min_contig = config["params"]["assembly"]["idba_ud"]["min_contig"],
-            only_save_scaftigs = \
-                config["params"]["assembly"]["idba_ud"]["only_save_scaftigs"]
+            only_save_scaftigs = "yes" if config["params"]["assembly"]["idba_ud"]["only_save_scaftigs"] else "no",
+            idbaud_cmd = lambda wildcards: prepare_idbaud_input(
+                wildcards, 
+                os.path.join(config["output"]["assembly"], f"reads_idbaud/{wildcards.assembly_group}/reads.fa")),
+            reads = os.path.join(config["output"]["assembly"], "reads_idbaud/{assembly_group}/reads.fa")
         threads:
             config["params"]["assembly"]["threads"]
         log:
             os.path.join(config["output"]["assembly"],
                          "logs/{assembly_group}.idba_ud.log")
-        script:
-            "../wrappers/idbaud_wrapper.py"
+        shell:
+            '''
+            rm -rf {params.output_dir}
+            mkdir -p {params.output_dir}
+            mkdir -p $(dirname {params.reads})
+
+            for cmd in {params.idbaud_cmd}; do
+                $cmd
+            fi 
+
+            idba_ud \
+            -r {params.reads} \
+            --mink {params.mink} \
+            --maxk {params.maxk} \
+            --step {params.step} \
+            --min_contig {params.min_contig} \
+            -o {params.output_dir} \
+            --num_threads {threads} \
+            --pre_correction \
+            > {log}
+
+            rm -rf {params.reads}
+
+            sed -i 's#^>#>{params.prefix}_#g' {params.output_dir}/scaffold.fa
+
+            pigz -p {threads} {params.output_dir}/scaffold.fa
+            mv {params.output_dir}/scaffold.fa.gz {output.scaftigs}
+
+            if [ "{params.only_save_scaftigs}" == "yes" ];
+            then
+                find {params.output_dir} -type f ! -wholename "{output.scaftigs}" -delete
+            fi
+            '''
 
 
     rule assembly_idba_ud_all:
@@ -285,8 +339,8 @@ if "metaspades" in ASSEMBLERS:
             spades_cmd = lambda wildcards: prepare_spades_input(
                 wildcards, 
                 os.path.join(config["output"]["assembly"],
-                             f"reads/{wildcards.assembly_group}")),
-            reads_dir = os.path.join(config["output"]["assembly"], "reads/{assembly_group}"),
+                             f"reads_metaspades/{wildcards.assembly_group}")),
+            reads_dir = os.path.join(config["output"]["assembly"], "reads_metaspades/{assembly_group}"),
             pe = "pe" if IS_PE else "se"
         threads:
             config["params"]["assembly"]["threads"]
@@ -423,12 +477,12 @@ if "spades" in ASSEMBLERS:
                                    "scaftigs/{assembly_group}.spades.out/{assembly_group}.spades.tar"),
             spades_params = lambda wildcards: parse_spades_params(
                 os.path.join(os.path.join(config["output"]["assembly"],
-                             "scaftigs/{wildcards.assembly_group}.spades.out"),
+                             f"scaftigs/{wildcards.assembly_group}.spades.out"),
                              "params.txt")),
             spades_cmd = lambda wildcards: prepare_spades_input(
                 wildcards, 
                 os.path.join(config["output"]["assembly"],
-                             f"reads/{wildcards.assembly_group}")),
+                             f"reads_spades/{wildcards.assembly_group}")),
             reads_dir = os.path.join(config["output"]["assembly"], "reads_spades/{assembly_group}"),
             pe = "pe" if IS_PE else "se"
         threads:
