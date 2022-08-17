@@ -145,23 +145,23 @@ else:
 
 def prepare_idbaud_input(wildcards, reads):
     input_list = assembly_input_with_short_reads(wildcards)
-    cmd = []
+    cmd = ""
 
     if IS_PE:
         if len(input_list[0]) == 1:
-            cmd = [f'''seqtk mergepe {input_list[0][0]} {input_list[1][0]} | seqtk seq -A - > {reads}''']
+            cmd = f'''seqtk mergepe {input_list[0][0]} {input_list[1][0]} | seqtk seq -A - > {reads}'''
         else:
-            cmd = [f'''cat {" ".join(input_list[0])} > {reads}.1.fq.gz''']
-            cmd.append(f'''cat {" ".join(input_list[1])} > {reads}.2.fq.gz''')
-            cmd.append(f'''seqtk mergepe {reads}.1.fq.gz {reads}.2.fq.gz | seqtk seq -A - > {reads}''')
-            cmd.append(f'''rm -rf {reads}.1.fq.gz {reads}.2.fq.gz''')
+            cmd = f'''(cat {" ".join(input_list[0])} > {reads}.1.fq.gz)'''
+            cmd += f''' && (cat {" ".join(input_list[1])} > {reads}.2.fq.gz)'''
+            cmd += f''' && (seqtk mergepe {reads}.1.fq.gz {reads}.2.fq.gz | seqtk seq -A - > {reads})'''
+            cmd += f''' && (rm -rf {reads}.1.fq.gz {reads}.2.fq.gz)'''
     else:
         if len(input_list[0]) == 1:
-            cmd = [f'''seqtk seq -A {input_list[0][0]} > {reads}''']
+            cmd = f'''seqtk seq -A {input_list[0][0]} > {reads}'''
         else:
-            cmd = [f'''cat {" ".join(input_list[0])} > {reads}.fq.gz''']
-            cmd.append(f'''seqtk seq -A {reads}.fq.gz > {reads}''')
-            cmd.append(f'''rm -rf {reads}.fq.gz''')
+            cmd = f'''cat {" ".join(input_list[0])} > {reads}.fq.gz'''
+            cmd += f''' && (seqtk seq -A {reads}.fq.gz > {reads})'''
+            cmd += f''' && (rm -rf {reads}.fq.gz)'''
     return cmd
 
 
@@ -203,9 +203,7 @@ if "idba_ud" in ASSEMBLERS:
             mkdir -p {params.output_dir}
             mkdir -p $(dirname {params.reads})
 
-            for cmd in {params.idbaud_cmd}; do
-                $cmd
-            done 
+            {params.idbaud_cmd}
 
             idba_ud \
             -r {params.reads} \
