@@ -781,7 +781,7 @@ if RMHOST_DO and config["params"]["qcreport"]["do"]:
             lambda wildcards: get_reads(wildcards, "rmhost")
         output:
             temp(os.path.join(config["output"]["rmhost"],
-                              "report/stats/{sample}_rmhost_stats.tsv"))
+                              "report/stats/{sample}_rmhost_stats.tsv.raw"))
         conda:
             config["envs"]["report"]
         log:
