@@ -418,15 +418,94 @@ if "spades" in ASSEMBLERS:
                 if config["params"]["assembly"]["spades"]["only_assembler"] \
                    else "",
             only_save_scaftigs = config["params"]["assembly"]["spades"]["only_save_scaftigs"],
-            link_scaffolds = config["params"]["assembly"]["spades"]["link_scaffolds"],
+            link_scaffolds = "yes" if config["params"]["assembly"]["spades"]["link_scaffolds"] else "no",
             tar_results = os.path.join(config["output"]["assembly"],
-                                   "scaftigs/{assembly_group}.spades.out/{assembly_group}.spades.tar")
+                                   "scaftigs/{assembly_group}.spades.out/{assembly_group}.spades.tar"),
+            spades_params = lambda wildcards: parse_spades_params(
+                os.path.join(os.path.join(config["output"]["assembly"],
+                             "scaftigs/{wildcards.assembly_group}.spades.out"),
+                             "params.txt")),
+            spades_cmd = lambda wildcards: prepare_spades_input(
+                wildcards, 
+                os.path.join(config["output"]["assembly"],
+                             f"reads/{wildcards.assembly_group}")),
+            reads_dir = os.path.join(config["output"]["assembly"], "reads_spades/{assembly_group}"),
+            pe = "pe" if IS_PE else "se"
         threads:
             config["params"]["assembly"]["threads"]
         log:
             os.path.join(config["output"]["assembly"], "logs/{assembly_group}.spades.log")
-        script:
-            "../wrappers/spades_wrapper.py"
+        shell:
+            """
+            errorcorrect="no"
+            if [ "{params.only_assembler}" != "" ];
+            then
+                errorcorrect="yes"
+            fi
+
+            if [ "{params.kmers}" == "{params.spades_params[0]}" ] && [ "{params.memory}" == "{params.spades_params[1]}" ] && [ "{threads}" == "{params.spades_params[2]}" ] && [ $errorcorrect == "{params.spades_params[3]}" ];
+            then
+                spades.py \
+                --continue \
+                -o {params.output_dir} \
+                > {log}
+            else
+                rm -rf {params.output_dir}
+                mkdir -p {params.reads_dir}
+                rm -rf {params.reads_dir}/reads*
+
+                {params.spades_cmd[0]}
+                {params.spades_cmd[1]}
+
+                spades.py \
+                {params.spades_cmd[2]} \
+                -k {params.kmers} \
+                {params.only_assembler} \
+                --memory {params.memory} \
+                --threads {threads} \
+                --checkpoints last \
+                -o {params.output_dir} \
+                > {log}
+            fi
+
+            rm -rf {params.reads_dir}/reads*
+
+            pigz -p {threads} {params.output_dir}/scaffolds.fasta
+            mv {params.output_dir}/scaffolds.fasta.gz {params.output_dir}/{params.prefix}.spades.scaffolds.fa.gz
+
+            pigz -p {threads} {params.output_dir}/contigs.fasta
+            mv {params.output_dir}/contigs.fasta.gz {params.output_dir}/{params.prefix}.spades.contigs.fa.gz
+        
+            pigz -p {threads} {params.output_dir}/contigs.paths
+            mv {params.output_dir}/contigs.paths.gz {params.output_dir}/{params.prefix}.spades.contigs.paths.gz
+
+            pigz -p {threads} {params.output_dir}/scaffolds.paths
+            mv {params.output_dir}/scaffolds.paths.gz {params.output_dir}/{params.prefix}.spades.scaffolds.paths.gz
+
+            pigz -p {threads} {params.output_dir}/assembly_graph_with_scaffolds.gfa
+            mv {params.output_dir}/assembly_graph_with_scaffolds.gfa.gz {output.gfa}
+
+            if [ "{params.link_scaffolds}" == "yes" ];
+            then
+                pushd {params.output_dir}
+                ln -s {params.prefix}.spades.scaffolds.fa.gz {params.prefix}.spades.scaftigs.fa.gz
+                ln -s {params.prefix}.spades.scaffolds.paths.gz {params.prefix}.spades.scaftigs.paths.gz
+                popd
+            else
+                pushd {params.output_dir}
+                ln -s {params.prefix}.spades.contigs.fa.gz {params.prefix}.spades.scaftigs.fa.gz
+                ln -s {params.prefix}.spades.contigs.paths.gz {params.prefix}.spades.scaftigs.paths.gz
+                popd
+            fi
+
+            if [ "{params.only_save_scaftigs}" == "True" ];
+            then
+                fd -d 1 -E "*.gz" . {params.output_dir} -x rm -rf {{}}
+            else
+                rm -rf {params.output_dir}/{{corrected, misc, pipeline_state, tmp}}
+                tar -czvf {params.tar_results}.gz {params.output_dir}/K*
+            fi
+            """
 
 
     rule assembly_spades_all:
