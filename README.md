@@ -17,16 +17,8 @@ metapi works with Python 3.7+.
 You can install it via [bioconda](https://bioconda.github.io/):
 
 ```
-➤ mamba install -c conda-forge -c bioconda metapi
-
 # It is recommended to install the latest version
-➤ mamba install -c conda-forge -c bioconda metapi=2.2.0
-```
-
-Or via pip:
-
-```
-➤ pip3 install metapi=2.2.0
+➤ mamba install -c conda-forge -c bioconda metapi=2.3.0
 ```
 
 ## Run
@@ -231,49 +223,47 @@ optional arguments:
 ➤ metapi init -d . -s samples.tsv -b trimming
 
 # create conda environments, which will create envs at ~/.conda/envs
+# run it firstly, recommend
 ➤ metapi mag_wf --conda-create-envs-only
 
 # run pipeline with conda
 ➤ metapi mag_wf all --use-conda --run-local
 
 # run raw_fastqc
-➤ metapi mag_wf raw_fastqc_all --run-local
+➤ metapi mag_wf raw_fastqc_all --use-conda --run-local
 
 # run trimming
-➤ metapi mag_wf trimming_all --run-local
+➤ metapi mag_wf trimming_all --use-conda --run-local
 
 # run rmhost
-➤ metapi mag_wf rmhost_all --run-local
+➤ metapi mag_wf rmhost_all --use-conda --run-local
 
 # run qc report
-➤ metapi mag_wf qcreport_all --run-local
+➤ metapi mag_wf qcreport_all --use-conda --run-local
 
 # run assembly
-➤ metapi mag_wf assembly_all --run-local
+➤ metapi mag_wf assembly_all --use-conda --run-local
 
 # run binning (microbial MAG)
-➤ metapi mag_wf binning_all --run-local
+➤ metapi mag_wf binning_all --use-conda --run-local
 
 # run identify (virus MAG)
-➤ metapi mag_wf identify_all --run-local
+➤ metapi mag_wf identify_all --use-conda --run-local
 
 # run gene predict
-➤ metapi mag_wf predict_all --run-local
+➤ metapi mag_wf predict_all --use-conda --run-local
 
 # run checkm
-➤ metapi mag_wf checkm_all --run-local
+➤ metapi mag_wf checkm_all --use-conda --run-local
 
 #run taxonomic 
-➤ metapi mag_wf taxonomic_all --run-local
+➤ metapi mag_wf taxonomic_all --use-conda --run-local
 
 # run mag_wf all
-➤ metapi mag_wf --run-local
+➤ metapi mag_wf --use-conda --run-local
 
 # run mag_wf all on SGE/SLURM cluster
-➤ metapi mag_wf --run-remote
-
-# run mag_wf all on SGE/SLURM cluster using conda
-➤ metapi mag_wf --run-remote --use-conda
+➤ metapi mag_wf all --use-conda --run-remote
 ```
 
 ## Input details
