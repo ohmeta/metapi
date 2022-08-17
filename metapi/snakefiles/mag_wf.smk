@@ -30,15 +30,13 @@ HAVE_LONG = True \
 
 
 TRIMMING_DO = True \
-    if config["params"]["trimming"]["oas1"]["do"] or \
-       config["params"]["trimming"]["sickle"]["do"] or \
+    if config["params"]["trimming"]["sickle"]["do"] or \
        config["params"]["trimming"]["fastp"]["do"] \
        else False
 
 
 RMHOST_DO = True \
-    if config["params"]["rmhost"]["soap"]["do"] or \ 
-       config["params"]["rmhost"]["bwa"]["do"] or \
+    if config["params"]["rmhost"]["bwa"]["do"] or \
        config["params"]["rmhost"]["bowtie2"]["do"] or \
        config["params"]["rmhost"]["minimap2"]["do"] or \
        config["params"]["rmhost"]["kraken2"]["do"] or \
