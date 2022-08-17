@@ -134,13 +134,13 @@ def parse_fastp_json(json_f, paired):
         return trimming_dict
 
 
-def change(input, output, sample_id, step, fq_type, reads_list):
-    df = pd.read_csv(input, sep="\t").sort_values("file", ascending=True)
+def change(input_file, output_file, sample_id, step, fq_type, reads_list):
+    df = pd.read_csv(input_file, sep="\t").sort_values("file", ascending=True)
     df["id"] = sample_id
     df["reads"] = reads_list
     df["step"] = step
     df["fq_type"] = fq_type
-    df.to_csv(output, sep="\t", index=False)
+    df.to_csv(output_file, sep="\t", index=False)
 
 
 def compute_host_rate(df, steps, samples_id_list, allow_miss_samples=True, **kwargs):

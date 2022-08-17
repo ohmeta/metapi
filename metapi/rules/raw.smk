@@ -373,7 +373,6 @@ if config["params"]["qcreport"]["do"]:
         conda:
             config["envs"]["report"]
         params:
-            sample_id = "{sample}",
             fq_encoding = config["params"]["fq_encoding"]
         log:
             os.path.join(config["output"]["raw"],
@@ -400,14 +399,16 @@ if config["params"]["qcreport"]["do"]:
         output:
             os.path.join(config["output"]["raw"],
                          "report/stats/{sample}_raw_stats.tsv")
+        params:
+            sample_id = "{sample}"
         threads:
             1
         run:
             if IS_PE:
-                metapi.change(input[0], output[0], params.sample_id, "raw",
+                metapi.change(str(input), str(output), params.sample_id, "raw",
                               "pe", ["fq1", "fq2"])
             else:
-                metapi.change(input[0], output[0], params.sample_id, "raw",
+                metapi.change(str(input), str(output), params.sample_id, "raw",
                               "se", ["fq1"])
 
 

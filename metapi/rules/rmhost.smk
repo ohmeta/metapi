@@ -790,7 +790,6 @@ if RMHOST_DO and config["params"]["qcreport"]["do"]:
         priority:
             25
         params:
-            sample_id = "{sample}",
             fq_encoding = config["params"]["fq_encoding"]
         threads:
             config["params"]["qcreport"]["seqkit"]["threads"]
@@ -814,12 +813,16 @@ if RMHOST_DO and config["params"]["qcreport"]["do"]:
         output:
             os.path.join(config["output"]["rmhost"],
                          "report/stats/{sample}_rmhost_stats.tsv")
+        params:
+            sample_id = "{sample}"
+        threads:
+            1
         run:
             if IS_PE:
-                metapi.change(input[0], output[0], params.sample_id, "rmhost",
+                metapi.change(str(input), str(output), params.sample_id, "rmhost",
                               "pe", ["fq1", "fq2"])
             else:
-                metapi.change(input[0], output[0], params.sample_id, "rmhost",
+                metapi.change(str(input), str(output), params.sample_id, "rmhost",
                               "se", ["fq1"])
 
 

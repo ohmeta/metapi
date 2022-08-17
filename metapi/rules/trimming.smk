@@ -271,7 +271,6 @@ if TRIMMING_DO and config["params"]["qcreport"]["do"]:
             os.path.join(config["output"]["trimming"],
                          "logs/{sample}.seqkit.log")
         params:
-            sample_id = "{sample}",
             fq_encoding = config["params"]["fq_encoding"]
         conda:
             config["envs"]["report"]
@@ -297,12 +296,16 @@ if TRIMMING_DO and config["params"]["qcreport"]["do"]:
         output:
             os.path.join(config["output"]["trimming"],
                               "report/stats/{sample}_trimming_stats.tsv")
+        params:
+            sample_id = "{sample}"
+        threads:
+            1
         run:
             if IS_PE:
-                metapi.change(input[0], output[0], params.sample_id, "trimming",
+                metapi.change(str(input), str(output), params.sample_id, "trimming",
                               "pe", ["fq1", "fq2"])
             else:
-                metapi.change(input[0], output[0], params.sample_id, "trimming",
+                metapi.change(str(input), str(output), params.sample_id, "trimming",
                               "se", ["fq1"])
 
 
