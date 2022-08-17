@@ -332,6 +332,8 @@ if config["params"]["raw"]["fastqc"]["do"]:
                                       "report")
         log:
             os.path.join(config["output"]["raw"], "logs/multiqc_fastqc.log")
+        threads: 
+            1
         shell:
             '''
             multiqc \
@@ -398,6 +400,8 @@ if config["params"]["qcreport"]["do"]:
         output:
             os.path.join(config["output"]["raw"],
                          "report/stats/{sample}_raw_stats.tsv")
+        threads:
+            1
         run:
             if IS_PE:
                 metapi.change(input[0], output[0], params.sample_id, "raw",
