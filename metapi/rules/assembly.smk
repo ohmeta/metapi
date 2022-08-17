@@ -32,6 +32,16 @@ def assembly_input_with_short_and_long_reads(wildcards):
         return get_reads_for_assembly(wildcards, "raw", False, True)
 
 
+def get_megahit_input_str(wildcards):
+    input_list = assembly_input_with_short_reads(wildcards)
+    reads_num = len(input_list)
+    if IS_PE:
+        inputstr = f'''-1 {",".join(input_list[0])} -2 {",".join(input_list[1])}'''
+    else:
+        inputstr = f'''-r {",".join(input_list[0])}'''
+    return inputstr
+
+
 if "megahit" in ASSEMBLERS:
     rule assembly_megahit:
         input:
@@ -57,25 +67,63 @@ if "megahit" in ASSEMBLERS:
             presets = config["params"]["assembly"]["megahit"]["presets"],
             output_dir = os.path.join(config["output"]["assembly"],
                                       "scaftigs/{assembly_group}.megahit.out"),
-            contigs = os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{assembly_group}.megahit.out/{assembly_group}.contigs.fa"),
-            fastg = os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{assembly_group}.megahit.out/{assembly_group}.megahit.scaftigs.fastg"),
-            gfa = os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{assembly_group}.megahit.out/{assembly_group}.megahit.scaftigs.gfa"),
-            only_save_scaftigs = \
-                config["params"]["assembly"]["megahit"]["only_save_scaftigs"],
-            wrapper_dir = WRAPPER_DIR
+            contigs = os.path.join(config["output"]["assembly"],
+                                   "scaftigs/{assembly_group}.megahit.out/{assembly_group}.contigs.fa"),
+            fastg = os.path.join(config["output"]["assembly"],
+                                 "scaftigs/{assembly_group}.megahit.out/{assembly_group}.megahit.scaftigs.fastg"),
+            gfa = os.path.join(config["output"]["assembly"],
+                               "scaftigs/{assembly_group}.megahit.out/{assembly_group}.megahit.scaftigs.gfa"),
+            only_save_scaftigs = "yes" if config["params"]["assembly"]["megahit"]["only_save_scaftigs"] else "no",
+            inputstr = lambda wildcards: get_megahit_input_str(wildcards)
         threads:
             config["params"]["assembly"]["threads"]
         log:
             os.path.join(config["output"]["assembly"],
                          "logs/{assembly_group}.megahit.log")
-        script:
-            "../wrappers/megahit_wrapper.py"
+        shell:
+            """
+            if [ -e {params.output_dir}/options.json ];
+            then
+                megahit --continue --out-dir {params.output_dir}
+            else 
+                kmeropts=""
+
+                if [ "{params.presets}" != "" ];
+                then
+                    kmeropts="--presets {params.presets}"
+                else
+                    kmeropts="--k-list {params.k_list}"
+                fi
+
+                rm -rf {params.output_dir}
+
+                megahit \
+                {params.inputstr} \
+                -t {threads} \
+                $kmeropts \
+                --min-contig-len {params.min_contig} \
+                --out-dir {params.output_dir} \
+                --out-prefix {params.output_prefix} \
+                2> {log}
+            fi
+
+            knum=`grep "^>" {params.contigs} | head -1 | sed 's/>k//g' | awk -F_ '{{print $1}}'`
+
+            megahit_toolkit contig2fastg $knum {params.contigs} > {params.fastg}
+
+            fastg2gfa {params.fastg} > {params.gfa}
+            pigz -p {threads} {params.fastg}
+            pigz -p {threads} {params.gfa}
+
+            pigz -p {threads} {params.contigs}
+            mv {params.contigs}.gz {output.scaftigs}
+
+            if [ "{params.only_save_scaftigs}" == "yes" ];
+            then
+                fd -t f -E "*.gz" . {params.output_dir} -x rm -rf {{}}
+                rm -rf {params.output_dir}/intermediate_contigs
+            fi
+            """
 
 
     rule assembly_megahit_all:
