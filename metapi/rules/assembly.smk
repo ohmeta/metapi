@@ -205,7 +205,7 @@ if "idba_ud" in ASSEMBLERS:
 
             for cmd in {params.idbaud_cmd}; do
                 $cmd
-            fi 
+            done 
 
             idba_ud \
             -r {params.reads} \
