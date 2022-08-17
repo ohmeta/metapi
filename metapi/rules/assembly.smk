@@ -82,6 +82,8 @@ if "megahit" in ASSEMBLERS:
                          "logs/{assembly_group}.megahit.log")
         shell:
             """
+            set +e
+
             if [ -e {params.output_dir}/options.json ];
             then
                 megahit --continue --out-dir {params.output_dir}
