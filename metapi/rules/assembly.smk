@@ -230,7 +230,7 @@ def prepare_spades_input(wildcards, outdir):
         else:
             cmd_1 = f'''ln -s {os.path.abspath(input_list[0][0])} {outdir}/reads.1.fq.gz'''
             cmd_2 = f'''ln -s {os.path.abspath(input_list[1][0])} {outdir}/reads.2.fq.gz'''
-        inputstr = "-1 {outdir}/reads.1.fq.gz -2 {outdir}/reads.2.fq.gz"
+        inputstr = f"-1 {outdir}/reads.1.fq.gz -2 {outdir}/reads.2.fq.gz"
 
     else:
         if len(input_list[0]) > 1:
@@ -239,7 +239,7 @@ def prepare_spades_input(wildcards, outdir):
         else:
             cmd_1 = f'''ln -s {os.path.abspath(input_list[0][0])} {outdir}/reads.fq.gz'''
             cmd_2 = "echo hello spades"
-        inputstr = "-s {outdir}/reads.fq.gz"
+        inputstr = f"-s {outdir}/reads.fq.gz"
 
     return [cmd_1, cmd_2, inputstr]
 
@@ -285,7 +285,7 @@ if "metaspades" in ASSEMBLERS:
             spades_cmd = lambda wildcards: prepare_spades_input(
                 wildcards, 
                 os.path.join(config["output"]["assembly"],
-                             "reads/{assembly_group}")),
+                             f"reads/{wildcards.assembly_group}")),
             reads_dir = os.path.join(config["output"]["assembly"], "reads/{assembly_group}"),
             pe = "pe" if IS_PE else "se"
         threads:
@@ -303,10 +303,7 @@ if "metaspades" in ASSEMBLERS:
                     errorcorrect="yes"
                 fi
 
-                if ["{params.kmers}" == "{params.spades_params[0]}" & \
-                    "{params.memory}" == "{params.spades_params[1]}" & \
-                    "{threads}" == "{params.spades_params[2]}" & \
-                    $errorcorrect == "{params.spades_params[3]}" ];
+                if [ "{params.kmers}" == "{params.spades_params[0]}" ] && [ "{params.memory}" == "{params.spades_params[1]}" ] && [ "{threads}" == "{params.spades_params[2]}" ] && [ $errorcorrect == "{params.spades_params[3]}" ];
                 then
                     metaspades.py \
                     --continue \
@@ -317,8 +314,8 @@ if "metaspades" in ASSEMBLERS:
                     mkdir -p {params.reads_dir}
                     rm -rf {params.reads_dir}/reads*
 
-                    bash -c "{params.spades_cmd[0]}"
-                    bash -c "{params.spades_cmd[1]}"
+                    {params.spades_cmd[0]}
+                    {params.spades_cmd[1]}
 
                     metaspades.py \
                     {params.spades_cmd[2]} \
@@ -333,54 +330,43 @@ if "metaspades" in ASSEMBLERS:
 
                 rm -rf {params.reads_dir}/reads*
 
-                pigz -p {threads} {params.output_dir}/scaffolds.fasta && \
-                mv {params.output_dir}/scaffolds.fasta.gz \
-                {params.output_dir}/{params.prefix}.metaspades.scaffolds.fa.gz
+                pigz -p {threads} {params.output_dir}/scaffolds.fasta
+                mv {params.output_dir}/scaffolds.fasta.gz {params.output_dir}/{params.prefix}.metaspades.scaffolds.fa.gz
 
-                pigz -p {threads} {params.output_dir}/contigs.fasta && \
-                mv {params.output_dir}/contigs.fasta.gz \
-                {params.output_dir}/{params.prefix}.metaspades.contigs.fa.gz
+                pigz -p {threads} {params.output_dir}/contigs.fasta
+                mv {params.output_dir}/contigs.fasta.gz {params.output_dir}/{params.prefix}.metaspades.contigs.fa.gz
             
-                pigz -p {threads} {params.output_dir}/contigs.paths && \
-                mv {params.output_dir}/contigs.paths.gz \
-                {params.output_dir}/{params.prefix}.metaspades.contigs.paths.gz
+                pigz -p {threads} {params.output_dir}/contigs.paths
+                mv {params.output_dir}/contigs.paths.gz {params.output_dir}/{params.prefix}.metaspades.contigs.paths.gz
 
-                pigz -p {threads} {params.output_dir}/scaffolds.paths && \
-                mv {params.output_dir}/scaffolds.paths.gz \
-                {params.output_dir}/{params.prefix}.metaspades.scaffolds.paths.gz
+                pigz -p {threads} {params.output_dir}/scaffolds.paths
+                mv {params.output_dir}/scaffolds.paths.gz {params.output_dir}/{params.prefix}.metaspades.scaffolds.paths.gz
 
-                pigz -p {threads} {params.output_dir}/assembly_graph_with_scaffolds.gfa && \
+                pigz -p {threads} {params.output_dir}/assembly_graph_with_scaffolds.gfa
                 mv {params.output_dir}/assembly_graph_with_scaffolds.gfa.gz {output.gfa}
 
-                if snakemake.params["link_scaffolds"]:
-                        
-                    pushd {snakemake.params["output_dir"]} && \
-                    ln -s {snakemake.params["prefix"]}.metaspades.scaffolds.fa.gz \
-                    {snakemake.params["prefix"]}.metaspades.scaftigs.fa.gz && \
-                    ln -s {snakemake.params["prefix"]}.metaspades.scaffolds.paths.gz \
-                    {snakemake.params["prefix"]}.metaspades.scaftigs.paths.gz && \
+                if [ "{params.link_scaffolds}" == "yes" ];
+                then
+                    pushd {params.output_dir}
+                    ln -s {params.prefix}.metaspades.scaffolds.fa.gz {params.prefix}.metaspades.scaftigs.fa.gz
+                    ln -s {params.prefix}.metaspades.scaffolds.paths.gz {params.prefix}.metaspades.scaftigs.paths.gz
                     popd
-                else:
-                    pushd {snakemake.params["output_dir"]} && \
-                    ln -s {snakemake.params["prefix"]}.metaspades.contigs.fa.gz \
-                    {snakemake.params["prefix"]}.metaspades.scaftigs.fa.gz && \
-                    ln -s {snakemake.params["prefix"]}.metaspades.contigs.paths.gz \
-                    {snakemake.params["prefix"]}.metaspades.scaftigs.paths.gz && \
+                else
+                    pushd {params.output_dir}
+                    ln -s {params.prefix}.metaspades.contigs.fa.gz {params.prefix}.metaspades.scaftigs.fa.gz
+                    ln -s {params.prefix}.metaspades.contigs.paths.gz {params.prefix}.metaspades.scaftigs.paths.gz
                     popd
+                fi
 
-                if [ "{params.only_save_scaftigs}" == "yes" ];
+                if [ "{params.only_save_scaftigs}" == "True" ];
                 then
                     fd -d 1 -E "*.gz" . {params.output_dir} -x rm -rf {{}}
                 else
-                    rm -rf {params.output_dir}/{corrected, misc, pipeline_state, tmp} && \
+                    rm -rf {params.output_dir}/{{corrected, misc, pipeline_state, tmp}}
                     tar -czvf {params.tar_results}.gz {params.output_dir}/K*
                 fi
             else
-                printf 
-                    '''
-                    Don't support single-end reads assembly using MetaSPAdes\n,
-                    you can try SPAdes or MegaHit, IDBA_UD
-                    '''
+                echo "Do not support single-end reads assembly using MetaSPAdes, you can try SPAdes or megahit, idba_ud"
                 exit 1
             fi
             """
