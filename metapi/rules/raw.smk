@@ -88,8 +88,8 @@ if config["params"]["raw"]["do"]:
                         shell(f'''seqkit seq -ni {output.reads[1]}.temp.gz | sed 's#/2$##g' > {params.output_dir}/id.list.2''') 
 
                         if filecmp.cmp(f'''{params.output_dir}/id.list.1''', f'''{params.output_dir}/id.list.2'''): 
-                            shell{f'''mv {output.reads[0]}.temp.gz {output.reads[0]}'''}
-                            shell{f'''mv {output.reads[1]}.temp.gz {output.reads[1]}'''}
+                            shell(f'''mv {output.reads[0]}.temp.gz {output.reads[0]}''')
+                            shell(f'''mv {output.reads[1]}.temp.gz {output.reads[1]}''')
                         else:
                             shell(
                                 f'''
