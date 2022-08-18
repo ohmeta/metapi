@@ -1,0 +1,65 @@
+#!/usr/bin/env snakemake
+
+rule download_reads:
+    output:
+        r1 = "test/reads/ecoli_1K.1.fq.gz",
+        r2 = "test/reads/ecoli_1K.2.fq.gz"
+    threads:
+        1
+    shell:
+        '''
+        curl -o test/reads/ecoli_1K.1.fq.gz https://raw.githubusercontent.com/ablab/spades/spades_3.15.5/assembler/test_dataset/ecoli_1K_1.fq.gz
+        curl -o test/reads/ecoli_1K.2.fq.gz https://raw.githubusercontent.com/ablab/spades/spades_3.15.5/assembler/test_dataset/ecoli_1K_2.fq.gz
+        '''
+
+
+rule prepare_samples_tsv:
+    input:
+        r1 = "test/reads/ecoli_1K.1.fq.gz",
+        r2 = "test/reads/ecoli_1K.2.fq.gz"
+    output:
+        "test/samples.tsv"
+    threads:
+        1
+    shell:
+        '''
+        fd -t f fq.gz $(pwd)/test/reads | \
+        sort | uniq | paste - - | \
+        awk 'BEGIN{{print "sample_id\tassembly_group\tbinning_group\tfq1\tfq2"}};{{print "ecoli_1K\tecoli_1K\tecoli_1K\t" $0}}' \
+        > {output}
+        '''
+
+
+rule metapi_init:
+    input:
+        "test/samples.tsv"
+    output:
+        "test/config.yaml"
+    conda:
+        "metapi.yaml"
+    shell:
+        '''
+        pushd test
+        metapi init -d . -s $(basename {input}) -b assembly --assembler spades
+        popd
+        '''
+
+
+rule metapi_run_assembly:
+    input:
+        "test/config.yaml"
+    output:
+        "test/results/04.assembly/report/assembly_stats_spades.tsv"
+    conda:
+        "metapi.yaml"
+    shell:
+        '''
+        pushd test
+        metapi mag_wf assembly_all --run-local --use-conda
+        popd
+        '''
+
+
+rule all:
+    input:
+        "test/results/04.assembly/report/assembly_stats_spades.tsv"
