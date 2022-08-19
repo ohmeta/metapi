@@ -45,6 +45,8 @@ params:
       cut_right_mean_quality: 20
       length_required: 51
       n_base_limit: 5
+      dedup: False
+      dup_calc_accuracy: 3 # [1, 2, 3, 4, 5, 6] # only used when dedup: True
 
   rmhost:
     host_fasta: "/home/jiezhu/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"

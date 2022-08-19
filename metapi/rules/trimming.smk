@@ -118,7 +118,9 @@ if config["params"]["trimming"]["fastp"]["do"]:
             length_required = config["params"]["trimming"]["fastp"]["length_required"],
             n_base_limit = config["params"]["trimming"]["fastp"]["n_base_limit"],
             use_slide_window = "yes" if config["params"]["trimming"]["fastp"]["use_slide_window"] else "no",
-            pe = "pe" if IS_PE else "se"
+            pe = "pe" if IS_PE else "se",
+            dedup = f'''--dedup --dup_calc_accuracy {config["params"]["trimming"]["fastp"]["dup_calc_accuracy"]}''' \
+                if config["params"]["trimming"]["fastp"]["dedup"] else ""
         log:
             os.path.join(config["output"]["trimming"], "logs/{sample}.fastp.log")
         benchmark:
@@ -141,6 +143,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
                     --out2 {output.reads[1]} \
                     --compression {params.compression} \
                     {ADAPTER_OPERATION} \
+                    {params.dedup} \
                     --cut_front \
                     --cut_right \
                     --cut_front_window_size {params.cut_front_window_size} \
@@ -160,6 +163,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
                     --out2 {output.reads[1]} \
                     --compression {params.compression} \
                     {ADAPTER_OPERATION} \
+                    {params.dedup} \
                     --cut_front \
                     --cut_tail \
                     --cut_front_window_size {params.cut_front_window_size} \
@@ -180,6 +184,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
                     --out1 {output.reads[0]} \
                     --compression {params.compression} \
                     {ADAPTER_OPERATION} \
+                    {params.dedup} \
                     --cut_front \
                     --cut_right \
                     --cut_front_window_size {params.cut_front_window_size} \
@@ -197,6 +202,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
                     --out1 {output.reads[0]} \
                     --compression {params.compression} \
                     {ADAPTER_OPERATION} \
+                    {params.dedup} \
                     --cut_front \
                     --cut_tail \
                     --cut_front_window_size {params.cut_front_window_size} \
