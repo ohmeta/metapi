@@ -18,7 +18,7 @@ You can install it via [bioconda](https://bioconda.github.io/):
 
 ```
 # It is recommended to install the latest version
-➤ mamba install -c conda-forge -c bioconda metapi=2.3.0
+➤ mamba install -c conda-forge -c bioconda metapi=2.4.0
 ```
 
 ## Run
