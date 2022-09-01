@@ -97,7 +97,7 @@ trimming_report:
   output: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
-trimming_refine:
+trimming_report_refine:
   mem: "1G"
   output: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
