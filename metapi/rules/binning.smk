@@ -257,7 +257,7 @@ if config["params"]["binning"]["maxbin2"]["do"]:
                     "bins/{binning_group}.{assembly_group}.{assembler}.out/maxbin2/binning_done"),
                     zip,
                     binning_group=ASSEMBLY_GROUPS["binning_group"],
-                    assembly_group=ASSEMBLY_GROUPS["binning_group"],
+                    assembly_group=ASSEMBLY_GROUPS["assembly_group"],
                     assembler=ASSEMBLY_GROUPS["assembler"])
 
             #rules.alignment_all.input,
