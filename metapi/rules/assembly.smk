@@ -190,8 +190,8 @@ if "idba_ud" in ASSEMBLERS:
             only_save_scaftigs = "yes" if config["params"]["assembly"]["idba_ud"]["only_save_scaftigs"] else "no",
             idbaud_cmd = lambda wildcards: prepare_idbaud_input(
                 wildcards, 
-                os.path.join(config["output"]["assembly"], f"reads_idbaud/{wildcards.assembly_group}/reads.fa")),
-            reads = os.path.join(config["output"]["assembly"], "reads_idbaud/{assembly_group}/reads.fa")
+                os.path.join(config["output"]["assembly"], f"reads/idbaud/{wildcards.assembly_group}/reads.fa")),
+            reads = os.path.join(config["output"]["assembly"], "reads/idbaud/{assembly_group}/reads.fa")
         threads:
             config["params"]["assembly"]["threads"]
         log:
@@ -337,8 +337,8 @@ if "metaspades" in ASSEMBLERS:
             spades_cmd = lambda wildcards: prepare_spades_input(
                 wildcards, 
                 os.path.join(config["output"]["assembly"],
-                             f"reads_metaspades/{wildcards.assembly_group}")),
-            reads_dir = os.path.join(config["output"]["assembly"], "reads_metaspades/{assembly_group}"),
+                             f"reads/metaspades/{wildcards.assembly_group}")),
+            reads_dir = os.path.join(config["output"]["assembly"], "reads/metaspades/{assembly_group}"),
             pe = "pe" if IS_PE else "se"
         threads:
             config["params"]["assembly"]["threads"]
@@ -480,8 +480,8 @@ if "spades" in ASSEMBLERS:
             spades_cmd = lambda wildcards: prepare_spades_input(
                 wildcards, 
                 os.path.join(config["output"]["assembly"],
-                             f"reads_spades/{wildcards.assembly_group}")),
-            reads_dir = os.path.join(config["output"]["assembly"], "reads_spades/{assembly_group}"),
+                             f"reads/spades/{wildcards.assembly_group}")),
+            reads_dir = os.path.join(config["output"]["assembly"], "reads/spades/{assembly_group}"),
             pe = "pe" if IS_PE else "se"
         threads:
             config["params"]["assembly"]["threads"]
