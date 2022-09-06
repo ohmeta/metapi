@@ -336,7 +336,6 @@ output:
   assembly: "results/04.assembly"
   alignment: "results/05.alignment"
   binning: "results/06.binning"
-  multisplit_binning: "results/06.multisplit_binning"
   identify: "results/06.identify"
   predict: "results/07.predict"
   checkm: "results/08.checkm"

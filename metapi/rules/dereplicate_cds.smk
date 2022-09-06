@@ -2,13 +2,15 @@ rule dereplicate_gene_prepare:
     input:
         expand(os.path.join(
             config["output"]["predict"],
-            "scaftigs_gene/{sample}.{{assembler}}.prodigal.out/{sample}.{{assembler}}.ffn"),
-               sample=SAMPLES.index.unique())
+            "scaftigs_gene/{binning_group}.{assembly_group}.{{assembler}}.prodigal.out/{binning_group}.{assembly_group}.{{assembler}}.ffn"),
+            zip,
+            binning_group=ASSEMBLY_GROUP["binning_group"],
+            assembly_group=ASSEMBLY_GROUP["assembly_group"])
     output:
         ffn = os.path.join(config["output"]["predict"],
-                           "{assembler}.prodigal.scaftigs.gene.merged.ffn"),
+                           "scaftigs_gene_merged/{assembler}.prodigal.scaftigs.gene.merged.ffn"),
         metadata = os.path.join(config["output"]["predict"],
-                                "{assembler}.prodigal.scaftigs.gene.merged.ffn.metadata")
+                                "scaftigs_gene_merged/{assembler}.prodigal.scaftigs.gene.merged.ffn.metadata")
     run:
         from Bio import SeqIO
 
@@ -32,8 +34,10 @@ rule dereplicate_gene_prepare:
 if config["params"]["dereplicate"]["cdhit"]["do_gene"]:
     rule dereplicate_gene_cdhit:
         input:
-            os.path.join(config["output"]["predict"],
-                         "{assembler}.prodigal.scaftigs.gene.merged.ffn")
+            ffn = os.path.join(config["output"]["predict"],
+                               "scaftigs_gene_merged/{assembler}.prodigal.scaftigs.gene.merged.ffn"),
+            metadata = os.path.join(config["output"]["predict"],
+                                    "scaftigs_gene_merged/{assembler}.prodigal.scaftigs.gene.merged.ffn.metadata")
         output:
             os.path.join(config["output"]["dereplicate"],
                          "genes/{assembler}.prodigal.scaftigs.gene.merged.nr.ffn")

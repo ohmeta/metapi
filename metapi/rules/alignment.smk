@@ -176,7 +176,7 @@ rule alignment_report:
                 sample=ALIGNMENT_GROUP["sample_id"])
     output:
         flagstat = os.path.join(config["output"]["alignment"],
-                                "report/alignment_flagstat_{assembler}.tsv")
+                                "report/alignment_flagstat_{assembler}_bwa.tsv")
     run:
         input_list = [str(i) for i in input]
         metapi.flagstats_summary(input_list, 2, output=output.flagstat)
@@ -187,7 +187,7 @@ rule alignment_report_all:
         expand(
             os.path.join(
                 config["output"]["alignment"],
-                "report/alignment_flagstat_{assembler}.tsv"),
+                "report/alignment_flagstat_{assembler}_bwa.tsv"),
             assembler=ASSEMBLERS)
 
 

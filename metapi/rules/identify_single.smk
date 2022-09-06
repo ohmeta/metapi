@@ -50,16 +50,16 @@ if config["params"]["identify"]["virsorter2"]["do"]:
         input:
             scaftigs = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa.gz")
+                "scaftigs/{binning_group}.{assembly_group}.{assembler}.out/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
         output:
             scaftigs_dir = directory(
                 os.path.join(config["output"]["identify"], 
-                             "virsorter2/{assembly_group}.{assembler}.vs2.out/scaftigs"))
+                             "virsorter2/{binning_group}.{assembly_group}.{assembler}.vs2.out/scaftigs"))
         conda:
             config["envs"]["report"]
         log:
             os.path.join(config["output"]["identify"],
-                         "logs/seqkit_split/seqkit_split.{assembly_group}.{assembler}.log")
+                         "logs/seqkit_split/seqkit_split.{binning_group}.{assembly_group}.{assembler}.log")
         params:
             split_contigs_num = config["params"]["identify"]["virsorter2"]["split_contigs_num"]
         threads:
@@ -82,23 +82,23 @@ if config["params"]["identify"]["virsorter2"]["do"]:
             config_done = os.path.join(config["params"]["identify"]["virsorter2"]["db"], "Done_all_config"),
             scaftigs = os.path.join(
                 config["output"]["identify"], 
-                "virsorter2/{assembly_group}.{assembler}.vs2.out/scaftigs/{assembly_group}.{assembler}.scaftigs.part_{split_num}.fa.gz")
+                "virsorter2/{binning_group}.{assembly_group}.{assembler}.vs2.out/scaftigs/{binning_group}.{assembly_group}.{assembler}.scaftigs.part_{split_num}.fa.gz")
         output:
             os.path.join(
                 config["output"]["identify"],
-                "virsorter2/{assembly_group}.{assembler}.vs2.out/vs2_{split_num}/virsorter2_done")
+                "virsorter2/{binning_group}.{assembly_group}.{assembler}.vs2.out/vs2_{split_num}/virsorter2_done")
         benchmark:
-            os.path.join(config["output"]["identify"], "benchmark/virsorter2/virsorter2.{assembly_group}.{assembler}.{split_num}.benchmark.txt")
+            os.path.join(config["output"]["identify"], "benchmark/virsorter2/virsorter2.{binning_group}.{assembly_group}.{assembler}.{split_num}.benchmark.txt")
         log:
-            os.path.join(config["output"]["identify"], "logs/virsorter2/virsorter2.{assembly_group}.{assembler}.{split_num}.log")
+            os.path.join(config["output"]["identify"], "logs/virsorter2/virsorter2.{binning_group}.{assembly_group}.{assembler}.{split_num}.log")
         conda:
             config["envs"]["virsorter2"]
         threads:
             config["params"]["identify"]["threads"]
         params:
-            label = "{assembly_group}.{assembler}",
+            label = "{binning_group}.{assembly_group}.{assembler}",
             include_groups = ",".join(config["params"]["identify"]["virsorter2"]["include_groups"]),
-            working_dir = os.path.join(config["output"]["identify"], "virsorter2/{assembly_group}.{assembler}.vs2.out/vs2_{split_num}"),
+            working_dir = os.path.join(config["output"]["identify"], "virsorter2/{binning_group}.{assembly_group}.{assembler}.vs2.out/vs2_{split_num}"),
             min_length = config["params"]["identify"]["virsorter2"]["min_length"],
             min_score = config["params"]["identify"]["virsorter2"]["min_score"],
             provirus_off = "--provirus-off" if config["params"]["identify"]["virsorter2"]["provirus_off"] else "",
@@ -164,7 +164,8 @@ if config["params"]["identify"]["virsorter2"]["do"]:
 
         return expand(os.path.join(
             config["output"]["identify"],
-            "virsorter2/{assembly_group}.{assembler}.vs2.out/vs2_{split_num}/virsorter2_done"),
+            "virsorter2/{binning_group}.{assembly_group}.{assembler}.vs2.out/vs2_{split_num}/virsorter2_done"),
+            binning_group=wildcards.binning_group,
             assembly_group=wildcards.assembly_group,
             assembler=wildcards.assembler,
             split_num=list(set([i.split("/")[0] \
@@ -178,10 +179,10 @@ if config["params"]["identify"]["virsorter2"]["do"]:
             virsorter2_done = aggregate_identify_virsorter2_output
         output:
             expand(os.path.join(config["output"]["identify"],
-                                "virsorter2/{{assembly_group}}.{{assembler}}.vs2.out/{{assembly_group}}.{{assembler}}-final-viral-{suffix}"),
+                                "virsorter2/{{binning_group}}.{{assembly_group}}.{{assembler}}.vs2.out/{{binning_group}}.{{assembly_group}}.{{assembler}}-final-viral-{suffix}"),
                    suffix=["combined.fa", "score.tsv", "boundary.tsv"])
         params:
-            label = "{assembly_group}.{assembler}"
+            label = "{binning_group}.{assembly_group}.{assembler}"
         threads:
             config["params"]["identify"]["threads"]
         run:
@@ -214,11 +215,14 @@ if config["params"]["identify"]["virsorter2"]["do"]:
 
     rule identify_virsorter2_all:
         input:
-            expand(os.path.join(config["output"]["identify"],
-                                "virsorter2/{assembly_group}.{assembler}.vs2.out/{assembly_group}.{assembler}-final-viral-{suffix}"),
-                   assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST,
-                   assembler=ASSEMBLERS,
-                   suffix=["combined.fa", "score.tsv", "boundary.tsv"])
+            expand(expand(
+                os.path.join(config["output"]["identify"],
+                "virsorter2/{binning_group}.{assembly_group}.{assembler}.vs2.out/{binning_group}.{assembly_group}.{assembler}-final-viral-{{suffix}}"),
+                zip,
+                binning_group=ASSEMBLY_GROUPS["binning_group"],
+                assembly_group=ASSEMBLY_GROUPS["assembly_group"],
+                assembler=ASSEMBLY_GROUPS["assembler"]),
+                suffix=["combined.fa", "score.tsv", "boundary.tsv"])
  
 else:
     rule identify_virsorter2_all:
@@ -230,22 +234,22 @@ if config["params"]["identify"]["deepvirfinder"]["do"]:
         input:
             os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa.gz")
+                "scaftigs/{binning_group}.{assembly_group}.{assembler}.out/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
         output:
             expand(
                 os.path.join(
                     config["output"]["identify"],
-                    "deepvirfinder/{{assembly_group}}.{{assembler}}.dvf.out/{{assembly_group}}.{{assembler}}.scaftigs.fa.gz_gt{min_length}bp_dvfpred.txt"),
+                    "deepvirfinder/{{binning_group}}.{{assembly_group}}.{{assembler}}.dvf.out/{{binning_group}}.{{assembly_group}}.{{assembler}}.scaftigs.fa.gz_gt{min_length}bp_dvfpred.txt"),
                 min_length=config["params"]["identify"]["deepvirfinder"]["min_length"])
         benchmark:
-            os.path.join(config["output"]["identify"], "benchmark/deepvirfinder/deepvirfinder.{assembly_group}.{assembler}.benchmark.txt")
+            os.path.join(config["output"]["identify"], "benchmark/deepvirfinder/deepvirfinder.{binning_group}.{assembly_group}.{assembler}.benchmark.txt")
         log:
-            os.path.join(config["output"]["identify"], "logs/deepvirfinder/deepvirfinder.{assembly_group}.{assembler}.log")
+            os.path.join(config["output"]["identify"], "logs/deepvirfinder/deepvirfinder.{binning_group}.{assembly_group}.{assembler}.log")
         conda:
             config["envs"]["deepvirfinder"]
         params:
             deepvirfinder = config["params"]["identify"]["deepvirfinder"]["script"],
-            out_dir = os.path.join(config["output"]["identify"], "deepvirfinder/{assembly_group}.{assembler}.dvf.out"),
+            out_dir = os.path.join(config["output"]["identify"], "deepvirfinder/{binning_group}.{assembly_group}.{assembler}.dvf.out"),
             min_length=config["params"]["identify"]["deepvirfinder"]["min_length"]
         threads:
             config["params"]["identify"]["threads"]
@@ -284,13 +288,15 @@ if config["params"]["identify"]["deepvirfinder"]["do"]:
     
     rule identify_deepvirfinder_all:
         input:
-            expand(
+            expand(expand(
                 os.path.join(
                     config["output"]["identify"],
-                    "deepvirfinder/{assembly_group}.{assembler}.dvf.out/{assembly_group}.{assembler}.scaftigs.fa.gz_gt{min_length}bp_dvfpred.txt"),
-                min_length=config["params"]["identify"]["deepvirfinder"]["min_length"],
-                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST,
-                assembler=ASSEMBLERS)
+                    "deepvirfinder/{binning_group}.{assembly_group}.{assembler}.dvf.out/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz_gt{{min_length}}bp_dvfpred.txt"),
+                    zip,
+                    binning_group=ASSEMBLY_GROUPS["binning_group"],
+                    assembly_group=ASSEMBLY_GROUPS["assembly_group"],
+                    assembler=ASSEMBLY_GROUPS["assembler"]),
+                    min_length=config["params"]["identify"]["deepvirfinder"]["min_length"])
 
 else:
     rule identify_deepvirfinder_all:

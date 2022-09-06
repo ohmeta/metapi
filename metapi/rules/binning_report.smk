@@ -6,10 +6,11 @@ if len(BINNERS_CHECKM) != 0:
             directory(
                 os.path.join(
                     config["output"]["binning"],
-                    "report/{assembler}_{binner_checkm}_stats/{assembly_group}"))
+                    "report/{assembler}_{binner_checkm}_stats/{binning_group}.{assembly_group}"))
         priority:
             35
         params:
+            binning_group = "{binning_group}",
             assembly_group = "{assembly_group}",
             assembler = "{assembler}",
             binner = "{binner_checkm}"
@@ -20,7 +21,7 @@ if len(BINNERS_CHECKM) != 0:
             shell('''mkdir -p {output}''')
 
             bin_list =  glob.glob(os.path.dirname(input[0]) + "/*.fa")
-            header_list = ["assembly_group", "bin_id", "bin_file", "assembler", "binner",
+            header_list = ["binning_group", "assembly_group", "bin_id", "bin_file", "assembler", "binner",
                            "chr", "length", "#A", "#C", "#G", "#T",
                            "#2", "#3", "#4", "#CpG", "#tv", "#ts", "#CpG-ts"]
             header_name = "\\t".join(header_list)
@@ -28,7 +29,7 @@ if len(BINNERS_CHECKM) != 0:
             for bin_fa in bin_list:
                 bin_id = os.path.basename(os.path.splitext(bin_fa)[0])
                 bin_file = os.path.abspath(bin_fa)
-                header_content = "\\t".join([params.assembly_group, bin_id, bin_file, params.assembler, params.binner])
+                header_content = "\\t".join([params.binning_group, params.assembly_group, bin_id, bin_file, params.assembler, params.binner])
                 stats_file = os.path.join(output[0], bin_id + ".seqtk.comp.tsv.gz")
 
                 shell(
@@ -46,8 +47,10 @@ if len(BINNERS_CHECKM) != 0:
         input:
             expand(os.path.join(
                 config["output"]["binning"],
-                "report/{{assembler}}_{{binner_checkm}}_stats/{assembly_group}"),
-                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
+                "report/{{assembler}}_{{binner_checkm}}_stats/{binning_group}.{assembly_group}"),
+                zip,
+                binning_group=ASSEMBLY_GROUP["binning_group"],
+                assembly_group=ASSEMBLY_GROUP["assembly_group"])
         output:
             summary = os.path.join(
                 config["output"]["binning"],
@@ -65,7 +68,7 @@ if len(BINNERS_CHECKM) != 0:
 
             if len(comp_list) != 0:
                 metapi.assembler_init(params.len_ranges,
-                                      ["assembly_group", "bin_id", "bin_file", "assembler", "binner"])
+                                      ["binning_group", "assembly_group", "bin_id", "bin_file", "assembler", "binner"])
                 comp_list_ = [(j, params.min_length) for j in comp_list]
                 metapi.merge(comp_list_, metapi.parse_assembly,
                              threads, output=output.summary)

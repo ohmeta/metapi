@@ -4,10 +4,10 @@ rule predict_bins_gene_prodigal:
     output:
         predict_done = os.path.join(
             config["output"]["predict"],
-            "bins_gene/{assembly_group}.{assembler}.prodigal.out/{binner_checkm}/predict_done")
+            "bins_gene/{binning_group}.{assembly_group}.{assembler}.prodigal.out/{binner_checkm}/predict_done")
     log:
         os.path.join(config["output"]["predict"],
-                     "logs/bins_gene/{assembly_group}.{assembler}.{binner_checkm}.prodigal.log")
+                     "logs/bins_gene/{binning_group}.{assembly_group}.{assembler}.{binner_checkm}.prodigal.log")
     conda:
         config["envs"]["checkm"]
     params:
@@ -27,8 +27,10 @@ rule predict_bins_gene_prodigal_report:
         input:
             expand(os.path.join(
                 config["output"]["predict"],
-                "bins_gene/{assembly_group}.{{assembler}}.prodigal.out/{{binner_checkm}}/predict_done"),
-                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
+                "bins_gene/{binning_group}.{assembly_group}.{{assembler}}.prodigal.out/{{binner_checkm}}/predict_done"),
+                zip,
+                binning_group=ASSEMBLY_GROUP["binning_group"],
+                assembly_group=ASSEMBLY_GROUP["assembly_group"])
         output:
             os.path.join(config["output"]["predict"],
                          "report/bins_gene_stats_{assembler}_{binner_checkm}.tsv")
@@ -57,21 +59,21 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
         input:
             bins_dir = os.path.join(
                 config["output"]["binning"],
-                "bins/{assembly_group}.{assembler}.out/{binner_checkm}")
+                "bins/{binning_group}.{assembly_group}.{assembler}.out/{binner_checkm}")
         output:
             done = os.path.join(
                 config["output"]["predict"],
-                "bins_gene/{assembly_group}.{assembler}.prokka.out/{binner_checkm}/predict_done")
+                "bins_gene/{binning_group}.{assembly_group}.{assembler}.prokka.out/{binner_checkm}/predict_done")
         conda:
             config["envs"]["predict"]
         params:
             output_dir = os.path.join(
                 config["output"]["predict"],
-                "bins_gene/{assembly_group}.{assembler}.prokka.out/{binner_checkm}"),
+                "bins_gene/{binning_group}.{assembly_group}.{assembler}.prokka.out/{binner_checkm}"),
             kingdom = config["params"]["predict"]["bins_to_gene"]["prokka"]["kingdom"]
         log:
             os.path.join(config["output"]["predict"],
-                         "logs/bins_gene/{assembly_group}.{assembler}.{binner_checkm}.prokka.log")
+                         "logs/bins_gene/{binning_group}.{assembly_group}.{assembler}.{binner_checkm}.prokka.log")
         threads:
             config["params"]["predict"]["threads"]
         script:
@@ -83,8 +85,10 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
             expand(
                 os.path.join(
                     config["output"]["predict"],
-                    "bins_gene/{assembly_group}.{{assembler}}.prokka.out/{{binner_checkm}}/predict_done"),
-                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
+                    "bins_gene/{binning_group}.{assembly_group}.{{assembler}}.prokka.out/{{binner_checkm}}/predict_done"),
+                    zip,
+                    binning_group=ASSEMBLY_GROUP["binning_group"],
+                    assembly_group=ASSEMBLY_GROUP["assembly_group"])
         output:
             html = os.path.join(
                 config["output"]["predict"],
@@ -99,12 +103,14 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
                 config["output"]["predict"],
                 "logs/report/bins_gene_{assembler}.{binner_checkm}.multiqc.prokka.log")
         params:
-            input_dir = lambda wildcards: expand(os.path.join(
+            input_dir = lambda wildcards: expand(expand(os.path.join(
                 config["output"]["predict"],
-                "bins_gene/{assembly_group}.{assembler}.prokka.out/{binner_checkm}"),
-                assembler=wildcards.assembler, 
-                binner_checkm=wildcards.binner_checkm,
-                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST),
+                "bins_gene/{binning_group}.{assembly_group}.{assembler}.prokka.out/{{binner_checkm}}"),
+                zip,
+                binning_group=ASSEMBLY_GROUPS["binning_group"],
+                assembly_group=ASSEMBLY_GROUPS["assembly_group"],
+                assembler=ASSEMBLY_GROUPS["assembler"]),
+                binner_checkm=wildcards.binner_checkm),
             output_dir = os.path.join(
                 config["output"]["predict"],
                 "report/bins_gene_{assembler}.{binner_checkm}.multiqc.out")
@@ -122,10 +128,16 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
 
     rule predict_bins_gene_prokka_all:
         input:
-            expand([
+            expand(expand(
                 os.path.join(
                     config["output"]["predict"],
-                    "bins_gene/{assembly_group}.{assembler}.prokka.out/{binner_checkm}/predict_done"),
+                    "bins_gene/{binning_group}.{assembly_group}.{assembler}.prokka.out/{binner_checkm}/predict_done"),
+                    zip,
+                    binning_group=ASSEMBLY_GROUPS["binning_group"],
+                    assembly_group=ASSEMBLY_GROUPS["assembly_group"],
+                    assembler=ASSEMBLY_GROUPS["assembler"]),
+                    binner_checkm=BINNERS_CHECKM),
+            expand([
                 os.path.join(
                     config["output"]["predict"],
                     "report/bins_gene_{assembler}.{binner_checkm}.multiqc.out/prokka_multiqc_report.html"),
@@ -133,8 +145,7 @@ if config["params"]["predict"]["bins_to_gene"]["prokka"]["do"]:
                     config["output"]["predict"],
                     "report/bins_gene_{assembler}.{binner_checkm}.multiqc.out/prokka_multiqc_report_data")],
                    assembler=ASSEMBLERS,
-                   binner_checkm=BINNERS_CHECKM,
-                   assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)#,
+                   binner_checkm=BINNERS_CHECKM)
 
             #rules.binning_all.input
 
