@@ -148,28 +148,14 @@ else:
 
 
 def get_binning_done(wildcards, binners):
-    if len(binners) == 1:
-        binning_done = expand(os.path.join(
-            config["output"]["binning"],
-            "bins/{binning_group}.{assembly_group}.{assembler}.out/{binner}/binning_done"),
-            binning_group=wildcards.binning_group,
-            assembly_group=wildcards.assembly_group,
-            assembler=wildcards.assembler,
-            binner=binners[0])
-        return binning_done
-    else:
-        binning_done_list = []
-        for binner in binners:
-            binning_done = expand(os.path.join(
-                config["output"]["binning"],
-                "bins/{binning_group}.{assembly_group}.{assembler}.out/{binner}/binning_done"),
-                binning_group=wildcards.binning_group,
-                assembly_group=wildcards.assembly_group,
-                assembler=wildcards.assembler,
-                binner=binner)
-            binning_done_list.append(binning_done[0])
-        return binning_done_list
- 
+    return expand(os.path.join(
+        config["output"]["binning"],
+        "bins/{binning_group}.{assembly_group}.{assembler}.out/{binner}/binning_done"),
+        binning_group=wildcards.binning_group,
+        assembly_group=wildcards.assembly_group,
+        assembler=wildcards.assembler,
+        binner=binners)
+
 
 if config["params"]["binning"]["dastools"]["do"]:
     rule binning_dastools_preprocess:
@@ -212,10 +198,10 @@ if config["params"]["binning"]["dastools"]["do"]:
                     binner_dastools=BINNERS_DASTOOLS),
             scaftigs = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa.gz"),
+                "scaftigs/{binning_group}.{assembly_group}.{assembler}.out/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz"),
             pep = os.path.join(
                 config["output"]["predict"],
-                "scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prodigal.out/{assembly_group}.{assembler}.faa")
+                "scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prodigal.out/{binning_group}.{assembly_group}.{assembler}.faa")
         output:
             os.path.join(
                 config["output"]["binning"],
