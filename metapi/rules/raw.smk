@@ -39,7 +39,7 @@ def short_reads_suffix():
     else:
         return [""]
 
-   
+ 
 def long_reads_suffix():
     return [".long"]
 
@@ -323,6 +323,16 @@ def get_short_reads_list(step, samples_id_list):
                     "short_reads/{sample}/{sample}.{step}.fq.gz"),
                 step=step,
                 sample=samples_id_list)]
+
+
+def get_long_reads_list(step, samples_id_list):
+    return [
+        expand(
+            os.path.join(
+                config["output"][step],
+                "long_reads/{sample}/{sample}.{step}.long.fq.gz"),
+            step=step,
+            sample=samples_id_list)]
 
 
 if config["params"]["raw"]["fastqc"]["do"]:

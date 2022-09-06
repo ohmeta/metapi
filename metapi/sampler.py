@@ -109,6 +109,10 @@ def get_samples_id_by_binning_group(sample_df, binning_group):
     return sample_df.loc[:, :, binning_group, :].index.get_level_values("sample_id").unique()
 
 
+def get_samples_id_by_assembly_and_binning_group(sample_df, assembly_group, binning_group):
+    return sample_df.loc[:, assembly_group, binning_group, :].index.get_level_values("sample_id").unique()
+
+
 def get_assembly_group_by_binning_group(sample_df, binning_group):
     return sample_df.loc[:, :, binning_group, :].index.get_level_values("assembly_group").unique()
 
