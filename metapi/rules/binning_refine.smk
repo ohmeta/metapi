@@ -181,10 +181,10 @@ if config["params"]["binning"]["dastools"]["do"]:
                 if len(bins_list) == 0:
                     shell(f'''touch {output.contigs2bin[i]}''')
                 else:
-                    with open(output[i], 'w') as oh:
+                    with open(output.contigs2bin[i], 'w') as oh:
                         for bin_fa in sorted(bins_list):
                             bin_id_list = os.path.basename(bin_fa).split(".")
-                            bin_id = bin_id_list[2] + "." + str(bin_id_list[4])
+                            bin_id = bin_id_list[-4] + "." + str(bin_id_list[-2])
                             for contig in SeqIO.parse(bin_fa, "fasta"):
                                 oh.write(f'''{contig.id}\t{bin_id}\n''')
 
