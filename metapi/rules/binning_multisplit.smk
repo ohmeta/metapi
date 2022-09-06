@@ -128,10 +128,10 @@ if config["params"]["binning"]["vamb"]["do"]:
             config["envs"]["align"]
         benchmark:
             os.path.join(config["output"]["alignment"],
-                         "benchmark/minimap2/{binning_group}.{assembler}/{sample}.align2merged_scaftigs.benchmark.txt")
+                         "benchmark/minimap2/{binning_group}.{assembler}.{sample}.align2merged_scaftigs.benchmark.txt")
         log:
             os.path.join(config["output"]["alignment"],
-                         "logs/alignment/{binning_group}.{assembler}/{sample}.align2merged_scaftigs.log")
+                         "logs/alignment/{binning_group}.{assembler}.{sample}.align2merged_scaftigs.log")
         threads:
             config["params"]["alignment"]["threads"]
         shell:
@@ -164,7 +164,7 @@ if config["params"]["binning"]["vamb"]["do"]:
             29
         benchmark:
             os.path.join(config["output"]["alignment"],
-                         "benchmark/minimap2/{binning_group}.{assembler}/{sample}.sort_bam.benchmark.txt")
+                         "benchmark/minimap2/{binning_group}.{assembler}.{sample}.sort_bam.benchmark.txt")
         params:
             bam_dir = os.path.join(config["output"]["alignment"],
                                    "bam_merged/{binning_group}.{assembler}.merged.out"),
@@ -173,7 +173,7 @@ if config["params"]["binning"]["vamb"]["do"]:
             config["envs"]["align"]
         log:
             os.path.join(config["output"]["alignment"],
-                         "logs/alignment/{binning_group}.{assembler}/{sample}.sort_bam.log")
+                         "logs/alignment/{binning_group}.{assembler}.{sample}.sort_bam.log")
         threads:
             config["params"]["alignment"]["threads"]
         shell:
@@ -212,18 +212,18 @@ if config["params"]["binning"]["vamb"]["do"]:
         output:
             jgi = os.path.join(
                 config["output"]["binning"],
-                "coverage/{binning_group}.{assembler}.out/{binning_group}.{assembler}.{sample}.align2merged_scaftigs.jgi")
+                "coverage/{binning_group}.{assembler}.out/{sample}.align2merged_scaftigs.jgi")
         priority:
             30
         benchmark:
             os.path.join(
                 config["output"]["binning"],
-                "benchmark/jgi_summarize_bam_contig_depths/{binning_group}.{assembler}/{sample}.jgi_summarize_bam_contig_depths.benchmark.txt")
+                "benchmark/jgi_summarize_bam_contig_depths/{binning_group}.{assembler}.{sample}.jgi_summarize_bam_contig_depths.benchmark.txt")
         conda:
             config["envs"]["metabat2"]
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/coverage/{binning_group}.{assembler}/{sample}.align2merged_scaftigs.jgi.coverage.log")
+                         "logs/coverage/{binning_group}.{assembler}.{sample}.align2merged_scaftigs.jgi.coverage.log")
         shell:
             '''
             jgi_summarize_bam_contig_depths \
@@ -235,7 +235,7 @@ if config["params"]["binning"]["vamb"]["do"]:
         input:
             jgi = lambda wildcards: expand(os.path.join(
                 config["output"]["binning"],
-                "coverage/{{binning_group}}.{{assembler}}.out/{{binning_group}}.{{assembler}}.{sample}.align2merged_scaftigs.jgi"),
+                "coverage/{{binning_group}}.{{assembler}}.out/{sample}.align2merged_scaftigs.jgi"),
                 sample=sorted(metapi.get_samples_id_by_binning_group(SAMPLES, wildcards.binning_group)))
         output:
             matrix = os.path.join(config["output"]["binning"],
@@ -261,7 +261,7 @@ if config["params"]["binning"]["vamb"]["do"]:
                     config["output"]["binning"],
                     "matrix/{binning_group}.{assembler}.align2merged_scaftigs.jgi.abundance.matrix.tsv"),
                 os.path.join(
-                    config["output"]["binning"],
+                    config["output"]["alignment"],
                     "report/alignment_flagstat_{assembler}_minimap2.tsv")],
                 binning_group=SAMPLES_BINNING_GROUP_LIST,
                 assembler=ASSEMBLERS)
@@ -292,9 +292,8 @@ if config["params"]["binning"]["vamb"]["do"]:
         threads:
             config["params"]["binning"]["threads"]
         params:
-            outdir = os.path.join(config["output"]["binning"],
-                "bins_vamb/{binning_group}.{assembler}.out"),
-            outdir_base = os.path.join(config["output"]["binning"], "bins"),
+            outdir = os.path.join(config["output"]["binning"], "bins_vamb/{binning_group}.{assembler}.out"),
+            outdir_base = os.path.join(config["output"]["binning"], "bins_vamb"),
             min_contig = config["params"]["binning"]["vamb"]["min_contig"],
             min_fasta = config["params"]["binning"]["vamb"]["min_fasta"],
             cuda = "--cuda" if config["params"]["binning"]["vamb"]["cuda"] else "",
@@ -384,12 +383,10 @@ if config["params"]["binning"]["vamb"]["do"]:
                                         "bins/{binning_group}.{assembly_group}.{assembler}.out/vamb/binning_done")
         benchmark:
             os.path.join(config["output"]["multisplit_binning"],
-                         "benchmark/binning_vamb_postprocess.{binning_group}.{assembler}/{assembly_group}.benchmark.txt")
+                         "benchmark/binning_vamb_postprocess.{binning_group}.{assembler}.{assembly_group}.benchmark.txt")
         params:
-            bins_from = config["output"]["multisplit_binning"],
-            bins_to = config["output"]["binning"],
             binning_group = "{binning_group}",
-            assembly_group = "{assembly_group}"
+            assembly_group = "{assembly_group}",
             assembler = "{assembler}",
         run:
             from glob import glob
@@ -418,7 +415,7 @@ if config["params"]["binning"]["vamb"]["do"]:
                     bin_index += 1
                     # bin_id = os.path.basename(fna).split(".")[0]
                     # bin_id = os.path.basename(fna).split(".")[0].split("C")[-1]
-                    fna_dist = os.path.join(outdir, f'''{params.assembly_group}.{params.assembler}.vamb.bin.{bin_index}.fa''')
+                    fna_dist = os.path.join(outdir, f'''{params.binning_group}.{params.assembly_group}.{params.assembler}.vamb.bin.{bin_index}.fa''')
                     metadata.append((os.path.abspath(fna), os.path.abspath(fna_dist)))
                     shell(f'''cat {fna} | seqkit replace -p "^S\d+C" > {fna_dist}''')
 
@@ -430,6 +427,7 @@ if config["params"]["binning"]["vamb"]["do"]:
 
     rule binning_vamb_all:
         input:
+            rules.binning_vamb_prepare_all.input,
             expand(
                 os.path.join(
                     config["output"]["binning"],
