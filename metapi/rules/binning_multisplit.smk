@@ -382,7 +382,7 @@ if config["params"]["binning"]["vamb"]["do"]:
             binning_done = os.path.join(config["output"]["binning"],
                                         "bins/{binning_group}.{assembly_group}.{assembler}.out/vamb/binning_done")
         benchmark:
-            os.path.join(config["output"]["multisplit_binning"],
+            os.path.join(config["output"]["binning"],
                          "benchmark/binning_vamb_postprocess.{binning_group}.{assembler}.{assembly_group}.benchmark.txt")
         params:
             binning_group = "{binning_group}",
