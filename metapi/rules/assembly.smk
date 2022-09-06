@@ -1,3 +1,13 @@
+ASSEMBLY_GROUP = SAMPLES.reset_index().loc[:, ["assembly_group", "binning_group"]].drop_duplicates()
+
+assembly_df_list = []
+for assembler in ASSEMBLERS:
+    assembly_df = ASSEMBLY_GROUP.copy()
+    assembly_df["assembler"] = assembler
+    assembly_df_list.append(assembly_df)
+ASSEMBLY_GROUPS = pd.concat(assembly_df_list, axis=0)
+
+
 def get_reads_for_assembly(wildcards, step, have_single=False, have_long=False):
     samples_id_list = metapi.get_samples_id_by_assembly_and_binning_group(SAMPLES, wildcards.assembly_group, wildcards.binning_group)
     short_reads = get_short_reads_list(step, samples_id_list)
@@ -34,16 +44,6 @@ def get_megahit_input_str(wildcards):
     else:
         inputstr = f'''-r {",".join(input_list[0])}'''
     return inputstr
-
-
-ASSEMBLY_BINNING_GROUP = SAMPLES.reset_index().loc[:, ["assembly_group", "binning_group"]].drop_duplicates()
-
-multibinning_df_list = []
-for assembler in ASSEMBLERS:
-    multibinning_df = ASSEMBLY_BINNING_GROUP.copy()
-    multibinning_df["assembler"] = assembler
-    multibinning_df_list.append(multibinning_df)
-ASSEMBLY_BINNING_GROUPS = pd.concat(multibinning_df_list, axis=0)
 
 
 if "megahit" in ASSEMBLERS:
@@ -113,21 +113,27 @@ if "megahit" in ASSEMBLERS:
                 2> {log}
             fi
 
-            knum=`grep "^>" {params.contigs} | head -1 | sed 's/>k//g' | awk -F_ '{{print $1}}'`
-
-            megahit_toolkit contig2fastg $knum {params.contigs} > {params.fastg}
-
-            fastg2gfa {params.fastg} > {params.gfa}
-            pigz -p {threads} {params.fastg}
-            pigz -p {threads} {params.gfa}
-
-            pigz -p {threads} {params.contigs}
-            mv {params.contigs}.gz {output.scaftigs}
-
-            if [ "{params.only_save_scaftigs}" == "yes" ];
+            if [ -f {params.contigs} ];
             then
-                fd -t f -E "*.gz" . {params.output_dir} -x rm -rf {{}}
-                rm -rf {params.output_dir}/intermediate_contigs
+
+                knum=`grep "^>" {params.contigs} | head -1 | sed 's/>k//g' | awk -F_ '{{print $1}}'`
+
+                megahit_toolkit contig2fastg $knum {params.contigs} > {params.fastg}
+
+                fastg2gfa {params.fastg} > {params.gfa}
+                pigz -p {threads} {params.fastg}
+                pigz -p {threads} {params.gfa}
+
+                pigz -p {threads} {params.contigs}
+                mv {params.contigs}.gz {output.scaftigs}
+
+                if [ "{params.only_save_scaftigs}" == "yes" ];
+                then
+                    fd -t f -E "*.gz" . {params.output_dir} -x rm -rf {{}}
+                    rm -rf {params.output_dir}/intermediate_contigs
+                fi
+            else
+                touch {params.output_dir}/FAILED
             fi
             """
 
@@ -143,8 +149,8 @@ if "megahit" in ASSEMBLERS:
                     "scaftigs/{binning_group}.{assembly_group}.megahit.out/{binning_group}.{assembly_group}.megahit.scaftigs.gfa.gz")
                     ],
                     zip,
-                    binning_group=ASSEMBLY_BINNING_GROUP["binning_group"],
-                    assembly_group=ASSEMBLY_BINNING_GROUP["assembly_group"])
+                    binning_group=ASSEMBLY_GROUP["binning_group"],
+                    assembly_group=ASSEMBLY_GROUP["assembly_group"])
 
 else:
     rule assembly_megahit_all:
@@ -244,8 +250,8 @@ if "idba_ud" in ASSEMBLERS:
                 config["output"]["assembly"],
                 "scaftigs/{binning_group}.{assembly_group}.idba_ud.out/{binning_group}.{assembly_group}.idba_ud.scaftigs.fa.gz"),
                 zip,
-                binning_group=ASSEMBLY_BINNING_GROUP["binning_group"],
-                assembly_group=ASSEMBLY_BINNING_GROUP["assembly_group"])
+                binning_group=ASSEMBLY_GROUP["binning_group"],
+                assembly_group=ASSEMBLY_GROUP["assembly_group"])
 
 else:
     rule assembly_idba_ud_all:
@@ -444,8 +450,8 @@ if "metaspades" in ASSEMBLERS:
                     config["output"]["assembly"],
                     "scaftigs/{binning_group}.{assembly_group}.metaspades.out/{binning_group}.{assembly_group}.metaspades.scaftigs.gfa.gz")],
                     zip,  
-                    binning_group=ASSEMBLY_BINNING_GROUP["binning_group"],
-                    assembly_group=ASSEMBLY_BINNING_GROUP["assembly_group"])
+                    binning_group=ASSEMBLY_GROUP["binning_group"],
+                    assembly_group=ASSEMBLY_GROUP["assembly_group"])
 
 else:
     rule assembly_metaspades_all:
@@ -582,8 +588,8 @@ if "spades" in ASSEMBLERS:
                     config["output"]["assembly"],
                     "scaftigs/{binning_group}.{assembly_group}.spades.out/{binning_group}.{assembly_group}.spades.scaftigs.gfa.gz")],
                     zip,
-                    binning_group=ASSEMBLY_BINNING_GROUP["binning_group"],
-                    assembly_group=ASSEMBLY_BINNING_GROUP["assembly_group"])
+                    binning_group=ASSEMBLY_GROUP["binning_group"],
+                    assembly_group=ASSEMBLY_GROUP["assembly_group"])
 
 else:
     rule assembly_spades_all:
@@ -636,8 +642,8 @@ if "plass" in ASSEMBLERS:
                 config["output"]["assembly"],
                 "proteins/{binning_group}.{assembly_group}.plass.out/{binning_group}.{assembly_group}.plass.proteins.fa.gz"),
                 zip,
-                binning_group=ASSEMBLY_BINNING_GROUP["binning_group"],
-                assembly_group=ASSEMBLY_BINNING_GROUP["assembly_group"])
+                binning_group=ASSEMBLY_GROUP["binning_group"],
+                assembly_group=ASSEMBLY_GROUP["assembly_group"])
 
 else:
     rule assembly_plass_all:
@@ -743,8 +749,8 @@ if "opera_ms" in ASSEMBLERS:
                 config["output"]["assembly"],
                 "scaftigs/{binning_group}.{assembly_group}.opera_ms.out/{binning_group}.{assembly_group}.opera_ms.scaftigs.fa.gz"),
                 zip,
-                binning_group=ASSEMBLY_BINNING_GROUP["binning_group"],
-                assembly_group=ASSEMBLY_BINNING_GROUP["assembly_group"])
+                binning_group=ASSEMBLY_GROUP["binning_group"],
+                assembly_group=ASSEMBLY_GROUP["assembly_group"])
 
 else:
     rule assembly_opera_ms_all:
@@ -800,8 +806,8 @@ if len(ASSEMBLERS) != 0:
                 expand(os.path.join(
                     config["output"]["assembly"],
                     "metaquast/{binning_group}.{assembly_group}.{{assembler}}.metaquast.out/combined_reference/report.tsv"),
-                    binning_group=ASSEMBLY_BINNING_GROUP["binning_group"],
-                    assembly_group=ASSEMBLY_BINNING_GROUP["assembly_group"])
+                    binning_group=ASSEMBLY_GROUP["binning_group"],
+                    assembly_group=ASSEMBLY_GROUP["assembly_group"])
             output:
                 html = os.path.join(
                     config["output"]["assembly"],
@@ -836,9 +842,9 @@ if len(ASSEMBLERS) != 0:
                         config["output"]["assembly"],
                         "metaquast/{binning_group}.{assembly_group}.{assembler}.metaquast.out/combined_reference/report.tsv"),
                         zip,
-                        assembler=ASSEMBLY_BINNING_GROUPS["assembler"],
-                        binning_group=ASSEMBLY_BINNING_GROUPS["binning_group"],
-                        assembly_group=ASSEMBLY_BINNING_GROUPS["assembly_group"]),
+                        assembler=ASSEMBLY_GROUPS["assembler"],
+                        binning_group=ASSEMBLY_GROUPS["binning_group"],
+                        assembly_group=ASSEMBLY_GROUPS["assembly_group"]),
                 expand([
                     os.path.join(
                         config["output"]["assembly"],
@@ -888,8 +894,8 @@ if len(ASSEMBLERS) != 0:
                     config["output"]["assembly"],
                     "report/{{assembler}}_stats/{binning_group}.{assembly_group}.{{assembler}}.scaftigs.seqtk.comp.tsv.gz"),
                     zip,
-                    binning_group=ASSEMBLY_BINNING_GROUP["binning_group"],
-                    assembly_group=ASSEMBLY_BINNING_GROUP["assembly_group"])
+                    binning_group=ASSEMBLY_GROUP["binning_group"],
+                    assembly_group=ASSEMBLY_GROUP["assembly_group"])
         output:
             summary = os.path.join(
                 config["output"]["assembly"],
