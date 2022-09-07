@@ -21,17 +21,17 @@ rule alignment_scaftigs_index:
     input:
         scaftigs = os.path.join(
             config["output"]["assembly"],
-            "scaftigs/{binning_group}.{assembly_group}.{assembler}.out/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
+            "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
     output:
         expand(
             os.path.join(
                 config["output"]["alignment"],
-                "index/{{binning_group}}.{{assembly_group}}.{{assembler}}.out/{{binning_group}}.{{assembly_group}}.{{assembler}}.scaftigs.fa.gz.{suffix}"),
+                "index/{{binning_group}}.{{assembly_group}}.{{assembler}}/{{binning_group}}.{{assembly_group}}.{{assembler}}.scaftigs.fa.gz.{suffix}"),
             suffix=BWA_INDEX_SUFFIX) if config["params"]["alignment"]["save_bam"] else \
         temp(expand(
             os.path.join(
                 config["output"]["alignment"],
-                "index/{{binning_group}}.{{assembly_group}}.{{assembler}}.out/{{binning_group}}.{{assembly_group}}.{{assembler}}.scaftigs.fa.gz.{suffix}"),
+                "index/{{binning_group}}.{{assembly_group}}.{{assembler}}/{{binning_group}}.{{assembly_group}}.{{assembler}}.scaftigs.fa.gz.{suffix}"),
             suffix=BWA_INDEX_SUFFIX))
     conda:
         config["envs"]["align"]
@@ -43,7 +43,7 @@ rule alignment_scaftigs_index:
         bwa = "bwa-mem2" if config["params"]["alignment"]["algorithms"] == "mem2" else "bwa",
         output_prefix = os.path.join(
             config["output"]["alignment"],
-            "index/{binning_group}.{assembly_group}.{assembler}.out/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
+            "index/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
     shell:
         '''
         {params.bwa} index {input.scaftigs} -p {params.output_prefix} 2> {log}
@@ -55,7 +55,7 @@ rule alignment_reads_scaftigs:
         reads = alignment_input_with_short_reads,
         index = expand(os.path.join(
             config["output"]["alignment"],
-            "index/{{binning_group}}.{{assembly_group}}.{{assembler}}.out/{{binning_group}}.{{assembly_group}}.{{assembler}}.scaftigs.fa.gz.{suffix}"),
+            "index/{{binning_group}}.{{assembly_group}}.{{assembler}}/{{binning_group}}.{{assembly_group}}.{{assembler}}.scaftigs.fa.gz.{suffix}"),
             suffix=BWA_INDEX_SUFFIX)
     output:
         flagstat = os.path.join(
@@ -63,18 +63,18 @@ rule alignment_reads_scaftigs:
             "report/flagstat/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.flagstat"),
         bam = os.path.join(
             config["output"]["alignment"],
-            "bam/{binning_group}.{assembly_group}.{assembler}.out/{sample}.align2scaftigs.sorted.bam") \
+            "bam/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.sorted.bam") \
             if config["params"]["alignment"]["save_bam"] else \
             temp(os.path.join(
                 config["output"]["alignment"],
-                "bam/{binning_group}.{assembly_group}.{assembler}.out/{sample}.align2scaftigs.sorted.bam")),
+                "bam/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.sorted.bam")),
         bai = os.path.join(
             config["output"]["alignment"],
-            "bam/{binning_group}.{assembly_group}.{assembler}.out/{sample}.align2scaftigs.sorted.bam.bai") \
+            "bam/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.sorted.bam.bai") \
             if config["params"]["alignment"]["save_bam"] else \
             temp(os.path.join(
                 config["output"]["alignment"],
-                "bam/{binning_group}.{assembly_group}.{assembler}.out/{sample}.align2scaftigs.sorted.bam.bai"))
+                "bam/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.sorted.bam.bai"))
     conda:
         config["envs"]["align"]
     log:
@@ -87,7 +87,7 @@ rule alignment_reads_scaftigs:
         bwa = "bwa-mem2" if config["params"]["alignment"]["algorithms"] == "mem2" else "bwa",
         index_prefix = os.path.join(
             config["output"]["alignment"],
-            "index/{binning_group}.{assembly_group}.{assembler}.out/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
+            "index/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
     threads:
         config["params"]["alignment"]["threads"]
     shell:
@@ -119,10 +119,10 @@ rule alignment_reads_scaftigs_all:
                 "report/flagstat/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.flagstat"),
             os.path.join(
                 config["output"]["alignment"],
-                "bam/{binning_group}.{assembly_group}.{assembler}.out/{sample}.align2scaftigs.sorted.bam"),
+                "bam/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.sorted.bam"),
             os.path.join(
                 config["output"]["alignment"],
-                "bam/{binning_group}.{assembly_group}.{assembler}.out/{sample}.align2scaftigs.sorted.bam.bai")],
+                "bam/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.sorted.bam.bai")],
             zip,
             binning_group=ALIGNMENT_GROUPS["binning_group"],
             assembly_group=ALIGNMENT_GROUPS["assembly_group"],
@@ -135,11 +135,11 @@ if config["params"]["alignment"]["cal_base_depth"]:
         input:
             os.path.join(
                 config["output"]["alignment"],
-                "bam/{binning_group}.{assembly_group}.{assembler}.out/{sample}.align2scaftigs.sorted.bam")
+                "bam/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.sorted.bam")
         output:
             os.path.join(
                 config["output"]["alignment"],
-                "depth/{binning_group}.{assembly_group}.{assembler}.out/{sample}.align2scaftigs.depth.gz")
+                "depth/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.depth.gz")
         conda:
             config["envs"]["align"]
         shell:
@@ -152,7 +152,7 @@ if config["params"]["alignment"]["cal_base_depth"]:
         input:
             expand(os.path.join(
                 config["output"]["alignment"],
-                "depth/{binning_group}.{assembly_group}.{assembler}.out/{sample}.align2scaftigs.depth.gz"),
+                "depth/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.depth.gz"),
                 zip,
                 binning_group=ALIGNMENT_GROUPS["binning_group"],
                 assembly_group=ALIGNMENT_GROUPS["assembly_group"],
