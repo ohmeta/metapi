@@ -4,7 +4,7 @@ channels:
   - defaults
 dependencies:
   - hmmer=3.2.1
-  - pyhmmer=0.6.1
+  - pyhmmer=0.6.2
   - joblib
   - pandas
   - numpy
