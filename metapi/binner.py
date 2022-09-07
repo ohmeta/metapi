@@ -7,14 +7,14 @@ from Bio import SeqIO
 import pandas as pd
 
 
-def get_binning_info(bins_dir, cluster_file, assembler):
+def get_binning_info(mags_dir, cluster_file, assembler):
     if assembler.lower() in ["spades", "metaspades", "megahit"]:
-        with os.scandir(bins_dir) as itr, open(cluster_file, "w") as oh:
+        with os.scandir(mags_dir) as itr, open(cluster_file, "w") as oh:
             for entry in itr:
                 bin_id, suffix = os.path.splitext(entry.name)
                 if suffix == ".fa":
                     cluster_num = bin_id.split(".")[-1]
-                    bin_fa = os.path.join(bins_dir, entry.name)
+                    bin_fa = os.path.join(mags_dir, entry.name)
                     for seq in SeqIO.parse(bin_fa, "fasta"):
                         # graphbin
                         # oh.write("%s,%s" %
@@ -23,7 +23,7 @@ def get_binning_info(bins_dir, cluster_file, assembler):
                         oh.write(f"{seq.id},{cluster_num}\n")
 
 
-def generate_bins(cluster_file, scaftigs, prefix):
+def generate_mags(cluster_file, scaftigs, prefix):
 
     def get_accession(identifier):
         return "_".join(identifier.split("_")[:2])
@@ -48,9 +48,9 @@ def generate_bins(cluster_file, scaftigs, prefix):
                 SeqIO.write(scaftigs_index[scaftigs_id], oh, "fasta")
 
 
-def extract_bins_report(bins_report_table):
-    if os.path.getsize(bins_report_table) > 0:
-        bins_report = pd.read_csv(bins_report_table, sep='\t', header=[0, 1])\
+def extract_mags_report(mags_report_table):
+    if os.path.getsize(mags_report_table) > 0:
+        mags_report = pd.read_csv(mags_report_table, sep='\t', header=[0, 1])\
                         .rename(columns={
                             "Unnamed: 0_level_1": "binning_group",
                             "Unnamed: 1_level_1": "assembly_group",
@@ -59,7 +59,7 @@ def extract_bins_report(bins_report_table):
                             "Unnamed: 4_level_1": "assembler",
                             "Unnamed: 5_level_1": "binner"}, level=1)
 
-        bins_report = bins_report[[
+        mags_report = mags_report[[
             ("binning_group", "binning_group"),
             ("assembly_group", "assembly_group"),
             ("bin_id", "bin_id"),
@@ -69,15 +69,15 @@ def extract_bins_report(bins_report_table):
             ("length", "sum"),
             ("length", "N50")]]
     
-        bins_report.columns = ["binning_group", "assembly_group", "bin_id", "bin_file", "assembler", "binner", "length", "N50"]
-        return bins_report
+        mags_report.columns = ["binning_group", "assembly_group", "bin_id", "bin_file", "assembler", "binner", "length", "N50"]
+        return mags_report
     else:
         return pd.DataFrame(columns=["binning_group", "assembly_group", "bin_id", "bin_file", "assembler", "binner", "length", "N50"])
 
 
 '''
-            table_bins = pd.read_csv(input.table_bins, sep="\t", header=[0, 1])
-            table_bins = table_bins[
+            table_mags = pd.read_csv(input.table_mags, sep="\t", header=[0, 1])
+            table_mags = table_mags[
                 [
                     ("bin_id", "Unnamed: 1_level_1"),
                     ("chr", "count"),
@@ -88,7 +88,7 @@ def extract_bins_report(bins_report_table):
                     ("length", "N50")
                 ]
             ]
-            table_bins.columns = [
+            table_mags.columns = [
                 "user_genome",
                 "contig_number",
                 "contig_length_sum",

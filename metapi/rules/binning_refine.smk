@@ -3,17 +3,17 @@ if config["params"]["binning"]["graphbin2"]["do"]:
         input:
             scaftigs = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.{assembler}.out/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz"),
+                "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz"),
             gfa = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.{assembler}.out/{binning_group}.{assembly_group}.{assembler}.scaftigs.gfa.gz")
+                "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.gfa.gz")
         output:
              scaftigs = temp(os.path.join(
                 config["output"]["binning"],
-                "bins/{binning_group}.{assembly_group}.{assembler}.out/graphbin2/scaftigs.fa")),
+                "mags/{binning_group}.{assembly_group}.{assembler}/graphbin2/scaftigs.fa")),
              gfa = temp(os.path.join(
                  config["output"]["binning"],
-                 "bins/{binning_group}.{assembly_group}.{assembler}.out/graphbin2/scaftigs.gfa"))
+                 "mags/{binning_group}.{assembly_group}.{assembler}/graphbin2/scaftigs.gfa"))
         conda:
             config["envs"]["report"]
         shell:
@@ -25,17 +25,17 @@ if config["params"]["binning"]["graphbin2"]["do"]:
   
     rule binning_graphbin2_prepare_binned:
         input:
-            bins_dir = os.path.join(
+            mags_dir = os.path.join(
                 config["output"]["binning"],
-                "bins/{binning_group}.{assembly_group}.{assembler}.out/{binner_graphbin}")
+                "mags/{binning_group}.{assembly_group}.{assembler}/{binner_graphbin}")
         output:
             binned = os.path.join(
                 config["output"]["binning"],
-                "bins/{binning_group}.{assembly_group}.{assembler}.out/graphbin2/{binning_group}.{assembly_group}.{assembler}.{binner_graphbin}.graphbin2.csv")
+                "mags/{binning_group}.{assembly_group}.{assembler}/graphbin2/{binning_group}.{assembly_group}.{assembler}.{binner_graphbin}.graphbin2.csv")
         params:
             assembler = "{assembler}"
         run:
-            metapi.get_binning_info(input.bins_dir,
+            metapi.get_binning_info(input.mags_dir,
                                     output.binned,
                                     params.assembler)
 
@@ -48,17 +48,17 @@ if config["params"]["binning"]["graphbin2"]["do"]:
         input:
             scaftigs = os.path.join(
                 config["output"]["binning"],
-                "bins/{binning_group}.{assembly_group}.{assembler}.out/graphbin2/scaftigs.fa"),
+                "mags/{binning_group}.{assembly_group}.{assembler}/graphbin2/scaftigs.fa"),
             gfa = os.path.join(
                 config["output"]["binning"],
-                "bins/{binning_group}.{assembly_group}.{assembler}.out/graphbin2/scaftigs.gfa"),
+                "mags/{binning_group}.{assembly_group}.{assembler}/graphbin2/scaftigs.gfa"),
             binned = os.path.join(
                 config["output"]["binning"],
-                "bins/{binning_group}.{assembly_group}.{assembler}.out/graphbin2/{binning_group}.{assembly_group}.{assembler}.{binner_graphbin}.graphbin2.csv")
+                "mags/{binning_group}.{assembly_group}.{assembler}/graphbin2/{binning_group}.{assembly_group}.{assembler}.{binner_graphbin}.graphbin2.csv")
         output:
             os.path.join(
                 config["output"]["binning"],
-                "bins/{binning_group}.{assembly_group}.{assembler}.out/{binner_graphbin}_graphbin2/binning_done")
+                "mags/{binning_group}.{assembly_group}.{assembler}/{binner_graphbin}_graphbin2/binning_done")
         log:
             os.path.join(config["output"]["binning"],
                          "logs/binning/{binning_group}.{assembly_group}.{assembler}.{binner_graphbin}.graphbin2.refine.log")
@@ -67,15 +67,15 @@ if config["params"]["binning"]["graphbin2"]["do"]:
                          "benchmark/{binner_graphbin}/{binning_group}.{assembly_group}.{assembler}.{binner_graphbin}.benchmark.txt")
         params:
             assembler = "{assembler}",
-            bins_dir = os.path.join(
+            mags_dir = os.path.join(
                 config["output"]["binning"],
-                "bins/{binning_group}.{assembly_group}.{assembler}.out/{binner_graphbin}_graphbin2/"),
+                "mags/{binning_group}.{assembly_group}.{assembler}/{binner_graphbin}_graphbin2/"),
             prefix = os.path.join(
                 config["output"]["binning"],
-                "bins/{binning_group}.{assembly_group}.{assembler}.out/{binner_graphbin}_graphbin2/{binning_group}.{assembly_group}.{assembler}.{binner_graphbin}_graphbin2.bin"),
+                "mags/{binning_group}.{assembly_group}.{assembler}/{binner_graphbin}_graphbin2/{binning_group}.{assembly_group}.{assembler}.{binner_graphbin}_graphbin2.bin"),
             paths = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.{assembler}.out/{binning_group}.{assembly_group}.{assembler}.scaftigs.paths.gz"),
+                "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.paths.gz"),
             depth = config["params"]["binning"]["graphbin2"]["depth"],
             threshold = config["params"]["binning"]["graphbin2"]["threshold"]
         threads:
@@ -84,7 +84,7 @@ if config["params"]["binning"]["graphbin2"]["do"]:
             import pandas as pd
             import os
 
-            shell('''mkdir -p {params.bins_dir}''')
+            shell('''mkdir -p {params.mags_dir}''')
 
             df = pd.read_csv(input.binned, names=["scaftigs_id", "bin_id"])
 
@@ -92,21 +92,21 @@ if config["params"]["binning"]["graphbin2"]["do"]:
                 if params.assembler == "metaspades" or params.assembler == "spades":
                     shell(
                         '''
-                        pigz -p {threads} -dc {params.paths} > {params.bins_dir}/scaftigs.paths
+                        pigz -p {threads} -dc {params.paths} > {params.mags_dir}/scaftigs.paths
 
                         graphbin2 \
                         --assembler spades \
                         --contigs {input.scaftigs} \
                         --graph {input.gfa} \
-                        --paths {params.bins_dir}/scaftigs.paths \
+                        --paths {params.mags_dir}/scaftigs.paths \
                         --binned {input.binned} \
                         --nthreads {threads} \
                         --depth {params.depth} \
                         --threshold {params.threshold} \
-                        --output {params.bins_dir} \
+                        --output {params.mags_dir} \
                         > {log} 2>&1
 
-                        rm -rf {params.bins_dir}/scaftigs.paths
+                        rm -rf {params.mags_dir}/scaftigs.paths
                         ''')
                 else:
                     shell(
@@ -119,11 +119,11 @@ if config["params"]["binning"]["graphbin2"]["do"]:
                         --nthreads {threads} \
                         --depth {params.depth} \
                         --threshold {params.threshold} \
-                        --output {params.bins_dir} \
+                        --output {params.mags_dir} \
                         > {log} 2>&1
                         ''')
 
-                metapi.generate_bins(f"{params.bins_dir}/graphbin2_output.csv",
+                metapi.generate_mags(f"{params.mags_dir}/graphbin2_output.csv",
                                      input.scaftigs, params.prefix)
                 shell('''touch {output}''')
 
@@ -132,7 +132,7 @@ if config["params"]["binning"]["graphbin2"]["do"]:
         input:
             expand(expand(os.path.join(
                 config["output"]["binning"],
-                "bins/{binning_group}.{assembly_group}.{assembler}.out/{{binner_graphbin}}_graphbin2/binning_done"),
+                "mags/{binning_group}.{assembly_group}.{assembler}/{{binner_graphbin}}_graphbin2/binning_done"),
                 zip,
                 binning_group=ASSEMBLY_GROUPS["binning_group"],
                 assembly_group=ASSEMBLY_GROUPS["assembly_group"],
@@ -150,7 +150,7 @@ else:
 def get_binning_done(wildcards, binners):
     return expand(os.path.join(
         config["output"]["binning"],
-        "bins/{binning_group}.{assembly_group}.{assembler}.out/{binner}/binning_done"),
+        "mags/{binning_group}.{assembly_group}.{assembler}/{binner}/binning_done"),
         binning_group=wildcards.binning_group,
         assembly_group=wildcards.assembly_group,
         assembler=wildcards.assembler,
@@ -165,7 +165,7 @@ if config["params"]["binning"]["dastools"]["do"]:
             contigs2bin = expand(
                 os.path.join(
                     config["output"]["binning"],
-                    "bins_id/{{binning_group}}.{{assembly_group}}.{{assembler}}.out/{binner_dastools}_Contigs2Bin.tsv"),
+                    "mags_id/{{binning_group}}.{{assembly_group}}.{{assembler}}/{binner_dastools}_Contigs2Bin.tsv"),
                     binner_dastools=BINNERS_DASTOOLS)
         run:
             import glob
@@ -175,14 +175,14 @@ if config["params"]["binning"]["dastools"]["do"]:
             i = -1
             for binning_done in input:
                 i += 1
-                bins_dir = os.path.dirname(binning_done)
+                mags_dir = os.path.dirname(binning_done)
                 shell(f'''rm -rf {output.contigs2bin[i]}''')
-                bins_list = glob.glob(bins_dir + "/*.bin.*.fa")
-                if len(bins_list) == 0:
+                mags_list = glob.glob(mags_dir + "/*.bin.*.fa")
+                if len(mags_list) == 0:
                     shell(f'''touch {output.contigs2bin[i]}''')
                 else:
                     with open(output.contigs2bin[i], 'w') as oh:
-                        for bin_fa in sorted(bins_list):
+                        for bin_fa in sorted(mags_list):
                             bin_id_list = os.path.basename(bin_fa).split(".")
                             bin_id = bin_id_list[-4] + "." + str(bin_id_list[-2])
                             for contig in SeqIO.parse(bin_fa, "fasta"):
@@ -194,18 +194,18 @@ if config["params"]["binning"]["dastools"]["do"]:
             contigs2bin = expand(
                 os.path.join(
                     config["output"]["binning"],
-                    "bins_id/{{binning_group}}.{{assembly_group}}.{{assembler}}.out/{binner_dastools}_Contigs2Bin.tsv"),
+                    "mags_id/{{binning_group}}.{{assembly_group}}.{{assembler}}/{binner_dastools}_Contigs2Bin.tsv"),
                     binner_dastools=BINNERS_DASTOOLS),
             scaftigs = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.{assembler}.out/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz"),
+                "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz"),
             pep = os.path.join(
                 config["output"]["predict"],
-                "scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prodigal.out/{binning_group}.{assembly_group}.{assembler}.faa")
+                "scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prodigal/{binning_group}.{assembly_group}.{assembler}.prodigal.faa")
         output:
             os.path.join(
                 config["output"]["binning"],
-                "bins/{binning_group}.{assembly_group}.{assembler}.out/dastools/binning_done")
+                "mags/{binning_group}.{assembly_group}.{assembler}/dastools/binning_done")
         log:
             os.path.join(config["output"]["binning"],
                          "logs/binning/{binning_group}.{assembly_group}.{assembler}.dastools.binning.log")
@@ -219,31 +219,31 @@ if config["params"]["binning"]["dastools"]["do"]:
         params:
             binner = ",".join(BINNERS_DASTOOLS),
             wrapper_dir = WRAPPER_DIR,
-            bins_dir = os.path.join(
+            mags_dir = os.path.join(
                 config["output"]["binning"],
-                "bins/{binning_group}.{assembly_group}.{assembler}.out/dastools"),
+                "mags/{binning_group}.{assembly_group}.{assembler}/dastools"),
             search_engine = config["params"]["binning"]["dastools"]["search_engine"],
             score_threshold = config["params"]["binning"]["dastools"]["score_threshold"],
             duplicate_penalty = config["params"]["binning"]["dastools"]["duplicate_penalty"],
             megabin_penalty = config["params"]["binning"]["dastools"]["megabin_penalty"],
             bin_prefix = os.path.join(
                 config["output"]["binning"],
-                "bins/{binning_group}.{assembly_group}.{assembler}.out/dastools/{binning_group}.{assembly_group}.{assembler}.dastools.bin")
+                "mags/{binning_group}.{assembly_group}.{assembler}/dastools/{binning_group}.{assembly_group}.{assembler}.dastools.bin")
         threads:
             config["params"]["binning"]["threads"]
         shell:
             '''
             set +e
-            rm -rf {params.bins_dir}
-            mkdir -p {params.bins_dir}
+            rm -rf {params.mags_dir}
+            mkdir -p {params.mags_dir}
             
-            pigz -p {threads} -d -c {input.scaftigs} > {params.bins_dir}/scaftigs.fasta
+            pigz -p {threads} -d -c {input.scaftigs} > {params.mags_dir}/scaftigs.fasta
             contigs2bin=$(python -c "import sys; print(','.join(sys.argv[1:]))" {input.contigs2bin})
 
             DAS_Tool \
             --bins $contigs2bin \
             --labels {params.binner} \
-            --contigs {params.bins_dir}/scaftigs.fasta \
+            --contigs {params.mags_dir}/scaftigs.fasta \
             --proteins {input.pep} \
             --outputbasename {params.bin_prefix} \
             --search_engine {params.search_engine} \
@@ -255,7 +255,7 @@ if config["params"]["binning"]["dastools"]["do"]:
             --megabin_penalty {params.megabin_penalty} \
             --threads {threads} --debug > {log} 2>&1
 
-            rm -rf {params.bins_dir}/scaftigs.fasta
+            rm -rf {params.mags_dir}/scaftigs.fasta
 
             exitcode=$?
             if [ $exitcode -eq 1 ]
@@ -289,7 +289,7 @@ if config["params"]["binning"]["dastools"]["do"]:
             expand(
                 os.path.join(
                     config["output"]["binning"],
-                    "bins/{binning_group}.{assembly_group}.{assembler}.out/dastools/binning_done"),
+                    "mags/{binning_group}.{assembly_group}.{assembler}/dastools/binning_done"),
                     zip,
                     binning_group=ASSEMBLY_GROUPS["binning_group"],
                     assembly_group=ASSEMBLY_GROUPS["assembly_group"],
