@@ -53,10 +53,10 @@ if "megahit" in ASSEMBLERS:
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.megahit.out/{binning_group}.{assembly_group}.megahit.scaftigs.fa.gz")),
+                "scaftigs/{binning_group}.{assembly_group}.megahit/{binning_group}.{assembly_group}.megahit.scaftigs.fa.gz")),
             gfa = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.megahit.out/{binning_group}.{assembly_group}.megahit.scaftigs.gfa.gz"))
+                "scaftigs/{binning_group}.{assembly_group}.megahit/{binning_group}.{assembly_group}.megahit.scaftigs.gfa.gz"))
         conda:
             config["envs"]["megahit"]
         benchmark:
@@ -70,13 +70,13 @@ if "megahit" in ASSEMBLERS:
             k_list = ",".join(config["params"]["assembly"]["megahit"]["k_list"]),
             presets = config["params"]["assembly"]["megahit"]["presets"],
             output_dir = os.path.join(config["output"]["assembly"],
-                                      "scaftigs/{binning_group}.{assembly_group}.megahit.out"),
+                                      "scaftigs/{binning_group}.{assembly_group}.megahit"),
             contigs = os.path.join(config["output"]["assembly"],
-                                   "scaftigs/{binning_group}.{assembly_group}.megahit.out/{binning_group}.{assembly_group}.contigs.fa"),
+                                   "scaftigs/{binning_group}.{assembly_group}.megahit/{binning_group}.{assembly_group}.contigs.fa"),
             fastg = os.path.join(config["output"]["assembly"],
-                                 "scaftigs/{binning_group}.{assembly_group}.megahit.out/{binning_group}.{assembly_group}.megahit.scaftigs.fastg"),
+                                 "scaftigs/{binning_group}.{assembly_group}.megahit/{binning_group}.{assembly_group}.megahit.scaftigs.fastg"),
             gfa = os.path.join(config["output"]["assembly"],
-                               "scaftigs/{binning_group}.{assembly_group}.megahit.out/{binning_group}.{assembly_group}.megahit.scaftigs.gfa"),
+                               "scaftigs/{binning_group}.{assembly_group}.megahit/{binning_group}.{assembly_group}.megahit.scaftigs.gfa"),
             only_save_scaftigs = "yes" if config["params"]["assembly"]["megahit"]["only_save_scaftigs"] else "no",
             inputstr = lambda wildcards: get_megahit_input_str(wildcards)
         threads:
@@ -143,10 +143,10 @@ if "megahit" in ASSEMBLERS:
             expand([
                 os.path.join(
                     config["output"]["assembly"],
-                    "scaftigs/{binning_group}.{assembly_group}.megahit.out/{binning_group}.{assembly_group}.megahit.scaftigs.fa.gz"),
+                    "scaftigs/{binning_group}.{assembly_group}.megahit/{binning_group}.{assembly_group}.megahit.scaftigs.fa.gz"),
                 os.path.join(
                     config["output"]["assembly"],
-                    "scaftigs/{binning_group}.{assembly_group}.megahit.out/{binning_group}.{assembly_group}.megahit.scaftigs.gfa.gz")
+                    "scaftigs/{binning_group}.{assembly_group}.megahit/{binning_group}.{assembly_group}.megahit.scaftigs.gfa.gz")
                     ],
                     zip,
                     binning_group=ASSEMBLY_GROUP["binning_group"],
@@ -186,7 +186,7 @@ if "idba_ud" in ASSEMBLERS:
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.idba_ud.out/{binning_group}.{assembly_group}.idba_ud.scaftigs.fa.gz"))
+                "scaftigs/{binning_group}.{assembly_group}.idba_ud/{binning_group}.{assembly_group}.idba_ud.scaftigs.fa.gz"))
         conda:
             config["envs"]["idbaud"]
         benchmark:
@@ -196,7 +196,7 @@ if "idba_ud" in ASSEMBLERS:
             20
         params:
             prefix = "{binning_group}.{assembly_group}",
-            output_dir = os.path.join(config["output"]["assembly"], "scaftigs/{binning_group}.{assembly_group}.idba_ud.out"),
+            output_dir = os.path.join(config["output"]["assembly"], "scaftigs/{binning_group}.{assembly_group}.idba_ud"),
             mink = config["params"]["assembly"]["idba_ud"]["mink"],
             maxk = config["params"]["assembly"]["idba_ud"]["maxk"],
             step = config["params"]["assembly"]["idba_ud"]["step"],
@@ -204,8 +204,8 @@ if "idba_ud" in ASSEMBLERS:
             only_save_scaftigs = "yes" if config["params"]["assembly"]["idba_ud"]["only_save_scaftigs"] else "no",
             idbaud_cmd = lambda wildcards: prepare_idbaud_input(
                 wildcards, 
-                os.path.join(config["output"]["assembly"], f"reads/idbaud/{wildcards.binning_group}.{wildcards.assembly_group}/reads.fa")),
-            reads = os.path.join(config["output"]["assembly"], "reads/idbaud/{binning_group}.{assembly_group}/reads.fa")
+                os.path.join(config["output"]["assembly"], f"reads/idba_ud/{wildcards.binning_group}.{wildcards.assembly_group}/reads.fa")),
+            reads = os.path.join(config["output"]["assembly"], "reads/idba_ud/{binning_group}.{assembly_group}/reads.fa")
         threads:
             config["params"]["assembly"]["threads"]
         log:
@@ -248,7 +248,7 @@ if "idba_ud" in ASSEMBLERS:
         input:
             expand(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.idba_ud.out/{binning_group}.{assembly_group}.idba_ud.scaftigs.fa.gz"),
+                "scaftigs/{binning_group}.{assembly_group}.idba_ud/{binning_group}.{assembly_group}.idba_ud.scaftigs.fa.gz"),
                 zip,
                 binning_group=ASSEMBLY_GROUP["binning_group"],
                 assembly_group=ASSEMBLY_GROUP["assembly_group"])
@@ -319,10 +319,10 @@ if "metaspades" in ASSEMBLERS:
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.metaspades.out/{binning_group}.{assembly_group}.metaspades.scaftigs.fa.gz")),
+                "scaftigs/{binning_group}.{assembly_group}.metaspades/{binning_group}.{assembly_group}.metaspades.scaftigs.fa.gz")),
             gfa = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.metaspades.out/{binning_group}.{assembly_group}.metaspades.scaftigs.gfa.gz"))
+                "scaftigs/{binning_group}.{assembly_group}.metaspades/{binning_group}.{assembly_group}.metaspades.scaftigs.gfa.gz"))
         conda:
             config["envs"]["spades"]
         benchmark:
@@ -337,7 +337,7 @@ if "metaspades" in ASSEMBLERS:
                 if len(config["params"]["assembly"]["metaspades"]["kmers"]) == 0 \
                    else ",".join(config["params"]["assembly"]["metaspades"]["kmers"]),
             output_dir = os.path.join(config["output"]["assembly"],
-                                      "scaftigs/{binning_group}.{assembly_group}.metaspades.out"),
+                                      "scaftigs/{binning_group}.{assembly_group}.metaspades"),
             only_assembler = "--only-assembler" \
                 if config["params"]["assembly"]["metaspades"]["only_assembler"] \
                    else "",
@@ -345,10 +345,10 @@ if "metaspades" in ASSEMBLERS:
             link_scaffolds = "yes" if config["params"]["assembly"]["metaspades"]["link_scaffolds"] else "no",
             tar_results = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.metaspades.out/{binning_group}.{assembly_group}.metaspades.tar"),
+                "scaftigs/{binning_group}.{assembly_group}.metaspades/{binning_group}.{assembly_group}.metaspades.tar"),
             spades_params = lambda wildcards: parse_spades_params(
                 os.path.join(os.path.join(config["output"]["assembly"],
-                             f"scaftigs/{wildcards.binning_group}.{wildcards.assembly_group}.metaspades.out"),
+                             f"scaftigs/{wildcards.binning_group}.{wildcards.assembly_group}.metaspades"),
                              "params.txt")),
             spades_cmd = lambda wildcards: prepare_spades_input(
                 wildcards, 
@@ -445,10 +445,10 @@ if "metaspades" in ASSEMBLERS:
             expand([
                 os.path.join(
                     config["output"]["assembly"],
-                    "scaftigs/{binning_group}.{assembly_group}.metaspades.out/{binning_group}.{assembly_group}.metaspades.scaftigs.fa.gz"),
+                    "scaftigs/{binning_group}.{assembly_group}.metaspades/{binning_group}.{assembly_group}.metaspades.scaftigs.fa.gz"),
                 os.path.join(
                     config["output"]["assembly"],
-                    "scaftigs/{binning_group}.{assembly_group}.metaspades.out/{binning_group}.{assembly_group}.metaspades.scaftigs.gfa.gz")],
+                    "scaftigs/{binning_group}.{assembly_group}.metaspades/{binning_group}.{assembly_group}.metaspades.scaftigs.gfa.gz")],
                     zip,  
                     binning_group=ASSEMBLY_GROUP["binning_group"],
                     assembly_group=ASSEMBLY_GROUP["assembly_group"])
@@ -465,10 +465,10 @@ if "spades" in ASSEMBLERS:
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.spades.out/{binning_group}.{assembly_group}.spades.scaftigs.fa.gz")),
+                "scaftigs/{binning_group}.{assembly_group}.spades/{binning_group}.{assembly_group}.spades.scaftigs.fa.gz")),
             gfa = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.spades.out/{binning_group}.{assembly_group}.spades.scaftigs.gfa.gz"))
+                "scaftigs/{binning_group}.{assembly_group}.spades/{binning_group}.{assembly_group}.spades.scaftigs.gfa.gz"))
         conda:
             config["envs"]["spades"]
         benchmark:
@@ -483,17 +483,17 @@ if "spades" in ASSEMBLERS:
                 if len(config["params"]["assembly"]["spades"]["kmers"]) == 0 \
                    else ",".join(config["params"]["assembly"]["spades"]["kmers"]),
             output_dir = os.path.join(config["output"]["assembly"],
-                                      "scaftigs/{binning_group}.{assembly_group}.spades.out"),
+                                      "scaftigs/{binning_group}.{assembly_group}.spades"),
             only_assembler = "--only-assembler" \
                 if config["params"]["assembly"]["spades"]["only_assembler"] \
                    else "",
             only_save_scaftigs = config["params"]["assembly"]["spades"]["only_save_scaftigs"],
             link_scaffolds = "yes" if config["params"]["assembly"]["spades"]["link_scaffolds"] else "no",
             tar_results = os.path.join(config["output"]["assembly"],
-                                   "scaftigs/{binning_group}.{assembly_group}.spades.out/{binning_group}.{assembly_group}.spades.tar"),
+                                   "scaftigs/{binning_group}.{assembly_group}.spades/{binning_group}.{assembly_group}.spades.tar"),
             spades_params = lambda wildcards: parse_spades_params(
                 os.path.join(os.path.join(config["output"]["assembly"],
-                             f"scaftigs/{wildcards.binning_group}.{wildcards.assembly_group}.spades.out"),
+                             f"scaftigs/{wildcards.binning_group}.{wildcards.assembly_group}.spades"),
                              "params.txt")),
             spades_cmd = lambda wildcards: prepare_spades_input(
                 wildcards, 
@@ -583,10 +583,10 @@ if "spades" in ASSEMBLERS:
             expand([
                 os.path.join(
                     config["output"]["assembly"],
-                    "scaftigs/{binning_group}.{assembly_group}.spades.out/{binning_group}.{assembly_group}.spades.scaftigs.fa.gz"),
+                    "scaftigs/{binning_group}.{assembly_group}.spades/{binning_group}.{assembly_group}.spades.scaftigs.fa.gz"),
                 os.path.join(
                     config["output"]["assembly"],
-                    "scaftigs/{binning_group}.{assembly_group}.spades.out/{binning_group}.{assembly_group}.spades.scaftigs.gfa.gz")],
+                    "scaftigs/{binning_group}.{assembly_group}.spades/{binning_group}.{assembly_group}.spades.scaftigs.gfa.gz")],
                     zip,
                     binning_group=ASSEMBLY_GROUP["binning_group"],
                     assembly_group=ASSEMBLY_GROUP["assembly_group"])
@@ -603,10 +603,10 @@ if "plass" in ASSEMBLERS:
         output:
             proteins = os.path.join(
                 config["output"]["assembly"],
-                "proteins/{binning_group}.{assembly_group}.plass.out/{binning_group}.{assembly_group}.plass.proteins.fa.gz"),
+                "proteins/{binning_group}.{assembly_group}.plass/{binning_group}.{assembly_group}.plass.proteins.fa.gz"),
             tmp = directory(temp(os.path.join(
                 config["output"]["assembly"],
-                "proteins/{binning_group}.{assembly_group}.plass.out.tmp")))
+                "proteins/{binning_group}.{assembly_group}.plass.tmp")))
         conda:
             config["envs"]["plass"]
         benchmark:
@@ -640,7 +640,7 @@ if "plass" in ASSEMBLERS:
         input:
             expand(os.path.join(
                 config["output"]["assembly"],
-                "proteins/{binning_group}.{assembly_group}.plass.out/{binning_group}.{assembly_group}.plass.proteins.fa.gz"),
+                "proteins/{binning_group}.{assembly_group}.plass/{binning_group}.{assembly_group}.plass.proteins.fa.gz"),
                 zip,
                 binning_group=ASSEMBLY_GROUP["binning_group"],
                 assembly_group=ASSEMBLY_GROUP["assembly_group"])
@@ -654,7 +654,7 @@ def opera_ms_scaftigs_input(wildcards):
     return expand(
         os.path.join(
             config["output"]["assembly"],
-            "scaftigs/{{binning_group}}.{{assembly_group}}.{assembler}.out/{{binning_group}}.{{assembly_group}}.{assembler}.scaftigs.fa.gz"),
+            "scaftigs/{{binning_group}}.{{assembly_group}}.{assembler}/{{binning_group}}.{{assembly_group}}.{assembler}.scaftigs.fa.gz"),
             assembler=config["params"]["assembly"]["opera_ms"]["short_read_assembler"])
 
 
@@ -666,7 +666,7 @@ if "opera_ms" in ASSEMBLERS:
         output:
             scaftigs = protected(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.opera_ms.out/{binning_group}.{assembly_group}.opera_ms.scaftigs.fa.gz"))
+                "scaftigs/{binning_group}.{assembly_group}.opera_ms/{binning_group}.{assembly_group}.opera_ms.scaftigs.fa.gz"))
         benchmark:
             os.path.join(config["output"]["assembly"],
                          "benchmark/opera_ms/{binning_group}.{assembly_group}.opera_ms.benchmark.txt")
@@ -677,7 +677,7 @@ if "opera_ms" in ASSEMBLERS:
             opera_ms = config["params"]["assembly"]["opera_ms"]["path"],
             prefix = "{binning_group}.{assembly_group}",
             out_dir = os.path.join(config["output"]["assembly"],
-                                   "scaftigs/{binning_group}.{assembly_group}.opera_ms.out"),
+                                   "scaftigs/{binning_group}.{assembly_group}.opera_ms"),
             no_ref_clustering = "--no-ref-clustering" \
                 if config["params"]["assembly"]["opera_ms"]["no_ref_clustering"] else "",
             no_strain_clustering = "--no-strain-clustering" \
@@ -747,7 +747,7 @@ if "opera_ms" in ASSEMBLERS:
         input:
             expand(os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.opera_ms.out/{binning_group}.{assembly_group}.opera_ms.scaftigs.fa.gz"),
+                "scaftigs/{binning_group}.{assembly_group}.opera_ms/{binning_group}.{assembly_group}.opera_ms.scaftigs.fa.gz"),
                 zip,
                 binning_group=ASSEMBLY_GROUP["binning_group"],
                 assembly_group=ASSEMBLY_GROUP["assembly_group"])
@@ -764,11 +764,11 @@ if len(ASSEMBLERS) != 0:
                 reads = assembly_input_with_short_reads,
                 scaftigs = os.path.join(
                     config["output"]["assembly"],
-                    "scaftigs/{binning_group}.{assembly_group}.{assembler}.out/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
+                    "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
             output:
                 protected(os.path.join(
                     config["output"]["assembly"],
-                    "metaquast/{binning_group}.{assembly_group}.{assembler}.metaquast.out/combined_reference/report.tsv"))
+                    "metaquast/{binning_group}.{assembly_group}.{assembler}.metaquast/combined_reference/report.tsv"))
             conda:
                 config["envs"]["quast"]
             benchmark:
@@ -782,7 +782,7 @@ if len(ASSEMBLERS) != 0:
                 labels = "{binning_group}.{assembly_group}.{assembler}",
                 output_dir = os.path.join(
                     config["output"]["assembly"],
-                    "metaquast/{binning_group}.{assembly_group}.{assembler}.metaquast.out")
+                    "metaquast/{binning_group}.{assembly_group}.{assembler}.metaquast")
             threads:
                 config["params"]["assembly"]["metaquast"]["threads"]
             shell:
@@ -805,7 +805,7 @@ if len(ASSEMBLERS) != 0:
             input:
                 expand(os.path.join(
                     config["output"]["assembly"],
-                    "metaquast/{binning_group}.{assembly_group}.{{assembler}}.metaquast.out/combined_reference/report.tsv"),
+                    "metaquast/{binning_group}.{assembly_group}.{{assembler}}.metaquast/combined_reference/report.tsv"),
                     binning_group=ASSEMBLY_GROUP["binning_group"],
                     assembly_group=ASSEMBLY_GROUP["assembly_group"])
             output:
@@ -840,7 +840,7 @@ if len(ASSEMBLERS) != 0:
                 expand(
                     os.path.join(
                         config["output"]["assembly"],
-                        "metaquast/{binning_group}.{assembly_group}.{assembler}.metaquast.out/combined_reference/report.tsv"),
+                        "metaquast/{binning_group}.{assembly_group}.{assembler}.metaquast/combined_reference/report.tsv"),
                         zip,
                         assembler=ASSEMBLY_GROUPS["assembler"],
                         binning_group=ASSEMBLY_GROUPS["binning_group"],
@@ -863,7 +863,7 @@ if len(ASSEMBLERS) != 0:
         input:
             scaftigs = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.{assembler}.out/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
+                "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
         output:
             report = os.path.join(
                 config["output"]["assembly"],
