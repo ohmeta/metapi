@@ -20,6 +20,7 @@ package_data = {
         "metapi/snakefiles/*.smk",
         "metapi/rules/*.smk",
         "metapi/wrappers/*.py",
+        "metapi/data/*",
         "metapi/*.py",
     ]
 }
