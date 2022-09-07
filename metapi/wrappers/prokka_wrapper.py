@@ -3,7 +3,7 @@ import os
 import time
 import subprocess
 
-bin_list = glob.glob(snakemake.input["bins_dir"] + "/*.fa")
+bin_list = glob.glob(snakemake.input["mags_dir"] + "/*.fa")
 gff_count = 0
 
 for bin_fa in bin_list:

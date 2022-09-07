@@ -35,11 +35,11 @@ def run_prodigal(input_list):
 
 
 workers = int(sys.argv[1])
-input_bins_dir = os.path.dirname(sys.argv[2])
+input_mags_dir = os.path.dirname(sys.argv[2])
 output_done = sys.argv[3]
 output_dir = os.path.dirname(output_done)
 
-bin_list = glob.glob(input_bins_dir + "/*.fa")
+bin_list = glob.glob(input_mags_dir + "/*.fa")
 
 input_list = []
 for bin_fa in bin_list:

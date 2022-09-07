@@ -8,10 +8,10 @@ import subprocess
 
 bins_prefix = sys.argv[1].replace("dastools.bin", "")
 
-bins_list = glob.glob(os.path.join(sys.argv[1] + "_DASTool_bins", "*.fa"))
+mags_list = glob.glob(os.path.join(sys.argv[1] + "_DASTool_bins", "*.fa"))
 
-if len(bins_list) > 0:
-    for bin_fa in bins_list:
+if len(mags_list) > 0:
+    for bin_fa in mags_list:
         if (os.path.getsize(bin_fa) > 0) and  (not "*" in bin_fa):
             binner = os.path.basename(bin_fa).split(".")[0]
             if (binner != "unbinned") and (binner != "*"):

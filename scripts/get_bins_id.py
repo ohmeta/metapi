@@ -7,9 +7,9 @@ import sys
 import pandas
 
 
-def parse_bins(bins_dir):
+def parse_mags(mags_dir):
     bin_list = []
-    pattern = bins_dir + "/*/*.fa"
+    pattern = mags_dir + "/*/*.fa"
     for bin in glob.glob(pattern):
         bin_dict = {}
         bin_fa = os.path.basename(bin)
@@ -26,4 +26,4 @@ def parse_bins(bins_dir):
     # print(a)
 
 
-parse_bins(sys.argv[1])
+parse_mags(sys.argv[1])
