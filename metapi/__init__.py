@@ -37,8 +37,8 @@ from metapi.predictor import parse_gff
 from metapi.predictor import extract_faa
 
 from metapi.binner import get_binning_info
-from metapi.binner import generate_bins
-from metapi.binner import extract_bins_report
+from metapi.binner import generate_mags
+from metapi.binner import extract_mags_report
 from metapi.binner import combine_jgi
 
 from metapi.checkmer import checkm_prepare

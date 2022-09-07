@@ -9,8 +9,8 @@ import pandas as pd
 from Bio import bgzf
 
 
-def gtdbtk_prepare(rep_table, batch_num, bins_dir):
-    os.makedirs(bins_dir, exist_ok=True)
+def gtdbtk_prepare(rep_table, batch_num, mags_dir):
+    os.makedirs(mags_dir, exist_ok=True)
 
     table_df = pd.read_csv(rep_table, sep="\t")
 
@@ -24,10 +24,10 @@ def gtdbtk_prepare(rep_table, batch_num, bins_dir):
             best_translation_table_index = columns_list.index("best_translation_table")
             table_split = table_df.iloc[batch:batch+batch_num,
                                         [bin_file_index, genome_index, best_translation_table_index]]
-            table_split.to_csv(os.path.join(bins_dir, f"bins_input.{batchid}.tsv"),
+            table_split.to_csv(os.path.join(mags_dir, f"mags_input.{batchid}.tsv"),
                                sep="\t", index=False, header=None)
     else:
-        subprocess.run(f'''touch {os.path.join(bins_dir, "bins_input.0.tsv")}''', shell=True)
+        subprocess.run(f'''touch {os.path.join(mags_dir, "mags_input.0.tsv")}''', shell=True)
 
 
 def demultiplex(kraken2_output, r1, r2, change_seq_id, prefix, log=None):

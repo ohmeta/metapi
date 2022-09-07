@@ -9,8 +9,8 @@ import numpy as np
 from natsort import index_natsorted
 
 
-def checkm_prepare(gene_table, batch_num, bins_dir):
-    os.makedirs(bins_dir, exist_ok=True)
+def checkm_prepare(gene_table, batch_num, mags_dir):
+    os.makedirs(mags_dir, exist_ok=True)
 
     table_df = pd.read_csv(gene_table, sep="\t")
     table_df = table_df.sort_values(by="bin_id",
@@ -22,10 +22,10 @@ def checkm_prepare(gene_table, batch_num, bins_dir):
         for batch in range(0, len(table_df), batch_num):
             batchid += 1
             table_split = table_df.iloc[batch:batch+batch_num, ]
-            table_split.to_csv(os.path.join(bins_dir, f"bins_input.{batchid}.tsv"),
+            table_split.to_csv(os.path.join(mags_dir, f"mags_input.{batchid}.tsv"),
                                sep="\t", index=False, header=None)
     else:
-        subprocess.run(f'''touch {os.path.join(bins_dir, "bins_input.0.tsv")}''', shell=True)
+        subprocess.run(f'''touch {os.path.join(mags_dir, "mags_input.0.tsv")}''', shell=True)
 
 
 def MIMAG_quality_level(row):

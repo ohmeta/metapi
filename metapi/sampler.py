@@ -86,15 +86,15 @@ def parse_samples(
         return samples_df
 
 
-def parse_bins(bins_dir):
+def parse_mags(mags_dir):
     bin_list = []
-    for bin_ in glob.glob(bins_dir + "/*/*.fa"):
+    for bin_ in glob.glob(mags_dir + "/*/*.fa"):
         bin_dict = dict()
         bin_dict["path"] = bin_.strip()
         bin_dict["id"] = os.path.basename(bin_).rstrip(".fa")
         bin_list.append(bin_dict)
-    bins = pd.DataFrame(bin_list).set_index("id", drop=False)
-    return bins
+    mags_df = pd.DataFrame(bin_list).set_index("id", drop=False)
+    return mags_df
 
 
 def get_reads(sample_df, wildcards, col):
