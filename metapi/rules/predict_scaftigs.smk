@@ -1,12 +1,12 @@
 rule predict_scaftigs_gene_prodigal:
     input:
         os.path.join(config["output"]["assembly"],
-                     "scaftigs/{binning_group}.{assembly_group}.{assembler}.out/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
+                     "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
     output:
-        multiext(os.path.join(
+        expand(os.path.join(
             config["output"]["predict"],
-            "scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prodigal.out/{binning_group}.{assembly_group}.{assembler}"),
-            "faa", "ffn", "gff")
+            "scaftigs_gene/{{binning_group}}.{{assembly_group}}.{{assembler}}.prodigal/{{binning_group}}.{{assembly_group}}.{{assembler}}.prodigal.{ext}"),
+            ext=["faa", "ffn", "gff"])
     conda:
         config["envs"]["predict"]
     log:
@@ -31,14 +31,12 @@ rule predict_scaftigs_gene_prodigal_all:
         expand(expand(
             os.path.join(
                 config["output"]["predict"],
-                "scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prodigal.out/{binning_group}.{assembly_group}.{assembler}.{{ext}}"),
+                "scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prodigal/{binning_group}.{assembly_group}.{assembler}.prodigal.{{ext}}"),
                 zip,
                 binning_group=ASSEMBLY_GROUPS["binning_group"],
                 assembly_group=ASSEMBLY_GROUPS["assembly_group"],
                 assembler=ASSEMBLY_GROUPS["assembler"]),
-                ext = ["faa", "ffn", "gff"]),
-
-        rules.assembly_all.input
+                ext = ["faa", "ffn", "gff"])
 
 
 if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
@@ -50,11 +48,11 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
         input:
             os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.{assembler}.out/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
+                "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
         output:
             expand(os.path.join(
                 config["output"]["predict"],
-                "scaftigs_gene/{{binning_group}}.{{assembly_group}}.{{assembler}}.prokka.out/{{binning_group}}.{{assembly_group}}.{{assembler}}.{ext}"),
+                "scaftigs_gene/{{binning_group}}.{{assembly_group}}.{{assembler}}.prokka/{{binning_group}}.{{assembly_group}}.{{assembler}}.prokka.{ext}"),
                 ext=PROKKA_SUFFIX)
         conda:
             config["envs"]["predict"]
@@ -62,10 +60,10 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
             os.path.join(config["output"]["predict"],
                          "logs/scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prokka.log")
         params:
-            prefix = "{binning_group}.{assembly_group}.{assembler}",
+            prefix = "{binning_group}.{assembly_group}.{assembler}.prokka",
             output_dir = os.path.join(
                 config["output"]["predict"],
-                "scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prokka.out")
+                "scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prokka")
         threads:
             config["params"]["predict"]["threads"]
         shell:
@@ -90,7 +88,7 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
             expand(expand(
                 os.path.join(
                     config["output"]["predict"],
-                    "scaftigs_gene/{binning_group}.{assembly_group}.{{{{assembler}}}}.prokka.out/{binning_group}.{assembly_group}.{{{{assembler}}}}.{{ext}}"),
+                    "scaftigs_gene/{binning_group}.{assembly_group}.{{{{assembler}}}}.prokka/{binning_group}.{assembly_group}.{{{{assembler}}}}.prokka.{{ext}}"),
                     zip,
                     binning_group=ASSEMBLY_GROUP["binning_group"],
                     assembly_group=ASSEMBLY_GROUP["assembly_group"]),
@@ -98,10 +96,10 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
         output:
             html = os.path.join(
                 config["output"]["predict"],
-                "report/scaftigs_gene_{assembler}.multiqc.out/prokka_multiqc_report.html"),
+                "report/scaftigs_gene_{assembler}.multiqc/prokka_multiqc_report.html"),
             data_dir = directory(os.path.join(
                 config["output"]["predict"],
-                "report/scaftigs_gene_{assembler}.multiqc.out/prokka_multiqc_report_data"))
+                "report/scaftigs_gene_{assembler}.multiqc/prokka_multiqc_report_data"))
         conda:
             config["envs"]["multiqc"]
         log:
@@ -111,7 +109,7 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
         params:
             output_dir = os.path.join(
                 config["output"]["predict"],
-                "report/scaftigs_gene_{assembler}.multiqc.out")
+                "report/scaftigs_gene_{assembler}.multiqc")
         shell:
             '''
             multiqc \
@@ -129,7 +127,7 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
             expand(expand(
                 os.path.join(
                     config["output"]["predict"],
-                    "scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prokka.out/{binning_group}.{assembly_group}.{assembler}.{{ext}}"),
+                    "scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prokka/{binning_group}.{assembly_group}.{assembler}.prokka.{{ext}}"),
                     zip,
                     binning_group=ASSEMBLY_GROUPS["binning_group"],
                     assembly_group=ASSEMBLY_GROUPS["assembly_group"],
@@ -138,13 +136,11 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
             expand([
                 os.path.join(
                     config["output"]["predict"],
-                    "report/scaftigs_gene_{assembler}.multiqc.out/prokka_multiqc_report.html"),
+                    "report/scaftigs_gene_{assembler}.multiqc/prokka_multiqc_report.html"),
                 os.path.join(
                     config["output"]["predict"],
-                    "report/scaftigs_gene_{assembler}.multiqc.out/prokka_multiqc_report_data")],
-                   assembler=ASSEMBLERS),
-
-            rules.assembly_all.input
+                    "report/scaftigs_gene_{assembler}.multiqc/prokka_multiqc_report_data")],
+                   assembler=ASSEMBLERS)
 
 else:
     rule predict_scaftigs_gene_prokka_all:
@@ -160,4 +156,4 @@ rule predict_scaftigs_gene_all:
 localrules:
     predict_scaftigs_gene_prodigal_all,
     predict_scaftigs_gene_prokka_all,
-    predict_scaftigs_gene_all,
+    predict_scaftigs_gene_all
