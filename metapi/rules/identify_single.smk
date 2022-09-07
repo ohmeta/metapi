@@ -1,7 +1,9 @@
 if config["params"]["identify"]["virsorter2"]["do"]:
     rule identify_virsorter2_setup_db:
         output:
-            os.path.join(config["params"]["identify"]["virsorter2"]["db"], "Done_all_setup")
+            directory(os.path.join(config["params"]["identify"]["virsorter2"]["db"], "hmm")),
+            directory(os.path.join(config["params"]["identify"]["virsorter2"]["db"], "rbs")),
+            directory(os.path.join(config["params"]["identify"]["virsorter2"]["db"], "group"))
         conda:
             config["envs"]["virsorter2"]
         benchmark:
@@ -19,13 +21,16 @@ if config["params"]["identify"]["virsorter2"]["do"]:
             virsorter setup --db-dir {params.db_dir} --jobs {threads} >{log} 2>&1
             '''
 
+
 # https://github.com/EddyRivasLab/hmmer/issues/161
 # hmmsearch threads: 2 (recommand)
     rule identify_virsorter2_config:
         input:
-            os.path.join(config["params"]["identify"]["virsorter2"]["db"], "Done_all_setup")
+            expand(os.path.join(
+                config["params"]["identify"]["virsorter2"]["db"], "{dbdir}"),
+                dbdir=["hmm", "rbs", "group"])
         output:
-            os.path.join(config["params"]["identify"]["virsorter2"]["db"], "Done_all_config")
+            os.path.join(config["output"]["identify"], "config/virsorter2-template-config.yaml")
         log:
             os.path.join(config["output"]["identify"], "logs/virsorter2_config.log")
         conda:
@@ -36,13 +41,20 @@ if config["params"]["identify"]["virsorter2"]["do"]:
             db_dir = config["params"]["identify"]["virsorter2"]["db"]
         shell:
             '''
-            virsorter config --init-source --db-dir={params.db_dir} >{log} 2>&1
+            configfile=`python -c 'import os,virsorter;print(os.path.join(virsorter.__path__[0], "template-config.yaml"))'`
 
-            virsorter config --set GENERAL_THREADS={threads} >>{log} 2>&1
-            virsorter config --set HMMSEARCH_THREADS={threads} >>{log} 2>&1
-            virsorter config --set CLASSIFY_THREADS={threads} >>{log} 2>&1
+            if [ -f $configfile ];
+            then
+                cp $configfile {output}
+            else
+                virsorter config --init-source --db-dir={params.db_dir} >{log} 2>&1
 
-            touch {output}
+                virsorter config --set GENERAL_THREADS={threads} >>{log} 2>&1
+                virsorter config --set HMMSEARCH_THREADS=2 >>{log} 2>&1
+                virsorter config --set CLASSIFY_THREADS={threads} >>{log} 2>&1
+
+                cp $configfile {output}
+            fi
             '''
 
 
@@ -77,9 +89,57 @@ if config["params"]["identify"]["virsorter2"]["do"]:
             '''
 
 
+    # Avoid creating the conda_envs directory at the same time when run virsorter2 using split scaftigs
+    rule identify_virsorter2_init_run:
+        input:
+            config_file = os.path.join(config["output"]["identify"], "config/virsorter2-template-config.yaml"),
+            lambda_virus = os.path.join(DATA_DIR, "lambda_virus.fa")
+        output:
+            init_success = os.path.join(config["output"]["identify"], "config/virsorter2-init-run-success")
+        benchmark:
+            os.path.join(config["output"]["identify"], "benchmark/virsorter2/virsorter2.init_run.benchmark.txt")
+        log:
+            os.path.join(config["output"]["identify"], "logs/virsorter2/virsorter2.init_run.log")
+        conda:
+            config["envs"]["virsorter2"]
+        threads:
+            config["params"]["identify"]["threads"]
+        params:
+            label = "lambda_virus",
+            working_dir = os.path.join(config["output"]["identify"], "config/lambda_virus.vs2.out"),
+            include_groups = ",".join(config["params"]["identify"]["virsorter2"]["include_groups"]),
+            min_length = config["params"]["identify"]["virsorter2"]["min_length"],
+            min_score = config["params"]["identify"]["virsorter2"]["min_score"],
+            provirus_off = "--provirus-off" if config["params"]["identify"]["virsorter2"]["provirus_off"] else "",
+            prep_for_dramv = "--prep-for-dramv" if config["params"]["identify"]["virsorter2"]["prep_for_dramv"] else "",
+            rm_tmpdir = "--rm-tmpdir" if config["params"]["identify"]["virsorter2"]["rm_tmpdir"] else "",
+            keep_original_seq = "--keep-original-seq" if config["params"]["identify"]["virsorter2"]["keep_original_seq"] else ""
+        shell:
+            '''
+            rm -rf {params.working_dir}
+            mkdir -p {params.working_dir}
+
+            virsorter run \
+            {params.prep_for_dramv} \
+            {params.provirus_off} \
+            {params.rm_tmpdir} \
+            {params.keep_original_seq} \
+            --working-dir {params.working_dir} \
+            --seqfile {input.lambda_virus} \
+            --label {params.label} \
+            --include-groups {params.include_groups} \
+            --min-length {params.min_length} \
+            --min-score {params.min_score} \
+            --jobs {threads} all \
+            >{log} 2>&1
+
+            touch {output}
+            '''
+
+
     rule identify_virsorter2:
         input:
-            config_done = os.path.join(config["params"]["identify"]["virsorter2"]["db"], "Done_all_config"),
+            init_success = os.path.join(config["output"]["identify"], "config/virsorter2-init-run-success"),
             scaftigs = os.path.join(
                 config["output"]["identify"], 
                 "virsorter2/{binning_group}.{assembly_group}.{assembler}.vs2.out/scaftigs/{binning_group}.{assembly_group}.{assembler}.scaftigs.part_{split_num}.fa.gz")
@@ -160,7 +220,7 @@ if config["params"]["identify"]["virsorter2"]["do"]:
 
     def aggregate_identify_virsorter2_output(wildcards):
         checkpoint_output = checkpoints.identify_virsorter2_prepare.get(**wildcards).output.scaftigs_dir
-        label = wildcards.assembly_group + "." + wildcards.assembler
+        label = wildcards.binning_group + "." + wildcards.assembly_group + "." + wildcards.assembler
 
         return expand(os.path.join(
             config["output"]["identify"],
@@ -206,11 +266,21 @@ if config["params"]["identify"]["virsorter2"]["do"]:
                 if os.path.exists(boundary_tsv):
                     boundary_tsv_list.append(boundary_tsv)
 
-            fa_str = " ".join(combined_fa_list)
-            subprocess.run(f"cat {fa_str} > {output[0]}", shell=True)
+            if len(combined_fa_list) > 0:
+                fa_str = " ".join(combined_fa_list)
+                subprocess.run(f"cat {fa_str} > {output[0]}", shell=True)
+            else:
+                subprocess.run(f"touch {output[0]}", shell=True)
 
-            metapi.merge(score_tsv_list, metapi.parse, threads, output=output[1])
-            metapi.merge(boundary_tsv_list, metapi.parse, threads, output=output[2])
+            if len(score_tsv_list) > 0:
+                metapi.merge(score_tsv_list, metapi.parse, threads, output=output[1])
+            else:
+                subprocess.run(f"touch {output[1]}", shell=True)
+
+            if len(boundary_tsv_list) > 0:
+                metapi.merge(boundary_tsv_list, metapi.parse, threads, output=output[2])
+            else:
+                subprocess.run(f"touch {output[2]}", shell=True)
 
 
     rule identify_virsorter2_all:
