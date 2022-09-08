@@ -19,7 +19,7 @@ if config["params"]["binning"]["metabat2"]["do"]:
             config["envs"]["metabat2"]
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/coverage/{binning_group}.{assembly_group}.{assembler}.metabat2.coverage.log")
+                         "logs/metabat2/{binning_group}.{assembly_group}.{assembler}.metabat2.coverage.log")
         params:
             percent_identity = config["params"]["binning"]["metabat2"]["percent_identity"],
             min_map_qual = config["params"]["binning"]["metabat2"]["min_map_qual"],
@@ -85,7 +85,7 @@ if config["params"]["binning"]["metabat2"]["do"]:
             config["envs"]["metabat2"]
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/binning/{binning_group}.{assembly_group}.{assembler}.metabat2.binning.log")
+                         "logs/metabat2/{binning_group}.{assembly_group}.{assembler}.metabat2.binning.log")
         benchmark:
             os.path.join(config["output"]["binning"],
                          "benchmark/metabat2/{binning_group}.{assembly_group}.{assembler}.metabat2.benchmark.txt")
@@ -168,7 +168,7 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             30
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/coverage/{binning_group}.{assembly_group}.{assembler}.maxbin2.coverage.log")
+                         "logs/maxbin2/{binning_group}.{assembly_group}.{assembler}.maxbin2.coverage.log")
         shell:
             '''
             cut -f1,3 {input.coverage} | tail -n +2 > {output.coverage}
@@ -192,7 +192,7 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             config["envs"]["maxbin2"]
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/binning/{binning_group}.{assembly_group}.{assembler}.maxbin2.binning.log")
+                         "logs/maxbin2/{binning_group}.{assembly_group}.{assembler}.maxbin2.binning.log")
         benchmark:
             os.path.join(config["output"]["binning"],
                          "benchmark/maxbin2/{binning_group}.{assembly_group}.{assembler}.maxbin2.benchmark.txt")
@@ -309,7 +309,7 @@ if config["params"]["binning"]["concoct"]["do"]:
             1
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/coverage/{binning_group}.{assembly_group}.{assembler}.concoct.cut_bed.log")
+                         "logs/concoct/{binning_group}.{assembly_group}.{assembler}.concoct.cut_bed.log")
         conda:
             config["envs"]["concoct"]
         params:
@@ -363,7 +363,7 @@ if config["params"]["binning"]["concoct"]["do"]:
             config["envs"]["concoct"]
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/coverage/{binning_group}.{assembly_group}.{assembler}.concoct.coverage.log")
+                         "logs/concoct/{binning_group}.{assembly_group}.{assembler}.concoct.coverage.log")
         threads:
             config["params"]["binning"]["threads"]
         shell:
@@ -396,7 +396,7 @@ if config["params"]["binning"]["concoct"]["do"]:
             config["envs"]["concoct"]
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/binning/{binning_group}.{assembly_group}.{assembler}.concoct.binning.log")
+                         "logs/concoct/{binning_group}.{assembly_group}.{assembler}.concoct.binning.log")
         benchmark:
             os.path.join(config["output"]["binning"],
                          "benchmark/concoct/{binning_group}.{assembly_group}.{assembler}.concoct.benchmark.txt")

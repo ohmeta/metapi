@@ -61,7 +61,7 @@ if config["params"]["binning"]["graphbin2"]["do"]:
                 "mags/{binning_group}.{assembly_group}.{assembler}/{binner_graphbin}_graphbin2/binning_done")
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/binning/{binning_group}.{assembly_group}.{assembler}.{binner_graphbin}.graphbin2.refine.log")
+                         "logs/{binning_graphbin}/{binning_group}.{assembly_group}.{assembler}.{binner_graphbin}.graphbin2.refine.log")
         benchmark:
             os.path.join(config["output"]["binning"],
                          "benchmark/{binner_graphbin}/{binning_group}.{assembly_group}.{assembler}.{binner_graphbin}.benchmark.txt")
@@ -208,7 +208,7 @@ if config["params"]["binning"]["dastools"]["do"]:
                 "mags/{binning_group}.{assembly_group}.{assembler}/dastools/binning_done")
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/binning/{binning_group}.{assembly_group}.{assembler}.dastools.binning.log")
+                         "logs/dastools/{binning_group}.{assembly_group}.{assembler}.dastools.binning.log")
         benchmark:
             os.path.join(config["output"]["binning"],
                          "benchmark/dastools/{binning_group}.{assembly_group}.{assembler}.dastools.benchmark.txt")

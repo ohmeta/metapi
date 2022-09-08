@@ -37,14 +37,14 @@ if config["params"]["binning"]["vamb"]["do"]:
                 "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz")
         benchmark:
             os.path.join(
-                config["output"]["assembly"],
-                "benchmark/vamb_combine_scaftigs.{binning_group}.{assembler}.benchmark.txt")
+                config["output"]["binning"],
+                "benchmark/vamb/index/vamb_combine_scaftigs.{binning_group}.{assembler}.benchmark.txt")
         conda:
             config["envs"]["vamb"]
         log:
             os.path.join(
-                config["output"]["assembly"],
-                "logs/vamb_combine_scaftigs.{binning_group}.{assembler}.log")
+                config["output"]["binning"],
+                "logs/vamb/index/vamb_combine_scaftigs.{binning_group}.{assembler}.log")
         params:
             min_contig = config["params"]["binning"]["vamb"]["min_contig"]
         shell:
@@ -64,13 +64,13 @@ if config["params"]["binning"]["vamb"]["do"]:
                 "index_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.dict")
         benchmark:
             os.path.join(
-                config["output"]["alignment"],
-                "benchmark/samtools_dict_merged_scaftigs.{binning_group}.{assembler}.benchmark.txt")
+                config["output"]["binning"],
+                "benchmark/vamb/index/samtools_dict_merged_scaftigs.{binning_group}.{assembler}.benchmark.txt")
         conda:
             config["envs"]["align"]
         log:
-            os.path.join(config["output"]["alignment"],
-                         "logs/samtools_dict_merged_scaftigs.{binning_group}.{assembler}.log")
+            os.path.join(config["output"]["binning"],
+                         "logs/vamb/index/samtools_dict_merged_scaftigs.{binning_group}.{assembler}.log")
         shell:
             '''
             samtools dict {input} | cut -f1-3 > {output} 2> {log}
@@ -88,13 +88,13 @@ if config["params"]["binning"]["vamb"]["do"]:
                 "index_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.minimap2.mmi")
         benchmark:
             os.path.join(
-                config["output"]["alignment"],
-                "benchmark/minimap2_index_merged_scaftigs.{binning_group}.{assembler}.benchmark.txt")
+                config["output"]["binning"],
+                "benchmark/vamb/index/minimap2_index_merged_scaftigs.{binning_group}.{assembler}.benchmark.txt")
         conda:
             config["envs"]["align"]
         log:
-            os.path.join(config["output"]["alignment"],
-                         "logs/minimap2_index_merged_scaftigs.{binning_group}.{assembler}.log")
+            os.path.join(config["output"]["binning"],
+                         "logs/vamb/index/minimap2_index_merged_scaftigs.{binning_group}.{assembler}.log")
         params:
             index_size = config["params"]["binning"]["vamb"]["index_size"]
         shell:
@@ -127,11 +127,11 @@ if config["params"]["binning"]["vamb"]["do"]:
         conda:
             config["envs"]["align"]
         benchmark:
-            os.path.join(config["output"]["alignment"],
-                         "benchmark/minimap2/{binning_group}.{assembler}.{sample}.align2merged_scaftigs.benchmark.txt")
+            os.path.join(config["output"]["binning"],
+                         "benchmark/vamb/minimap2/{binning_group}.{assembler}.{sample}.align2merged_scaftigs.benchmark.txt")
         log:
-            os.path.join(config["output"]["alignment"],
-                         "logs/alignment/{binning_group}.{assembler}.{sample}.align2merged_scaftigs.log")
+            os.path.join(config["output"]["binning"],
+                         "logs/vamb/minimap2/{binning_group}.{assembler}.{sample}.align2merged_scaftigs.log")
         threads:
             config["params"]["alignment"]["threads"]
         shell:
@@ -163,8 +163,8 @@ if config["params"]["binning"]["vamb"]["do"]:
         priority:
             29
         benchmark:
-            os.path.join(config["output"]["alignment"],
-                         "benchmark/minimap2/{binning_group}.{assembler}.{sample}.sort_bam.benchmark.txt")
+            os.path.join(config["output"]["binning"],
+                         "benchmark/vamb/samtools/{binning_group}.{assembler}.{sample}.sort_bam.benchmark.txt")
         params:
             bam_dir = os.path.join(config["output"]["alignment"],
                                    "bam_merged/{binning_group}.{assembler}"),
@@ -172,8 +172,8 @@ if config["params"]["binning"]["vamb"]["do"]:
         conda:
             config["envs"]["align"]
         log:
-            os.path.join(config["output"]["alignment"],
-                         "logs/alignment/{binning_group}.{assembler}.{sample}.sort_bam.log")
+            os.path.join(config["output"]["binning"],
+                         "logs/vamb/samtools/{binning_group}.{assembler}.{sample}.sort_bam.log")
         threads:
             config["params"]["alignment"]["threads"]
         shell:
@@ -218,12 +218,12 @@ if config["params"]["binning"]["vamb"]["do"]:
         benchmark:
             os.path.join(
                 config["output"]["binning"],
-                "benchmark/jgi_summarize_bam_contig_depths/{binning_group}.{assembler}.{sample}.jgi_summarize_bam_contig_depths.benchmark.txt")
+                "benchmark/vamb/jgi/{binning_group}.{assembler}.{sample}.jgi_summarize_bam_contig_depths.benchmark.txt")
         conda:
             config["envs"]["metabat2"]
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/coverage/{binning_group}.{assembler}.{sample}.align2merged_scaftigs.jgi.coverage.log")
+                         "logs/vamb/jgi/{binning_group}.{assembler}.{sample}.align2merged_scaftigs.jgi.coverage.log")
         shell:
             '''
             jgi_summarize_bam_contig_depths \
@@ -243,10 +243,10 @@ if config["params"]["binning"]["vamb"]["do"]:
         benchmark:
             os.path.join(
                 config["output"]["binning"],
-                "benchmark/binning_vamb_gen_abundance_matrix.{binning_group}.{assembler}.benchmark.txt")
+                "benchmark/vamb/matrix/binning_vamb_gen_abundance_matrix.{binning_group}.{assembler}.benchmark.txt")
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/binning_vamb_gen_abundance_matrix.{binning_group}.{assembler}.log")
+                         "logs/vamb/matrix/binning_vamb_gen_abundance_matrix.{binning_group}.{assembler}.log")
         run:
             metapi.combine_jgi(input.jgi, output.matrix)
 
@@ -278,12 +278,12 @@ if config["params"]["binning"]["vamb"]["do"]:
                                         "mags_vamb/{binning_group}.{assembler}/binning_done")
         benchmark:
             os.path.join(config["output"]["binning"],
-                         "benchmark/vamb/{binning_group}.{assembler}.vamb.benchmark.txt")
+                         "benchmark/vamb/vamb/{binning_group}.{assembler}.vamb.benchmark.txt")
         conda:
             config["envs"]["vamb"]
         log:
             os.path.join(config["output"]["binning"],
-                         "logs/binning/{binning_group}.{assembler}.vamb.binning.log")
+                         "logs/vamb/vamb/{binning_group}.{assembler}.vamb.binning.log")
         threads:
             config["params"]["binning"]["threads"]
         params:
@@ -300,7 +300,7 @@ if config["params"]["binning"]["vamb"]["do"]:
             set +e
 
             rm -rf {params.outdir}
-            mkdir -p $(dirname {params.outdir}
+            mkdir -p $(dirname {params.outdir})
 
             nums=`zcat {input.scaftigs} | grep -c "^>"`
 
@@ -377,7 +377,7 @@ if config["params"]["binning"]["vamb"]["do"]:
                                         "mags/{binning_group}.{assembly_group}.{assembler}/vamb/binning_done")
         benchmark:
             os.path.join(config["output"]["binning"],
-                         "benchmark/binning_vamb_postprocess.{binning_group}.{assembler}.{assembly_group}.benchmark.txt")
+                         "benchmark/vamb/postprocess/binning_vamb_postprocess.{binning_group}.{assembler}.{assembly_group}.benchmark.txt")
         params:
             binning_group = "{binning_group}",
             assembly_group = "{assembly_group}",
