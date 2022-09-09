@@ -40,7 +40,7 @@ if config["params"]["dereplicate"]["cdhit"]["do_gene"]:
                                     "scaftigs_gene_merged/{assembler}.prodigal.scaftigs.gene.merged.ffn.metadata")
         output:
             os.path.join(config["output"]["dereplicate"],
-                         "scaftigs_gene_nr/{assembler}.prodigal.scaftigs.gene.merged.nr.ffn.gz")
+                         "gene/{assembler}.prodigal.scaftigs.gene.merged.nr.ffn.gz")
         conda:
             config["envs"]["cdhit"]
         log:
@@ -84,7 +84,7 @@ if config["params"]["dereplicate"]["cdhit"]["do_gene"]:
         input:
             expand(os.path.join(
                 config["output"]["dereplicate"],
-                "scaftigs_gene_nr/{assembler}.prodigal.scaftigs.gene.merged.nr.ffn.gz"),
+                "gene/{assembler}.prodigal.scaftigs.gene.merged.nr.ffn.gz"),
                    assembler=ASSEMBLERS)
 
 else:

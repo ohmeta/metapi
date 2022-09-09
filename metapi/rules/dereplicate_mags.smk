@@ -120,8 +120,15 @@ rule dereplicate_mags_all:
         rules.dereplicate_mags_drep_all.input
 
 
+rule dereplicate_all:
+    input:
+        rules.dereplicate_gene_all.input,
+        rules.dereplicate_mags_all.input
+
+
 localrules:
     dereplicate_mags_prepare,
     dereplicate_mags_drep_all,
     dereplicate_mags_drep_report,
-    dereplicate_mags_all
+    dereplicate_mags_all,
+    dereplicate_all
