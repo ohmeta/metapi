@@ -148,48 +148,48 @@ rmhost_report_merge:
 
 assembly_megahit:
   mem: "10G"
-  output: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.o"
-  error: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{jobid}.o"
+  error: "logs/04.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{jobid}.e"
 
 assembly_idba_ud:
   mem: "15G"
-  output: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.o"
-  error: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{jobid}.o"
+  error: "logs/04.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{jobid}.e"
 
 assembly_metaspades:
   mem: "81G"
-  output: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.o"
-  error: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{jobid}.o"
+  error: "logs/04.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{jobid}.e"
 
 assembly_spades:
   mem: "20G"
-  output: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.o"
-  error: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{jobid}.o"
+  error: "logs/04.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{jobid}.e"
 
 assembly_plass:
   mem: "20G"
-  output: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.o"
-  error: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{jobid}.o"
+  error: "logs/04.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{jobid}.e"
 
 assembly_opera_ms:
   mem: "20G"
-  output: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.o"
-  error: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{jobid}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{jobid}.o"
+  error: "logs/04.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{jobid}.e"
 
 assembly_metaquast:
   mem: "2G"
-  output: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/04.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 assembly_metaquast_multiqc:
   mem: "128M"
-  output: "logs/04.{rule}/{rule}.{jobid}.o"
-  error: "logs/04.{rule}/{rule}.{jobid}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/04.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
 
 assembly_report:
   mem: "512M"
-  output: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/04.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/04.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/04.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 assembly_report_merge:
   mem: "1G"
@@ -198,28 +198,33 @@ assembly_report_merge:
 
 alignment_scaftigs_index:
   mem: "512M"
-  output: "logs/05.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/05.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/05.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/05.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 alignment_reads_scaftigs:
   mem: "1G"
-  output: "logs/05.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.o"
-  error: "logs/05.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.e"
+  output: "logs/05.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.o"
+  error: "logs/05.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.e"
 
 alignment_base_depth:
   mem: "512M"
-  output: "logs/05.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.o"
-  error: "logs/05.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.e"
+  output: "logs/05.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.o"
+  error: "logs/05.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.e"
+
+alignment_report:
+  mem: "512M"
+  output: "logs/05.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/05.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
 
 binning_metabat2_coverage:
   mem: "1G"
-  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_metabat2:
   mem: "1G"
-  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_maxbin2_coverage:
   mem: "2G"
@@ -228,23 +233,23 @@ binning_maxbin2_coverage:
 
 binning_maxbin2:
   mem: "1G"
-  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_concoct_cut_bed:
   mem: "2G"
-  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_concoct_coverage:
   mem: "2G"
-  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_concoct:
   mem: "1G"
-  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_vamb_combine_scaftigs:
   mem: "1G"
@@ -292,30 +297,41 @@ binning_vamb:
   output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.e"
 
+binning_vamb_postprocess:
+  #partition: "gpu"
+  mem: "1G"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+
 binning_graphbin2_prepare_assembly:
   mem: "512M"
-  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+
+binning_graphbin2_prepare_binned:
+  mem: "512M"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{binner_graphbin}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{binner_graphbin}.{jobid}.e"
 
 binning_graphbin2:
   mem: "512M"
-  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_graphbin}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_graphbin}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_dastools_preprocess:
   mem: "1G"
-  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_dastools:
   mem: "1G"
-  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildacrds.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_report:
   mem: "1G"
-  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
 binning_report_merge:
   mem: "1G"
@@ -323,45 +339,49 @@ binning_report_merge:
   error: "logs/06.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
 identify_virsorter2_prepare:
-  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+
+identify_virsorter2_init_run:
+  output: "logs/06.{rule}/{rule}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{jobid}.e"
 
 identify_virsorter2:
   mem: "10G"
-  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.split_num}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.split_num}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.split_num}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.split_num}.{jobid}.e"
 
 identify_virsorter2_merge:
   mem: "10G"
-  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 identify_deepvirfinder:
   mem: "5G"
-  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 identify_phamb_filter_pep:
   mem: "5G"
-  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
-identify_phamb_micomplete:
+identify_phamb_hmmsearch_micomplete:
   mem: "5G"
-  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
-identify_phamb_micomplete_merge:
+identify_phamb_hmmsearch_micomplete_merge:
   mem: "5G"
   output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.e"
 
-identify_phamb_vog:
+identify_phamb_hmmsearch_vog:
   mem: "5G"
-  output: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
-identify_phamb_vog_merge:
+identify_phamb_hmmsearch_vog_merge:
   mem: "5G"
   output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.e"
@@ -378,38 +398,48 @@ identify_phamb_randomforest:
 
 predict_scaftigs_gene_prodigal:
   mem: "1G"
-  output: "logs/07.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/07.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 predict_scaftigs_gene_prokka:
   mem: "1G"
-  output: "logs/07.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/07.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 predict_scaftigs_gene_prokka_multiqc:
   mem: "1G"
   output: "logs/07.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
   error: "logs/07.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
 
-predict_bins_gene_prodigal:
+predict_mags_gene_prodigal:
   mem: "1G"
-  output: "logs/07.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
-  error: "logs/07.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
+  output: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
+  error: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
-predict_bins_gene_prokka:
+predict_mags_gene_prodigal_report:
   mem: "1G"
-  output: "logs/07.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
-  error: "logs/07.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
+  output: "logs/07.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
+  error: "logs/07.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
-predict_bins_gene_prokka_multiqc:
+predict_mags_gene_prokka:
+  mem: "1G"
+  output: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
+  error: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
+
+predict_mags_gene_prokka_multiqc:
   mem: "1G"
   output: "logs/07.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
   error: "logs/07.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
 checkm_lineage_wf:
   mem: "120G"
-  output: "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
-  error: "logs/08.{rule}/{rule}.{wildcards.batchid}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
+  output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{wildcards.batchid}.{jobid}.o"
+  error: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{wildcards.batchid}.{jobid}.e"
+
+checkm_report:
+  mem: "1G"
+  output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
+  error: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
 dereplicate_mags_drep:
   mem: "2G"
@@ -439,5 +469,5 @@ upload_md5_short_reads:
 
 upload_md5_scaftigs:
   mem: "128M"
-  output: "logs/99.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/99.{rule}/{rule}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+  output: "logs/99.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/99.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"

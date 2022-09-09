@@ -151,7 +151,6 @@ else:
         input:
 
 
-
 if config["params"]["binning"]["maxbin2"]["do"]:
     rule binning_maxbin2_coverage:
         input:

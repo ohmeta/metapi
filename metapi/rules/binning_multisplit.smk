@@ -377,7 +377,7 @@ if config["params"]["binning"]["vamb"]["do"]:
                                         "mags/{binning_group}.{assembly_group}.{assembler}/vamb/binning_done")
         benchmark:
             os.path.join(config["output"]["binning"],
-                         "benchmark/vamb/postprocess/binning_vamb_postprocess.{binning_group}.{assembler}.{assembly_group}.benchmark.txt")
+                         "benchmark/vamb/postprocess/binning_vamb_postprocess.{binning_group}.{assembly_group}.{assembler}.benchmark.txt")
         params:
             binning_group = "{binning_group}",
             assembly_group = "{assembly_group}",
