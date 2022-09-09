@@ -296,8 +296,8 @@ params:
       pplacer_threads: 1
       batch_num: 1000
       gtdb_data_path: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release207_v2"
-      metadata_archaea: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release207_v2/ar122_metadata_r202.tsv"
-      metadata_bacteria: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release207_v2/bac120_metadata_r202.tsv"
+      metadata_archaea: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release207_v2/ar53_metadata_r207.tsv"
+      metadata_bacteria: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release207_v2/bac120_metadata_r207.tsv"
       gtdb_to_ncbi_script: "/home/jiezhu/toolkit/GTDBTk/scripts/gtdb_to_ncbi_majority_vote.py"
 
   dereplicate:
