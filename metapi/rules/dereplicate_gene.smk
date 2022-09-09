@@ -2,7 +2,7 @@ rule dereplicate_gene_prepare:
     input:
         expand(os.path.join(
             config["output"]["predict"],
-            "scaftigs_gene/{binning_group}.{assembly_group}.{{assembler}}.prodigal.out/{binning_group}.{assembly_group}.{{assembler}}.ffn"),
+            "scaftigs_gene/{binning_group}.{assembly_group}.{{assembler}}.prodigal/{binning_group}.{assembly_group}.{{assembler}}.prodigal.ffn"),
             zip,
             binning_group=ASSEMBLY_GROUP["binning_group"],
             assembly_group=ASSEMBLY_GROUP["assembly_group"])
@@ -40,15 +40,15 @@ if config["params"]["dereplicate"]["cdhit"]["do_gene"]:
                                     "scaftigs_gene_merged/{assembler}.prodigal.scaftigs.gene.merged.ffn.metadata")
         output:
             os.path.join(config["output"]["dereplicate"],
-                         "genes/{assembler}.prodigal.scaftigs.gene.merged.nr.ffn")
+                         "scaftigs_gene_nr/{assembler}.prodigal.scaftigs.gene.merged.nr.ffn.gz")
         conda:
             config["envs"]["cdhit"]
         log:
             os.path.join(config["output"]["dereplicate"],
-                         "logs/{assembler}.prodigal.scaftigs.gene.cdhit.log")
+                         "logs/cdhit/{assembler}.prodigal.scaftigs.gene.cdhit.log")
         benchmark:
             os.path.join(config["output"]["dereplicate"],
-                         "benchmark/{assembler}.cdhit.benchmark.txt")
+                         "benchmark/cdhit/{assembler}.cdhit.benchmark.txt")
         threads:
             config["params"]["dereplicate"]["cdhit"]["threads"]
         params:
@@ -62,7 +62,10 @@ if config["params"]["dereplicate"]["cdhit"]["do_gene"]:
             both_alignment = config["params"]["dereplicate"]["cdhit"]["both_alignment"]
         shell:
             '''
-            cd-hit-est -i {input} -o {output} \
+            FFN={output}
+            ffn=`echo ${{FFN%.gz}}`
+
+            cd-hit-est -i {input.ffn} -o $ffn \
             -c {params.sequence_identity_threshold} \
             -n {params.word_length} \
             -G {params.use_global_sequence_identity} \
@@ -72,6 +75,8 @@ if config["params"]["dereplicate"]["cdhit"]["do_gene"]:
             -g {params.default_algorithm} \
             -r {params.both_alignment} \
             -T {threads} >{log} 2>&1
+
+            pigz -p {threads} $ffn
             '''
 
 
@@ -79,7 +84,7 @@ if config["params"]["dereplicate"]["cdhit"]["do_gene"]:
         input:
             expand(os.path.join(
                 config["output"]["dereplicate"],
-                "genes/{assembler}.prodigal.scaftigs.gene.merged.nr.ffn"),
+                "scaftigs_gene_nr/{assembler}.prodigal.scaftigs.gene.merged.nr.ffn.gz"),
                    assembler=ASSEMBLERS)
 
 else:
