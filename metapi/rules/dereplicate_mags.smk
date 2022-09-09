@@ -1,26 +1,26 @@
 rule dereplicate_mags_prepare:
     input:
-        genomes_info = expand(os.path.join(config["output"]["checkm"],
-                                           "report/checkm_table_{assembler}_{binner_checkm}.tsv"),
+        genomes_info = expand(os.path.join(config["output"]["check"],
+                                           "report/checkm/checkm_table_{assembler}_{binner_checkm}.tsv"),
                               assembler=ASSEMBLERS,
                               binner_checkm=BINNERS_CHECKM),
-        bins_hmq = expand(os.path.join(config["output"]["checkm"],
-                                       "report/{assembler}_{binner_checkm}_bins_hmq.tsv"),
+        mags_hmq = expand(os.path.join(config["output"]["check"],
+                                       "report/checkm/MAGs_hmq_{assembler}_{binner_checkm}.tsv"),
                           assembler=ASSEMBLERS,
                           binner_checkm=BINNERS_CHECKM)
     output:
         genomes_info = os.path.join(config["output"]["dereplicate"],
                                     "genomes_info/checkm_table_genomes_info.all.tsv"),
-        bins_hmq = os.path.join(config["output"]["dereplicate"],
-                                "genomes_info/bins_hmq.all.tsv")
+        mags_hmq = os.path.join(config["output"]["dereplicate"],
+                                "genomes_info/MAGs_hmq.all.tsv")
     run:
         import pandas as pd
 
         genomes_info_list = [pd.read_csv(i, sep="\t") for i in input.genomes_info]
         pd.concat(genomes_info_list, axis=0).to_csv(output.genomes_info, sep="\t", index=False)
 
-        bins_hmq_list = [pd.read_csv(i, sep="\t", header=None) for i in input.bins_hmq]
-        pd.concat(bins_hmq_list, axis=0).to_csv(output.bins_hmq, header=False, sep="\t", index=False)
+        mags_hmq_list = [pd.read_csv(i, sep="\t", header=None) for i in input.mags_hmq]
+        pd.concat(mags_hmq_list, axis=0).to_csv(output.mags_hmq, header=False, sep="\t", index=False)
 
 
 if config["params"]["dereplicate"]["drep"]["do"]:
@@ -28,19 +28,18 @@ if config["params"]["dereplicate"]["drep"]["do"]:
         input:
             genomes_info = os.path.join(config["output"]["dereplicate"],
                                         "genomes_info/checkm_table_genomes_info.all.tsv"),
-            bins_hmq = os.path.join(config["output"]["dereplicate"],
-                                    "genomes_info/bins_hmq.all.tsv")
+            mags_hmq = os.path.join(config["output"]["dereplicate"],
+                                    "genomes_info/MAGs_hmq.all.tsv")
         output:
-            os.path.join(config["output"]["dereplicate"], "genomes/hmq.bins.drep.out/drep_done")
+            os.path.join(config["output"]["dereplicate"], "genomes/MAGs_hmq.drep.out/drep_done")
         log:
-            os.path.join(config["output"]["dereplicate"], "logs/hmq.bins.drep.log")
+            os.path.join(config["output"]["dereplicate"], "logs/MAGs_hmq.drep.log")
         benchmark:
-            os.path.join(config["output"]["dereplicate"], "benchmark/drep.benchmark.txt")
+            os.path.join(config["output"]["dereplicate"], "benchmark/MAGs_hmq.drep.benchmark.txt")
         conda:
             config["envs"]["drep"]
         params:
-            output_dir = os.path.join(config["output"]["dereplicate"],
-                                      "genomes/hmq.bins.drep.out"),
+            output_dir = os.path.join(config["output"]["dereplicate"], "genomes/MAGs_hmq.drep.out"),
             filtering_genome_min_length = config["params"]["dereplicate"]["drep"]["filtering_genome_min_length"],
             filtering_completeness = config["params"]["dereplicate"]["drep"]["filtering_completeness"],
             filtering_contamination = config["params"]["dereplicate"]["drep"]["filtering_contamination"],
@@ -57,7 +56,7 @@ if config["params"]["dereplicate"]["drep"]["do"]:
             '''
             dRep dereplicate \
             --processors {threads} \
-            --genomes {input.bins_hmq} \
+            --genomes {input.mags_hmq} \
             --genomeInfo {input.genomes_info} \
             --length {params.filtering_genome_min_length} \
             --completeness {params.filtering_completeness} \
@@ -81,7 +80,7 @@ if config["params"]["dereplicate"]["drep"]["do"]:
             genomes_info = os.path.join(config["output"]["dereplicate"],
                                         "genomes_info/checkm_table_genomes_info.all.tsv"),
             drep_done = os.path.join(config["output"]["dereplicate"],
-                                     "genomes/hmq.bins.drep.out/drep_done")
+                                     "genomes/MAGs_hmq.drep.out/drep_done")
         output:
             rep_genomes_info = os.path.join(config["output"]["dereplicate"],
                          "report/checkm_table_genomes_info.derep.tsv")
@@ -105,9 +104,9 @@ if config["params"]["dereplicate"]["drep"]["do"]:
             os.path.join(config["output"]["dereplicate"],
                          "genomes_info/checkm_table_genomes_info.all.tsv"),
             os.path.join(config["output"]["dereplicate"],
-                         "genomes_info/bins_hmq.all.tsv"),
+                         "genomes_info/MAGs_hmq.all.tsv"),
             os.path.join(config["output"]["dereplicate"],
-                         "genomes/hmq.bins.drep.out/drep_done"),
+                         "genomes/MAGs_hmq.drep.out/drep_done"),
             os.path.join(config["output"]["dereplicate"],
                          "report/checkm_table_genomes_info.derep.tsv")
  
