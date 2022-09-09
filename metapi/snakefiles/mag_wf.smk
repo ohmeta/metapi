@@ -1,9 +1,11 @@
 #!/usr/bin/env snakemake
 
 import sys
-import metapi
-import pandas as pd
 from pprint import pprint
+import pandas as pd
+
+import metapi
+
 from snakemake.utils import min_version
 
 min_version("7.0")
@@ -12,6 +14,7 @@ shell.executable("bash")
 
 METAPI_DIR = metapi.__path__[0]
 WRAPPER_DIR = os.path.join(METAPI_DIR, "wrappers")
+DATA_DIR = os.path.join(METAPI_DIR, "data")
 
 
 IS_PE = True \
@@ -125,7 +128,7 @@ if config["params"]["begin"] == "binning":
             for assembler in ASSEMBLERS:
                 scaftigs_ = os.path.join(
                     os.path.abspath(config["output"]["assembly"]),
-                    f"scaftigs/{sample_id}.{assembler}.out/{sample_id}.{assembler}.scaftigs.fa.gz")
+                    f"scaftigs/{sample_id}.{assembler}/{sample_id}.{assembler}.scaftigs.fa.gz")
                 if not os.path.exists(scaftigs_):
                     scaftigs_dir = os.path.dirname(scaftigs_)
                     shell(f'''mkdir -p {scaftigs_dir}''')
@@ -147,8 +150,9 @@ include: "../rules/binning_refine.smk"
 include: "../rules/binning_report.smk"
 include: "../rules/identify_single.smk"
 include: "../rules/identify_multi.smk"
-include: "../rules/predict_bins.smk"
+include: "../rules/predict_mags.smk"
 include: "../rules/checkm.smk"
+include: "../rules/dereplicate_gene.smk"
 include: "../rules/dereplicate_mags.smk"
 include: "../rules/taxonomic.smk"
 include: "../rules/upload.smk"
@@ -165,9 +169,10 @@ rule all:
         rules.predict_scaftigs_gene_all.input,
         rules.alignment_all.input,
         rules.binning_all.input,
-        rules.identify_all.input,
-        rules.predict_bins_gene_all.input,
+        rules.identify_single_all.input,
+        rules.identify_multi_all.input,
+        rules.predict_mags_gene_all.input,
         rules.checkm_all.input,
-        rules.dereplicate_mags_all.input,
+        rules.dereplicate_all.input,
         rules.taxonomic_all.input,
         rules.upload_all.input
