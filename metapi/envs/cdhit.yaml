@@ -4,3 +4,4 @@ channels:
   - defaults
 dependencies:
   - cd-hit=4.8.1
+  - pigz
