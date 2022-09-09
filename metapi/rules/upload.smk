@@ -12,7 +12,7 @@ if config["upload"]["do"]:
         input:
             alignment_input_with_short_reads
         output:
-            os.path.join(config["output"]["upload"], "short_reads/{sample}.md5")
+            os.path.join(config["output"]["upload"], "md5/short_reads/{sample}.md5")
         shell:
             '''
             md5sum {input} > {output}
@@ -22,7 +22,7 @@ if config["upload"]["do"]:
     rule upload_generate_run_info:
         input:
             expand(os.path.join(
-                config["output"]["upload"], "short_reads/{sample}.md5"),
+                config["output"]["upload"], "md5/short_reads/{sample}.md5"),
                    sample=SAMPLES_ID_LIST)
         output:
             os.path.join(config["output"]["upload"], "table/Experiment_Run.xlsx")
@@ -48,11 +48,11 @@ if config["upload"]["do"]:
             input:
                 os.path.join(
                     config["output"]["assembly"],
-                    "scaftigs/{assembly_group}.{assembler}.out/{assembly_group}.{assembler}.scaftigs.fa.gz")
+                    "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
             output:
                 os.path.join(
                     config["output"]["upload"],
-                    "scaftigs/{assembler}/{assembly_group}.{assembler}.scaftigs.md5")
+                    "md5/scaftigs/{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.md5")
             shell:
                 '''
                 md5sum {input} > {output}
@@ -63,8 +63,10 @@ if config["upload"]["do"]:
             input:
                 expand(os.path.join(
                     config["output"]["upload"],
-                    "scaftigs/{{assembler}}/{assembly_group}.{{assembler}}.scaftigs.md5"),
-                       assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST)
+                    "md5/scaftigs/{{assembler}}/{binning_group}.{assembly_group}.{{assembler}}.scaftigs.md5"),
+                    zip,
+                    binning_group=ASSEMBLY_GROUP["binning_group"],
+                    assembly_group=ASSEMBLY_GROUP["assembly_group"])
             output:
                 os.path.join(config["output"]["upload"],
                              "table/Genome_Assembly_{assembler}.xlsx")
