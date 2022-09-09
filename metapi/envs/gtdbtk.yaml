@@ -4,3 +4,4 @@ channels:
   - defaults
 dependencies:
   - gtdbtk=2.1.0
+  - pandas

@@ -83,9 +83,7 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
         threads:
             8
         script:
-            '''
-            ../wrappers/gtdbtk_postprocess.py 
-            '''
+            "../wrappers/gtdbtk_postprocess.py"
  
 
     rule taxonomic_gtdbtk_all:
