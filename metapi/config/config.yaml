@@ -266,7 +266,7 @@ params:
     scaftigs_to_gene:
       prokka:
         do: False
-    bins_to_gene:
+    mags_to_gene:
       prokka:
         do: False
         kingdom: "Bacteria"
@@ -283,6 +283,12 @@ params:
     standard: "MIMAG" # SGB
     batch_num: 500
 
+  checkv:
+    do: True
+    db: /home/jiezhu/databases/ecogenomics/CheckV/checkv-db-v1.4
+    check_identifier: ["virsorter2", "phamb"]
+    threads: 8
+
   taxonomic:
     threads: 8
     gtdbtk:
@@ -290,8 +296,8 @@ params:
       pplacer_threads: 1
       batch_num: 1000
       gtdb_data_path: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release207_v2"
-      ar122_metadata: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release207_v2/ar122_metadata_r202.tsv"
-      bac120_metadata: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release207_v2/bac120_metadata_r202.tsv"
+      metadata_archaea: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release207_v2/ar122_metadata_r202.tsv"
+      metadata_bacteria: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release207_v2/bac120_metadata_r202.tsv"
       gtdb_to_ncbi_script: "/home/jiezhu/toolkit/GTDBTk/scripts/gtdb_to_ncbi_majority_vote.py"
 
   dereplicate:
@@ -338,7 +344,7 @@ output:
   binning: "results/06.binning"
   identify: "results/06.identify"
   predict: "results/07.predict"
-  checkm: "results/08.checkm"
+  check: "results/08.check"
   dereplicate: "results/09.dereplicate"
   taxonomic: "results/10.taxonomic"
   upload: "results/99.upload"

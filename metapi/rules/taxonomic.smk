@@ -75,56 +75,18 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
             table_all = os.path.join(config["output"]["taxonomic"],
                                      "report/gtdbtk/MAGs_hmq.rep.gtdbtk.all.tsv")
         params:
-            ar122_metadata = config["params"]["taxonomic"]["gtdbtk"]["ar122_metadata"],
-            bac120_metadata = config["params"]["taxonomic"]["gtdbtk"]["bac120_metadata"],
+            metadata_archaea = config["params"]["taxonomic"]["gtdbtk"]["metadata_archaea"],
+            metadata_bacteria = config["params"]["taxonomic"]["gtdbtk"]["metadata_bacteria"],
             gtdb_to_ncbi_script = config["params"]["taxonomic"]["gtdbtk"]["gtdb_to_ncbi_script"]
+        conda:
+            config["envs"]["gtdbtk"]
         threads:
             8
-        run:
-            import os
-            import pandas as pd
-           
-            gtdb_list = []
-            ncbi_list = []
-
-            for i in input.gtdb_table:
-                out_dir = os.path.dirname(i)
-                ar122_tsv = os.path.join(out_dir, "gtdbtk.ar122.summary.tsv")
-                bac120_tsv = os.path.join(out_dir, "gtdbtk.bac120.summary.tsv")
-           
-                if os.path.exists(ar122_tsv):
-                    gtdb_list.append(ar122_tsv)
-                if os.path.exists(bac120_tsv):
-                    gtdb_list.append(bac120_tsv)
-           
-                gtdb_to_ncbi_summary = os.path.join(out_dir, "gtdbtk.ncbi.summary.tsv")
-                gtdb_to_ncbi_log = os.path.join(out_dir, "gtdbtk.to.ncbi.log")
-           
-                shell(
-                    f'''
-                    python {params.gtdb_to_ncbi_script} \
-                    --gtdbtk_output_dir {out_dir} \
-                    --output_file {gtdb_to_ncbi_summary} \
-                    --ar122_metadata_file {params.ar122_metadata} \
-                    --bac120_metadata_file {params.bac120_metadata} \
-                    > {gtdb_to_ncbi_log}
-                    ''')
-           
-                if os.path.exists(gtdb_to_ncbi_summary):
-                    ncbi_list.append(gtdb_to_ncbi_summary)
-           
-            metapi.merge(gtdb_list, metapi.parse, threads, output=output.table_gtdb)
-            metapi.merge(ncbi_list, metapi.parse, threads, output=output.table_ncbi)
-           
-            table_gtdb = pd.read_csv(output.table_gtdb, sep="\t").rename(columns={"classification": "GTDB classification"})
-            table_ncbi = pd.read_csv(output.table_ncbi, sep="\t")
-            table_rep_genomes_info = pd.read_csv(input.rep_genomes_info, sep="\t").rename(columns={"genome": "user_genome"})
-
-            table_all = pd.merge(table_gtdb, table_ncbi, how="inner", on=["user_genome", "GTDB classification"]).\
-                           merge(table_rep_genomes_info, how="inner", on="user_genome")
-           
-            table_all.to_csv(output.table_all, sep="\t", index=False)
-           
+        script:
+            '''
+            ../wrappers/gtdbtk_postprocess.py 
+            '''
+ 
 
     rule taxonomic_gtdbtk_all:
         input:
