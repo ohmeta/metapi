@@ -46,6 +46,33 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
             --pplacer_cpus {params.pplacer_threads} \
             2> {log} 2>&1
 
+            if [ -f {out_dir}/classify/gtdbtk.bac120.summary.tsv ];
+            then
+                pushd {out_dir}
+                ln -s classify/gtdbtk.bac120.summary.tsv gtdbtk.bacteria.summary.tsv
+                popd
+            else
+                pushd {out_dir}
+                touch gtdbtk.bacteria.summary.tsv
+                popd
+            fi
+
+            if [ -f {out_dir}/classify/gtdbtk.ar53.summary.tsv ];
+            then
+                pushd {out_dir}
+                ln -s classify/gtdbtk.ar53.summary.tsv gtdbtk.archaea.summary.tsv
+                popd
+            elif [ -f {out_dir}/classify/gtdbtk.ar122.summary.tsv ];
+            then
+                pushd {out_dir}
+                ln -s classify/gtdbtk.ar122.summary.tsv gtdbtk.archaea.summary.tsv
+                popd
+            else
+                pushd {out_dir}
+                touch gtdbtk.archaea.summary.tsv
+                popd
+            fi
+
             touch {output.gtdbtk_done}
             '''
 
@@ -64,7 +91,7 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
 
     rule taxonomic_gtdbtk_report:
         input:
-            gtdb_table = aggregate_gtdbtk_report_input,
+            gtdb_done = aggregate_gtdbtk_report_input,
             rep_genomes_info = os.path.join(config["output"]["dereplicate"],
                                             "report/checkm_table_genomes_info.derep.tsv")
         output:

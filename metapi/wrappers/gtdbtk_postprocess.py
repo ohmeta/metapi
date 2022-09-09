@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import subprocess
 import concurrent.futures
+from pprint import pprint
 
 
 def parse(stats_file):
@@ -36,53 +37,78 @@ def merge(input_list, func, workers, **kwargs):
 
 
 threads = int(snakemake.threads)
-gtdb_tables = snakemake.input["gtdb_table"]
+
+gtdb_done_list = snakemake.input["gtdb_done"]
 rep_genomes_info = snakemake.input["rep_genomes_info"]
+
 gtdb_to_ncbi_script = snakemake.params["gtdb_to_ncbi_script"]
 metadata_archaea = snakemake.params["metadata_archaea"]
 metadata_bacteria = snakemake.params["metadata_bacteria"]
+
 table_gtdb = snakemake.output["table_gtdb"]
 table_ncbi = snakemake.output["table_ncbi"]
 table_all = snakemake.output["table_all"]
 
+os.makedirs(os.path.dirname(table_all), exist_ok=True)
 
 gtdb_list = []
 ncbi_list = []
 
-for i in gtdb_tables:
+for i in gtdb_done_list:
     out_dir = os.path.dirname(i)
-    ar122_tsv = os.path.join(out_dir, "gtdbtk.ar122.summary.tsv")
-    bac120_tsv = os.path.join(out_dir, "gtdbtk.bac120.summary.tsv")
+    archaea_tsv = os.path.join(out_dir, "gtdbtk.archaea.summary.tsv")
+    bacteria_tsv = os.path.join(out_dir, "gtdbtk.bacteria.summary.tsv")
 
-    if os.path.exists(ar122_tsv):
-        gtdb_list.append(ar122_tsv)
-    if os.path.exists(bac120_tsv):
-        gtdb_list.append(bac120_tsv)
+    if os.path.exists(archaea_tsv):
+        gtdb_list.append(archaea_tsv)
+    if os.path.exists(bacteria_tsv):
+        gtdb_list.append(bacteria_tsv)
 
     gtdb_to_ncbi_summary = os.path.join(out_dir, "gtdbtk.ncbi.summary.tsv")
     gtdb_to_ncbi_log = os.path.join(out_dir, "gtdbtk.to.ncbi.log")
+
+    archaea_cmd = "--ar53_metadata_file"
+    if "ar22" in os.path.realpath(archaea_tsv):
+        archaea_cmd = "--ar22_metadata_file"
 
     gtdb_to_ncbi_cmd = \
         f'''
         python {gtdb_to_ncbi_script} \
         --gtdbtk_output_dir {out_dir} \
         --output_file {gtdb_to_ncbi_summary} \
-        --ar122_metadata_file {metadata_archaea} \
+        {archaea_cmd} {metadata_archaea} \
         --bac120_metadata_file {metadata_bacteria} \
         > {gtdb_to_ncbi_log}
         '''
+    subprocess.run(gtdb_to_ncbi_cmd, shell=True)
 
     if os.path.exists(gtdb_to_ncbi_summary):
         ncbi_list.append(gtdb_to_ncbi_summary)
 
-merge(gtdb_list, parse, threads, output=table_gtdb)
-merge(ncbi_list, parse, threads, output=table_ncbi)
 
-table_gtdb = pd.read_csv(table_gtdb, sep="\t").rename(columns={"classification": "GTDB classification"})
-table_ncbi = pd.read_csv(table_ncbi, sep="\t")
-table_rep_genomes_info = pd.read_csv(rep_genomes_info, sep="\t").rename(columns={"genome": "user_genome"})
+if len(gtdb_list) > 0:
+    table_gtdb_df = merge(gtdb_list, parse, threads, output=table_gtdb)
+else:
+    print(f"No {table_gtdb} generate")
 
-table_all = pd.merge(table_gtdb, table_ncbi, how="inner", on=["user_genome", "GTDB classification"]).\
-                merge(table_rep_genomes_info, how="inner", on="user_genome")
+if len(ncbi_list) > 0:
+    table_ncbi_df = merge(ncbi_list, parse, threads, output=table_ncbi)
+else:
+    print(f"No {table_ncbi} generate")
 
-table_all.to_csv(table_all, sep="\t", index=False)
+
+table_gtdb_df = table_gtdb_df.rename(columns={"classification": "GTDB classification"})
+pprint(table_gtdb_df)
+
+table_ncbi_df = table_ncbi_df.rename(columns={"Genome ID": "user_genome"})
+pprint(table_ncbi_df)
+
+table_rep_genomes_info = pd.read_csv(rep_genomes_info, sep="\t")\
+    .rename(columns={"genome": "user_genome"})
+pprint(table_rep_genomes_info)
+
+table_all_df = pd.merge(table_gtdb_df, table_ncbi_df, how="inner",
+                        on=["user_genome", "GTDB classification"])#\
+                 #.merge(table_rep_genomes_info, how="inner", on="user_genome")
+
+table_all_df.to_csv(table_all, sep="\t", index=False)
