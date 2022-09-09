@@ -40,9 +40,7 @@ if config["params"]["binning"]["metabat2"]["do"]:
                     config["output"]["binning"],
                     "coverage/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.metabat2.gc_window") \
                     if config["params"]["binning"]["metabat2"]["output_gc_window"] \
-                       else "",
-            output_dir = os.path.join(config["output"]["binning"],
-                                      "coverage/{binning_group}.{assembly_group}/{assembler}")
+                       else ""
         shell:
             '''
             jgi_summarize_bam_contig_depths \
