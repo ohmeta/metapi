@@ -4,13 +4,13 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
     rule identify_phamb_filter_pep:
         input:
             pep = os.path.join(config["output"]["predict"],
-                               "scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prodigal.out/{binning_group}.{assembly_group}.{assembler}.faa"),
+                               "scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prodigal/{binning_group}.{assembly_group}.{assembler}.prodigal.faa"),
             gff = os.path.join(config["output"]["predict"],
-                               "scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prodigal.out/{binning_group}.{assembly_group}.{assembler}.gff")
+                               "scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prodigal/{binning_group}.{assembly_group}.{assembler}.prodigal.gff")
         output:
             pep = expand(os.path.join(
                 config["output"]["predict"],
-                "scaftigs_gene/{{binning_group}}.{{assembly_group}}.{{assembler}}.prodigal.out/{{binning_group}}.{{assembly_group}}.{{assembler}}.renamed.ge{min_contig}.faa"),
+                "scaftigs_gene_ge{min_contig}/{{binning_group}}.{{assembly_group}}.{{assembler}}.prodigal/{{binning_group}}.{{assembly_group}}.{{assembler}}.prodigal.renamed.ge{min_contig}.faa"),
                          min_contig=config["params"]["binning"]["vamb"]["min_contig"])
         params:
             min_contig = config["params"]["binning"]["vamb"]["min_contig"],
@@ -25,25 +25,25 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
             metapi.extract_faa(str(input.pep), pep_id_list, str(output.pep), assembly_group) 
 
 
-    rule identify_phamb_micomplete:
+    rule identify_phamb_hmmsearch_micomplete:
         input:
             pep = expand(os.path.join(
                 config["output"]["predict"],
-                "scaftigs_gene/{{binning_group}}.{{assembly_group}}.{{assembler}}.prodigal.out/{{binning_group}}.{{assembly_group}}.{{assembler}}.renamed.ge{min_contig}.faa"),
+                "scaftigs_gene_ge{min_contig}/{{binning_group}}.{{assembly_group}}.{{assembler}}.prodigal/{{binning_group}}.{{assembly_group}}.{{assembler}}.prodigal.renamed.ge{min_contig}.faa"),
                          min_contig=config["params"]["binning"]["vamb"]["min_contig"]),
             db = config["params"]["identify"]["phamb"]["micompletedb"]
         output:
             hmm = os.path.join(config["output"]["identify"],
-                               "phamb/hmm/{binning_group}.{assembly_group}.{assembler}.hmmsearch.out/{binning_group}.{assembly_group}.{assembler}.hmmMiComplete105.tbl")
+                               "hmm/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.hmmMiComplete105.tbl")
         log:
             os.path.join(config["output"]["identify"],
-                         "logs/phamb_hmmsearch_micomplete/{binning_group}.{assembly_group}.{assembler}.phamb_hmmsearch_micomplete.log")
+                         "logs/hmmsearch_micomplete/{binning_group}.{assembly_group}.{assembler}.hmmsearch_micomplete.log")
         benchmark:
             os.path.join(config["output"]["identify"],
-                         "benchmark/phamb_hmmsearch_micomplete/{binning_group}.{assembly_group}.{assembler}.phamb_hmmsearch_micomplete.benchmark.txt")
+                         "benchmark/hmmsearch_micomplete/{binning_group}.{assembly_group}.{assembler}.hmmsearch_micomplete.benchmark.txt")
         params:
             tmp = os.path.join(config["output"]["identify"],
-                               "phamb/hmm/{binning_group}.{assembly_group}.{assembler}.hmmsearch.out/{binning_group}.{assembly_group}.{assembler}.hmmMiComplete105.tmp"),
+                               "hmm/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.hmmMiComplete105.tmp"),
             hmmsearch_evalue = config["params"]["identify"]["phamb"]["hmmsearch_evalue"]
         threads:
             config["params"]["identify"]["threads"]
@@ -89,42 +89,42 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
             '''
 
 
-    rule identify_phamb_micomplete_merge:
+    rule identify_phamb_hmmsearch_micomplete_merge:
         input:
             lambda wildcards: expand(
                 os.path.join(
                     config["output"]["identify"],
-                    "phamb/hmm/{{binning_group}}.{assembly_group}.{{assembler}}.hmmsearch.out/{{binning_group}}.{assembly_group}.{{assembler}}.hmmMiComplete105.tbl"),
+                    "hmm/{{binning_group}}.{assembly_group}.{{assembler}}/{{binning_group}}.{assembly_group}.{{assembler}}.hmmMiComplete105.tbl"),
                     assembly_group=sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, wildcards.binning_group)))
         output:
-            os.path.join(config["output"]["identify"], "phamb/annotations/{binning_group}.{assembler}/all.hmmMiComplete105.tbl")
+            os.path.join(config["output"]["identify"], "annotations/{binning_group}.{assembler}/all.hmmMiComplete105.tbl")
         log:
-            os.path.join(config["output"]["identify"], "logs/phamb_micomplete_merge.{binning_group}.{assembler}.log")
+            os.path.join(config["output"]["identify"], "logs/hmmsearch_micomplete_merge/hmmsearch_micomplete_merge.{binning_group}.{assembler}.log")
         shell:
             '''
             cat {input} > {output} 2> {log}
             '''
  
 
-    rule identify_phamb_vog:
+    rule identify_phamb_hmmsearch_vog:
         input:
             pep = expand(os.path.join(
                 config["output"]["predict"],
-                "scaftigs_gene/{{binning_group}}.{{assembly_group}}.{{assembler}}.prodigal.out/{{binning_group}}.{{assembly_group}}.{{assembler}}.renamed.ge{min_contig}.faa"),
+                "scaftigs_gene_ge{min_contig}/{{binning_group}}.{{assembly_group}}.{{assembler}}.prodigal/{{binning_group}}.{{assembly_group}}.{{assembler}}.prodigal.renamed.ge{min_contig}.faa"),
                          min_contig=config["params"]["binning"]["vamb"]["min_contig"]),
             db = config["params"]["identify"]["phamb"]["vogdb"]
         output:
             hmm = os.path.join(config["output"]["identify"],
-                               "phamb/hmm/{binning_group}.{assembly_group}.{assembler}.hmmsearch.out/{binning_group}.{assembly_group}.{assembler}.hmmVOG.tbl")
+                               "hmm/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.hmmVOG.tbl")
         log:
             os.path.join(config["output"]["identify"],
-                         "logs/phamb_hmmsearch_vog/{binning_group}.{assembly_group}.{assembler}.phamb_hmmsearch_vog.log")
+                         "logs/hmmsearch_vog/{binning_group}.{assembly_group}.{assembler}.phamb_hmmsearch_vog.log")
         benchmark:
             os.path.join(config["output"]["identify"],
-                         "benchmark/phamb_hmmsearch_vog/{binning_group}.{assembly_group}.{assembler}.phamb_hmmsearch_vog.benchmark.txt")
+                         "benchmark/hmmsearch_vog/{binning_group}.{assembly_group}.{assembler}.phamb_hmmsearch_vog.benchmark.txt")
         params:
             tmp = os.path.join(config["output"]["identify"],
-                               "phamb/hmm/{binning_group}.{assembly_group}.{assembler}.hmmsearch.out/{binning_group}.{assembly_group}.{assembler}.hmmVOG.tmp"),
+                               "hmm/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.hmmVOG.tmp"),
             hmmsearch_evalue = config["params"]["identify"]["phamb"]["hmmsearch_evalue"]
         threads:
             config["params"]["identify"]["threads"]
@@ -169,16 +169,16 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
             '''
 
 
-    rule identify_phamb_vog_merge:
+    rule identify_phamb_hmmsearch_vog_merge:
         input:
             lambda wildcards: expand(os.path.join(
                 config["output"]["identify"],
-                "phamb/hmm/{{binning_group}}.{assembly_group}.{{assembler}}.hmmsearch.out/{{binning_group}}.{assembly_group}.{{assembler}}.hmmVOG.tbl"),
+                "hmm/{{binning_group}}.{assembly_group}.{{assembler}}/{{binning_group}}.{assembly_group}.{{assembler}}.hmmVOG.tbl"),
                 assembly_group=sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, wildcards.binning_group)))
         output:
-            os.path.join(config["output"]["identify"], "phamb/annotations/{binning_group}.{assembler}/all.hmmVOG.tbl")
+            os.path.join(config["output"]["identify"], "annotations/{binning_group}.{assembler}/all.hmmVOG.tbl")
         log:
-            os.path.join(config["output"]["identify"], "logs/phamb_vog_merge.{binning_group}.{assembler}.log")
+            os.path.join(config["output"]["identify"], "logs/hmmsearch_vog_merge/.hmmsearch_vog_merge.{binning_group}.{assembler}.log")
         shell:
             '''
             cat {input} > {output} 2> {log}
@@ -187,14 +187,13 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
 
     rule identify_phamb_deepvirfinder_merge:
         input:
-            lambda wildcards: expand(
-                os.path.join(
-                    config["output"]["identify"],
-                    "deepvirfinder/{{binning_group}}.{assembly_group}.{{assembler}}.dvf.out/{{binning_group}}.{assembly_group}.{{assembler}}.scaftigs.fa.gz_gt{min_length}bp_dvfpred.txt"),
+            lambda wildcards: expand(os.path.join(
+                config["output"]["identify"],
+                "vmags/{{binning_group}}.{assembly_group}.{{assembler}}/deepvirfinder/{{binning_group}}.{assembly_group}.{{assembler}}.scaftigs.fa.gz_gt{min_length}bp_dvfpred.txt"),
                 min_length=config["params"]["identify"]["deepvirfinder"]["min_length"],
                 assembly_group=sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, wildcards.binning_group)))
         output:
-            dvf = os.path.join(config["output"]["identify"], "phamb/annotations/{binning_group}.{assembler}/all.DVF.predictions.txt")
+            dvf = os.path.join(config["output"]["identify"], "annotations/{binning_group}.{assembler}/all.DVF.predictions.txt")
         params:
             binning_group = "{binning_group}"
         run:
@@ -222,24 +221,24 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
         input:
             scaftigs = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs_merged/{binning_group}.{assembler}.merged.out/{binning_group}.{assembler}.merged.scaftigs.fa.gz"),
+                "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz"),
             binning_done = os.path.join(
                 config["output"]["binning"],
-                "bins/{binning_group}.{assembler}.out/vamb/binning_done"),
+                "mags_vamb/{binning_group}.{assembler}/binning_done"),
             micomplete = os.path.join(
                 config["output"]["identify"],
-                "phamb/annotations/{binning_group}.{assembler}/all.hmmMiComplete105.tbl"),
+                "annotations/{binning_group}.{assembler}/all.hmmMiComplete105.tbl"),
             vog = os.path.join(
                 config["output"]["identify"],
-                "phamb/annotations/{binning_group}.{assembler}/all.hmmVOG.tbl"),
+                "annotations/{binning_group}.{assembler}/all.hmmVOG.tbl"),
             dvf = os.path.join(
                 config["output"]["identify"],
-                "phamb/annotations/{binning_group}.{assembler}/all.DVF.predictions.txt")
+                "annotations/{binning_group}.{assembler}/all.DVF.predictions.txt")
         output:
-            #annotation = os.path.join(config["output"]["identify"], "phamb/randomforest/{binning_group}.{assembler}/vambbins_aggregated_annotation.txt"),
-            #prediction = os.path.join(config["output"]["identify"], "phamb/randomforest/{binning_group}.{assembler}/vambbins_RF_predictions.txt"),
-            #vamb_bins = directory(os.path.join(config["output"]["identify"], "phamb/randomforest/{binning_group}.{assembler}/vamb_bins")),
-            os.path.join(config["output"]["identify"], "phamb/randomforest/{binning_group}.{assembler}/phamb_randomforest_done")
+            # vambbins_aggregated_annotation.txt
+            # vambbins_RF_predictions.txt
+            # vamb_bins
+            os.path.join(config["output"]["identify"], "vmags_phamb/{binning_group}.{assembler}/phamb_randomforest_done")
         log:
             os.path.join(config["output"]["identify"],
                          "logs/phamb_randomforest/{binning_group}.{assembler}.phamb_randomforest.log")
@@ -251,18 +250,18 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
         params:
             randomforest_script = config["params"]["identify"]["phamb"]["randomforest_script"],
             min_binsize = config["params"]["identify"]["phamb"]["min_binsize"],
-            bins_dir = os.path.join(config["output"]["multisplit_binning"], "bins/{binning_group}.{assembler}.vamb.out"),
-            annotations_dir = os.path.join(config["output"]["identify"], "phamb/annotations/{binning_group}.{assembler}"),
-            output_dir = os.path.join(config["output"]["identify"], "phamb/randomforest/{binning_group}.{assembler}")
+            mags_dir = os.path.join(config["output"]["binning"], "mags_vamb/{binning_group}.{assembler}"),
+            annotations_dir = os.path.join(config["output"]["identify"], "annotations/{binning_group}.{assembler}"),
+            output_dir = os.path.join(config["output"]["identify"], "vmags_phamb/{binning_group}.{assembler}")
         shell:
             '''
-            if [ -e {params.bins_dir}/clusters.tsv ];
+            if [ -e {params.mags_dir}/clusters.tsv ];
             then
                 python {params.randomforest_script} \
                 -m {params.min_binsize} \
                 -s C \
                 {input.scaftigs} \
-                {params.bins_dir}/clusters.tsv \
+                {params.mags_dir}/clusters.tsv \
                 {params.annotations_dir} \
                 {params.output_dir} \
                 > {log} 2>&1
@@ -278,9 +277,9 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
         input:
             expand([
                 os.path.join(config["output"]["identify"],
-                             "phamb/annotations/{binning_group}.{assembler}/all.{annotations}"),
+                             "annotations/{binning_group}.{assembler}/all.{annotations}"),
                 os.path.join(config["output"]["identify"],
-                             "phamb/randomforest/{binning_group}.{assembler}/phamb_randomforest_done")],
+                             "vmags_phamb/{binning_group}.{assembler}/phamb_randomforest_done")],
                 binning_group=SAMPLES_BINNING_GROUP_LIST,
                 assembler=ASSEMBLERS,
                 annotations=["hmmMiComplete105.tbl", "hmmVOG.tbl", "DVF.predictions.txt"])
