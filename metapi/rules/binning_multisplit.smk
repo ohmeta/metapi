@@ -53,6 +53,35 @@ if config["params"]["binning"]["vamb"]["do"]:
             '''
 
 
+    rule binning_vamb_gen_metadata:
+        input:
+            os.path.join(
+                config["output"]["assembly"],
+                "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz")
+        output:
+            os.path.join(config["output"]["assembly"],
+                "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.metadata.tsv")
+        params:
+            binning_group = "{binning_group}"
+        run:
+            import sys
+
+            assembly_groups = sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, params.binning_group))
+
+            with open(output[0], 'w') as oh:
+                oh.write("binning_assembly_group\tvamb_id\n")
+                count = 0
+                for assembly_group in assembly_groups:
+                    count += 1
+                    vamb_id = f'''S{count}'''
+                    # double check
+                    if vamb_id != MULTIBINING_INDEX[params.binning_group][assembly_group]:
+                        print("VAMB: sample id issue!")
+                        sys.exit(1)
+                    else:
+                        oh.write(f'''{params.binning_group}.{assembly_group}\tS{count}\n''')
+
+
     rule binning_vamb_dict_scaftigs:
         input:
             os.path.join(
@@ -368,6 +397,8 @@ if config["params"]["binning"]["vamb"]["do"]:
 
     rule binning_vamb_postprocess:
         input:
+            metadata = os.path.join(config["output"]["assembly"],
+                "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.metadata.tsv"),
             binning_done = os.path.join(config["output"]["binning"],
                                         "mags_vamb/{binning_group}.{assembler}/binning_done")
         output:
@@ -388,14 +419,17 @@ if config["params"]["binning"]["vamb"]["do"]:
             import sys
             import pandas as pd
 
-            metadata = []
-            assembly_groups = sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, params.binning_group))
-            assembly_index = int(assembly_groups.index(params.assembly_group)) + 1
-            assembly_index = f'''S{assembly_index}'''
+            binning_assembly_metadata = pd.read_csv(input.metadata, sep="\t").set_index("binning_assembly_group")
+            assembly_index = binning_assembly_metadata.loc[f'''{params.binning_group}.{params.assembly_group}''', "vamb_id"]
 
+            #assembly_groups = sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, params.binning_group))
+            #assembly_index = int(assembly_groups.index(params.assembly_group)) + 1
+            #assembly_index = f'''S{assembly_index}'''
             ## Double check
-            if assembly_index != MULTIBINING_INDEX[params.binning_group][params.assembly_group]:
-                sys.exit("assembly_group index error")
+            #if assembly_index != MULTIBINING_INDEX[params.binning_group][params.assembly_group]:
+            #    sys.exit("assembly_group index error")
+
+            metadata = []
 
             outdir = os.path.dirname(output.binning_done)
             mags_dir = os.path.dirname(input.binning_done)
@@ -458,6 +492,7 @@ else:
 
 
 localrules:
+    binning_vamb_gen_metadata,
     binning_vamb_prepare_all,
     binning_vamb_postprocess,
     binning_vamb_all
