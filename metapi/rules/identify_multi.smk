@@ -273,6 +273,42 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
             '''
 
 
+    rule identify_phamb_postprocess:
+        input:
+            metadata = os.path.join(config["output"]["assembly"],
+                "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.metadata.tsv"),
+            phamb_rf_done = os.path.join(config["output"]["identify"],
+                "vmags_phamb/{binning_group}.{assembler}/phamb_randomforest_done")
+        output:
+            phamb_done = os.path.join(
+                config["output"]["identify"],
+                "vmags/{binning_group}.{assembly_group}.{assembler}/phamb/phamb_done")
+        params:
+            binning_group = "{binning_group}",
+            assembly_group = "{assembly_group}",
+            assembler = "{assembler}",
+            outdir = os.path.join(
+                config["output"]["identify"],
+                "vmags/{binning_group}.{assembly_group}.{assembler}/phamb")
+        run:
+            from glob import glob
+            from Bio import SeqIO
+
+            binning_assembly_metadata = pd.read_csv(input.metadata, sep="\t").set_index("binning_assembly_group")
+            assembly_index = binning_assembly_metadata.loc[f'''{params.binning_group}.{params.assembly_group}''', "vamb_id"]
+
+            vamb_bins_dir = os.path.join(os.path.dirname(input.phamb_rf_done), "vamb_bins")
+
+            vmags_fna = os.path.join(outdir,
+                f'''{params.binning_group}.{params.assembly_group}.{params.assembler}-final-viral-combined.fa''')
+
+            with open(vmags_fna, 'w') as oh:
+                for fna in glob(f'''{vamb_bins_dir}/vamb_bins.*.fna'''):
+                    for rc in SeqIO.parse(fna, "fasta"):
+                        if rc.id.startswith(f'''>{assembly_index}C'''):
+                            SeqIO.write(rc, oh, "fasta")
+
+
     rule identify_phamb_all:
         input:
             expand([
@@ -282,7 +318,16 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
                              "vmags_phamb/{binning_group}.{assembler}/phamb_randomforest_done")],
                 binning_group=SAMPLES_BINNING_GROUP_LIST,
                 assembler=ASSEMBLERS,
-                annotations=["hmmMiComplete105.tbl", "hmmVOG.tbl", "DVF.predictions.txt"])
+                annotations=["hmmMiComplete105.tbl", "hmmVOG.tbl", "DVF.predictions.txt"]),
+            expand(
+                os.path.join(
+                    config["output"]["identify"],
+                    "vmags/{binning_group}.{assembly_group}.{assembler}/phamb/phamb_done"),
+                zip,
+                binning_group=ASSEMBLY_GROUPS["binning_group"],
+                assembly_group=ASSEMBLY_GROUPS["assembly_group"],
+                assembler=ASSEMBLY_GROUPS["assembler"])
+
 
 else:
     rule identify_phamb_all:

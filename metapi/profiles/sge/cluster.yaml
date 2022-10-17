@@ -398,6 +398,11 @@ identify_phamb_randomforest:
   output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.e"
 
+identify_phamb_postprocess:
+  mem: "5G"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+
 predict_scaftigs_gene_prodigal:
   mem: "1G"
   output: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
