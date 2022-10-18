@@ -67,6 +67,7 @@ WORKFLOWS_MAG = [
     "predict_mags_gene_all",
     "predict_all",
     "checkm_all",
+    "checkv_all",
     "dereplicate_mags_drep_all",
     "dereplicate_mags_all",
     "taxonomic_gtdbtk_all",

@@ -285,9 +285,9 @@ params:
 
   checkv:
     do: True
-    db: /home/jiezhu/databases/ecogenomics/CheckV/checkv-db-v1.4
-    check_identifier: ["virsorter2", "phamb"]
     threads: 8
+    db: /home/jiezhu/databases/ecogenomics/CheckV/checkv-db-v1.4
+    checkv_identifier: ["virsorter2", "phamb"]
 
   taxonomic:
     threads: 8
@@ -422,6 +422,7 @@ envs:
   deepvirfinder: "envs/deepvirfinder.yaml"
   phamb: "envs/phamb.yaml"
   checkm: "envs/checkm.yaml"
+  checkv: "envs/checkv.yaml"
   cdhit: "envs/cdhit.yaml"
   drep: "envs/drep.yaml"
   gtdbtk: "envs/gtdbtk.yaml"
