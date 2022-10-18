@@ -241,7 +241,7 @@ if config["params"]["identify"]["virsorter2"]["do"]:
         output:
             expand(os.path.join(
                 config["output"]["identify"],
-                "vmags/{{binning_group}}.{{assembly_group}}.{{assembler}}/virsorter2/{{binning_group}}.{{assembly_group}}.{{assembler}}-final-viral-{suffix}"),
+                "vmags/{{binning_group}}.{{assembly_group}}.{{assembler}}/virsorter2/{{binning_group}}.{{assembly_group}}.{{assembler}}.virsorter2.{suffix}"),
                 suffix=["combined.fa", "score.tsv", "boundary.tsv"])
         params:
             label = "{binning_group}.{assembly_group}.{assembler}"
@@ -289,7 +289,7 @@ if config["params"]["identify"]["virsorter2"]["do"]:
         input:
             expand(expand(
                 os.path.join(config["output"]["identify"],
-                "vmags/{binning_group}.{assembly_group}.{assembler}/virsorter2/{binning_group}.{assembly_group}.{assembler}-final-viral-{{suffix}}"),
+                "vmags/{binning_group}.{assembly_group}.{assembler}/virsorter2/{binning_group}.{assembly_group}.{assembler}.virsorter2.{{suffix}}"),
                 zip,
                 binning_group=ASSEMBLY_GROUPS["binning_group"],
                 assembly_group=ASSEMBLY_GROUPS["assembly_group"],

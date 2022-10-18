@@ -280,17 +280,16 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
             phamb_rf_done = os.path.join(config["output"]["identify"],
                 "vmags_phamb/{binning_group}.{assembler}/phamb_randomforest_done")
         output:
-            phamb_done = os.path.join(
+            viral = os.path.join(
                 config["output"]["identify"],
-                "vmags/{binning_group}.{assembly_group}.{assembler}/phamb/phamb_done")
+                "vmags/{binning_group}.{assembly_group}.{assembler}/phamb/{binning_group}.{assembly_group}.{assembler}.phamb.combined.fa")
         params:
             binning_group = "{binning_group}",
             assembly_group = "{assembly_group}",
-            assembler = "{assembler}",
-            outdir = os.path.join(
-                config["output"]["identify"],
-                "vmags/{binning_group}.{assembly_group}.{assembler}/phamb")
+            assembler = "{assembler}"
         run:
+            import os
+            import subprocess
             from glob import glob
             from Bio import SeqIO
 
@@ -299,14 +298,20 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
 
             vamb_bins_dir = os.path.join(os.path.dirname(input.phamb_rf_done), "vamb_bins")
 
-            vmags_fna = os.path.join(outdir,
-                f'''{params.binning_group}.{params.assembly_group}.{params.assembler}-final-viral-combined.fa''')
+            os.makedirs(os.path.dirname(output.viral), exist_ok=True)
 
-            with open(vmags_fna, 'w') as oh:
-                for fna in glob(f'''{vamb_bins_dir}/vamb_bins.*.fna'''):
-                    for rc in SeqIO.parse(fna, "fasta"):
-                        if rc.id.startswith(f'''>{assembly_index}C'''):
-                            SeqIO.write(rc, oh, "fasta")
+            if os.path.exists(vamb_bins_dir):
+                with open(output.viral, 'w') as oh:
+                    vamb_bins_list = glob(f'''{vamb_bins_dir}/vamb_bins.*.fna''')
+                    if len(vamb_bins_list) > 0:
+                        for fna in vamb_bins_list:
+                            for rc in SeqIO.parse(fna, "fasta"):
+                                if rc.id.startswith(f'''{assembly_index}C'''):
+                                    SeqIO.write(rc, oh, "fasta")
+                    else:
+                        subprocess.run(f'''touch {output.viral}''', shell=True)
+            else:
+                subprocess.run(f'''touch {output.viral}''', shell=True)
 
 
     rule identify_phamb_all:
@@ -322,7 +327,7 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
             expand(
                 os.path.join(
                     config["output"]["identify"],
-                    "vmags/{binning_group}.{assembly_group}.{assembler}/phamb/phamb_done"),
+                    "vmags/{binning_group}.{assembly_group}.{assembler}/phamb/{binning_group}.{assembly_group}.{assembler}.phamb.combined.fa"),
                 zip,
                 binning_group=ASSEMBLY_GROUPS["binning_group"],
                 assembly_group=ASSEMBLY_GROUPS["assembly_group"],
