@@ -41,6 +41,7 @@ if config["params"]["checkv"]["do"]:
             os.path.join(config["output"]["check"],
                          "logs/{identifier}/{binning_group}.{assembly_group}.{assembler}.{identifier}.checkv.log")
         params:
+            db = config["params"]["checkv"]["db"],
             outdir = os.path.join(config["output"]["check"], "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}")
         conda:
             config["envs"]["checkv"]
@@ -54,7 +55,7 @@ if config["params"]["checkv"]["do"]:
             {input.viral} \
             {params.outdir} \
             -t {threads} \
-            -d {input.db} \
+            -d {params.db} \
             >{log} 2>&1
 
             touch {output}
