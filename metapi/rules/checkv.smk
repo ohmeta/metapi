@@ -36,10 +36,10 @@ if config["params"]["checkv"]["do"]:
                          "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/checkv_done")
         benchmark:
             os.path.join(config["output"]["check"],
-                         "benchmark/{identifier}/{binning_group}.{assembly_group}.{assembler}.{identifier}.checkv.benchmark.txt")
+                         "benchmark/checkv/{identifier}/{binning_group}.{assembly_group}.{assembler}.{identifier}.checkv.benchmark.txt")
         log:
             os.path.join(config["output"]["check"],
-                         "logs/{identifier}/{binning_group}.{assembly_group}.{assembler}.{identifier}.checkv.log")
+                         "logs/checkv/{identifier}/{binning_group}.{assembly_group}.{assembler}.{identifier}.checkv.log")
         params:
             db = config["params"]["checkv"]["db"],
             outdir = os.path.join(config["output"]["check"], "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}")
@@ -61,14 +61,13 @@ if config["params"]["checkv"]["do"]:
             touch {output}
             '''
 
-    #ASSEMBLY_GROUP = SAMPLES.reset_index().loc[:, ["assembly_group", "binning_group"]].drop_duplicates()
 
-    #assembly_df_list = []
-    #for assembler in ASSEMBLERS:
-    #    assembly_df = ASSEMBLY_GROUP.copy()
-    #    assembly_df["assembler"] = assembler
-    #    assembly_df_list.append(assembly_df)
-    #ASSEMBLY_GROUPS = pd.concat(assembly_df_list, axis=0)
+    checkv_df_list = []
+    for identifier in config["params"]["checkv"]["checkv_identifier"]:
+        checkv_df = ASSEMBLY_GROUPS.copy()
+        checkv_df["identifier"] = identifier 
+        checkv_df_list.append(checkv_df)
+    CHECKV_GROUPS = pd.concat(checkv_df_list, axis=0)
 
 
     rule checkv_all:
@@ -77,10 +76,10 @@ if config["params"]["checkv"]["do"]:
                 os.path.join(config["output"]["check"],
                 "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/checkv_done"),
                 zip,
-                binning_group=ASSEMBLY_GROUPS["binning_group"],
-                assembly_group=ASSEMBLY_GROUPS["assembly_group"],
-                assembler=ASSEMBLY_GROUPS["assembler"],
-                identifier=config["params"]["checkv"]["checkv_identifier"])
+                binning_group=CHECKV_GROUPS["binning_group"],
+                assembly_group=CHECKV_GROUPS["assembly_group"],
+                assembler=CHECKV_GROUPS["assembler"],
+                identifier=CHECKV_GROUPS["identifier"])
  
 else:
     rule checkv_all:
