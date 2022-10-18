@@ -62,6 +62,64 @@ if config["params"]["checkv"]["do"]:
             '''
 
 
+    rule checkv_postprocess:
+        input:
+            done = os.path.join(config["output"]["check"],
+                                "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/checkv_done")
+        output:
+            vmag = os.path.join(config["output"]["check"],
+                                "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/vMAG_hmq.fa")
+        params:
+            binning_group = "{binning_group}",
+            assembly_group = "{assembly_group}",
+            assembler = "{assembler}",
+            identifier = "{identifier}"
+        run:
+            import os
+            import subprocess
+            import pandas as pd
+            from Bio import SeqIO
+            from Bio.Alphabet import generic_dna
+
+            label = f'''{params.binning_group}.{params.assembly_group}.{params.assembler}.{params.identifier}'''
+            contig_num = 0
+
+            checkv_dir = os.path.dirname(input.done)
+            quality_summary_f = os.path.join(checkv_dir, "quality_summary.tsv")
+            proviruses_f = os.path.join(checkv_dir, "proviruses.fna")
+            viruses_f = os.path.join(checkv_dir, "viruses.fna")
+
+            quality_summary = pd.read_csv(quality_summary_f, sep="\t")
+            hmq_contig_ids = list(quality_summary.query('checkv_quality=="High-quality" or checkv_quality=="Medium-quality"')["contig_id"])
+            print(f'''Identified {len(hmq_contig_ids)} high or medium quality vMAGs''')
+
+            if len(hmq_contig_ids) > 0:
+                with open(output.vmag, "w") as oh:
+                    if os.path.exists(proviruses_f):
+                        print(f'''Found {proviruses_f}''')
+                        rc_proviruses = SeqIO.index_db(":memory:", proviruses_f, "fasta", generic_dna)
+                        print(f'''Loaded {proviruses_f}''')
+                        for contig_id in hmq_contig_ids:
+                            if contig_id in rc_proviruses:
+                                contig_num += 1
+                                rc = rc_proviruses[contig_id]
+                                rc.id = f'''{label}.{contig_num}|proviruses'''
+                                SeqIO.write(rc, oh, "fasta")
+                    if os.path.exists(viruses_f):
+                        print(f'''Found {viruses_f}''')
+                        rc_viruses = SeqIO.index_db(":memory:", viruses_f, "fasta", generic_dna)
+                        print(f'''Loaded {viruses_f}''')
+                        for contig_id in hmq_contig_ids:
+                            if contig_id in rc_viruses:
+                                contig_num += 1
+                                rc = rc_viruses[contig_id]
+                                rc.id = f'''{label}.{contig_num}|viruses'''
+                                SeqIO.write(rc, oh, "fasta")
+                print(contig_num)
+            else:
+                subprocess.run(f'''touch {output.vmag}''', shell=True)
+
+
     checkv_df_list = []
     for identifier in config["params"]["checkv"]["checkv_identifier"]:
         checkv_df = ASSEMBLY_GROUPS.copy()
@@ -72,9 +130,11 @@ if config["params"]["checkv"]["do"]:
 
     rule checkv_all:
         input:
-            expand(
+            expand([
                 os.path.join(config["output"]["check"],
                 "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/checkv_done"),
+                os.path.join(config["output"]["check"],
+                "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/vMAG_hmq.fa")],
                 zip,
                 binning_group=CHECKV_GROUPS["binning_group"],
                 assembly_group=CHECKV_GROUPS["assembly_group"],
