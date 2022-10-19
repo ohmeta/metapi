@@ -450,8 +450,8 @@ checkm_report:
 
 dereplicate_mags_drep:
   mem: "2G"
-  output: "logs/09.{rule}/{rule}.{jobid}.o"
-  error: "logs/09.{rule}/{rule}.{jobid}.e"
+  output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
 
 dereplicate_gene_prepare:
   mem: "512M"
@@ -466,8 +466,8 @@ dereplicate_gene_cdhit:
 taxonomic_gtdbtk:
   #partition: "hugemem"
   mem: "130G"
-  output: "logs/10.{rule}/{rule}.{wildcards.batchid}.{jobid}.o"
-  error: "logs/10.{rule}/{rule}.{wildcards.batchid}.{jobid}.e"
+  output: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.batchid}.{jobid}.o"
+  error: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.batchid}.{jobid}.e"
 
 upload_md5_short_reads:
   mem: "128M"

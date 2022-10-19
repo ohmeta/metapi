@@ -129,7 +129,7 @@ rule dereplicate_all:
 
 localrules:
     dereplicate_mags_prepare,
-    dereplicate_mags_drep_all,
     dereplicate_mags_drep_report,
+    dereplicate_mags_drep_all,
     dereplicate_mags_all,
     dereplicate_all
