@@ -1,18 +1,16 @@
 rule dereplicate_mags_prepare:
     input:
         genomes_info = expand(os.path.join(config["output"]["check"],
-                                           "report/checkm/checkm_table_{assembler}_{binner_checkm}.tsv"),
-                              assembler=ASSEMBLERS,
+                                           "report/checkm/checkm_table_{{assembler}}_{binner_checkm}.tsv"),
                               binner_checkm=BINNERS_CHECKM),
         mags_hmq = expand(os.path.join(config["output"]["check"],
-                                       "report/checkm/MAGs_hmq_{assembler}_{binner_checkm}.tsv"),
-                          assembler=ASSEMBLERS,
+                                       "report/checkm/MAGs_hmq_{{assembler}}_{binner_checkm}.tsv"),
                           binner_checkm=BINNERS_CHECKM)
     output:
         genomes_info = os.path.join(config["output"]["dereplicate"],
-                                    "genomes_info/checkm_table_genomes_info.all.tsv"),
+                                    "genomes_info/bacteriome/checkm_table_genomes_info.{assembler}.all.tsv"),
         mags_hmq = os.path.join(config["output"]["dereplicate"],
-                                "genomes_info/MAGs_hmq.all.tsv")
+                                "genomes_info/bacteriome/MAGs_hmq.{assembler}.all.tsv")
     run:
         import pandas as pd
 
@@ -27,19 +25,18 @@ if config["params"]["dereplicate"]["drep"]["do"]:
     rule dereplicate_mags_drep:
         input:
             genomes_info = os.path.join(config["output"]["dereplicate"],
-                                        "genomes_info/checkm_table_genomes_info.all.tsv"),
+                                        "genomes_info/bacteriome/checkm_table_genomes_info.{assembler}.all.tsv"),
             mags_hmq = os.path.join(config["output"]["dereplicate"],
-                                    "genomes_info/MAGs_hmq.all.tsv")
+                                    "genomes_info/bacteriome/MAGs_hmq.{assembler}.all.tsv")
         output:
-            os.path.join(config["output"]["dereplicate"], "genomes/MAGs_hmq.drep.out/drep_done")
+            os.path.join(config["output"]["dereplicate"], "genomes/bacteriome/MAGs_hmq.{assembler}.drep.out/drep_done")
         log:
-            os.path.join(config["output"]["dereplicate"], "logs/MAGs_hmq.drep.log")
+            os.path.join(config["output"]["dereplicate"], "logs/drep/MAGs_hmq.{assembler}.drep.log")
         benchmark:
-            os.path.join(config["output"]["dereplicate"], "benchmark/MAGs_hmq.drep.benchmark.txt")
+            os.path.join(config["output"]["dereplicate"], "benchmark/drep/MAGs_hmq.{assembler}.drep.benchmark.txt")
         conda:
             config["envs"]["drep"]
         params:
-            output_dir = os.path.join(config["output"]["dereplicate"], "genomes/MAGs_hmq.drep.out"),
             filtering_genome_min_length = config["params"]["dereplicate"]["drep"]["filtering_genome_min_length"],
             filtering_completeness = config["params"]["dereplicate"]["drep"]["filtering_completeness"],
             filtering_contamination = config["params"]["dereplicate"]["drep"]["filtering_contamination"],
@@ -54,6 +51,8 @@ if config["params"]["dereplicate"]["drep"]["do"]:
             config["params"]["dereplicate"]["drep"]["threads"]
         shell:
             '''
+            outdir=$(dirname {output})
+
             dRep dereplicate \
             --processors {threads} \
             --genomes {input.mags_hmq} \
@@ -68,7 +67,7 @@ if config["params"]["dereplicate"]["drep"]["do"]:
             --coverage_method {params.coverage_method} \
             --clusterAlg {params.cluster_algorithm} \
             {params.external_params} \
-            {params.output_dir} \
+            $outdir \
             2> {log}
 
             touch {output}
@@ -78,12 +77,12 @@ if config["params"]["dereplicate"]["drep"]["do"]:
     rule dereplicate_mags_drep_report:
         input:
             genomes_info = os.path.join(config["output"]["dereplicate"],
-                                        "genomes_info/checkm_table_genomes_info.all.tsv"),
+                                        "genomes_info/bacteriome/checkm_table_genomes_info.{assembler}.all.tsv"),
             drep_done = os.path.join(config["output"]["dereplicate"],
-                                     "genomes/MAGs_hmq.drep.out/drep_done")
+                                     "genomes/bacteriome/MAGs_hmq.{assembler}.drep.out/drep_done")
         output:
             rep_genomes_info = os.path.join(config["output"]["dereplicate"],
-                         "report/checkm_table_genomes_info.derep.tsv")
+                         "report/bacteriome/checkm_table_genomes_info.{assembler}.derep.tsv")
         run:
             import pandas as pd
             from glob import glob
@@ -101,14 +100,16 @@ if config["params"]["dereplicate"]["drep"]["do"]:
 
     rule dereplicate_mags_drep_all:
         input:
-            os.path.join(config["output"]["dereplicate"],
-                         "genomes_info/checkm_table_genomes_info.all.tsv"),
-            os.path.join(config["output"]["dereplicate"],
-                         "genomes_info/MAGs_hmq.all.tsv"),
-            os.path.join(config["output"]["dereplicate"],
-                         "genomes/MAGs_hmq.drep.out/drep_done"),
-            os.path.join(config["output"]["dereplicate"],
-                         "report/checkm_table_genomes_info.derep.tsv")
+            expand([
+                os.path.join(config["output"]["dereplicate"],
+                             "genomes_info/bacteriome/checkm_table_genomes_info.{assembler}.all.tsv"),
+                os.path.join(config["output"]["dereplicate"],
+                             "genomes_info/bacteriome/MAGs_hmq.{assembler}.all.tsv"),
+                os.path.join(config["output"]["dereplicate"],
+                             "genomes/bacteriome/MAGs_hmq.{assembler}.drep.out/drep_done"),
+                os.path.join(config["output"]["dereplicate"],
+                             "report/bacteriome/checkm_table_genomes_info.{assembler}.derep.tsv")],
+                assembler=ASSEMBLERS)
  
 else:
     rule dereplicate_mags_drep_all:

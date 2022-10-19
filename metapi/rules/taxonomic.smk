@@ -2,34 +2,38 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
     checkpoint taxonomic_gtdbtk_prepare:
         input:
             rep_genomes_info = os.path.join(config["output"]["dereplicate"],
-                         "report/checkm_table_genomes_info.derep.tsv")
+                         "report/bacteriome/checkm_table_genomes_info.{assembler}.derep.tsv")
         output:
-            mags_dir = directory(os.path.join(config["output"]["taxonomic"], "mags_input"))
+            mags_dir = directory(os.path.join(config["output"]["taxonomic"], "mags_input/{assembler}"))
         params:
+            assembler = "{assembler}",
             batch_num = config["params"]["taxonomic"]["gtdbtk"]["batch_num"]
         run:
-            metapi.gtdbtk_prepare(input.rep_genomes_info, params.batch_num, output.mags_dir)
+            metapi.gtdbtk_prepare(input.rep_genomes_info,
+                                  params.batch_num,
+                                  output.mags_dir,
+                                  params.assembler)
 
 
     rule taxonomic_gtdbtk:
         input:
-            mags_input = os.path.join(config["output"]["taxonomic"], "mags_input/mags_input.{batchid}.tsv"),
+            mags_input = os.path.join(config["output"]["taxonomic"], "mags_input/{assembler}/mags_input.{batchid}.tsv"),
             gtdb_data_path = expand(os.path.join(
                 config["params"]["taxonomic"]["gtdbtk"]["gtdb_data_path"], "{gtdbtk_dir}"),
                 gtdbtk_dir = ["fastani", "markers", "masks", "metadata",
                               "mrca_red", "msa", "pplacer", "radii", "taxonomy"])
         output:
-            gtdbtk_done = os.path.join(config["output"]["taxonomic"], "table/gtdbtk/gtdbtk.out.{batchid}/gtdbtk_done")
+            gtdbtk_done = os.path.join(config["output"]["taxonomic"], "table/gtdbtk/gtdbtk.out.{assembler}.{batchid}/gtdbtk_done")
         wildcard_constraints:
             batchid="\d+"
         conda:
             config["envs"]["gtdbtk"]
         log:
-            os.path.join(config["output"]["taxonomic"], "logs/gtdbtk/gtdbtk.{batchid}.log")
+            os.path.join(config["output"]["taxonomic"], "logs/gtdbtk/gtdbtk.{assembler}.{batchid}.log")
         benchmark:
-            os.path.join(config["output"]["taxonomic"], "benchmark/gtdbtk/gtdbtk.{batchid}.benchmark.txt")
+            os.path.join(config["output"]["taxonomic"], "benchmark/gtdbtk/gtdbtk.{assembler}.{batchid}.benchmark.txt")
         params:
-            out_dir = os.path.join(config["output"]["taxonomic"], "table/gtdbtk/gtdbtk.out.{batchid}"),
+            out_dir = os.path.join(config["output"]["taxonomic"], "table/gtdbtk/gtdbtk.out.{assembler}.{batchid}"),
             gtdb_data_path = config["params"]["taxonomic"]["gtdbtk"]["gtdb_data_path"],
             pplacer_threads = config["params"]["taxonomic"]["gtdbtk"]["pplacer_threads"]
         threads:
@@ -82,7 +86,8 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
 
         return expand(os.path.join(
             config["output"]["taxonomic"],
-            "table/gtdbtk/gtdbtk.out.{batchid}/gtdbtk_done"),
+            "table/gtdbtk/gtdbtk.out.{assembler}.{batchid}/gtdbtk_done"),
+                      assembler=wildcards.assembler,
                       batchid=list(set([i.split("/")[0] \
                                         for i in glob_wildcards(
                                                 os.path.join(checkpoint_output,
@@ -93,14 +98,14 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
         input:
             gtdb_done = aggregate_gtdbtk_report_input,
             rep_genomes_info = os.path.join(config["output"]["dereplicate"],
-                                            "report/checkm_table_genomes_info.derep.tsv")
+                                            "report/bacteriome/checkm_table_genomes_info.{assembler}.derep.tsv")
         output:
             table_gtdb = os.path.join(config["output"]["taxonomic"],
-                                      "report/gtdbtk/MAGs_hmq.rep.gtdbtk.gtdb.tsv"),
+                                      "report/gtdbtk/MAGs_hmq.rep.{assembler}.gtdbtk.gtdb.tsv"),
             table_ncbi = os.path.join(config["output"]["taxonomic"],
-                                      "report/gtdbtk/MAGs_hmq.rep.gtdbtk.ncbi.tsv"),
+                                      "report/gtdbtk/MAGs_hmq.rep.{assembler}.gtdbtk.ncbi.tsv"),
             table_all = os.path.join(config["output"]["taxonomic"],
-                                     "report/gtdbtk/MAGs_hmq.rep.gtdbtk.all.tsv")
+                                     "report/gtdbtk/MAGs_hmq.rep.{assembler}.gtdbtk.all.tsv")
         params:
             metadata_archaea = config["params"]["taxonomic"]["gtdbtk"]["metadata_archaea"],
             metadata_bacteria = config["params"]["taxonomic"]["gtdbtk"]["metadata_bacteria"],
@@ -118,7 +123,7 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
             expand(
                 os.path.join(
                     config["output"]["taxonomic"],
-                    "report/gtdbtk/MAGs_hmq.rep.gtdbtk.{system}.tsv"),
+                    "report/gtdbtk/MAGs_hmq.rep.{assembler}.gtdbtk.{system}.tsv"),
                 system=["gtdb", "ncbi", "all"],
                 assembler=ASSEMBLERS,
                 binner_checkm=BINNERS_CHECKM),
