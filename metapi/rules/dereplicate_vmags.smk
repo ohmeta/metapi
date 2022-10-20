@@ -181,5 +181,5 @@ rule dereplicate_all:
 
 
 localrules:
-    dereplicate_vmags_all
+    dereplicate_vmags_all,
     dereplicate_all
