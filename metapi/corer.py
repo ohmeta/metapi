@@ -70,6 +70,8 @@ WORKFLOWS_MAG = [
     "checkv_all",
     "dereplicate_mags_drep_all",
     "dereplicate_mags_all",
+    "dereplicate_vmags_all",
+    "dereplicate_all",
     "taxonomic_gtdbtk_all",
     "taxonomic_all",
     "upload_sequencing_all",
@@ -551,7 +553,7 @@ if begin from simulate:
     parser_init.add_argument(
         "--assembler",
         nargs="+",
-        default=["metaspades"],
+        default=["megahit"],
         required=False,
         choices=["idba-ud", "megahit", "metaspades", "spades", "opera-ms"],
         help="which assembler used, required when begin with binning, can be changed in config.yaml",

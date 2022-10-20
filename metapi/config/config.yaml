@@ -98,7 +98,7 @@ params:
   assembly:
     threads: 8
     megahit:
-      do: False
+      do: True
       min_contig: 100
       only_save_scaftigs: True
       k_list: ["21", "33", "55", "77"]
@@ -115,7 +115,7 @@ params:
       min_contig: 500
       only_save_scaftigs: True
     metaspades:
-      do: True
+      do: False
       only_assembler: False
       only_save_scaftigs: True
       link_scaffolds: True
@@ -333,6 +333,16 @@ params:
       prethreshold_ani: 95
       threads: 32
 
+  dereplicate_vmags:
+    threads: 8
+    blast:
+      do: True
+      max_target_seqs: 25000   # blastn
+      prec_identity: 90        # blastn
+      min_ani: 95              # clust: Minimum average nucleotide identity 
+      min_qcov: 85             # clust: Minimum alignment coverage of longer sequence 
+      min_tcov: 0              # clust: Minimum sequence length 
+
 output:
   simulate: "results/00.simulate"
   raw: "results/00.raw"
@@ -426,3 +436,4 @@ envs:
   cdhit: "envs/cdhit.yaml"
   drep: "envs/drep.yaml"
   gtdbtk: "envs/gtdbtk.yaml"
+  blast: "envs/blast.yaml"

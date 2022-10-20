@@ -480,11 +480,6 @@ checkv_postprocess:
   output: "logs/08.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.identifier}.{jobid}.o"
   error: "logs/08.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.identifier}.{jobid}.e"
 
-dereplicate_mags_drep:
-  mem: "2G"
-  output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
-  error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
-
 dereplicate_gene_prepare:
   mem: "512M"
   output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
@@ -492,6 +487,36 @@ dereplicate_gene_prepare:
 
 dereplicate_gene_cdhit:
   mem: "2G"
+  output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
+
+dereplicate_mags_drep:
+  mem: "10G"
+  output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
+
+dereplicate_vmags_prepare:
+  mem: "3G"
+  output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
+
+dereplicate_vmags_build_db:
+  mem: "5G"
+  output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
+
+dereplicate_vmags_blastn:
+  mem: "10G"
+  output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
+
+dereplicate_vmags_compute_ani:
+  mem: "5G"
+  output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
+
+dereplicate_vmags_clust:
+  mem: "5G"
   output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
   error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
 
