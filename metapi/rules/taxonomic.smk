@@ -6,13 +6,11 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
         output:
             mags_dir = directory(os.path.join(config["output"]["taxonomic"], "mags_input/{assembler}"))
         params:
-            assembler = "{assembler}",
             batch_num = config["params"]["taxonomic"]["gtdbtk"]["batch_num"]
         run:
             metapi.gtdbtk_prepare(input.rep_genomes_info,
                                   params.batch_num,
-                                  output.mags_dir,
-                                  params.assembler)
+                                  output.mags_dir)
 
 
     rule taxonomic_gtdbtk:
@@ -23,7 +21,7 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
                 gtdbtk_dir = ["fastani", "markers", "masks", "metadata",
                               "mrca_red", "msa", "pplacer", "radii", "taxonomy"])
         output:
-            gtdbtk_done = os.path.join(config["output"]["taxonomic"], "table/gtdbtk/gtdbtk.out.{assembler}.{batchid}/gtdbtk_done")
+            os.path.join(config["output"]["taxonomic"], "table/gtdbtk/gtdbtk.out.{assembler}.{batchid}/gtdbtk_done")
         wildcard_constraints:
             batchid="\d+"
         conda:
@@ -33,7 +31,6 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
         benchmark:
             os.path.join(config["output"]["taxonomic"], "benchmark/gtdbtk/gtdbtk.{assembler}.{batchid}.benchmark.txt")
         params:
-            out_dir = os.path.join(config["output"]["taxonomic"], "table/gtdbtk/gtdbtk.out.{assembler}.{batchid}"),
             gtdb_data_path = config["params"]["taxonomic"]["gtdbtk"]["gtdb_data_path"],
             pplacer_threads = config["params"]["taxonomic"]["gtdbtk"]["pplacer_threads"]
         threads:
@@ -42,42 +39,44 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
             '''
             export GTDB_DATA_PATH={params.gtdb_data_path}
 
+            outdir=$(dirname {output})
+
             gtdbtk classify_wf \
             --batchfile {input.mags_input} \
-            --out_dir {params.out_dir} \
+            --out_dir $outdir \
             --extension fa \
             --cpus {threads} \
             --pplacer_cpus {params.pplacer_threads} \
-            2> {log} 2>&1
+            > {log} 2>&1
 
-            if [ -f {out_dir}/classify/gtdbtk.bac120.summary.tsv ];
+            if [ -f $outdir/classify/gtdbtk.bac120.summary.tsv ];
             then
-                pushd {out_dir}
+                pushd $outdir
                 ln -s classify/gtdbtk.bac120.summary.tsv gtdbtk.bacteria.summary.tsv
                 popd
             else
-                pushd {out_dir}
+                pushd $outdir
                 touch gtdbtk.bacteria.summary.tsv
                 popd
             fi
 
-            if [ -f {out_dir}/classify/gtdbtk.ar53.summary.tsv ];
+            if [ -f $outdir/classify/gtdbtk.ar53.summary.tsv ];
             then
-                pushd {out_dir}
+                pushd $outdir
                 ln -s classify/gtdbtk.ar53.summary.tsv gtdbtk.archaea.summary.tsv
                 popd
-            elif [ -f {out_dir}/classify/gtdbtk.ar122.summary.tsv ];
+            elif [ -f $outdir/classify/gtdbtk.ar122.summary.tsv ];
             then
-                pushd {out_dir}
+                pushd $outdir 
                 ln -s classify/gtdbtk.ar122.summary.tsv gtdbtk.archaea.summary.tsv
                 popd
             else
-                pushd {out_dir}
+                pushd $outdir
                 touch gtdbtk.archaea.summary.tsv
                 popd
             fi
 
-            touch {output.gtdbtk_done}
+            touch {output}
             '''
 
 
