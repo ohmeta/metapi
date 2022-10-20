@@ -365,14 +365,22 @@ if config["params"]["binning"]["vamb"]["do"]:
 
             if [ "{params.cuda}" == "--cuda" ];
             then
-                lspci | grep -i nvidia >> {log} 2>&1
-                which python >> {log} 2>&1
-                which vamb >> {log} 2>&1
+                lspci | grep -oEi nvidia >> {log} 2>&1
+                grepcode=$?
+                if [ $grepcode -ne 0 ];
+                then
+                    echo "No NVIDIA GPU detected, please change vamb::use_cuda to false and rerun the pipeline."
+                    exit 0
+                else
+                    echo "NVIDIA GPU detected, you specific vamb::use_cuda to true, great!"
+                    which python >> {log} 2>&1
+                    which vamb >> {log} 2>&1
 
-                python -c 'import torch;print(torch.__file__)' >> {log} 2>&1
-                python -c 'import torch;print(f"Torch CUDA: {{torch.cuda.is_available()}}")' >> {log} 2>&1
-                python -c 'from torch.utils.cpp_extension import CUDA_HOME;print(CUDA_HOME)' >> {log} 2>&1
-                python -c 'import os; print(os.environ.get("CUDA_PATH"))' >> {log} 2>&1
+                    python -c 'import torch;print(torch.__file__)' >> {log} 2>&1
+                    python -c 'import torch;print(f"Torch CUDA: {{torch.cuda.is_available()}}")' >> {log} 2>&1
+                    python -c 'from torch.utils.cpp_extension import CUDA_HOME;print(CUDA_HOME)' >> {log} 2>&1
+                    python -c 'import os; print(os.environ.get("CUDA_PATH"))' >> {log} 2>&1
+                fi
             fi
 
             vamb \
