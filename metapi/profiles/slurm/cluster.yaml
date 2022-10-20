@@ -470,6 +470,16 @@ checkm_report:
   output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
   error: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
+checkv:
+  mem: "10G"
+  output: "logs/08.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.identifier}.{jobid}.o"
+  error: "logs/08.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.identifier}.{jobid}.e"
+
+checkv_postprocess:
+  mem: "1G"
+  output: "logs/08.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.identifier}.{jobid}.o"
+  error: "logs/08.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.identifier}.{jobid}.e"
+
 dereplicate_mags_drep:
   mem: "2G"
   output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
