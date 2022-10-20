@@ -68,8 +68,10 @@ for i in gtdb_done_list:
     gtdb_to_ncbi_log = os.path.join(out_dir, "gtdbtk.to.ncbi.log")
 
     archaea_cmd = "--ar53_metadata_file"
-    if "ar22" in os.path.realpath(archaea_tsv):
-        archaea_cmd = "--ar22_metadata_file"
+    if "ar122" in os.path.realpath(archaea_tsv):
+        archaea_cmd = "--ar122_metadata_file"
+
+    bacteria_cmd = "--bac120_metadata_file"
 
     gtdb_to_ncbi_cmd = \
         f'''
@@ -77,7 +79,7 @@ for i in gtdb_done_list:
         --gtdbtk_output_dir {out_dir} \
         --output_file {gtdb_to_ncbi_summary} \
         {archaea_cmd} {metadata_archaea} \
-        --bac120_metadata_file {metadata_bacteria} \
+        {bacteria_cmd} {metadata_bacteria} \
         > {gtdb_to_ncbi_log}
         '''
     subprocess.run(gtdb_to_ncbi_cmd, shell=True)
