@@ -90,7 +90,7 @@ if config["params"]["checkv"]["do"]:
 
             if os.path.exists(quality_summary_f):
                 quality_summary = pd.read_csv(quality_summary_f, sep="\t")
-                hmq_contig_ids = list(quality_summary.query('checkv_quality=="High-quality" or checkv_quality=="Medium-quality"')["contig_id"])
+                hmq_contig_ids = list(quality_summary.query('checkv_quality=="Complete" or checkv_quality=="High-quality" or checkv_quality=="Medium-quality"')["contig_id"])
                 print(f'''Identified {len(hmq_contig_ids)} high or medium quality vMAGs''')
 
                 quality_summary = quality_summary.set_index("contig_id")
