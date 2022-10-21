@@ -43,11 +43,16 @@ rule dereplicate_vmags_build_db:
     input:
         os.path.join(config["output"]["dereplicate"], "genomes/virome/input/vMAGs_hmq.{assembler}.fa")
     output:
-        os.path.join(config["output"]["dereplicate"], "genomes/virome/blastdb/vMAGs_hmq.{assembler}.blastdb")
+        expand(os.path.join(config["output"]["dereplicate"],
+                            "genomes/virome/blastdb/vMAGs_hmq.{{assembler}}.blastdb.{suffix}"),
+               suffix=["ndb", "nhr", "nin", "njs", "not", "nsq", "ntf", "nto"])
     benchmark:
         os.path.join(config["output"]["dereplicate"], "benchmark/blastdb/dereplicate_vmags_build_db.{assembler}.benchmark.txt")
     log:
         os.path.join(config["output"]["dereplicate"], "logs/blastdb/dereplicate_vmags_build_db.{assembler}.blastdb.log")
+    params:
+        db = os.path.join(config["output"]["dereplicate"],
+                          "genomes/virome/blastdb/vMAGs_hmq.{assembler}.blastdb")
     conda:
         config["envs"]["blast"]
     threads:
@@ -57,7 +62,7 @@ rule dereplicate_vmags_build_db:
         makeblastdb \
         -in {input} \
         -dbtype nucl \
-        -out {output} \
+        -out {params.db} \
         >{log} 2>&1
         '''
 
@@ -66,8 +71,9 @@ rule dereplicate_vmags_blastn:
     input:
         fa = os.path.join(config["output"]["dereplicate"],
                           "genomes/virome/input/vMAGs_hmq.{assembler}.fa"),
-        db = os.path.join(config["output"]["dereplicate"],
-                          "genomes/virome/blastdb/vMAGs_hmq.{assembler}.blastdb")
+        db = expand(os.path.join(config["output"]["dereplicate"],
+                                 "genomes/virome/blastdb/vMAGs_hmq.{{assembler}}.blastdb.{suffix}"),
+                    suffix=["ndb", "nhr", "nin", "njs", "not", "nsq", "ntf", "nto"])
     output:
         os.path.join(config["output"]["dereplicate"],
                      "genomes/virome/blastout/vMAGs_hmq.{assembler}.blast.fmt6.tsv")
@@ -80,6 +86,8 @@ rule dereplicate_vmags_blastn:
     conda:
         config["envs"]["blast"]
     params:
+        db = os.path.join(config["output"]["dereplicate"],
+                          "genomes/virome/blastdb/vMAGs_hmq.{assembler}.blastdb"),
         max_target_seqs = config["params"]["dereplicate_vmags"]["blast"]["max_target_seqs"],
         prec_identity = config["params"]["dereplicate_vmags"]["blast"]["prec_identity"]
     threads:
@@ -89,7 +97,7 @@ rule dereplicate_vmags_blastn:
         blastn \
         -num_threads {threads} \
         -query {input.fa} \
-        -db {input.db} \
+        -db {params.db} \
         -out {output} \
         -outfmt '6 std qlen slen' \
         -max_target_seqs {params.max_target_seqs} \
@@ -150,7 +158,7 @@ rule dereplicate_vmags_clust:
         python {params.aniclust} \
         --fna {input.fa} \
         --ani {input.ani} \
-        --out <output> \
+        --out {output} \
         --min_ani 95 \
         --min_tcov 85 \
         --min_qcov 0 \
