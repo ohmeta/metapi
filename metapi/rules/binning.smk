@@ -136,7 +136,7 @@ if config["params"]["binning"]["metabat2"]["do"]:
 
             rm -rf ${{COVERAGE%.gz}}
 
-            for FILESTR in `ls {params.bin_prefix}.*`
+            for FILESTR in `ls {params.bin_prefix}*`
             do
                 if [ -f $FILESTR ] && [ "${{FILESTR##*.}}" != "gz" ];
                 then
@@ -264,7 +264,7 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             python {params.wrapper_dir}/maxbin2_postprocess.py \
             {params.mags_dir}
 
-            for FILESTR in `ls {params.bin_prefix}.*`
+            for FILESTR in `ls {params.bin_prefix}*`
             do
                 if [ -f $FILESTR ] && [ "${{FILESTR##*.}}" != "gz" ];
                 then
@@ -528,7 +528,7 @@ if config["params"]["binning"]["concoct"]["do"]:
                 {params.mags_dir} \
                 {params.bin_prefix}
 
-                for FILESTR in `ls {params.bin_prefix}.*`
+                for FILESTR in `ls {params.bin_prefix}*`
                 do
                     if [ -f $FILESTR ] && [ "${{FILESTR##*.}}" != "gz" ];
                     then

@@ -287,7 +287,7 @@ if config["params"]["binning"]["dastools"]["do"]:
             python {params.wrapper_dir}/dastools_postprocess.py \
             {params.bin_prefix}
 
-            for FILESTR in `ls {params.bin_prefix}.*`
+            for FILESTR in `ls {params.bin_prefix}*`
             do
                 if [ -f $FILESTR ] && [ "${{FILESTR##*.}}" != "gz" ];
                 then
