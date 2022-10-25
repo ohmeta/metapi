@@ -34,7 +34,9 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
             db = config["params"]["identify"]["phamb"]["micompletedb"]
         output:
             hmm = os.path.join(config["output"]["identify"],
-                               "hmm/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.hmmMiComplete105.tbl.gz")
+                               "hmm/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.hmmMiComplete105.tbl.gz"),
+            tmp = temp(os.path.join(config["output"]["identify"],
+                               "hmm/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.hmmMiComplete105.tmp"))
         log:
             os.path.join(config["output"]["identify"],
                          "logs/hmmsearch_micomplete/{binning_group}.{assembly_group}.{assembler}.hmmsearch_micomplete.log")
@@ -42,9 +44,7 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
             os.path.join(config["output"]["identify"],
                          "benchmark/hmmsearch_micomplete/{binning_group}.{assembly_group}.{assembler}.hmmsearch_micomplete.benchmark.txt")
         params:
-            tmp = os.path.join(config["output"]["identify"],
-                               "hmm/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.hmmMiComplete105.tmp"),
-            hmmsearch_evalue = config["params"]["identify"]["phamb"]["hmmsearch_evalue"]
+           hmmsearch_evalue = config["params"]["identify"]["phamb"]["hmmsearch_evalue"]
         threads:
             config["params"]["identify"]["threads"]
         conda:
@@ -67,7 +67,7 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
                 hmmsearch \
                 --cpu {threads} \
                 -E {params.hmmsearch_evalue} \
-                -o {params.tmp} \
+                -o {output.tmp} \
                 --tblout $HMM \
                 {input.db} \
                 $PEP \
@@ -124,7 +124,9 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
             db = config["params"]["identify"]["phamb"]["vogdb"]
         output:
             hmm = os.path.join(config["output"]["identify"],
-                               "hmm/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.hmmVOG.tbl.gz")
+                               "hmm/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.hmmVOG.tbl.gz"),
+            tmp = temp(os.path.join(config["output"]["identify"],
+                                    "hmm/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.hmmVOG.tmp"))
         log:
             os.path.join(config["output"]["identify"],
                          "logs/hmmsearch_vog/{binning_group}.{assembly_group}.{assembler}.phamb_hmmsearch_vog.log")
@@ -132,9 +134,7 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
             os.path.join(config["output"]["identify"],
                          "benchmark/hmmsearch_vog/{binning_group}.{assembly_group}.{assembler}.phamb_hmmsearch_vog.benchmark.txt")
         params:
-            tmp = os.path.join(config["output"]["identify"],
-                               "hmm/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.hmmVOG.tmp"),
-            hmmsearch_evalue = config["params"]["identify"]["phamb"]["hmmsearch_evalue"]
+           hmmsearch_evalue = config["params"]["identify"]["phamb"]["hmmsearch_evalue"]
         threads:
             config["params"]["identify"]["threads"]
         conda:
@@ -156,7 +156,7 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
                 hmmsearch \
                 --cpu {threads} \
                 -E {params.hmmsearch_evalue} \
-                -o {params.tmp} \
+                -o {output.tmp} \
                 --tblout $HMM \
                 {input.db} \
                 $PEP \
