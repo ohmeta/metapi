@@ -134,8 +134,10 @@ log_time(start)
 
 # write
 print("\nwriting clusters...")
-out = open(args['out'], 'w')
+out = gzip.open(args['out'], 'wt') if args['out'].split('.')[-1] == 'gz' else open(args['out'], 'w')
 for seq_id, mem_ids in clust_to_seqs.items():
 	out.write(seq_id + '\t' + ','.join(mem_ids)+'\n')
+out.close()
+
 log_time(start)
 

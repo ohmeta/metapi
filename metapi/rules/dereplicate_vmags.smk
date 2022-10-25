@@ -59,10 +59,12 @@ rule dereplicate_vmags_build_db:
         config["params"]["dereplicate_vmags"]["threads"]
     shell:
         '''
+        zcat {input} | \
         makeblastdb \
-        -in {input} \
+        -in - \
         -dbtype nucl \
         -out {params.db} \
+        -title vMAGs_hmq \
         >{log} 2>&1
         '''
 
@@ -97,9 +99,10 @@ rule dereplicate_vmags_blastn:
         BLASTOUTGZ={output}
         BLASTOUT=${{BLASTOUTGZ%.gz}}
 
+        zcat {input.fa} | \
         blastn \
         -num_threads {threads} \
-        -query {input.fa} \
+        -query - \
         -db {params.db} \
         -out $BLASTOUT \
         -outfmt '6 std qlen slen' \
