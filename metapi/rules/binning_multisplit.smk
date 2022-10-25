@@ -419,7 +419,7 @@ if config["params"]["binning"]["vamb"]["do"]:
             rm -rf ${{MATRIX%.gz}}
 
 
-            if [ -d {params.outdir}/bins ];
+            if [ -f {params.outdir}/clusters.tsv ];
             then
                 echo "Running vamb completed" >> {log} 2>&1
                 echo "Touch binning_done" >> {log} 2>&1
