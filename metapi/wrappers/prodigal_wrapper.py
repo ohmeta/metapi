@@ -15,7 +15,7 @@ def run_prodigal(input_list):
     bin_fa = os.path.abspath(input_list[0])
     output_dir = os.path.abspath(input_list[1])
 
-    bin_id = os.path.basename(os.path.splitext(bin_fa)[0])
+    bin_id = os.path.basename(os.path.splitext(os.path.splitext(bin_fa)[0])[0])
 
     pep_file = os.path.join(output_dir, bin_id + ".faa")
     cds_file = os.path.join(output_dir, bin_id + ".ffn")
@@ -50,7 +50,7 @@ input_mags_dir = os.path.dirname(sys.argv[2])
 output_done = sys.argv[3]
 output_dir = os.path.dirname(output_done)
 
-bin_list = glob.glob(input_mags_dir + "/*.fa")
+bin_list = glob.glob(input_mags_dir + "/*.fa.gz")
 
 input_list = []
 for bin_fa in bin_list:

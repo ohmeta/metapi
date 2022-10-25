@@ -7,18 +7,21 @@ import subprocess
 PROKKA_SUFFIX = ["err", "log", "faa", "ffn", "fna", "fsa",
                  "gbk", "gff", "sqn", "tbl", "tsv", "txt"]
 
-bin_list = glob.glob(snakemake.input["mags_dir"] + "/*.fa")
+bin_list = glob.glob(snakemake.input["mags_dir"] + "/*.fa.gz")
 gff_count = 0
 
 for bin_fa in bin_list:
-    bin_id = os.path.basename(os.path.splitext(bin_fa)[0])
+    bin_id = os.path.basename(os.path.splitext(os.path.splitext(bin_fa)[0])[0])
     output_dir = os.path.join(snakemake.params["output_dir"], bin_id)
     gff_file = os.path.join(output_dir, bin_id + ".gff")
 
     subprocess(f'''echo "\nProcessing {bin_fa}\n" >> {snakemake.log}''', shell=True)
+
+    # https://github.com/tseemann/prokka/pull/130
+    # Uncompressing 1000's of gzip'ed fasta files just to run them through prokka can be a bit of pain.
     subprocess(
         f'''
-        prokka {bin_fa} \
+        prokka <(zcat {bin_fa}) \
         --force \
         --centre X \
         --compliant \

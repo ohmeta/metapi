@@ -12,7 +12,6 @@ def get_binning_info(mags_dir, cluster_file, assembler):
     if assembler.lower() in ["spades", "metaspades", "megahit"]:
         with os.scandir(mags_dir) as itr, open(cluster_file, "w") as oh:
             for entry in itr:
-                bin_id, suffix = os.path.splitext(entry.name)
                 if entry.name.endswith(".fa.gz"):
                     bin_id = entry.name.split(".fa.gz")[0]
                     cluster_num = bin_id.split(".")[-1]
