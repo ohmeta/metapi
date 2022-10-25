@@ -136,13 +136,13 @@ if config["params"]["binning"]["metabat2"]["do"]:
 
             rm -rf ${{COVERAGE%.gz}}
 
-            if [ -f {params.bin_prefix}.0.fa ] || [ -f {params.bin_prefix}.1.fa ];
-            then
-                for i in `ls {params.bin_prefix}.*.fa`
-                do
-                    pigz $i
-                done
-            fi
+            for FILESTR in `ls {params.bin_prefix}.*`
+            do
+                if [ -f $FILESTR ] && [ "${{FILESTR##*.}}" != "gz" ];
+                then
+                    pigz $FILESTR
+                fi
+            done
 
             touch {output}
             '''
@@ -246,6 +246,8 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             -out {params.bin_prefix} \
             > {log} 2>&1
 
+            rm -rf ${{COVERAGE%.gz}}
+
             exitcode=$?
             if [ $exitcode -eq 1 ]
             then
@@ -262,15 +264,14 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             python {params.wrapper_dir}/maxbin2_postprocess.py \
             {params.mags_dir}
 
-            if [ -f {params.bin_prefix}.0.fa ] || [ -f {params.bin_prefix}.1.fa ];
-            then
-                for i in `ls {params.bin_prefix}.*.fa`
-                do
-                    pigz $i
-                done
-            fi
+            for FILESTR in `ls {params.bin_prefix}.*`
+            do
+                if [ -f $FILESTR ] && [ "${{FILESTR##*.}}" != "gz" ];
+                then
+                    pigz $FILESTR
+                fi
+            done
 
-            rm -rf ${{COVERAGE%.gz}}
             touch {output}
             '''
 
@@ -350,8 +351,8 @@ if config["params"]["binning"]["concoct"]["do"]:
             --chunk_size {params.chunk_size} \
             --overlap_size {params.overlap_size} \
             --merge_last \
-            --bedfile ${{BED%.gz}} \
-            | pigz -c > {output.scaftigs_cut} 2>{log}
+            --bedfile ${{BED%.gz}} | \
+            pigz -c > {output.scaftigs_cut} 2>{log}
 
             pigz ${{BED%.gz}}
 
@@ -403,8 +404,8 @@ if config["params"]["binning"]["concoct"]["do"]:
 
             concoct_coverage_table.py \
             ${{BED%.gz}} \
-            {input.bam} \
-            | pigz -c > {output.coverage} 2> {log}
+            {input.bam} | \
+            pigz -c > {output.coverage} 2> {log}
 
             rm -rf ${{BED%.gz}}
             '''
@@ -527,13 +528,13 @@ if config["params"]["binning"]["concoct"]["do"]:
                 {params.mags_dir} \
                 {params.bin_prefix}
 
-                if [ -f {params.bin_prefix}.0.fa ] || [ -f {params.bin_prefix}.1.fa ];
-                then
-                    for i in `ls {params.bin_prefix}.*.fa`
-                    do
-                        pigz $i
-                    done
-                fi
+                for FILESTR in `ls {params.bin_prefix}.*`
+                do
+                    if [ -f $FILESTR ] && [ "${{FILESTR##*.}}" != "gz" ];
+                    then
+                        pigz $FILESTR
+                    fi
+                done
             fi
 
             touch {output}

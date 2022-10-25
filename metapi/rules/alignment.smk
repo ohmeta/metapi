@@ -92,8 +92,6 @@ rule alignment_reads_scaftigs:
         config["params"]["alignment"]["threads"]
     shell:
         '''
-        FLAGSTAT={output.flagstat}
-
         rm -rf {output.bam}*
 
         {params.bwa} mem \
@@ -101,15 +99,13 @@ rule alignment_reads_scaftigs:
         {params.index_prefix} \
         {input.reads} 2> {log} |
         tee >(samtools flagstat \
-              -@{threads} - \
-              > ${{FLAGSTAT%.gz}}) | \
+              -@{threads} - | \
+              pigz -c > {output.flagstat}) | \
         samtools sort \
         -m 3G \
         -@{threads} \
         -T {output.bam} \
         -O BAM -o {output.bam} -
-
-        pigz ${{FLAGSTAT%.gz}}
 
         samtools index -@{threads} {output.bam} {output.bai} 2>> {log}
         '''

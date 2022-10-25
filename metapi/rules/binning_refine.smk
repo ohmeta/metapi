@@ -287,13 +287,13 @@ if config["params"]["binning"]["dastools"]["do"]:
             python {params.wrapper_dir}/dastools_postprocess.py \
             {params.bin_prefix}
 
-            if [ -f {params.bin_prefix}.0.fa ] || [ -f {params.bin_prefix}.1.fa ];
-            then
-                for i in `ls {params.bin_prefix}.*.fa`
-                do
-                    pigz $i
-                done
-            fi
+            for FILESTR in `ls {params.bin_prefix}.*`
+            do
+                if [ -f $FILESTR ] && [ "${{FILESTR##*.}}" != "gz" ];
+                then
+                    pigz $FILESTR
+                fi
+            done
 
             touch {output}
             ''' 
