@@ -243,8 +243,8 @@ if config["params"]["binning"]["dastools"]["do"]:
             FNA={input.scaftigs}
             PEP={input.pep}
 
-            pigz -dk $FNA
-            pigz -dk $PEP
+            pigz -dkf $FNA
+            pigz -dkf $PEP
 
             DAS_Tool \
             --bins $contigs2bin \
@@ -291,7 +291,7 @@ if config["params"]["binning"]["dastools"]["do"]:
             do
                 if [ -f $FILESTR ] && [ "${{FILESTR##*.}}" != "gz" ];
                 then
-                    pigz $FILESTR
+                    pigz -f $FILESTR
                 fi
             done
 

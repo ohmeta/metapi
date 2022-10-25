@@ -55,7 +55,7 @@ if config["params"]["binning"]["metabat2"]["do"]:
             {input.bam} \
             2> {log}
 
-            pigz ${{COVERAGE%.gz}}
+            pigz -f ${{COVERAGE%.gz}}
             '''
 
 
@@ -115,7 +115,7 @@ if config["params"]["binning"]["metabat2"]["do"]:
             rm -rf {params.mags_dir}
 
             COVERAGE={input.coverage}
-            pigz -dk $COVERAGE
+            pigz -dkf $COVERAGE
 
             metabat2 \
             --inFile {input.scaftigs} \
@@ -140,7 +140,7 @@ if config["params"]["binning"]["metabat2"]["do"]:
             do
                 if [ -f $FILESTR ] && [ "${{FILESTR##*.}}" != "gz" ];
                 then
-                    pigz $FILESTR
+                    pigz -f $FILESTR
                 fi
             done
 
@@ -185,7 +185,7 @@ if config["params"]["binning"]["maxbin2"]["do"]:
                          "logs/maxbin2/{binning_group}.{assembly_group}.{assembler}.maxbin2.coverage.log")
         shell:
             '''
-            zcat {input.coverage} | cut -f1,3 | tail -n +2 | pigz -c > {output.coverage}
+            zcat {input.coverage} | cut -f1,3 | tail -n +2 | pigz -cf > {output.coverage}
             '''
 
 
@@ -231,7 +231,7 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             mkdir -p {params.mags_dir}
 
             COVERAGE={input.coverage}
-            pigz -dk $COVERAGE
+            pigz -dkf $COVERAGE
 
             set +e
             run_MaxBin.pl \
@@ -268,7 +268,7 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             do
                 if [ -f $FILESTR ] && [ "${{FILESTR##*.}}" != "gz" ];
                 then
-                    pigz $FILESTR
+                    pigz -f $FILESTR
                 fi
             done
 
@@ -341,10 +341,13 @@ if config["params"]["binning"]["concoct"]["do"]:
             overlap_size = config["params"]["binning"]["concoct"]["overlap_size"]
         shell:
             '''
+            rm -rf {output.scaftigs_cut}
+            rm -rf {output.scaftigs_bed}
+
             SCAFTIGS={input.scaftigs}
             BED={output.scaftigs_bed}
 
-            pigz -dk $SCAFTIGS
+            pigz -dkf $SCAFTIGS
 
             cut_up_fasta.py \
             ${{SCAFTIGS%.gz}} \
@@ -352,11 +355,10 @@ if config["params"]["binning"]["concoct"]["do"]:
             --overlap_size {params.overlap_size} \
             --merge_last \
             --bedfile ${{BED%.gz}} | \
-            pigz -c > {output.scaftigs_cut} 2>{log}
-
-            pigz ${{BED%.gz}}
+            pigz -cf > {output.scaftigs_cut} 2>{log}
 
             rm -rf ${{SCAFTIGS%.gz}}
+            pigz -f ${{BED%.gz}}
             '''
 
 
@@ -400,12 +402,12 @@ if config["params"]["binning"]["concoct"]["do"]:
         shell:
             '''
             BED={input.scaftigs_bed}
-            pigz -dk $BED
+            pigz -dkf $BED
 
             concoct_coverage_table.py \
             ${{BED%.gz}} \
             {input.bam} | \
-            pigz -c > {output.coverage} 2> {log}
+            pigz -cf > {output.coverage} 2> {log}
 
             rm -rf ${{BED%.gz}}
             '''
@@ -474,8 +476,8 @@ if config["params"]["binning"]["concoct"]["do"]:
             BED={input.scaftigs_bed}
             COVERAGE={input.coverage}
 
-            pigz -dk $CUTFA
-            pigz -dk $COVERAGE
+            pigz -dkf $CUTFA
+            pigz -dkf $COVERAGE
 
             set +e
 
@@ -515,7 +517,7 @@ if config["params"]["binning"]["concoct"]["do"]:
                 {params.bin_prefix}_clustering_gt{params.length_threshold}.csv \
                 > {params.bin_prefix}_clustering_merged.csv
 
-                pigz -dk $SCAFTIGS
+                pigz -dkf $SCAFTIGS
 
                 extract_fasta_bins.py \
                 ${{SCAFTIGS%.gz}} \
@@ -532,7 +534,7 @@ if config["params"]["binning"]["concoct"]["do"]:
                 do
                     if [ -f $FILESTR ] && [ "${{FILESTR##*.}}" != "gz" ];
                     then
-                        pigz $FILESTR
+                        pigz -f $FILESTR
                     fi
                 done
             fi
