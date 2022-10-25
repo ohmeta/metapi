@@ -88,42 +88,58 @@ if config["params"]["checkv"]["do"]:
             proviruses_f = os.path.join(checkv_dir, "proviruses.fna")
             viruses_f = os.path.join(checkv_dir, "viruses.fna")
 
+            subprocess.run(f'''rm -rf {output.vmag}''', shell=True)
+            subprocess.run(f'''touch {output.vmag}''', shell=True)
+
             if os.path.exists(quality_summary_f):
                 quality_summary = pd.read_csv(quality_summary_f, sep="\t")
-                hmq_contig_ids = list(quality_summary.query('checkv_quality=="Complete" or checkv_quality=="High-quality" or checkv_quality=="Medium-quality"')["contig_id"])
-                print(f'''Identified {len(hmq_contig_ids)} high or medium quality vMAGs''')
 
-                quality_summary = quality_summary.set_index("contig_id")
+                proviruses_df = quality_summary\
+                .query('provirus=="Yes"')\
+                .query('checkv_quality=="Complete" or checkv_quality=="High-quality" or checkv_quality=="Medium-quality"')\
+                .set_index("contig_id")
 
-                if len(hmq_contig_ids) > 0:
-                    with open(output.vmag, "w") as oh:
-                        if os.path.exists(proviruses_f):
-                            print(f'''Found {proviruses_f}''')
-                            rc_proviruses = SeqIO.index_db(":memory:", proviruses_f, "fasta")
-                            print(f'''Loaded {proviruses_f}''')
-                            for contig_id in hmq_contig_ids:
-                                if contig_id in rc_proviruses:
+                viruses_df = quality_summary\
+                .query('provirus=="No"')\
+                .query('checkv_quality=="Complete" or checkv_quality=="High-quality" or checkv_quality=="Medium-quality"')\
+                .set_index("contig_id")
+
+                print(f'''Identified {len(proviruses_df) + len(viruses_df)} complete, high or medium quality vMAGs''')
+
+                subprocess.run(f'''touch {output.vmag}''', shell=True)
+
+                with open(output.vmag, "w+") as oh:
+                    if os.path.exists(proviruses_f):
+                        proviruses_rc = SeqIO.index_db(":memory:", proviruses_f, "fasta")
+                        for contig_id in proviruses_df.index.unique():
+                            quality = proviruses_df.loc[contig_id, "checkv_quality"]
+                            if contig_id in proviruses_rc:
+                                contig_num += 1
+                                rc = proviruses_rc[contig_id]
+                                rc.id = f'''{label}.{contig_num}|proviruses|{quality}'''
+                                SeqIO.write(rc, oh, "fasta")
+                            else:
+                                contig_id = f'''{contig_id}_1'''
+                                if contig_id in proviruses_rc:
                                     contig_num += 1
-                                    quality = quality_summary.loc[contig_id, "checkv_quality"]
-                                    rc = rc_proviruses[contig_id]
+                                    rc = proviruses_rc[contig_id]
                                     rc.id = f'''{label}.{contig_num}|proviruses|{quality}'''
                                     SeqIO.write(rc, oh, "fasta")
-                        if os.path.exists(viruses_f):
-                            print(f'''Found {viruses_f}''')
-                            rc_viruses = SeqIO.index_db(":memory:", viruses_f, "fasta")
-                            print(f'''Loaded {viruses_f}''')
-                            for contig_id in hmq_contig_ids:
-                                if contig_id in rc_viruses:
-                                    contig_num += 1
-                                    quality = quality_summary.loc[contig_id, "checkv_quality"]
-                                    rc = rc_viruses[contig_id]
-                                    rc.id = f'''{label}.{contig_num}|viruses|{quality}'''
-                                    SeqIO.write(rc, oh, "fasta")
-                    print(contig_num)
-                else:
-                    subprocess.run(f'''touch {output.vmag}''', shell=True)
-            else:
-                subprocess.run(f'''touch {output.vmag}''', shell=True)
+                                else:
+                                    print(f'''Proviruses contig_id {contig_id} can't be found in {proviruses_f}, please check it!''')
+                                    sys.exit(1)
+                    if os.path.exists(viruses_f):
+                        viruses_rc = SeqIO.index_db(":memory:", viruses_f, "fasta")
+                        for contig_id in viruses_df.index.unique():
+                            quality = viruses_df.loc[contig_id, "checkv_quality"]
+                            if contig_id in viruses_rc:
+                                contig_num += 1
+                                rc = viruses_rc[contig_id]
+                                rc.id = f'''{label}.{contig_num}|viruses|{quality}'''
+                                SeqIO.write(rc, oh, "fasta")
+                            else:
+                                print(f'''Viruses contig_id {contig_id} can't be found in {viruses_f}, please check it!''')
+                                sys.exit(1)
 
 
     checkv_df_list = []
