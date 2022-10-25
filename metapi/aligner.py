@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import argparse
+import gzip
 import os
 import re
 import pandas as pd
@@ -49,7 +50,7 @@ def flagstats_summary(flagstats, method, **kwargs):
 
     # with open(flagstat_list, 'r') as list_handle:
     if method == 1:
-        list_handle = open(flagstats, "r")
+        list_handle = gzip.open(flagstats, "r")
     if method == 2:
         list_handle = flagstats
 
@@ -57,7 +58,7 @@ def flagstats_summary(flagstats, method, **kwargs):
         if os.path.exists(flagstat_file.strip()):
             info = {}
             info["sample_id"] = os.path.basename(flagstat_file.strip()).split(".")[0]
-            stat_list = open(flagstat_file.strip(), "r").readlines()
+            stat_list = gzip.open(flagstat_file.strip(), "r").readlines()
 
             info["total_num"] = stat_list[0].split(" ")[0]
 
@@ -116,12 +117,12 @@ def flagstats_summary(flagstats, method, **kwargs):
 def main():
     """main funciton"""
     parser = argparse.ArgumentParser(
-        description="compute alignment rate based bam file"
+        description="compute alignment rate based flagstat file"
     )
     parser.add_argument(
-        "-statlist", default=None, type=str, help="sorted bam file list"
+        "-statlist", default=None, type=str, help="sorted flagstat file list, gzip list"
     )
-    parser.add_argument("-statfiles", default=None, nargs="*", help="sorted bam file")
+    parser.add_argument("-statfiles", default=None, nargs="*", help="sorted flagstat file, gzip")
     parser.add_argument("-outfile", type=str, help="output alignment rate file")
     args = parser.parse_args()
     if args.statlist:

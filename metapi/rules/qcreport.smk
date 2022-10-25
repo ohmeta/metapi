@@ -8,10 +8,10 @@ if config["params"]["qcreport"]["do"]:
     rule qcreport_summary:
         input:
             expand(os.path.join(config["output"]["qcreport"],
-                                "{step}_stats.tsv"),
+                                "{step}_stats.tsv.gz"),
                    step=STEPS)
         output:
-            os.path.join(config["output"]["qcreport"], "qc_stats.tsv")
+            os.path.join(config["output"]["qcreport"], "qc_stats.tsv.gz")
         priority:
             30
         threads:
@@ -23,7 +23,7 @@ if config["params"]["qcreport"]["do"]:
 
     rule qcreport_plot:
         input:
-            os.path.join(config["output"]["qcreport"], "qc_stats.tsv")
+            os.path.join(config["output"]["qcreport"], "qc_stats.tsv.gz")
         output:
             os.path.join(config["output"]["qcreport"], "qc_reads_num_barplot.pdf")
         priority:
@@ -35,7 +35,7 @@ if config["params"]["qcreport"]["do"]:
 
     rule qcreport_all:
         input:
-            os.path.join(config["output"]["qcreport"], "qc_stats.tsv"),
+            os.path.join(config["output"]["qcreport"], "qc_stats.tsv.gz"),
             os.path.join(config["output"]["qcreport"], "qc_reads_num_barplot.pdf")#,
 
             #rules.rmhost_all.input

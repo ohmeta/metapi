@@ -298,10 +298,10 @@ if TRIMMING_DO and config["params"]["qcreport"]["do"]:
     rule trimming_report_refine:
         input:
             os.path.join(config["output"]["trimming"],
-                              "report/stats/{sample}_trimming_stats.tsv.raw")
+                         "report/stats/{sample}_trimming_stats.tsv.raw")
         output:
             os.path.join(config["output"]["trimming"],
-                              "report/stats/{sample}_trimming_stats.tsv")
+                         "report/stats/{sample}_trimming_stats.tsv.gz")
         params:
             sample_id = "{sample}"
         threads:
@@ -319,18 +319,19 @@ if TRIMMING_DO and config["params"]["qcreport"]["do"]:
         input:
             expand(
                 os.path.join(config["output"]["trimming"],
-                             "report/stats/{sample}_trimming_stats.tsv"),
+                             "report/stats/{sample}_trimming_stats.tsv.gz"),
                 sample=SAMPLES_ID_LIST)
         output:
-            os.path.join(config["output"]["qcreport"], "trimming_stats.tsv")
+            os.path.join(config["output"]["qcreport"], "trimming_stats.tsv.gz")
         threads:
             config["params"]["qcreport"]["seqkit"]["threads"]
         run:
             metapi.merge(input, metapi.parse, threads, output=output[0])
 
+
     rule trimming_report_all:
         input:
-            os.path.join(config["output"]["qcreport"], "trimming_stats.tsv")
+            os.path.join(config["output"]["qcreport"], "trimming_stats.tsv.gz")
 
 else:
     rule trimming_report_all:

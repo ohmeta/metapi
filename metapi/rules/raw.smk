@@ -418,7 +418,7 @@ if config["params"]["qcreport"]["do"]:
             lambda wildcards: get_reads(wildcards, "raw")
         output:
             temp(os.path.join(config["output"]["raw"],
-                         "report/stats/{sample}_raw_stats.tsv.raw"))
+                              "report/stats/{sample}_raw_stats.tsv.raw"))
         conda:
             config["envs"]["report"]
         params:
@@ -447,7 +447,7 @@ if config["params"]["qcreport"]["do"]:
                          "report/stats/{sample}_raw_stats.tsv.raw")
         output:
             os.path.join(config["output"]["raw"],
-                         "report/stats/{sample}_raw_stats.tsv")
+                         "report/stats/{sample}_raw_stats.tsv.gz")
         params:
             sample_id = "{sample}"
         threads:
@@ -465,10 +465,10 @@ if config["params"]["qcreport"]["do"]:
         input:
             expand(
                 os.path.join(config["output"]["raw"],
-                             "report/stats/{sample}_raw_stats.tsv"),
+                             "report/stats/{sample}_raw_stats.tsv.gz"),
                 sample=SAMPLES_ID_LIST)
         output:
-            os.path.join(config["output"]["qcreport"], "raw_stats.tsv")
+            os.path.join(config["output"]["qcreport"], "raw_stats.tsv.gz")
         threads:
             config["params"]["qcreport"]["seqkit"]["threads"]
         run:
@@ -477,7 +477,7 @@ if config["params"]["qcreport"]["do"]:
 
     rule raw_report_all:
         input:
-            os.path.join(config["output"]["qcreport"], "raw_stats.tsv")
+            os.path.join(config["output"]["qcreport"], "raw_stats.tsv.gz")
 
 else:
     rule raw_report_all:

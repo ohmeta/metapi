@@ -8,7 +8,7 @@ def rmhost_input(wildcards, have_single=False):
 def trimming_stats_input(wildcards, have_single=False):
     if TRIMMING_DO and config["params"]["qcreport"]["do"]:
         return expand(os.path.join(config["output"]["trimming"],
-                                   "report/stats/{sample}_trimming_stats.tsv"),
+                                   "report/stats/{sample}_trimming_stats.tsv.gz"),
                       sample=wildcards.sample)
     else:
         return []
@@ -51,7 +51,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                            suffix=BWA_INDEX_SUFFIX)
         output:
             flagstat = os.path.join(config["output"]["rmhost"],
-                                    "report/flagstat/{sample}.align2host.flagstat"),
+                                    "report/flagstat/{sample}.align2host.flagstat.gz"),
             reads = expand(os.path.join(
                 config["output"]["rmhost"],
                 "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
@@ -77,7 +77,9 @@ if config["params"]["rmhost"]["bwa"]["do"]:
             bam = os.path.join(config["output"]["rmhost"], "bam/{sample}/{sample}.align2host.sorted.bam"),
             bam_dir = os.path.join(config["output"]["rmhost"], "bam/{sample}"),
             pe = "pe" if IS_PE else "se",
-            save_bam = "yes" if config["params"]["rmhost"]["save_bam"] else "no"
+            save_bam = "yes" if config["params"]["rmhost"]["save_bam"] else "no",
+            flagstat = os.path.join(config["output"]["rmhost"],
+                                    "report/flagstat/{sample}.align2host.flagstat")
         threads:
             config["params"]["rmhost"]["threads"]
         shell:
@@ -95,7 +97,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     {input.reads[0]} {input.reads[1]} | \
                     tee >(samtools flagstat \
                           -@{threads} - \
-                          > {output.flagstat}) | \
+                          > {params.flagstat}) | \
                     tee >(samtools fastq \
                           -@{threads} \
                           -c {params.compression} \
@@ -116,7 +118,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     {input.reads[0]} {input.reads[1]} | \
                     tee >(samtools flagstat \
                           -@{threads} - \
-                          > {output.flagstat}) | \
+                          > {params.flagstat}) | \
                     samtools fastq \
                     -@{threads} \
                     -c {params.compression} \
@@ -137,7 +139,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     {input.reads[0]} | \
                     tee >(samtools flagstat \
                           -@{threads} - \
-                          > {output.flagstat}) | \
+                          > {params.flagstat}) | \
                     tee >(samtools fastq \
                           -@{threads} \
                           -c {params.compression} \
@@ -158,7 +160,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     {input.reads[0]} | \
                     tee >(samtools flagstat \
                           -@{threads} - \
-                          > {output.flagstat}) | \
+                          > {params.flagstat}) | \
                     samtools fastq \
                     -@{threads} \
                     -c {params.compression} \
@@ -168,6 +170,8 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     2> {log}
                 fi
             fi
+
+            pigz {params.flagstat}
             '''
 
 
@@ -213,7 +217,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                            suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
         output:
             flagstat = os.path.join(config["output"]["rmhost"],
-                                    "report/flagstat/{sample}.align2host.flagstat"),
+                                    "report/flagstat/{sample}.align2host.flagstat.gz"),
             reads = expand(os.path.join(
                 config["output"]["rmhost"],
                 "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
@@ -238,7 +242,9 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
             bam = os.path.join(config["output"]["rmhost"], "bam/{sample}/{sample}.align2host.sorted.bam"),
             bam_dir = os.path.join(config["output"]["rmhost"], "bam/{sample}"),
             pe = "pe" if IS_PE else "se",
-            save_bam = "yes" if config["params"]["rmhost"]["save_bam"] else "no"
+            save_bam = "yes" if config["params"]["rmhost"]["save_bam"] else "no",
+            flagstat = os.path.join(config["output"]["rmhost"],
+                                    "report/flagstat/{sample}.align2host.flagstat")
         threads:
             config["params"]["rmhost"]["threads"]
         shell:
@@ -258,7 +264,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                     2> {log} | \
                     tee >(samtools flagstat \
                           -@{threads} - \
-                          > {output.flagstat}) | \
+                          > {params.flagstat}) | \
                     tee >(samtools fastq \
                           -@{threads} \
                           -c {params.compression} \
@@ -280,7 +286,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                     2> {log} | \
                     tee >(samtools flagstat \
                           -@{threads} - \
-                          > {output.flagstat}) | \
+                          > {params.flagstat}) | \
                     samtools fastq \
                     -@{threads} \
                     -c {params.compression} \
@@ -301,7 +307,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                     2> {log} | \
                     tee >(samtools flagstat \
                           -@{threads} - \
-                          > {output.flagstat}) | \
+                          > {params.flagstat}) | \
                     tee >(samtools fastq \
                           -@{threads} \
                           -c {params.compression} \
@@ -322,7 +328,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                     2> {log} | \
                     tee >(samtools flagstat \
                           -@{threads} - \
-                          > {output.flagstat}) | \
+                          > {params.flagstat}) | \
                     samtools fastq \
                     -@{threads} \
                     -c {params.compression} \
@@ -331,6 +337,8 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                     > {output.reads[0]}
                 fi
             fi
+
+            pigz {params.flagstat}
             '''
 
 
@@ -370,7 +378,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
             index = config["params"]["rmhost"]["minimap2"]["index"] 
         output:
             flagstat = os.path.join(config["output"]["rmhost"],
-                                    "report/flagstat/{sample}.align2host.flagstat"),
+                                    "report/flagstat/{sample}.align2host.flagstat.gz"),
             reads = expand(os.path.join(
                 config["output"]["rmhost"],
                 "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
@@ -395,7 +403,9 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
             bam = os.path.join(config["output"]["rmhost"], "bam/{sample}/{sample}.align2host.sorted.bam"),
             bam_dir = os.path.join(config["output"]["rmhost"], "bam/{sample}"),
             pe = "pe" if IS_PE else "se",
-            save_bam = "yes" if config["params"]["rmhost"]["save_bam"] else "no"
+            save_bam = "yes" if config["params"]["rmhost"]["save_bam"] else "no",
+            flagstat = os.path.join(config["output"]["rmhost"],
+                                    "report/flagstat/{sample}.align2host.flagstat")
         threads:
             config["params"]["rmhost"]["threads"]
         shell:
@@ -413,7 +423,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                     {input.reads[0]} {input.reads[1]} | \
                     tee >(samtools flagstat \
                           -@{threads} - \
-                          > {output.flagstat}) | \
+                          > {params.flagstat}) | \
                     tee >(samtools fastq \
                           -@{threads} \
                           -c {params.compression} \
@@ -434,7 +444,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                     {input.reads[0]} {input.reads[1]} | \
                     tee >(samtools flagstat \
                           -@{threads} - \
-                          > {output.flagstat}) | \
+                          > {params.flagstat}) | \
                     samtools fastq \
                     -@{threads} \
                     -c {params.compression} \
@@ -454,7 +464,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                     {input.reads[0]} | \
                     tee >(samtools flagstat \
                           -@{threads} - \
-                          > {output.flagstat}) | \
+                          > {params.flagstat}) | \
                     tee >(samtools fastq \
                           -@{threads} \
                           -c {params.compression} \
@@ -474,7 +484,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                     {input.reads[0]} | \
                     tee >(samtools flagstat \
                           -@{threads} - \
-                          > {output.flagstat}) | \
+                          > {params.flagstat}) | \
                     samtools fastq \
                     -@{threads} \
                     -c {params.compression} \
@@ -484,6 +494,8 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                     2> {log}
                 fi
             fi
+
+            pigz {params.flagstat}
             '''
 
 
@@ -761,11 +773,11 @@ and (not config["params"]["rmhost"]["kneaddata"]["do"]):
         input:
             expand(
                 os.path.join(config["output"]["rmhost"],
-                             "report/flagstat/{sample}.align2host.flagstat"),
+                             "report/flagstat/{sample}.align2host.flagstat.gz"),
                 sample=SAMPLES_ID_LIST)
         output:
             flagstat = os.path.join(config["output"]["rmhost"],
-                                    "report/rmhost_align2host_stats.tsv")
+                                    "report/rmhost_align2host_stats.tsv.gz")
         run:
             input_list = [str(i) for i in input]
             metapi.flagstats_summary(input_list, 2, output=output.flagstat)
@@ -812,7 +824,7 @@ if RMHOST_DO and config["params"]["qcreport"]["do"]:
                          "report/stats/{sample}_rmhost_stats.tsv.raw")
         output:
             os.path.join(config["output"]["rmhost"],
-                         "report/stats/{sample}_rmhost_stats.tsv")
+                         "report/stats/{sample}_rmhost_stats.tsv.gz")
         params:
             sample_id = "{sample}"
         threads:
@@ -830,10 +842,10 @@ if RMHOST_DO and config["params"]["qcreport"]["do"]:
         input:
             expand(
                 os.path.join(config["output"]["rmhost"],
-                             "report/stats/{sample}_rmhost_stats.tsv"),
+                             "report/stats/{sample}_rmhost_stats.tsv.gz"),
                 sample=SAMPLES_ID_LIST)
         output:
-            os.path.join(config["output"]["qcreport"], "rmhost_stats.tsv")
+            os.path.join(config["output"]["qcreport"], "rmhost_stats.tsv.gz")
         threads:
             config["params"]["qcreport"]["seqkit"]["threads"]
         run:
@@ -842,7 +854,7 @@ if RMHOST_DO and config["params"]["qcreport"]["do"]:
 
     rule rmhost_report_all:
         input:
-            os.path.join(config["output"]["qcreport"], "rmhost_stats.tsv")
+            os.path.join(config["output"]["qcreport"], "rmhost_stats.tsv.gz")
 
 else:
     rule rmhost_report_all:
