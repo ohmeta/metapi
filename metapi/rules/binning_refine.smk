@@ -240,7 +240,7 @@ if config["params"]["binning"]["dastools"]["do"]:
             contigs2bin=$(python -c "import sys; print(','.join(sys.argv[1:]))" {input.contigs2bin})
 
             FNA={input.scaftigs}
-            PEP={input.per}
+            PEP={input.pep}
 
             pigz -dk $FNA
             pigz -dk $PEP
