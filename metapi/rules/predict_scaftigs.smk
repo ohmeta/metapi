@@ -32,7 +32,7 @@ rule predict_scaftigs_gene_prodigal:
         -q \
         >{log} 2>&1
 
-        pigz ${{FFA%.gz}}
+        pigz ${{FAA%.gz}}
         pigz ${{FFN%.gz}}
         pigz ${{GFF%.gz}}
         '''
