@@ -899,7 +899,7 @@ if len(ASSEMBLERS) != 0:
         output:
             summary = os.path.join(
                 config["output"]["assembly"],
-                "report/assembly_stats_{assembler}.tsv")
+                "report/assembly_stats_{assembler}.tsv.gz")
         params:
             min_length = config["params"]["assembly"]["report"]["min_length"],
             len_ranges = config["params"]["assembly"]["report"]["len_ranges"]
@@ -916,7 +916,7 @@ if len(ASSEMBLERS) != 0:
         input:
             expand(os.path.join(
                 config["output"]["assembly"],
-                "report/assembly_stats_{assembler}.tsv"),
+                "report/assembly_stats_{assembler}.tsv.gz"),
                 assembler=ASSEMBLERS)
 
 else:
