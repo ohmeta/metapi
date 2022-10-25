@@ -469,12 +469,13 @@ if config["params"]["binning"]["vamb"]["do"]:
                 fna_list = sorted(glob(f'{mags_dir}/bins/{assembly_index}C*.fna'))
 
                 for fna in fna_list:
+                    shell(f'''pigz {fna}''')
                     bin_index += 1
                     # bin_id = os.path.basename(fna).split(".")[0]
                     # bin_id = os.path.basename(fna).split(".")[0].split("C")[-1]
-                    fna_dist = os.path.join(outdir, f'''{params.binning_group}.{params.assembly_group}.{params.assembler}.vamb.bin.{bin_index}.fa''')
-                    metadata.append((os.path.abspath(fna), os.path.abspath(fna_dist)))
-                    shell(f'''cat {fna} | seqkit replace -p "^S\d+C" > {fna_dist}''')
+                    fna_dist = os.path.join(outdir, f'''{params.binning_group}.{params.assembly_group}.{params.assembler}.vamb.bin.{bin_index}.fa.gz''')
+                    metadata.append((os.path.abspath(fna) + ".gz", os.path.abspath(fna_dist)))
+                    shell(f'''zcat {fna}.gz | seqkit replace -p "^S\d+C" | pigz -c > {fna_dist}''')
 
             shell(f'''touch {output.binning_done}''')
 
