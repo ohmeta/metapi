@@ -458,7 +458,7 @@ if config["params"]["binning"]["concoct"]["do"]:
             coverage_out = "--coverage_out" \
                 if config["params"]["binning"]["concoct"]["coverage_out"] \
                    else "",
-            basename = os.path.join(
+            bin_prefix = os.path.join(
                 config["output"]["binning"],
                 "mags/{binning_group}.{assembly_group}.{assembler}/concoct/{binning_group}.{assembly_group}.{assembler}.concoct.bin"),
         threads:
@@ -480,7 +480,7 @@ if config["params"]["binning"]["concoct"]["do"]:
 
             concoct \
             --threads {threads} \
-            --basename {params.basename} \
+            --basename {params.bin_prefix} \
             --coverage_file ${{COVERAGE%.gz}} \
             --composition_file ${{CUTFA%.gz}} \
             --clusters {params.clusters} \
@@ -499,33 +499,33 @@ if config["params"]["binning"]["concoct"]["do"]:
             rm -rf ${{COVERAGE%.gz}}
             rm -rf ${{CUTFA%.gz}}
 
-            cat {params.basename}_log.txt >> {log}
+            cat {params.bin_prefix}_log.txt >> {log}
 
-            grep -oEi 'Not enough contigs pass the threshold filter' {params.basename}_log.txt
+            grep -oEi 'Not enough contigs pass the threshold filter' {params.bin_prefix}_log.txt
             grepcode=$?
             if [ $grepcode -eq 0 ]
             then
                 echo "Not enough contigs pass the threshold, touch empty concoct output directory"
             fi
 
-            if [ -f "{params.basename}_clustering_gt{params.length_threshold}.csv" ];
+            if [ -f "{params.bin_prefix}_clustering_gt{params.length_threshold}.csv" ];
             then
                 merge_cutup_clustering.py \
-                {params.basename}_clustering_gt{params.length_threshold}.csv \
-                > {params.basename}_clustering_merged.csv
+                {params.bin_prefix}_clustering_gt{params.length_threshold}.csv \
+                > {params.bin_prefix}_clustering_merged.csv
 
                 pigz -dk $SCAFTIGS
 
                 extract_fasta_bins.py \
                 ${{SCAFTIGS%.gz}} \
-                {params.basename}_clustering_merged.csv \
+                {params.bin_prefix}_clustering_merged.csv \
                 --output_path {params.mags_dir}
 
                 rm -rf ${{SCAFTIGS%.gz}}
 
                 python {params.wrapper_dir}/concoct_postprocess.py \
                 {params.mags_dir} \
-                {params.basename}
+                {params.bin_prefix}
 
                 if [ -f {params.bin_prefix}.0.fa ] || [ -f {params.bin_prefix}.1.fa ];
                 then
