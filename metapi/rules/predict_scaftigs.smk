@@ -83,8 +83,6 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
             config["params"]["predict"]["threads"]
         shell:
             '''
-            gzip -dc {input} > {params.output_dir}/input.fa
-
             ERR={output[0]}
             LOG={output[1]}
             FAA={output[2]}
@@ -98,7 +96,8 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
             TSV={output[10]}
             TXT={output[11]}
 
-            prokka {params.output_dir}/input.fa \
+            prokka \
+            <(zcat {input}) \
             --force \
             --centre X \
             --compliant \
