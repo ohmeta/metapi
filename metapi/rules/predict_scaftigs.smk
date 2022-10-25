@@ -5,24 +5,36 @@ rule predict_scaftigs_gene_prodigal:
     output:
         expand(os.path.join(
             config["output"]["predict"],
-            "scaftigs_gene/{{binning_group}}.{{assembly_group}}.{{assembler}}.prodigal/{{binning_group}}.{{assembly_group}}.{{assembler}}.prodigal.{ext}"),
+            "scaftigs_gene/{{binning_group}}.{{assembly_group}}.{{assembler}}.prodigal/{{binning_group}}.{{assembly_group}}.{{assembler}}.prodigal.{ext}.gz"),
             ext=["faa", "ffn", "gff"])
     conda:
         config["envs"]["predict"]
+    benchmark:
+        os.path.join(config["output"]["predict"],
+                     "benchmark/scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prodigal.benchmark.txt")
     log:
         os.path.join(config["output"]["predict"],
                      "logs/scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prodigal.log")
     shell:
         '''
+        FAA={output[0]}
+        FFN={output[1]}
+        GFF={output[2]}
+
         zcat {input} | \
         prodigal \
         -m \
-        -a {output[0]} \
-        -d {output[1]} \
-        -o {output[2]} \
+        -a ${{FAA%.gz}} \
+        -d ${{FFN%.gz}} \
+        -o ${{GFF%.gz}} \
         -f gff \
-        -p meta -q \
-        2> {log}
+        -p meta \
+        -q \
+        >{log} 2>&1
+
+        pigz ${{FFA%.gz}}
+        pigz ${{FFN%.gz}}
+        pigz ${{GFF%.gz}}
         '''
 
 
@@ -31,7 +43,7 @@ rule predict_scaftigs_gene_prodigal_all:
         expand(expand(
             os.path.join(
                 config["output"]["predict"],
-                "scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prodigal/{binning_group}.{assembly_group}.{assembler}.prodigal.{{ext}}"),
+                "scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prodigal/{binning_group}.{assembly_group}.{assembler}.prodigal.{{ext}}.gz"),
                 zip,
                 binning_group=ASSEMBLY_GROUPS["binning_group"],
                 assembly_group=ASSEMBLY_GROUPS["assembly_group"],
@@ -52,10 +64,13 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
         output:
             expand(os.path.join(
                 config["output"]["predict"],
-                "scaftigs_gene/{{binning_group}}.{{assembly_group}}.{{assembler}}.prokka/{{binning_group}}.{{assembly_group}}.{{assembler}}.prokka.{ext}"),
+                "scaftigs_gene/{{binning_group}}.{{assembly_group}}.{{assembler}}.prokka/{{binning_group}}.{{assembly_group}}.{{assembler}}.prokka.{ext}.gz"),
                 ext=PROKKA_SUFFIX)
         conda:
             config["envs"]["predict"]
+        benchmark:
+            os.path.join(config["output"]["predict"],
+                         "benchmark/scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prokka.benchmark.txt")
         log:
             os.path.join(config["output"]["predict"],
                          "logs/scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prokka.log")
@@ -70,6 +85,19 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
             '''
             gzip -dc {input} > {params.output_dir}/input.fa
 
+            ERR={output[0]}
+            LOG={output[1]}
+            FAA={output[2]}
+            FFN={output[3]}
+            FNA={output[4]}
+            FSA={output[5]}
+            GBK={output[6]}
+            GFF={output[7]}
+            SQN={output[8]}
+            TBL={output[9]}
+            TSV={output[10]}
+            TXT={output[11]}
+
             prokka {params.output_dir}/input.fa \
             --force \
             --centre X \
@@ -80,6 +108,19 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
             --prefix {params.prefix} \
             --metagenome \
             2> {log}
+
+            pigz ${{ERR%.gz}}
+            pigz ${{LOG%.gz}}
+            pigz ${{FAA%.gz}}
+            pigz ${{FFN%.gz}}
+            pigz ${{FNA%.gz}}
+            pigz ${{FSA%.gz}}
+            pigz ${{GBK%.gz}}
+            pigz ${{GFF%.gz}}
+            pigz ${{SQN%.gz}}
+            pigz ${{TBL%.gz}}
+            pigz ${{TSV%.gz}}
+            pigz ${{TXT%.gz}}
             '''
 
 
@@ -88,7 +129,7 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
             expand(expand(
                 os.path.join(
                     config["output"]["predict"],
-                    "scaftigs_gene/{binning_group}.{assembly_group}.{{{{assembler}}}}.prokka/{binning_group}.{assembly_group}.{{{{assembler}}}}.prokka.{{ext}}"),
+                    "scaftigs_gene/{binning_group}.{assembly_group}.{{{{assembler}}}}.prokka/{binning_group}.{assembly_group}.{{{{assembler}}}}.prokka.{{ext}}.gz"),
                     zip,
                     binning_group=ASSEMBLY_GROUP["binning_group"],
                     assembly_group=ASSEMBLY_GROUP["assembly_group"]),
@@ -127,7 +168,7 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
             expand(expand(
                 os.path.join(
                     config["output"]["predict"],
-                    "scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prokka/{binning_group}.{assembly_group}.{assembler}.prokka.{{ext}}"),
+                    "scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prokka/{binning_group}.{assembly_group}.{assembler}.prokka.{{ext}}.gz"),
                     zip,
                     binning_group=ASSEMBLY_GROUPS["binning_group"],
                     assembly_group=ASSEMBLY_GROUPS["assembly_group"],
