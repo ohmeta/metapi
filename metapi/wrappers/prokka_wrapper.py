@@ -3,6 +3,10 @@ import os
 import time
 import subprocess
 
+
+PROKKA_SUFFIX = ["err", "log", "faa", "ffn", "fna", "fsa",
+                 "gbk", "gff", "sqn", "tbl", "tsv", "txt"]
+
 bin_list = glob.glob(snakemake.input["mags_dir"] + "/*.fa")
 gff_count = 0
 
@@ -32,3 +36,7 @@ for bin_fa in bin_list:
 if gff_count == len(bin_list):
     subprocess('''touch {snakemake.output["done"]}''', shell=True)
 
+    for suffix in PROKKA_SUFFIX:
+        prokka_f = os.path.join(output_dir, f'''{bin_id}.{suffix}''')
+        if os.path.exists(prokka_f):
+            subprocess.run(f'''pigz {prokka_f}''', shell=True)

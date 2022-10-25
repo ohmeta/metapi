@@ -5,6 +5,9 @@ rule predict_mags_gene_prodigal:
         predict_done = os.path.join(
             config["output"]["predict"],
             "mags_gene/{binning_group}.{assembly_group}.{assembler}.prodigal/{binner_checkm}/predict_done")
+    benchmark:
+        os.path.join(config["output"]["predict"],
+                     "benchmark/mags_gene/{binning_group}.{assembly_group}.{assembler}.{binner_checkm}.prodigal.benchmark.txt")
     log:
         os.path.join(config["output"]["predict"],
                      "logs/mags_gene/{binning_group}.{assembly_group}.{assembler}.{binner_checkm}.prodigal.log")
@@ -33,7 +36,7 @@ rule predict_mags_gene_prodigal_report:
                 assembly_group=ASSEMBLY_GROUP["assembly_group"])
         output:
             os.path.join(config["output"]["predict"],
-                         "report/mags_gene_stats_{assembler}_{binner_checkm}.tsv")
+                         "report/mags_gene_stats_{assembler}_{binner_checkm}.tsv.gz")
         run:
             import pandas as pd
 
@@ -47,7 +50,7 @@ rule predict_mags_gene_prodigal_all:
     input:
         expand(os.path.join(
             config["output"]["predict"],
-            "report/mags_gene_stats_{assembler}_{binner_checkm}.tsv"),
+            "report/mags_gene_stats_{assembler}_{binner_checkm}.tsv.gz"),
             assembler=ASSEMBLERS,
             binner_checkm=BINNERS_CHECKM)
 
@@ -71,6 +74,9 @@ if config["params"]["predict"]["mags_to_gene"]["prokka"]["do"]:
                 config["output"]["predict"],
                 "mags_gene/{binning_group}.{assembly_group}.{assembler}.prokka/{binner_checkm}"),
             kingdom = config["params"]["predict"]["mags_to_gene"]["prokka"]["kingdom"]
+        benchmark:
+            os.path.join(config["output"]["predict"],
+                         "benchmark/mags_gene/{binning_group}.{assembly_group}.{assembler}.{binner_checkm}.prokka.benchmark.txt")
         log:
             os.path.join(config["output"]["predict"],
                          "logs/mags_gene/{binning_group}.{assembly_group}.{assembler}.{binner_checkm}.prokka.log")

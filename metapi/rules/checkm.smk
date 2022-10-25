@@ -2,7 +2,7 @@ if config["params"]["checkm"]["do"]:
     checkpoint checkm_prepare:
         input:
             gene_table = os.path.join(config["output"]["predict"],
-                                      "report/mags_gene_stats_{assembler}_{binner_checkm}.tsv")
+                                      "report/mags_gene_stats_{assembler}_{binner_checkm}.tsv.gz")
         output:
             mags_dir = directory(os.path.join(config["output"]["check"],
                                                "mags_input/{assembler}.{binner_checkm}"))
@@ -20,7 +20,7 @@ if config["params"]["checkm"]["do"]:
                          "mags_input/{assembler}.{binner_checkm}/mags_input.{batchid}.tsv")
         output:
             table = os.path.join(config["output"]["check"],
-                                 "table/checkm/checkm.table.{assembler}.{binner_checkm}.{batchid}.tsv"),
+                                 "table/checkm/checkm.table.{assembler}.{binner_checkm}.{batchid}.tsv.gz"),
             data = directory(os.path.join(config["output"]["check"],
                                           "data/checkm/checkm.data.{assembler}.{binner_checkm}.{batchid}"))
         wildcard_constraints:
@@ -47,9 +47,11 @@ if config["params"]["checkm"]["do"]:
                 touch {output.table} >> {log} 2>&1
                 mkdir -p {output.data} >> {log} 2>&1
             else
+                TABLE=${output.table}
+
                 checkm lineage_wf \
                 --tab_table \
-                --file {output.table} \
+                --file ${{TABLE%.gz}} \
                 --threads {threads} \
                 --pplacer_threads {params.pplacer_threads} \
                 {params.reduced_tree} \
@@ -58,6 +60,8 @@ if config["params"]["checkm"]["do"]:
                 {input} \
                 {output.data} \
                 > {log} 2>&1
+
+                pigz ${{TABLE%.gz}}
             fi
             '''
 
@@ -67,32 +71,32 @@ if config["params"]["checkm"]["do"]:
 
         return expand(os.path.join(
             config["output"]["check"],
-            "table/checkm/checkm.table.{assembler}.{binner_checkm}.{batchid}.tsv"),
+            "table/checkm/checkm.table.{assembler}.{binner_checkm}.{batchid}.tsv.gz"),
                       assembler=wildcards.assembler,
                       binner_checkm=wildcards.binner_checkm,
                       batchid=list(set([i.split("/")[0] \
                                         for i in glob_wildcards(os.path.join(checkpoint_output,
-                                                                             "mags_input.{batchid}.tsv")).batchid])))
+                                                                             "mags_input.{batchid}.tsv.gz")).batchid])))
 
    
     rule checkm_report:
         input:
             checkm_table = aggregate_checkm_output,
             gene_table = os.path.join(config["output"]["predict"],
-                                      "report/mags_gene_stats_{assembler}_{binner_checkm}.tsv"),
+                                      "report/mags_gene_stats_{assembler}_{binner_checkm}.tsv.gz"),
             mags_report = os.path.join(config["output"]["binning"],
-                                       "report/assembly_stats_{assembler}_{binner_checkm}.tsv")
+                                       "report/assembly_stats_{assembler}_{binner_checkm}.tsv.gz")
         output:
             genomes_info = os.path.join(config["output"]["check"],
-                                 "report/checkm/checkm_table_{assembler}_{binner_checkm}.tsv"),
+                                 "report/checkm/checkm_table_{assembler}_{binner_checkm}.tsv.gz"),
             mags_hq = os.path.join(config["output"]["check"],
-                                   "report/checkm/MAGs_hq_{assembler}_{binner_checkm}.tsv"),
+                                   "report/checkm/MAGs_hq_{assembler}_{binner_checkm}.tsv.gz"),
             mags_mq = os.path.join(config["output"]["check"],
-                                   "report/checkm/MAGs_mq_{assembler}_{binner_checkm}.tsv"),
+                                   "report/checkm/MAGs_mq_{assembler}_{binner_checkm}.tsv.gz"),
             mags_lq = os.path.join(config["output"]["check"],
-                                   "report/checkm/MAGs_lq_{assembler}_{binner_checkm}.tsv"),
+                                   "report/checkm/MAGs_lq_{assembler}_{binner_checkm}.tsv.gz"),
             mags_hmq = os.path.join(config["output"]["check"],
-                                    "report/checkm/MAGs_hmq_{assembler}_{binner_checkm}.tsv")
+                                    "report/checkm/MAGs_hmq_{assembler}_{binner_checkm}.tsv.gz")
         threads:
             config["params"]["checkm"]["threads"]
         params:
@@ -127,15 +131,15 @@ if config["params"]["checkm"]["do"]:
         input:
             expand([
                 os.path.join(config["output"]["check"],
-                             "report/checkm/checkm_table_{assembler}_{binner_checkm}.tsv"),
+                             "report/checkm/checkm_table_{assembler}_{binner_checkm}.tsv.gz"),
                 os.path.join(config["output"]["check"],
-                             "report/checkm/MAGs_hq_{assembler}_{binner_checkm}.tsv"),
+                             "report/checkm/MAGs_hq_{assembler}_{binner_checkm}.tsv.gz"),
                 os.path.join(config["output"]["check"],
-                             "report/checkm/MAGs_mq_{assembler}_{binner_checkm}.tsv"),
+                             "report/checkm/MAGs_mq_{assembler}_{binner_checkm}.tsv.gz"),
                 os.path.join(config["output"]["check"],
-                             "report/checkm/MAGs_lq_{assembler}_{binner_checkm}.tsv"),
+                             "report/checkm/MAGs_lq_{assembler}_{binner_checkm}.tsv.gz"),
                 os.path.join(config["output"]["check"],
-                             "report/checkm/MAGs_hmq_{assembler}_{binner_checkm}.tsv")],
+                             "report/checkm/MAGs_hmq_{assembler}_{binner_checkm}.tsv.gz")],
                 assembler=ASSEMBLERS,
                 binner_checkm=BINNERS_CHECKM)
 

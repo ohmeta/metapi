@@ -21,6 +21,10 @@ def run_prodigal(input_list):
     cds_file = os.path.join(output_dir, bin_id + ".ffn")
     gff_file = os.path.join(output_dir, bin_id + ".gff")
 
+    pep_file_gz = pep_file + ".gz"
+    cds_file_gz = cds_file + ".gz"
+    gff_file_gz = gff_file + ".gz"
+
     prodigal_runner = prodigal.ProdigalRunner(output_dir)
     prodigal_runner.aaGeneFile = pep_file
     prodigal_runner.ntGeneFile = cds_file
@@ -28,10 +32,17 @@ def run_prodigal(input_list):
 
     best_translation_table = prodigal_runner.run(bin_fa, True)
 
+    if os.path.exists(pep_file):
+        subprocess.run(f'''pigz {pep_file}''', shell=True)
+    if os.path.exists(cds_file):
+        subprocess.run(f'''pigz {cds_file}''', shell=True)
+    if os.path.exists(gff_file):
+        subprocess.run(f'''pigz {gff_file}''', shell=True)
+ 
     if (best_translation_table in [4, 11]) and (os.path.exists(pep_file)) and (os.stat(pep_file)[stat.ST_SIZE]) > 0:
-        return (bin_id, bin_fa, pep_file, best_translation_table)
+        return (bin_id, bin_fa, pep_file_gz, best_translation_table)
     else:
-        return (bin_id, bin_fa, pep_file, f"unknown: {best_translation_table}")
+        return (bin_id, bin_fa, pep_file_gz, f"unknown: {best_translation_table}")
 
 
 workers = int(sys.argv[1])
