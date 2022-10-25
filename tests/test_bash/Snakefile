@@ -1,0 +1,35 @@
+#!/usr/bin/env snakemake
+
+rule download:
+    output:
+        r1 = "ecoli_1K.1.fq.gz",
+        r2 = "ecoli_1K.2.fq.gz"
+    threads:
+        1
+    shell:
+        '''
+        curl -o ecoli_1K.1.fq.gz https://raw.githubusercontent.com/ablab/spades/spades_3.15.5/assembler/test_dataset/ecoli_1K_1.fq.gz
+        curl -o ecoli_1K.2.fq.gz https://raw.githubusercontent.com/ablab/spades/spades_3.15.5/assembler/test_dataset/ecoli_1K_2.fq.gz
+        '''
+
+
+rule decompress:
+    input:
+        r1 = "ecoli_1K.1.fq.gz",
+        r2 = "ecoli_1K.2.fq.gz"
+    output:
+        r1 = "ecoli_1K.1.fq",
+        r2 = "ecoli_1K.2.fq"
+    shell:
+        '''
+        R1={input.r1}
+        R2={input.r2}
+        pigz -dc {input.r1} > ${{R1%.gz}}
+        pigz -dc {input.r2} > ${{R2%.gz}}
+        '''
+
+
+rule all:
+    input:
+        "ecoli_1K.1.fq",
+        "ecoli_1K.2.fq"
