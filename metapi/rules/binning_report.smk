@@ -20,14 +20,14 @@ if len(BINNERS_CHECKM) != 0:
             shell('''rm -rf {output}''')
             shell('''mkdir -p {output}''')
 
-            bin_list =  glob.glob(os.path.dirname(input[0]) + "/*.fa")
+            bin_list =  glob.glob(os.path.dirname(input[0]) + "/*.fa.gz")
             header_list = ["binning_group", "assembly_group", "bin_id", "bin_file", "assembler", "binner",
                            "chr", "length", "#A", "#C", "#G", "#T",
                            "#2", "#3", "#4", "#CpG", "#tv", "#ts", "#CpG-ts"]
             header_name = "\\t".join(header_list)
 
             for bin_fa in bin_list:
-                bin_id = os.path.basename(os.path.splitext(bin_fa)[0])
+                bin_id = os.path.basename(os.path.splitext(os.path.splitext(bin_fa)[0])[0])
                 bin_file = os.path.abspath(bin_fa)
                 header_content = "\\t".join([params.binning_group, params.assembly_group, bin_id, bin_file, params.assembler, params.binner])
                 stats_file = os.path.join(output[0], bin_id + ".seqtk.comp.tsv.gz")
