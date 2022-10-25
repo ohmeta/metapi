@@ -67,7 +67,7 @@ if config["params"]["dereplicate"]["cdhit"]["do_gene"]:
             FFNIN={input.ffn}
             FFNOUT={output}
 
-            pigz -dk $FFNIN
+            pigz -dkf $FFNIN
 
             cd-hit-est \
             -i ${{FFNIN%.gz}} \
@@ -83,7 +83,7 @@ if config["params"]["dereplicate"]["cdhit"]["do_gene"]:
             -T {threads} >{log} 2>&1
 
             rm -rf ${{FFNIN%.gz}}
-            pigz -p {threads} $${{FFNOUT%.gz}}
+            pigz -f -p {threads} $${{FFNOUT%.gz}}
             '''
 
 

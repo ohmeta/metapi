@@ -123,8 +123,8 @@ if config["params"]["raw"]["do"]:
                         shell(
                             '''
                             cat {input} | \
-                            tee >(seqtk seq -1 - | pigz -c -p {threads} > {output.reads[0]}) | \
-                            seqtk seq -2 - | pigz -c -p {threads} > {output.reads[1]} 2>> {log}
+                            tee >(seqtk seq -1 - | pigz -cf -p {threads} > {output.reads[0]}) | \
+                            seqtk seq -2 - | pigz -cf -p {threads} > {output.reads[1]} 2>> {log}
                             ''')
                 else:
                     if reads_num == 1:
@@ -147,8 +147,8 @@ if config["params"]["raw"]["do"]:
                         --outdir {params.output_dir} {input[0]} 2>>{log}
 
                         rm -rf {params.output_dir}.{sra_file}.temp 2>> {log}
-                        pigz --processes {threads} {params.output_dir}/{sra_file}_1.fastq 2>> {log}
-                        pigz --processes {threads} {params.output_dir}/{sra_file}_2.fastq 2>> {log}
+                        pigz -f --processes {threads} {params.output_dir}/{sra_file}_1.fastq 2>> {log}
+                        pigz -f --processes {threads} {params.output_dir}/{sra_file}_2.fastq 2>> {log}
                         rm -rf {params.output_dir}/{sra_file}._*.fastq 2>> {log}
 
                         mv {params.output_dir}/{sra_file}_1.fastq.gz {output.reads[0]} 2>> {log}
@@ -176,8 +176,8 @@ if config["params"]["raw"]["do"]:
                             --outdir {params.output_dir} {sra} 2>> {log}
 
                             rm -rf {params.output_dir}.{sra_file}.temp 2>> {log}
-                            pigz --processes {threads} {params.output_dir}/{sra_file}_1.fastq 2>> {log}
-                            pigz --processes {threads} {params.output_dir}/{sra_file}_2.fastq 2>> {log}
+                            pigz -f --processes {threads} {params.output_dir}/{sra_file}_1.fastq 2>> {log}
+                            pigz -f --processes {threads} {params.output_dir}/{sra_file}_2.fastq 2>> {log}
                             rm -rf {params.output_dir}/{sra_file}._*.fastq 2>> {log}
                             ''')
 

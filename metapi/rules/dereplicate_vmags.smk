@@ -107,7 +107,7 @@ rule dereplicate_vmags_blastn:
         -perc_identity {params.prec_identity} \
         >{log} 2>&1
 
-        pigz $BLASTOUT
+        pigz -f $BLASTOUT
         '''
  
 

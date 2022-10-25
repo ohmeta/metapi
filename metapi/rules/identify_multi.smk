@@ -85,7 +85,7 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
                         exit 1
                     else
                         echo "hmmsearch done" >> {log} 2>&1
-                        pigz $HMM
+                        pigz -f $HMM
                         rm -rf $PEP
                         exit 0
                     fi
@@ -174,7 +174,7 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
                         exit 1
                     else
                         echo "hmmsearch done" >> {log} 2>&1
-                        pigz $HMM
+                        pigz -f $HMM
                         rm -rf $PEP
                         exit 0
                     fi

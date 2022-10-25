@@ -18,8 +18,8 @@ if config["params"]["binning"]["graphbin2"]["do"]:
             config["envs"]["report"]
         shell:
             '''
-            pigz -dc {input.scaftigs} > {output.scaftigs}
-            pigz -dc {input.gfa} > {output.gfa}
+            pigz -fdc {input.scaftigs} > {output.scaftigs}
+            pigz -fdc {input.gfa} > {output.gfa}
             '''
 
   
@@ -92,7 +92,7 @@ if config["params"]["binning"]["graphbin2"]["do"]:
                 if params.assembler == "metaspades" or params.assembler == "spades":
                     shell(
                         '''
-                        pigz -p {threads} -dc {params.paths} > {params.mags_dir}/scaftigs.paths
+                        pigz -f -p {threads} -dc {params.paths} > {params.mags_dir}/scaftigs.paths
 
                         graphbin2 \
                         --assembler spades \

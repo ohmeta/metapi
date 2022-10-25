@@ -270,7 +270,7 @@ if config["params"]["identify"]["virsorter2"]["do"]:
 
             if len(combined_fa_list) > 0:
                 fa_str = " ".join(combined_fa_list)
-                subprocess.run(f"cat {fa_str} | pigz -c > {output[0]}", shell=True)
+                subprocess.run(f"cat {fa_str} | pigz -cf > {output[0]}", shell=True)
             else:
                 subprocess.run(f"touch {output[0]}", shell=True)
 
@@ -345,7 +345,7 @@ if config["params"]["identify"]["deepvirfinder"]["do"]:
             DVF=${{DVFGZ%.gz}}
             if [ -f $DVF ];
             then
-                pigz $DVF
+                pigz -f $DVF
             fi
 
             if [ $exitcode -eq 1 ];

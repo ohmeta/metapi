@@ -42,4 +42,4 @@ if gff_count == len(bin_list):
     for suffix in PROKKA_SUFFIX:
         prokka_f = os.path.join(output_dir, f'''{bin_id}.{suffix}''')
         if os.path.exists(prokka_f):
-            subprocess.run(f'''pigz {prokka_f}''', shell=True)
+            subprocess.run(f'''pigz -f {prokka_f}''', shell=True)

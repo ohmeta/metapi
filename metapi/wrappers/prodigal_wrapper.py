@@ -33,11 +33,11 @@ def run_prodigal(input_list):
     best_translation_table = prodigal_runner.run(bin_fa, True)
 
     if os.path.exists(pep_file):
-        subprocess.run(f'''pigz {pep_file}''', shell=True)
+        subprocess.run(f'''pigz -f {pep_file}''', shell=True)
     if os.path.exists(cds_file):
-        subprocess.run(f'''pigz {cds_file}''', shell=True)
+        subprocess.run(f'''pigz -f {cds_file}''', shell=True)
     if os.path.exists(gff_file):
-        subprocess.run(f'''pigz {gff_file}''', shell=True)
+        subprocess.run(f'''pigz -f {gff_file}''', shell=True)
  
     if (best_translation_table in [4, 11]) and (os.path.exists(pep_file)) and (os.stat(pep_file)[stat.ST_SIZE]) > 0:
         return (bin_id, bin_fa, pep_file_gz, best_translation_table)

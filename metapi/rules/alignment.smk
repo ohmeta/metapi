@@ -100,7 +100,7 @@ rule alignment_reads_scaftigs:
         {input.reads} 2> {log} |
         tee >(samtools flagstat \
               -@{threads} - | \
-              pigz -c > {output.flagstat}) | \
+              pigz -cf > {output.flagstat}) | \
         samtools sort \
         -m 3G \
         -@{threads} \

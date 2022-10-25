@@ -61,7 +61,7 @@ if config["params"]["checkm"]["do"]:
                 {output.data} \
                 > {log} 2>&1
 
-                pigz ${{TABLE%.gz}}
+                pigz -f ${{TABLE%.gz}}
             fi
             '''
 

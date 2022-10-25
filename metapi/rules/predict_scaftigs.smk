@@ -32,9 +32,9 @@ rule predict_scaftigs_gene_prodigal:
         -q \
         >{log} 2>&1
 
-        pigz ${{FAA%.gz}}
-        pigz ${{FFN%.gz}}
-        pigz ${{GFF%.gz}}
+        pigz -f ${{FAA%.gz}}
+        pigz -f ${{FFN%.gz}}
+        pigz -f ${{GFF%.gz}}
         '''
 
 
@@ -108,18 +108,18 @@ if config["params"]["predict"]["scaftigs_to_gene"]["prokka"]["do"]:
             --metagenome \
             2> {log}
 
-            pigz ${{ERR%.gz}}
-            pigz ${{LOG%.gz}}
-            pigz ${{FAA%.gz}}
-            pigz ${{FFN%.gz}}
-            pigz ${{FNA%.gz}}
-            pigz ${{FSA%.gz}}
-            pigz ${{GBK%.gz}}
-            pigz ${{GFF%.gz}}
-            pigz ${{SQN%.gz}}
-            pigz ${{TBL%.gz}}
-            pigz ${{TSV%.gz}}
-            pigz ${{TXT%.gz}}
+            pigz -f ${{ERR%.gz}}
+            pigz -f ${{LOG%.gz}}
+            pigz -f ${{FAA%.gz}}
+            pigz -f ${{FFN%.gz}}
+            pigz -f ${{FNA%.gz}}
+            pigz -f ${{FSA%.gz}}
+            pigz -f ${{GBK%.gz}}
+            pigz -f ${{GFF%.gz}}
+            pigz -f ${{SQN%.gz}}
+            pigz -f ${{TBL%.gz}}
+            pigz -f ${{TSV%.gz}}
+            pigz -f ${{TXT%.gz}}
             '''
 
 

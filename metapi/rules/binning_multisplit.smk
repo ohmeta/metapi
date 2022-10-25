@@ -174,7 +174,7 @@ if config["params"]["binning"]["vamb"]["do"]:
             {input.reads} -N 5 2> {log} |
             tee >(samtools flagstat \
                   -@{threads} - | \
-                  pigz -c > {output.flagstat}) | \
+                  pigz -cf > {output.flagstat}) | \
             grep -v "^@" | \
             cat {input.scaftigs_dict} - | \
             samtools view -F 3584 -b - \
@@ -272,7 +272,7 @@ if config["params"]["binning"]["vamb"]["do"]:
             --outputDepth ${{JGI%.gz}} \
             {input.bam} 2> {log}
 
-            pigz ${{JGI%.gz}}
+            pigz -f ${{JGI%.gz}}
             '''
 
 
@@ -400,7 +400,7 @@ if config["params"]["binning"]["vamb"]["do"]:
             fi
 
             MATRIX={input.matrix}
-            pigz -dk $MATRIX
+            pigz -dkf $MATRIX
 
             vamb \
             {params.cuda} \
@@ -469,13 +469,13 @@ if config["params"]["binning"]["vamb"]["do"]:
                 fna_list = sorted(glob(f'{mags_dir}/bins/{assembly_index}C*.fna'))
 
                 for fna in fna_list:
-                    shell(f'''pigz {fna}''')
+                    shell(f'''pigz -f {fna}''')
                     bin_index += 1
                     # bin_id = os.path.basename(fna).split(".")[0]
                     # bin_id = os.path.basename(fna).split(".")[0].split("C")[-1]
                     fna_dist = os.path.join(outdir, f'''{params.binning_group}.{params.assembly_group}.{params.assembler}.vamb.bin.{bin_index}.fa.gz''')
                     metadata.append((os.path.abspath(fna) + ".gz", os.path.abspath(fna_dist)))
-                    shell(f'''zcat {fna}.gz | seqkit replace -p "^S\d+C" | pigz -c > {fna_dist}''')
+                    shell(f'''zcat {fna}.gz | seqkit replace -p "^S\d+C" | pigz -cf > {fna_dist}''')
 
             shell(f'''touch {output.binning_done}''')
 

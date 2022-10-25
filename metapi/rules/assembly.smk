@@ -121,10 +121,10 @@ if "megahit" in ASSEMBLERS:
                 megahit_toolkit contig2fastg $knum {params.contigs} > {params.fastg}
 
                 fastg2gfa {params.fastg} > {params.gfa}
-                pigz -p {threads} {params.fastg}
-                pigz -p {threads} {params.gfa}
+                pigz -f -p {threads} {params.fastg}
+                pigz -f -p {threads} {params.gfa}
 
-                pigz -p {threads} {params.contigs}
+                pigz -f -p {threads} {params.contigs}
                 mv {params.contigs}.gz {output.scaftigs}
 
                 if [ "{params.only_save_scaftigs}" == "yes" ];
@@ -234,7 +234,7 @@ if "idba_ud" in ASSEMBLERS:
 
             sed -i 's#^>#>{params.prefix}_#g' {params.output_dir}/scaffold.fa
 
-            pigz -p {threads} {params.output_dir}/scaffold.fa
+            pigz -f -p {threads} {params.output_dir}/scaffold.fa
             mv {params.output_dir}/scaffold.fa.gz {output.scaftigs}
 
             if [ "{params.only_save_scaftigs}" == "yes" ];
@@ -398,19 +398,19 @@ if "metaspades" in ASSEMBLERS:
 
                 rm -rf {params.reads_dir}/reads*
 
-                pigz -p {threads} {params.output_dir}/scaffolds.fasta
+                pigz -f -p {threads} {params.output_dir}/scaffolds.fasta
                 mv {params.output_dir}/scaffolds.fasta.gz {params.output_dir}/{params.prefix}.metaspades.scaffolds.fa.gz
 
-                pigz -p {threads} {params.output_dir}/contigs.fasta
+                pigz -f -p {threads} {params.output_dir}/contigs.fasta
                 mv {params.output_dir}/contigs.fasta.gz {params.output_dir}/{params.prefix}.metaspades.contigs.fa.gz
             
-                pigz -p {threads} {params.output_dir}/contigs.paths
+                pigz -f -p {threads} {params.output_dir}/contigs.paths
                 mv {params.output_dir}/contigs.paths.gz {params.output_dir}/{params.prefix}.metaspades.contigs.paths.gz
 
-                pigz -p {threads} {params.output_dir}/scaffolds.paths
+                pigz -f -p {threads} {params.output_dir}/scaffolds.paths
                 mv {params.output_dir}/scaffolds.paths.gz {params.output_dir}/{params.prefix}.metaspades.scaffolds.paths.gz
 
-                pigz -p {threads} {params.output_dir}/assembly_graph_with_scaffolds.gfa
+                pigz -f -p {threads} {params.output_dir}/assembly_graph_with_scaffolds.gfa
                 mv {params.output_dir}/assembly_graph_with_scaffolds.gfa.gz {output.gfa}
 
                 if [ "{params.link_scaffolds}" == "yes" ];
@@ -540,19 +540,19 @@ if "spades" in ASSEMBLERS:
 
             rm -rf {params.reads_dir}/reads*
 
-            pigz -p {threads} {params.output_dir}/scaffolds.fasta
+            pigz -f -p {threads} {params.output_dir}/scaffolds.fasta
             mv {params.output_dir}/scaffolds.fasta.gz {params.output_dir}/{params.prefix}.spades.scaffolds.fa.gz
 
-            pigz -p {threads} {params.output_dir}/contigs.fasta
+            pigz -f -p {threads} {params.output_dir}/contigs.fasta
             mv {params.output_dir}/contigs.fasta.gz {params.output_dir}/{params.prefix}.spades.contigs.fa.gz
         
-            pigz -p {threads} {params.output_dir}/contigs.paths
+            pigz -f -p {threads} {params.output_dir}/contigs.paths
             mv {params.output_dir}/contigs.paths.gz {params.output_dir}/{params.prefix}.spades.contigs.paths.gz
 
-            pigz -p {threads} {params.output_dir}/scaffolds.paths
+            pigz -f -p {threads} {params.output_dir}/scaffolds.paths
             mv {params.output_dir}/scaffolds.paths.gz {params.output_dir}/{params.prefix}.spades.scaffolds.paths.gz
 
-            pigz -p {threads} {params.output_dir}/assembly_graph_with_scaffolds.gfa
+            pigz -f -p {threads} {params.output_dir}/assembly_graph_with_scaffolds.gfa
             mv {params.output_dir}/assembly_graph_with_scaffolds.gfa.gz {output.gfa}
 
             if [ "{params.link_scaffolds}" == "yes" ];
@@ -722,12 +722,12 @@ if "opera_ms" in ASSEMBLERS:
                 >{log} 2>&1
                 ''')
 
-            shell('''pigz -p {threads} {params.out_dir}/contigs.fasta''')
+            shell('''pigz -f -p {threads} {params.out_dir}/contigs.fasta''')
 
             if params.polishing != "":
                 shell(
                     '''
-                    pigz -p {threads} {params.out_dir}/contigs.polished.fasta
+                    pigz -f -p {threads} {params.out_dir}/contigs.polished.fasta
 
                     pushd {params.out_dir} && \
                     ln -s contigs.polished.fasta.gz {params.prefix}.opera_ms.scaftigs.fa.gz && \
