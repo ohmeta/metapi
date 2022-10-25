@@ -1,10 +1,10 @@
 rule dereplicate_mags_prepare:
     input:
         genomes_info = expand(os.path.join(config["output"]["check"],
-                                           "report/checkm/checkm_table_{{assembler}}_{binner_checkm}.tsv"),
+                                           "report/checkm/checkm_table_{{assembler}}_{binner_checkm}.tsv.gz"),
                               binner_checkm=BINNERS_CHECKM),
         mags_hmq = expand(os.path.join(config["output"]["check"],
-                                       "report/checkm/MAGs_hmq_{{assembler}}_{binner_checkm}.tsv"),
+                                       "report/checkm/MAGs_hmq_{{assembler}}_{binner_checkm}.tsv.gz"),
                           binner_checkm=BINNERS_CHECKM)
     output:
         genomes_info = os.path.join(config["output"]["dereplicate"],
@@ -82,7 +82,7 @@ if config["params"]["dereplicate"]["drep"]["do"]:
                                      "genomes/bacteriome/MAGs_hmq.{assembler}.drep.out/drep_done")
         output:
             rep_genomes_info = os.path.join(config["output"]["dereplicate"],
-                         "report/bacteriome/checkm_table_genomes_info.{assembler}.derep.tsv")
+                         "report/bacteriome/checkm_table_genomes_info.{assembler}.derep.tsv.gz")
         run:
             import pandas as pd
             from glob import glob
@@ -108,7 +108,7 @@ if config["params"]["dereplicate"]["drep"]["do"]:
                 os.path.join(config["output"]["dereplicate"],
                              "genomes/bacteriome/MAGs_hmq.{assembler}.drep.out/drep_done"),
                 os.path.join(config["output"]["dereplicate"],
-                             "report/bacteriome/checkm_table_genomes_info.{assembler}.derep.tsv")],
+                             "report/bacteriome/checkm_table_genomes_info.{assembler}.derep.tsv.gz")],
                 assembler=ASSEMBLERS)
  
 else:

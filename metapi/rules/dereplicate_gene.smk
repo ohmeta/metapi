@@ -2,42 +2,44 @@ rule dereplicate_gene_prepare:
     input:
         expand(os.path.join(
             config["output"]["predict"],
-            "scaftigs_gene/{binning_group}.{assembly_group}.{{assembler}}.prodigal/{binning_group}.{assembly_group}.{{assembler}}.prodigal.ffn"),
+            "scaftigs_gene/{binning_group}.{assembly_group}.{{assembler}}.prodigal/{binning_group}.{assembly_group}.{{assembler}}.prodigal.ffn.gz"),
             zip,
             binning_group=ASSEMBLY_GROUP["binning_group"],
             assembly_group=ASSEMBLY_GROUP["assembly_group"])
     output:
         ffn = os.path.join(config["output"]["predict"],
-                           "scaftigs_gene_merged/{assembler}.prodigal.scaftigs.gene.merged.ffn"),
+                           "scaftigs_gene_merged/{assembler}.prodigal.scaftigs.gene.merged.ffn.gz"),
         metadata = os.path.join(config["output"]["predict"],
-                                "scaftigs_gene_merged/{assembler}.prodigal.scaftigs.gene.merged.ffn.metadata")
+                                "scaftigs_gene_merged/{assembler}.prodigal.scaftigs.gene.merged.ffn.metadata.gz")
     run:
+        import gzip
         from Bio import SeqIO
 
         mg_count = 0
 
-        with open(output.ffn, 'w') as fh, open(output.metadata, 'w') as mh:
+        with gzip.open(output.ffn, 'w') as fh, gzip.open(output.metadata, 'w') as mh:
             mh.write("mg_id\tcds_id\tmg_name\tcds_name\n")
             for i in input:
                 mg_count += 1
                 cds_count = 0
-                for seq_record in SeqIO.parse(i, "fasta"):
-                    cds_count += 1
-                    mh.write(
-                        f"MG_{mg_count}\tCDS_{cds_count}\t{i}\t{seq_record.name}\n")
-                    seq_record.id = f"MG_{mg_count}-CDS_{cds_count}"
-                    seq_record.name = ""
-                    seq_record.description = ""
-                    SeqIO.write(seq_record, fh, "fasta")
+                with gzip.open(i, "rt") as ih:
+                    for seq_record in SeqIO.parse(ih, "fasta"):
+                        cds_count += 1
+                        mh.write(
+                            f"MG_{mg_count}\tCDS_{cds_count}\t{i}\t{seq_record.name}\n")
+                        seq_record.id = f"MG_{mg_count}-CDS_{cds_count}"
+                        seq_record.name = ""
+                        seq_record.description = ""
+                        SeqIO.write(seq_record, fh, "fasta")
 
 
 if config["params"]["dereplicate"]["cdhit"]["do_gene"]:
     rule dereplicate_gene_cdhit:
         input:
             ffn = os.path.join(config["output"]["predict"],
-                               "scaftigs_gene_merged/{assembler}.prodigal.scaftigs.gene.merged.ffn"),
+                               "scaftigs_gene_merged/{assembler}.prodigal.scaftigs.gene.merged.ffn.gz"),
             metadata = os.path.join(config["output"]["predict"],
-                                    "scaftigs_gene_merged/{assembler}.prodigal.scaftigs.gene.merged.ffn.metadata")
+                                    "scaftigs_gene_merged/{assembler}.prodigal.scaftigs.gene.merged.ffn.metadata.gz")
         output:
             os.path.join(config["output"]["dereplicate"],
                          "gene/{assembler}.prodigal.scaftigs.gene.merged.nr.ffn.gz")
@@ -62,10 +64,14 @@ if config["params"]["dereplicate"]["cdhit"]["do_gene"]:
             both_alignment = config["params"]["dereplicate"]["cdhit"]["both_alignment"]
         shell:
             '''
-            FFN={output}
-            ffn=`echo ${{FFN%.gz}}`
+            FFNIN={input.ffn}
+            FFNOUT={output}
 
-            cd-hit-est -i {input.ffn} -o $ffn \
+            pigz -dk $FFNIN
+
+            cd-hit-est \
+            -i ${{FFNIN%.gz}} \
+            -o ${{FFNOUT%.gz}} \
             -c {params.sequence_identity_threshold} \
             -n {params.word_length} \
             -G {params.use_global_sequence_identity} \
@@ -76,7 +82,8 @@ if config["params"]["dereplicate"]["cdhit"]["do_gene"]:
             -r {params.both_alignment} \
             -T {threads} >{log} 2>&1
 
-            pigz -p {threads} $ffn
+            rm -rf ${{FFNIN%.gz}}
+            pigz -p {threads} $${{FFNOUT%.gz}}
             '''
 
 
