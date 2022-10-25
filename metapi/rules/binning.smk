@@ -135,6 +135,15 @@ if config["params"]["binning"]["metabat2"]["do"]:
             --verbose > {log}
 
             rm -rf ${{COVERAGE%.gz}}
+
+            if [ -f {params.bin_prefix}.0.fa ] || [ -f {params.bin_prefix}.1.fa ];
+            then
+                for i in `ls {params.bin_prefix}.*.fa`
+                do
+                    pigz $i
+                done
+            fi
+
             touch {output}
             '''
 
@@ -252,6 +261,14 @@ if config["params"]["binning"]["maxbin2"]["do"]:
 
             python {params.wrapper_dir}/maxbin2_postprocess.py \
             {params.mags_dir}
+
+            if [ -f {params.bin_prefix}.0.fa ] || [ -f {params.bin_prefix}.1.fa ];
+            then
+                for i in `ls {params.bin_prefix}.*.fa`
+                do
+                    pigz $i
+                done
+            fi
 
             rm -rf ${{COVERAGE%.gz}}
             touch {output}
@@ -509,6 +526,14 @@ if config["params"]["binning"]["concoct"]["do"]:
                 python {params.wrapper_dir}/concoct_postprocess.py \
                 {params.mags_dir} \
                 {params.basename}
+
+                if [ -f {params.bin_prefix}.0.fa ] || [ -f {params.bin_prefix}.1.fa ];
+                then
+                    for i in `ls {params.bin_prefix}.*.fa`
+                    do
+                        pigz $i
+                    done
+                fi
             fi
 
             touch {output}

@@ -177,16 +177,17 @@ if config["params"]["binning"]["dastools"]["do"]:
                 i += 1
                 mags_dir = os.path.dirname(binning_done)
                 shell(f'''rm -rf {output.contigs2bin[i]}''')
-                mags_list = glob.glob(mags_dir + "/*.bin.*.fa")
+                mags_list = glob.glob(mags_dir + "/*.bin.*.fa.gz")
                 if len(mags_list) == 0:
                     shell(f'''touch {output.contigs2bin[i]}''')
                 else:
                     with open(output.contigs2bin[i], 'w') as oh:
                         for bin_fa in sorted(mags_list):
                             bin_id_list = os.path.basename(bin_fa).split(".")
-                            bin_id = bin_id_list[-4] + "." + str(bin_id_list[-2])
-                            for contig in SeqIO.parse(bin_fa, "fasta"):
-                                oh.write(f'''{contig.id}\t{bin_id}\n''')
+                            bin_id = bin_id_list[-5] + "." + str(bin_id_list[-3])
+                            with gzip.open(bin_fa, 'rt') as ih:
+                                for contig in SeqIO.parse(ih, "fasta"):
+                                    oh.write(f'''{contig.id}\t{bin_id}\n''')
 
 
     rule binning_dastools:
@@ -260,8 +261,8 @@ if config["params"]["binning"]["dastools"]["do"]:
             --megabin_penalty {params.megabin_penalty} \
             --threads {threads} --debug > {log} 2>&1
 
-            rm -rf %{{FNA%.gz}}
-            rm -rf %{{PEP%.gz}}
+            rm -rf ${{FNA%.gz}}
+            rm -rf ${{PEP%.gz}}
 
             exitcode=$?
             if [ $exitcode -eq 1 ]
@@ -285,6 +286,14 @@ if config["params"]["binning"]["dastools"]["do"]:
 
             python {params.wrapper_dir}/dastools_postprocess.py \
             {params.bin_prefix}
+
+            if [ -f {params.bin_prefix}.0.fa ] || [ -f {params.bin_prefix}.1.fa ];
+            then
+                for i in `ls {params.bin_prefix}.*.fa`
+                do
+                    pigz $i
+                done
+            fi
 
             touch {output}
             ''' 

@@ -13,15 +13,17 @@ def get_binning_info(mags_dir, cluster_file, assembler):
         with os.scandir(mags_dir) as itr, open(cluster_file, "w") as oh:
             for entry in itr:
                 bin_id, suffix = os.path.splitext(entry.name)
-                if suffix == ".fa":
+                if entry.name.endswith(".fa.gz"):
+                    bin_id = entry.name.split(".fa.gz")[0]
                     cluster_num = bin_id.split(".")[-1]
                     bin_fa = os.path.join(mags_dir, entry.name)
-                    for seq in SeqIO.parse(bin_fa, "fasta"):
-                        # graphbin
-                        # oh.write("%s,%s" %
-                        #         ("_".join(seq.id.split("_")[:2]), cluster_num))
-                        # graphbin 2
-                        oh.write(f"{seq.id},{cluster_num}\n")
+                    with gzip.open(bin_fa, "rt") as ih:
+                        for seq in SeqIO.parse(ih, "fasta"):
+                            # graphbin
+                            # oh.write("%s,%s" %
+                            #         ("_".join(seq.id.split("_")[:2]), cluster_num))
+                            # graphbin 2
+                            oh.write(f"{seq.id},{cluster_num}\n")
 
 
 def generate_mags(cluster_file, scaftigs, prefix):
@@ -43,8 +45,8 @@ def generate_mags(cluster_file, scaftigs, prefix):
     for i in df.index.unique():
         scaftigs_id_list = df.loc[[i], "scaftigs_id"]\
                              .dropna().tolist()
-        bin_fa = prefix + "." + i + ".fa"
-        with open(bin_fa, 'w') as oh:
+        bin_fa = prefix + "." + i + ".fa.gz"
+        with gzip.open(bin_fa, 'w') as oh:
             for scaftigs_id in scaftigs_id_list:
                 SeqIO.write(scaftigs_index[scaftigs_id], oh, "fasta")
 
