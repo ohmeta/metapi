@@ -26,13 +26,13 @@ CLUSTER_VMAGS_GROUPS = CHECKV_GROUPS.loc[:, ["binning_group", "assembly_group", 
 rule dereplicate_vmags_prepare:
     input:
         expand(os.path.join(config["output"]["check"],
-               "data/checkv/{binning_group}.{assembly_group}.{{assembler}}/{identifier}/vMAG_hmq.fa"),
+               "data/checkv/{binning_group}.{assembly_group}.{{assembler}}/{identifier}/vMAG_hmq.fa.gz"),
                 zip,
                 binning_group=CLUSTER_VMAGS_GROUPS["binning_group"],
                 assembly_group=CLUSTER_VMAGS_GROUPS["assembly_group"],
                 identifier=CLUSTER_VMAGS_GROUPS["identifier"])
     output:
-        os.path.join(config["output"]["dereplicate"], "genomes/virome/input/vMAGs_hmq.{assembler}.fa")
+        os.path.join(config["output"]["dereplicate"], "genomes/virome/input/vMAGs_hmq.{assembler}.fa.gz")
     shell:
         '''
         cat {input} > {output} 
@@ -41,7 +41,7 @@ rule dereplicate_vmags_prepare:
 
 rule dereplicate_vmags_build_db:
     input:
-        os.path.join(config["output"]["dereplicate"], "genomes/virome/input/vMAGs_hmq.{assembler}.fa")
+        os.path.join(config["output"]["dereplicate"], "genomes/virome/input/vMAGs_hmq.{assembler}.fa.gz")
     output:
         expand(os.path.join(config["output"]["dereplicate"],
                             "genomes/virome/blastdb/vMAGs_hmq.{{assembler}}.blastdb.{suffix}"),
@@ -70,13 +70,13 @@ rule dereplicate_vmags_build_db:
 rule dereplicate_vmags_blastn:
     input:
         fa = os.path.join(config["output"]["dereplicate"],
-                          "genomes/virome/input/vMAGs_hmq.{assembler}.fa"),
+                          "genomes/virome/input/vMAGs_hmq.{assembler}.fa.gz"),
         db = expand(os.path.join(config["output"]["dereplicate"],
                                  "genomes/virome/blastdb/vMAGs_hmq.{{assembler}}.blastdb.{suffix}"),
                     suffix=["ndb", "nhr", "nin", "njs", "not", "nsq", "ntf", "nto"])
     output:
         os.path.join(config["output"]["dereplicate"],
-                     "genomes/virome/blastout/vMAGs_hmq.{assembler}.blast.fmt6.tsv")
+                     "genomes/virome/blastout/vMAGs_hmq.{assembler}.blast.fmt6.tsv.gz")
     benchmark:
         os.path.join(config["output"]["dereplicate"],
                      "benchmark/blast/dereplicate_vmags_blastn.{assembler}.benchmark.txt")
@@ -94,25 +94,30 @@ rule dereplicate_vmags_blastn:
         config["params"]["dereplicate_vmags"]["threads"]
     shell:
         '''
+        BLASTOUTGZ={output}
+        BLASTOUT=${{BLASTOUTGZ%.gz}}
+
         blastn \
         -num_threads {threads} \
         -query {input.fa} \
         -db {params.db} \
-        -out {output} \
+        -out $BLASTOUT \
         -outfmt '6 std qlen slen' \
         -max_target_seqs {params.max_target_seqs} \
         -perc_identity {params.prec_identity} \
         >{log} 2>&1
+
+        pigz $BLASTOUT
         '''
  
 
 rule dereplicate_vmags_compute_ani:
     input:
         os.path.join(config["output"]["dereplicate"],
-                     "genomes/virome/blastout/vMAGs_hmq.{assembler}.blast.fmt6.tsv")
+                     "genomes/virome/blastout/vMAGs_hmq.{assembler}.blast.fmt6.tsv.gz")
     output:
         os.path.join(config["output"]["dereplicate"],
-                     "genomes/virome/ani/vMAGs_hmq.{assembler}.ani.tsv")
+                     "genomes/virome/ani/vMAGs_hmq.{assembler}.ani.tsv.gz")
     benchmark:
         os.path.join(config["output"]["dereplicate"],
                      "benchmark/virome/dereplicate_vmags_compute_ani.{assembler}.benchmark.txt")
@@ -134,12 +139,12 @@ rule dereplicate_vmags_compute_ani:
 rule dereplicate_vmags_clust:
     input:
         fa = os.path.join(config["output"]["dereplicate"],
-                          "genomes/virome/input/vMAGs_hmq.{assembler}.fa"),
+                          "genomes/virome/input/vMAGs_hmq.{assembler}.fa.gz"),
         ani = os.path.join(config["output"]["dereplicate"],
-                           "genomes/virome/ani/vMAGs_hmq.{assembler}.ani.tsv")
+                           "genomes/virome/ani/vMAGs_hmq.{assembler}.ani.tsv.gz")
     output:
         os.path.join(config["output"]["dereplicate"],
-                     "genomes/virome/cluster/vMAGs_hmq.{assembler}.cluster.tsv")
+                     "genomes/virome/cluster/vMAGs_hmq.{assembler}.cluster.tsv.gz")
     benchmark:
         os.path.join(config["output"]["dereplicate"],
                      "benchmark/virome/dereplicate_vmags_clust.{assembler}.benchmark.txt")
@@ -177,7 +182,7 @@ rule dereplicate_vmags_all:
         expand(
             os.path.join(
                 config["output"]["dereplicate"],
-                "genomes/virome/cluster/vMAGs_hmq.{assembler}.cluster.tsv"),
+                "genomes/virome/cluster/vMAGs_hmq.{assembler}.cluster.tsv.gz"),
                 assembler=ASSEMBLERS)
  
 

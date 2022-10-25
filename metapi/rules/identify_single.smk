@@ -241,7 +241,7 @@ if config["params"]["identify"]["virsorter2"]["do"]:
         output:
             expand(os.path.join(
                 config["output"]["identify"],
-                "vmags/{{binning_group}}.{{assembly_group}}.{{assembler}}/virsorter2/{{binning_group}}.{{assembly_group}}.{{assembler}}.virsorter2.{suffix}"),
+                "vmags/{{binning_group}}.{{assembly_group}}.{{assembler}}/virsorter2/{{binning_group}}.{{assembly_group}}.{{assembler}}.virsorter2.{suffix}.gz"),
                 suffix=["combined.fa", "score.tsv", "boundary.tsv"])
         params:
             label = "{binning_group}.{assembly_group}.{assembler}"
@@ -270,7 +270,7 @@ if config["params"]["identify"]["virsorter2"]["do"]:
 
             if len(combined_fa_list) > 0:
                 fa_str = " ".join(combined_fa_list)
-                subprocess.run(f"cat {fa_str} > {output[0]}", shell=True)
+                subprocess.run(f"cat {fa_str} | pigz -c > {output[0]}", shell=True)
             else:
                 subprocess.run(f"touch {output[0]}", shell=True)
 
@@ -289,7 +289,7 @@ if config["params"]["identify"]["virsorter2"]["do"]:
         input:
             expand(expand(
                 os.path.join(config["output"]["identify"],
-                "vmags/{binning_group}.{assembly_group}.{assembler}/virsorter2/{binning_group}.{assembly_group}.{assembler}.virsorter2.{{suffix}}"),
+                "vmags/{binning_group}.{assembly_group}.{assembler}/virsorter2/{binning_group}.{assembly_group}.{assembler}.virsorter2.{{suffix}}.gz"),
                 zip,
                 binning_group=ASSEMBLY_GROUPS["binning_group"],
                 assembly_group=ASSEMBLY_GROUPS["assembly_group"],
@@ -311,7 +311,7 @@ if config["params"]["identify"]["deepvirfinder"]["do"]:
             expand(
                 os.path.join(
                     config["output"]["identify"],
-                    "vmags/{{binning_group}}.{{assembly_group}}.{{assembler}}/deepvirfinder/{{binning_group}}.{{assembly_group}}.{{assembler}}.scaftigs.fa.gz_gt{min_length}bp_dvfpred.txt"),
+                    "vmags/{{binning_group}}.{{assembly_group}}.{{assembler}}/deepvirfinder/{{binning_group}}.{{assembly_group}}.{{assembler}}.scaftigs.fa.gz_gt{min_length}bp_dvfpred.txt.gz"),
                 min_length=config["params"]["identify"]["deepvirfinder"]["min_length"])
         benchmark:
             os.path.join(config["output"]["identify"], "benchmark/deepvirfinder/deepvirfinder.{binning_group}.{assembly_group}.{assembler}.benchmark.txt")
@@ -341,6 +341,13 @@ if config["params"]["identify"]["deepvirfinder"]["do"]:
             exitcode=$?
             echo "Exit code is: $exitcode" >> {log} 2>&1
 
+            DVFGZ={output}
+            DVF=${{DVFGZ%.gz}}
+            if [ -f $DVF ];
+            then
+                pigz $DVF
+            fi
+
             if [ $exitcode -eq 1 ];
             then
                 grep -oEi "ValueError: not enough values to unpack" {log} 
@@ -363,7 +370,7 @@ if config["params"]["identify"]["deepvirfinder"]["do"]:
             expand(expand(
                 os.path.join(
                     config["output"]["identify"],
-                    "vmags/{binning_group}.{assembly_group}.{assembler}/deepvirfinder/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz_gt{{min_length}}bp_dvfpred.txt"),
+                    "vmags/{binning_group}.{assembly_group}.{assembler}/deepvirfinder/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz_gt{{min_length}}bp_dvfpred.txt.gz"),
                     zip,
                     binning_group=ASSEMBLY_GROUPS["binning_group"],
                     assembly_group=ASSEMBLY_GROUPS["assembly_group"],

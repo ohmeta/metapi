@@ -30,7 +30,7 @@ if config["params"]["checkv"]["do"]:
                 hfile=["checkv_hmms.tsv", "genome_lengths.tsv"]),
             viral = os.path.join(
                 config["output"]["identify"],
-                "vmags/{binning_group}.{assembly_group}.{assembler}/{identifier}/{binning_group}.{assembly_group}.{assembler}.{identifier}.combined.fa")
+                "vmags/{binning_group}.{assembly_group}.{assembler}/{identifier}/{binning_group}.{assembly_group}.{assembler}.{identifier}.combined.fa.gz")
         output:
             os.path.join(config["output"]["check"],
                          "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/checkv_done")
@@ -68,7 +68,7 @@ if config["params"]["checkv"]["do"]:
                                 "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/checkv_done")
         output:
             vmag = os.path.join(config["output"]["check"],
-                                "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/vMAG_hmq.fa")
+                                "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/vMAG_hmq.fa.gz")
         params:
             binning_group = "{binning_group}",
             assembly_group = "{assembly_group}",
@@ -108,7 +108,7 @@ if config["params"]["checkv"]["do"]:
 
                 subprocess.run(f'''touch {output.vmag}''', shell=True)
 
-                with open(output.vmag, "w+") as oh:
+                with gzip.open(output.vmag, "w") as oh:
                     if os.path.exists(proviruses_f):
                         proviruses_rc = SeqIO.index_db(":memory:", proviruses_f, "fasta")
                         for contig_id in proviruses_df.index.unique():
@@ -156,7 +156,7 @@ if config["params"]["checkv"]["do"]:
                 os.path.join(config["output"]["check"],
                 "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/checkv_done"),
                 os.path.join(config["output"]["check"],
-                "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/vMAG_hmq.fa")],
+                "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/vMAG_hmq.fa.gz")],
                 zip,
                 binning_group=CHECKV_GROUPS["binning_group"],
                 assembly_group=CHECKV_GROUPS["assembly_group"],

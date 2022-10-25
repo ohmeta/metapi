@@ -2,7 +2,7 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
     checkpoint taxonomic_gtdbtk_prepare:
         input:
             rep_genomes_info = os.path.join(config["output"]["dereplicate"],
-                         "report/bacteriome/checkm_table_genomes_info.{assembler}.derep.tsv")
+                         "report/bacteriome/checkm_table_genomes_info.{assembler}.derep.tsv.gz")
         output:
             mags_dir = directory(os.path.join(config["output"]["taxonomic"], "mags_input/{assembler}"))
         params:
@@ -97,7 +97,7 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
         input:
             gtdb_done = aggregate_gtdbtk_report_input,
             rep_genomes_info = os.path.join(config["output"]["dereplicate"],
-                                            "report/bacteriome/checkm_table_genomes_info.{assembler}.derep.tsv")
+                                            "report/bacteriome/checkm_table_genomes_info.{assembler}.derep.tsv.gz")
         output:
             table_gtdb = os.path.join(config["output"]["taxonomic"],
                                       "report/gtdbtk/MAGs_hmq.rep.{assembler}.gtdbtk.gtdb.tsv"),

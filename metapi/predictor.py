@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import gzip
 import re
 import sys
 import argparse
@@ -14,7 +15,7 @@ def parse_gff(gff_file, min_len):
     save = False
     min_len = int(min_len)
     pep_id_list = []
-    with open(gff_file, "r") as ih:
+    with gzip.open(gff_file, "r") as ih:
         for line in ih:
             seq_len = 0
 
@@ -45,22 +46,23 @@ def extract_faa(faa_file, pep_id_list, out_file, assembly_group=None):
     if os.path.dirname(out_file) != "":
         os.makedirs(os.path.dirname(out_file), exist_ok=True)
 
-    with open(out_file, "w") as oh:
-        for seq in SeqIO.parse(faa_file, "fasta"):
-            if seq.id in pep_id_list:
-                if assembly_group is not None:
-                    seq.id = f'''{assembly_group}C{seq.id}'''
-                    seq.name = f'''{assembly_group}C{seq.name}'''
-                    seq.description = f'''{assembly_group}C{seq.description}'''
-                SeqIO.write(seq, oh, "fasta")
+    with gzip.open(out_file, "w") as oh:
+        with gzip.open(faa_file, "rt") as ih:
+            for seq in SeqIO.parse(ih, "fasta"):
+                if seq.id in pep_id_list:
+                    if assembly_group is not None:
+                        seq.id = f'''{assembly_group}C{seq.id}'''
+                        seq.name = f'''{assembly_group}C{seq.name}'''
+                        seq.description = f'''{assembly_group}C{seq.description}'''
+                    SeqIO.write(seq, oh, "fasta")
 
 
 def main():
     parser = argparse.ArgumentParser("PEP extractor")
-    parser.add_argument("--faa-file", dest="faa_file", type=str, required=True, help="protein file")
-    parser.add_argument("--gff-file", dest="gff_file", type=str, required=True, help="gff file")
+    parser.add_argument("--faa-file", dest="faa_file", type=str, required=True, help="protein file, gzipped")
+    parser.add_argument("--gff-file", dest="gff_file", type=str, required=True, help="gff file, gzipped")
     parser.add_argument("--min-contig", dest="min_contig", default=2000, type=int, help="minimal contig length, default: 2000")
-    parser.add_argument("--out-file", dest="out_file", type=str, required=True, help="output protein file")
+    parser.add_argument("--out-file", dest="out_file", type=str, required=True, help="output protein file, gzipped")
     args = parser.parse_args()
 
     pep_id_list = parse_gff(args.gff_file, args.min_contig)
