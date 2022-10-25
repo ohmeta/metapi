@@ -60,7 +60,7 @@ rule alignment_reads_scaftigs:
     output:
         flagstat = os.path.join(
             config["output"]["alignment"],
-            "report/flagstat/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.flagstat"),
+            "report/flagstat/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.flagstat.gz"),
         bam = os.path.join(
             config["output"]["alignment"],
             "bam/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.sorted.bam") \
@@ -92,6 +92,8 @@ rule alignment_reads_scaftigs:
         config["params"]["alignment"]["threads"]
     shell:
         '''
+        FLAGSTAT={output.flagstat}
+
         rm -rf {output.bam}*
 
         {params.bwa} mem \
@@ -100,12 +102,14 @@ rule alignment_reads_scaftigs:
         {input.reads} 2> {log} |
         tee >(samtools flagstat \
               -@{threads} - \
-              > {output.flagstat}) | \
+              > ${{FLAGSTAT%.gz}}) | \
         samtools sort \
         -m 3G \
         -@{threads} \
         -T {output.bam} \
         -O BAM -o {output.bam} -
+
+        pigz ${{FLAGSTAT%.gz}}
 
         samtools index -@{threads} {output.bam} {output.bai} 2>> {log}
         '''
@@ -116,7 +120,7 @@ rule alignment_reads_scaftigs_all:
         expand([
             os.path.join(
                 config["output"]["alignment"],
-                "report/flagstat/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.flagstat"),
+                "report/flagstat/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.flagstat.gz"),
             os.path.join(
                 config["output"]["alignment"],
                 "bam/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.sorted.bam"),
@@ -169,14 +173,14 @@ rule alignment_report:
         expand(
             os.path.join(
                 config["output"]["alignment"],
-                "report/flagstat/{binning_group}.{assembly_group}.{{assembler}}/{sample}.align2scaftigs.flagstat"),
+                "report/flagstat/{binning_group}.{assembly_group}.{{assembler}}/{sample}.align2scaftigs.flagstat.gz"),
                 zip,
                 binning_group=ALIGNMENT_GROUP["binning_group"],
                 assembly_group=ALIGNMENT_GROUP["assembly_group"],
                 sample=ALIGNMENT_GROUP["sample_id"])
     output:
         flagstat = os.path.join(config["output"]["alignment"],
-                                "report/alignment_flagstat_{assembler}_bwa.tsv")
+                                "report/alignment_flagstat_{assembler}_bwa.tsv.gz")
     run:
         input_list = [str(i) for i in input]
         metapi.flagstats_summary(input_list, 2, output=output.flagstat)
@@ -187,7 +191,7 @@ rule alignment_report_all:
         expand(
             os.path.join(
                 config["output"]["alignment"],
-                "report/alignment_flagstat_{assembler}_bwa.tsv"),
+                "report/alignment_flagstat_{assembler}_bwa.tsv.gz"),
             assembler=ASSEMBLERS)
 
 
