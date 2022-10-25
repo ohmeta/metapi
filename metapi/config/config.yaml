@@ -101,7 +101,7 @@ params:
       do: True
       min_contig: 100
       only_save_scaftigs: True
-      k_list: ["21", "33", "55", "77"]
+      k_list: ["21", "29", "39", "59", "79", "99", "119", "141"]
       presets: "" # choose from "meta-sensitive" or "meta-large"
       # 15-255, increment <= 28
       # k_min: 21, default
@@ -120,7 +120,7 @@ params:
       only_save_scaftigs: True
       link_scaffolds: True
       memory: 81
-      kmers: ["21", "33", "55", "77"]
+      kmers: ["21", "29", "39", "59", "79", "99", "119", "141"]
       # K_MERS_RNA = [33, 49]
       # K_MERS_SHORT = [21, 33, 55]
       # K_MERS_150 = [21, 33, 55, 77]
@@ -133,7 +133,7 @@ params:
       only_save_scaftigs: True
       link_scaffolds: True
       memory: 50
-      kmers: ["21", "33", "55", "77"]
+      kmers: ["21", "29", "39", "59", "79", "99", "119", "141"]
     plass:
       do: False
       min_seq_id:

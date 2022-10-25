@@ -418,11 +418,18 @@ if config["params"]["binning"]["vamb"]["do"]:
 
             rm -rf ${{MATRIX%.gz}}
 
-            echo "Running vamb completed" >> {log} 2>&1
-            echo "Touch binning_done" >> {log} 2>&1
-            touch {output.binning_done}
 
-            exit 0
+            if [ -d {params.outdir}/bins ];
+            then
+                echo "Running vamb completed" >> {log} 2>&1
+                echo "Touch binning_done" >> {log} 2>&1
+                touch {output.binning_done}
+                exit 0
+            else
+                echo "No bins generated, please check {log}"
+                echo "No bins generated, please check {log}" >>{log}
+                exit 1
+            fi
             '''
 
 
