@@ -220,7 +220,7 @@ params:
       threshold: 1.5
     vamb:
       do: True
-      cuda: True
+      cuda: False
       cuda_module: "cuda/11.2" # take effect only when use_cuda_module
       use_cuda_module: False # avoid conda's CUDA issue
       save_bam: False
