@@ -3,6 +3,7 @@
 import os
 import subprocess
 import resource
+import gzip
 from Bio import SeqIO
 import pandas as pd
 
@@ -155,9 +156,9 @@ def combine_jgi(jgi_list, output_file):
 
     files_handle = []
     for jgi in jgi_list:
-        files_handle.append(open(jgi, 'r'))
+        files_handle.append(gzip.open(jgi, 'rt'))
 
-    with open(output_file, 'w') as oh:
+    with gzip.open(output_file, 'w') as oh:
         for line in files_handle[0]:
             oh.write(line.strip())
             for handle in files_handle[1:]:

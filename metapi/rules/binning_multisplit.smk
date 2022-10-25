@@ -60,15 +60,16 @@ if config["params"]["binning"]["vamb"]["do"]:
                 "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz")
         output:
             os.path.join(config["output"]["assembly"],
-                "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.metadata.tsv")
+                "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.metadata.tsv.gz")
         params:
             binning_group = "{binning_group}"
         run:
             import sys
+            import gzip
 
             assembly_groups = sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, params.binning_group))
 
-            with open(output[0], 'w') as oh:
+            with gzip.open(output[0], 'w') as oh:
                 oh.write("binning_assembly_group\tvamb_id\n")
                 count = 0
                 for assembly_group in assembly_groups:
@@ -144,7 +145,7 @@ if config["params"]["binning"]["vamb"]["do"]:
         output:
             flagstat = os.path.join(
                 config["output"]["alignment"],
-                "report/flagstat_minimap2/{binning_group}.{assembler}/{sample}.align2merged_scaftigs.flagstat"),
+                "report/flagstat_minimap2/{binning_group}.{assembler}/{sample}.align2merged_scaftigs.flagstat.gz"),
             bam = temp(os.path.join(config["output"]["alignment"],
                                     "bam_merged/{binning_group}.{assembler}/{sample}.align2merged_scaftigs.bam"))
         priority:
@@ -167,12 +168,17 @@ if config["params"]["binning"]["vamb"]["do"]:
             '''
             rm -rf {params.bam_dir}/{params.sample}.align2merged_scaftigs.bam*
 
-            minimap2 -t {threads} -ax sr {input.scaftigs_index} {input.reads} -N 5 2> {log} |
+            minimap2 -t {threads} \
+            -ax sr \
+            {input.scaftigs_index} \
+            {input.reads} -N 5 2> {log} |
             tee >(samtools flagstat \
-                  -@{threads} - > {output.flagstat}) | \
+                  -@{threads} - | \
+                  pigz -c > {output.flagstat}) | \
             grep -v "^@" | \
             cat {input.scaftigs_dict} - | \
-            samtools view -F 3584 -b - > {output.bam} 2> {log}
+            samtools view -F 3584 -b - \
+            > {output.bam} 2> {log}
             '''
 
 
@@ -209,7 +215,11 @@ if config["params"]["binning"]["vamb"]["do"]:
             '''
             rm -rf {params.bam_dir}/{params.sample}.align2merged_scaftigs.bam.temp*
             
-            samtools sort {input.bam} -m 3G -@{threads} -T {params.bam_dir}/{params.sample}.align2merged_scaftigs.bam.temp -O BAM -o {output.bam} 2> {log}
+            samtools sort {input.bam} \
+            -m 3G -@{threads} \
+            -T {params.bam_dir}/{params.sample}.align2merged_scaftigs.bam.temp \
+            -O BAM \
+            -o {output.bam} 2> {log}
             
             rm -rf {params.bam_dir}/{params.sample}.align2merged_scaftigs.bam.temp*
             '''
@@ -220,13 +230,13 @@ if config["params"]["binning"]["vamb"]["do"]:
             expand(
                 os.path.join(
                     config["output"]["alignment"],
-                    "report/flagstat_minimap2/{binning_group}.{{assembler}}/{sample}.align2merged_scaftigs.flagstat"),
+                    "report/flagstat_minimap2/{binning_group}.{{assembler}}/{sample}.align2merged_scaftigs.flagstat.gz"),
                 zip,
                 binning_group=ALIGNMENT_GROUP["binning_group"],
                 sample=ALIGNMENT_GROUP["sample_id"])
         output:
             flagstat = os.path.join(config["output"]["alignment"],
-                                    "report/alignment_flagstat_{assembler}_minimap2.tsv")
+                                    "report/alignment_flagstat_{assembler}_minimap2.tsv.gz")
         run:
             input_list = [str(i) for i in input]
             output_str = str(output)
@@ -241,7 +251,7 @@ if config["params"]["binning"]["vamb"]["do"]:
         output:
             jgi = os.path.join(
                 config["output"]["binning"],
-                "coverage/{binning_group}.{assembler}/{sample}.align2merged_scaftigs.jgi")
+                "coverage/{binning_group}.{assembler}/{sample}.align2merged_scaftigs.jgi.gz")
         priority:
             30
         benchmark:
@@ -255,8 +265,14 @@ if config["params"]["binning"]["vamb"]["do"]:
                          "logs/vamb/jgi/{binning_group}.{assembler}.{sample}.align2merged_scaftigs.jgi.coverage.log")
         shell:
             '''
+            JGI={output.jgi}
+
             jgi_summarize_bam_contig_depths \
-            --noIntraDepthVariance --outputDepth {output.jgi} {input.bam} 2> {log}
+            --noIntraDepthVariance \
+            --outputDepth ${{JGI%.gz}} \
+            {input.bam} 2> {log}
+
+            pigz ${{JGI%.gz}}
             '''
 
 
@@ -264,11 +280,11 @@ if config["params"]["binning"]["vamb"]["do"]:
         input:
             jgi = lambda wildcards: expand(os.path.join(
                 config["output"]["binning"],
-                "coverage/{{binning_group}}.{{assembler}}/{sample}.align2merged_scaftigs.jgi"),
+                "coverage/{{binning_group}}.{{assembler}}/{sample}.align2merged_scaftigs.jgi.gz"),
                 sample=sorted(metapi.get_samples_id_by_binning_group(SAMPLES, wildcards.binning_group)))
         output:
             matrix = os.path.join(config["output"]["binning"],
-                                  "matrix/{binning_group}.{assembler}.align2merged_scaftigs.jgi.abundance.matrix.tsv")
+                                  "matrix/{binning_group}.{assembler}.align2merged_scaftigs.jgi.abundance.matrix.tsv.gz")
         benchmark:
             os.path.join(
                 config["output"]["binning"],
@@ -288,10 +304,10 @@ if config["params"]["binning"]["vamb"]["do"]:
                     "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz"),
                 os.path.join(
                     config["output"]["binning"],
-                    "matrix/{binning_group}.{assembler}.align2merged_scaftigs.jgi.abundance.matrix.tsv"),
+                    "matrix/{binning_group}.{assembler}.align2merged_scaftigs.jgi.abundance.matrix.tsv.gz"),
                 os.path.join(
                     config["output"]["alignment"],
-                    "report/alignment_flagstat_{assembler}_minimap2.tsv")],
+                    "report/alignment_flagstat_{assembler}_minimap2.tsv.gz")],
                 binning_group=SAMPLES_BINNING_GROUP_LIST,
                 assembler=ASSEMBLERS)
 
@@ -301,7 +317,7 @@ if config["params"]["binning"]["vamb"]["do"]:
             scaftigs = os.path.join(config["output"]["assembly"],
                 "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz"),
             matrix = os.path.join(config["output"]["binning"],
-                "matrix/{binning_group}.{assembler}.align2merged_scaftigs.jgi.abundance.matrix.tsv")
+                "matrix/{binning_group}.{assembler}.align2merged_scaftigs.jgi.abundance.matrix.tsv.gz")
         output:
             binning_done = os.path.join(config["output"]["binning"],
                                         "mags_vamb/{binning_group}.{assembler}/binning_done")
@@ -383,17 +399,22 @@ if config["params"]["binning"]["vamb"]["do"]:
                 fi
             fi
 
+            MATRIX={input.matrix}
+            pigz -dk $MATRIX
+
             vamb \
             {params.cuda} \
             -p {threads} \
             --outdir {params.outdir} \
             --fasta {input.scaftigs} \
-            --jgi {input.matrix} \
+            --jgi ${{MATRIX%.gz}} \
             -o C \
             -m {params.min_contig} \
             --minfasta {params.min_fasta} \
             {params.external_params} \
             >> {log} 2>&1
+
+            rm -rf ${{MATRIX%.gz}}
 
             echo "Running vamb completed" >> {log} 2>&1
             echo "Touch binning_done" >> {log} 2>&1
@@ -406,12 +427,12 @@ if config["params"]["binning"]["vamb"]["do"]:
     rule binning_vamb_postprocess:
         input:
             metadata = os.path.join(config["output"]["assembly"],
-                "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.metadata.tsv"),
+                "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.metadata.tsv.gz"),
             binning_done = os.path.join(config["output"]["binning"],
                                         "mags_vamb/{binning_group}.{assembler}/binning_done")
         output:
             metadata = os.path.join(config["output"]["binning"],
-                                    "mags_vamb/{binning_group}.{assembler}/bins_{assembly_group}/cluster.metadata.tsv"),
+                                    "mags_vamb/{binning_group}.{assembler}/bins_{assembly_group}/cluster.metadata.tsv.gz"),
             binning_done = os.path.join(config["output"]["binning"],
                                         "mags/{binning_group}.{assembly_group}.{assembler}/vamb/binning_done")
         benchmark:
@@ -482,7 +503,7 @@ if config["params"]["binning"]["vamb"]["do"]:
             expand([
                 os.path.join(
                     config["output"]["binning"],
-                    "mags_vamb/{binning_group}.{assembler}/bins_{assembly_group}/cluster.metadata.tsv"),
+                    "mags_vamb/{binning_group}.{assembler}/bins_{assembly_group}/cluster.metadata.tsv.gz"),
                 os.path.join(
                     config["output"]["binning"],
                     "mags/{binning_group}.{assembly_group}.{assembler}/vamb/binning_done")],

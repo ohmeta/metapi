@@ -12,7 +12,7 @@ if config["params"]["binning"]["metabat2"]["do"]:
         output:
             coverage = os.path.join(
                 config["output"]["binning"],
-                "coverage/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.metabat2.coverage")
+                "coverage/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.metabat2.coverage.gz")
         priority:
             28
         conda:
@@ -43,8 +43,10 @@ if config["params"]["binning"]["metabat2"]["do"]:
                        else ""
         shell:
             '''
+            COVERAGE={output.coverage}
+
             jgi_summarize_bam_contig_depths \
-            --outputDepth {output.coverage} \
+            --outputDepth ${{COVERAGE%.gz}} \
             --percentIdentity {params.percent_identity} \
             --minMapQual {params.min_map_qual} \
             {params.output_paired_contigs} \
@@ -52,6 +54,8 @@ if config["params"]["binning"]["metabat2"]["do"]:
             {params.output_gc_window} \
             {input.bam} \
             2> {log}
+
+            pigz ${{COVERAGE%.gz}}
             '''
 
 
@@ -73,7 +77,7 @@ if config["params"]["binning"]["metabat2"]["do"]:
                 "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz"),
             coverage = os.path.join(
                 config["output"]["binning"],
-                "coverage/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.metabat2.coverage")
+                "coverage/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.metabat2.coverage.gz")
         output:
             os.path.join(config["output"]["binning"],
                          "mags/{binning_group}.{assembly_group}.{assembler}/metabat2/binning_done")
@@ -110,9 +114,12 @@ if config["params"]["binning"]["metabat2"]["do"]:
             '''
             rm -rf {params.mags_dir}
 
+            COVERAGE={input.coverage}
+            pigz -dk $COVERAGE
+
             metabat2 \
             --inFile {input.scaftigs} \
-            --abdFile {input.coverage} \
+            --abdFile ${{COVERAGE%.gz}} \
             --outFile {params.bin_prefix} \
             --minContig {params.min_contig} \
             --maxP {params.max_p} \
@@ -127,6 +134,7 @@ if config["params"]["binning"]["metabat2"]["do"]:
             --numThreads {threads} \
             --verbose > {log}
 
+            rm -rf ${{COVERAGE%.gz}}
             touch {output}
             '''
 
@@ -156,11 +164,11 @@ if config["params"]["binning"]["maxbin2"]["do"]:
         input:
             coverage = os.path.join(
                 config["output"]["binning"],
-                "coverage/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.metabat2.coverage")
+                "coverage/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.metabat2.coverage.gz")
         output:
             coverage = os.path.join(
                 config["output"]["binning"],
-                "coverage/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.maxbin2.coverage")
+                "coverage/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.maxbin2.coverage.gz")
         priority:
             30
         log:
@@ -168,7 +176,7 @@ if config["params"]["binning"]["maxbin2"]["do"]:
                          "logs/maxbin2/{binning_group}.{assembly_group}.{assembler}.maxbin2.coverage.log")
         shell:
             '''
-            cut -f1,3 {input.coverage} | tail -n +2 > {output.coverage}
+            zcat {input.coverage} | cut -f1,3 | tail -n +2 | pigz -c > {output.coverage}
             '''
 
 
@@ -179,7 +187,7 @@ if config["params"]["binning"]["maxbin2"]["do"]:
                 "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz"),
             coverage = os.path.join(
                 config["output"]["binning"],
-                "coverage/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.maxbin2.coverage")
+                "coverage/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.maxbin2.coverage.gz")
         output:
             os.path.join(config["output"]["binning"],
                          "mags/{binning_group}.{assembly_group}.{assembler}/maxbin2/binning_done")
@@ -213,11 +221,14 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             rm -rf {params.mags_dir}
             mkdir -p {params.mags_dir}
 
+            COVERAGE={input.coverage}
+            pigz -dk $COVERAGE
+
             set +e
             run_MaxBin.pl \
             -thread {threads} \
             -contig {input.scaftigs} \
-            -abund {input.coverage} \
+            -abund ${{COVERAGE%.gz}} \
             -min_contig_length {params.min_contig} \
             -max_iteration {params.max_iteration} \
             -prob_threshold {params.prob_threshold} \
@@ -242,6 +253,7 @@ if config["params"]["binning"]["maxbin2"]["do"]:
             python {params.wrapper_dir}/maxbin2_postprocess.py \
             {params.mags_dir}
 
+            rm -rf ${{COVERAGE%.gz}}
             touch {output}
             '''
 
@@ -293,15 +305,12 @@ if config["params"]["binning"]["concoct"]["do"]:
                 config["output"]["assembly"],
                 "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz"),
         output:
-            scaftigs = os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa"),
             scaftigs_cut = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.cut.fa"),
+                "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.cut.fa.gz"),
             scaftigs_bed = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.cut.bed")
+                "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.cut.bed.gz")
         threads:
             1
         log:
@@ -314,15 +323,22 @@ if config["params"]["binning"]["concoct"]["do"]:
             overlap_size = config["params"]["binning"]["concoct"]["overlap_size"]
         shell:
             '''
-            pigz -p {threads} -k -d -c {input.scaftigs} > {output.scaftigs}
+            SCAFTIGS={input.scaftigs}
+            BED={output.scaftigs_bed}
+
+            pigz -dk $SCAFTIGS
 
             cut_up_fasta.py \
-            {output.scaftigs} \
+            ${{SCAFTIGS%.gz}} \
             --chunk_size {params.chunk_size} \
             --overlap_size {params.overlap_size} \
             --merge_last \
-            --bedfile {output.scaftigs_bed} \
-            > {output.scaftigs_cut} 2>{log}
+            --bedfile ${{BED%.gz}} \
+            | pigz -c > {output.scaftigs_cut} 2>{log}
+
+            pigz ${{BED%.gz}}
+
+            rm -rf ${{SCAFTIGS%.gz}}
             '''
 
 
@@ -334,14 +350,14 @@ if config["params"]["binning"]["concoct"]["do"]:
                    binning_group=ASSEMBLY_GROUPS["binning_group"],
                    assembly_group=ASSEMBLY_GROUPS["assembly_group"],
                    assembler=ASSEMBLY_GROUPS["assembler"]),
-                   results=["scaftigs.fa", "scaftigs.cut.fa", "scaftigs.cut.bed"])
+                   results=["scaftigs.cut.fa.gz", "scaftigs.cut.bed.gz"])
 
 
     rule binning_concoct_coverage:
         input:
             scaftigs_bed = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.cut.bed"),
+                "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.cut.bed.gz"),
             bam = lambda wildcards: expand(os.path.join(
                 config["output"]["alignment"],
                 "bam/{{binning_group}}.{{assembly_group}}.{{assembler}}/{sample}.align2scaftigs.sorted.bam"),
@@ -353,7 +369,7 @@ if config["params"]["binning"]["concoct"]["do"]:
         output:
             coverage = os.path.join(
                 config["output"]["binning"],
-                "coverage/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.concoct.coverage")
+                "coverage/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.concoct.coverage.gz")
         priority:
             30
         conda:
@@ -365,10 +381,15 @@ if config["params"]["binning"]["concoct"]["do"]:
             config["params"]["binning"]["threads"]
         shell:
             '''
+            BED={input.scaftigs_bed}
+            pigz -dk $BED
+
             concoct_coverage_table.py \
-            {input.scaftigs_bed} \
+            ${{BED%.gz}} \
             {input.bam} \
-            > {output.coverage} 2> {log}
+            | pigz -c > {output.coverage} 2> {log}
+
+            rm -rf ${{BED%.gz}}
             '''
 
 
@@ -376,16 +397,16 @@ if config["params"]["binning"]["concoct"]["do"]:
         input:
             scaftigs = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa"),
+                "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz"),
             scaftigs_cut = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.cut.fa"),
+                "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.cut.fa.gz"),
             scaftigs_bed = os.path.join(
                 config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.cut.bed"),
+                "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.cut.bed.gz"),
             coverage = os.path.join(
                 config["output"]["binning"],
-                "coverage/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.concoct.coverage")
+                "coverage/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.concoct.coverage.gz")
         output:
             os.path.join(config["output"]["binning"],
                          "mags/{binning_group}.{assembly_group}.{assembler}/concoct/binning_done")
@@ -430,13 +451,21 @@ if config["params"]["binning"]["concoct"]["do"]:
             rm -rf {params.mags_dir}
             mkdir -p {params.mags_dir}
 
+            SCAFTIGS={input.scaftigs}
+            CUTFA={input.scaftigs_cut}
+            BED={input.scaftigs_bed}
+            COVERAGE={input.coverage}
+
+            pigz -dk $CUTFA
+            pigz -dk $COVERAGE
+
             set +e
 
             concoct \
             --threads {threads} \
             --basename {params.basename} \
-            --coverage_file {input.coverage} \
-            --composition_file {input.scaftigs_cut} \
+            --coverage_file ${{COVERAGE%.gz}} \
+            --composition_file ${{CUTFA%.gz}} \
             --clusters {params.clusters} \
             --kmer_length {params.kmer_length} \
             --length_threshold {params.length_threshold} \
@@ -449,6 +478,9 @@ if config["params"]["binning"]["concoct"]["do"]:
             {params.no_original_data} \
             {params.coverage_out} \
             2> {log}
+
+            rm -rf ${{COVERAGE%.gz}}
+            rm -rf ${{CUTFA%.gz}}
 
             cat {params.basename}_log.txt >> {log}
 
@@ -465,10 +497,14 @@ if config["params"]["binning"]["concoct"]["do"]:
                 {params.basename}_clustering_gt{params.length_threshold}.csv \
                 > {params.basename}_clustering_merged.csv
 
+                pigz -dk $SCAFTIGS
+
                 extract_fasta_bins.py \
-                {input.scaftigs} \
+                ${{SCAFTIGS%.gz}} \
                 {params.basename}_clustering_merged.csv \
                 --output_path {params.mags_dir}
+
+                rm -rf ${{SCAFTIGS%.gz}}
 
                 python {params.wrapper_dir}/concoct_postprocess.py \
                 {params.mags_dir} \

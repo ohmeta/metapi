@@ -54,7 +54,7 @@ if len(BINNERS_CHECKM) != 0:
         output:
             summary = os.path.join(
                 config["output"]["binning"],
-                "report/assembly_stats_{assembler}_{binner_checkm}.tsv")
+                "report/assembly_stats_{assembler}_{binner_checkm}.tsv.gz")
         params:
             min_length = config["params"]["assembly"]["report"]["min_length"],
             len_ranges = config["params"]["assembly"]["report"]["len_ranges"]
@@ -80,7 +80,7 @@ if len(BINNERS_CHECKM) != 0:
         input:
             expand(os.path.join(
                 config["output"]["binning"],
-                "report/assembly_stats_{assembler}_{binner_checkm}.tsv"),
+                "report/assembly_stats_{assembler}_{binner_checkm}.tsv.gz"),
                    assembler=ASSEMBLERS,
                    binner_checkm=BINNERS_CHECKM)
 

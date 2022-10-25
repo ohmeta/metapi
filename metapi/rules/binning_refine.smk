@@ -201,7 +201,7 @@ if config["params"]["binning"]["dastools"]["do"]:
                 "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz"),
             pep = os.path.join(
                 config["output"]["predict"],
-                "scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prodigal/{binning_group}.{assembly_group}.{assembler}.prodigal.faa")
+                "scaftigs_gene/{binning_group}.{assembly_group}.{assembler}.prodigal/{binning_group}.{assembly_group}.{assembler}.prodigal.faa.gz")
         output:
             os.path.join(
                 config["output"]["binning"],
@@ -237,14 +237,19 @@ if config["params"]["binning"]["dastools"]["do"]:
             rm -rf {params.mags_dir}
             mkdir -p {params.mags_dir}
             
-            pigz -p {threads} -d -c {input.scaftigs} > {params.mags_dir}/scaftigs.fasta
             contigs2bin=$(python -c "import sys; print(','.join(sys.argv[1:]))" {input.contigs2bin})
+
+            FNA={input.scaftigs}
+            PEP={input.per}
+
+            pigz -dk $FNA
+            pigz -dk $PEP
 
             DAS_Tool \
             --bins $contigs2bin \
             --labels {params.binner} \
-            --contigs {params.mags_dir}/scaftigs.fasta \
-            --proteins {input.pep} \
+            --contigs ${{FNA%.gz}} \
+            --proteins ${{PEP%.gz}} \
             --outputbasename {params.bin_prefix} \
             --search_engine {params.search_engine} \
             --write_bin_evals \
@@ -255,7 +260,8 @@ if config["params"]["binning"]["dastools"]["do"]:
             --megabin_penalty {params.megabin_penalty} \
             --threads {threads} --debug > {log} 2>&1
 
-            rm -rf {params.mags_dir}/scaftigs.fasta
+            rm -rf %{{FNA%.gz}}
+            rm -rf %{{PEP%.gz}}
 
             exitcode=$?
             if [ $exitcode -eq 1 ]
