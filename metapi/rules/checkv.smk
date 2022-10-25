@@ -108,7 +108,7 @@ if config["params"]["checkv"]["do"]:
 
                 subprocess.run(f'''touch {output.vmag}''', shell=True)
 
-                with gzip.open(output.vmag, "w") as oh:
+                with gzip.open(output.vmag, "wt") as oh:
                     if os.path.exists(proviruses_f):
                         proviruses_rc = SeqIO.index_db(":memory:", proviruses_f, "fasta")
                         for contig_id in proviruses_df.index.unique():

@@ -45,7 +45,7 @@ def generate_mags(cluster_file, scaftigs, prefix):
         scaftigs_id_list = df.loc[[i], "scaftigs_id"]\
                              .dropna().tolist()
         bin_fa = prefix + "." + i + ".fa.gz"
-        with gzip.open(bin_fa, 'w') as oh:
+        with gzip.open(bin_fa, 'wt') as oh:
             for scaftigs_id in scaftigs_id_list:
                 SeqIO.write(scaftigs_index[scaftigs_id], oh, "fasta")
 
@@ -159,7 +159,7 @@ def combine_jgi(jgi_list, output_file):
     for jgi in jgi_list:
         files_handle.append(gzip.open(jgi, 'rt'))
 
-    with gzip.open(output_file, 'w') as oh:
+    with gzip.open(output_file, 'wt') as oh:
         for line in files_handle[0]:
             oh.write(line.strip())
             for handle in files_handle[1:]:

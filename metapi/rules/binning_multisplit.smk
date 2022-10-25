@@ -69,7 +69,7 @@ if config["params"]["binning"]["vamb"]["do"]:
 
             assembly_groups = sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, params.binning_group))
 
-            with gzip.open(output[0], 'w') as oh:
+            with gzip.open(output[0], 'wt') as oh:
                 oh.write("binning_assembly_group\tvamb_id\n")
                 count = 0
                 for assembly_group in assembly_groups:
@@ -302,6 +302,8 @@ if config["params"]["binning"]["vamb"]["do"]:
                 os.path.join(
                     config["output"]["assembly"],
                     "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz"),
+                os.path.join(config["output"]["assembly"],
+                    "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.metadata.tsv.gz"),
                 os.path.join(
                     config["output"]["binning"],
                     "matrix/{binning_group}.{assembler}.align2merged_scaftigs.jgi.abundance.matrix.tsv.gz"),

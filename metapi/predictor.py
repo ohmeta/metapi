@@ -15,7 +15,7 @@ def parse_gff(gff_file, min_len):
     save = False
     min_len = int(min_len)
     pep_id_list = []
-    with gzip.open(gff_file, "r") as ih:
+    with gzip.open(gff_file, "rt") as ih:
         for line in ih:
             seq_len = 0
 
@@ -46,7 +46,7 @@ def extract_faa(faa_file, pep_id_list, out_file, assembly_group=None):
     if os.path.dirname(out_file) != "":
         os.makedirs(os.path.dirname(out_file), exist_ok=True)
 
-    with gzip.open(out_file, "w") as oh:
+    with gzip.open(out_file, "wt") as oh:
         with gzip.open(faa_file, "rt") as ih:
             for seq in SeqIO.parse(ih, "fasta"):
                 if seq.id in pep_id_list:

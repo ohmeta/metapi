@@ -219,7 +219,7 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
  
             assembly_groups = sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, params.binning_group))
 
-            with gzip.open(output.dvf, "w") as oh:
+            with gzip.open(output.dvf, "wt") as oh:
                 assembly_group = os.path.basename(input[0]).split(".")[1]
                 assembly_index = int(assembly_groups.index(assembly_group)) + 1
                 assembly_group = f'''S{assembly_index}'''
@@ -322,7 +322,7 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
             os.makedirs(os.path.dirname(output.viral), exist_ok=True)
 
             if os.path.exists(vamb_bins_dir):
-                with gzip.open(output.viral, 'w') as oh:
+                with gzip.open(output.viral, 'wt') as oh:
                     vamb_bins_list = glob(f'''{vamb_bins_dir}/vamb_bins.*.fna''')
                     if len(vamb_bins_list) > 0:
                         for fna in vamb_bins_list:

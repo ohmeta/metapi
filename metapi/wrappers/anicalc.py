@@ -136,14 +136,14 @@ def parse_arguments():
 if __name__ == "__main__":
     args = parse_arguments()
     out = (
-        gzip.open(args["output"], "w")
+        gzip.open(args["output"], "wt")
         if args["output"].split(".")[-1] == "gz"
         else open(args["output"], "w")
     )
     fields = ["qname", "tname", "num_alns", "pid", "qcov", "tcov"]
     out.write("\t".join(fields) + "\n")
     input = (
-        gzip.open(args["input"])
+        gzip.open(args["input"], "rt")
         if args["input"].split(".")[-1] == "gz"
         else open(args["input"])
     )

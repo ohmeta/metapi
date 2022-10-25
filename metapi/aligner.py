@@ -50,7 +50,7 @@ def flagstats_summary(flagstats, method, **kwargs):
 
     # with open(flagstat_list, 'r') as list_handle:
     if method == 1:
-        list_handle = gzip.open(flagstats, "r")
+        list_handle = gzip.open(flagstats, "rt")
     if method == 2:
         list_handle = flagstats
 
@@ -58,7 +58,7 @@ def flagstats_summary(flagstats, method, **kwargs):
         if os.path.exists(flagstat_file.strip()):
             info = {}
             info["sample_id"] = os.path.basename(flagstat_file.strip()).split(".")[0]
-            stat_list = gzip.open(flagstat_file.strip(), "r").readlines()
+            stat_list = gzip.open(flagstat_file.strip(), "rt").readlines()
 
             info["total_num"] = stat_list[0].split(" ")[0]
 

@@ -17,7 +17,7 @@ rule dereplicate_gene_prepare:
 
         mg_count = 0
 
-        with gzip.open(output.ffn, 'w') as fh, gzip.open(output.metadata, 'w') as mh:
+        with gzip.open(output.ffn, 'wt') as fh, gzip.open(output.metadata, 'wt') as mh:
             mh.write("mg_id\tcds_id\tmg_name\tcds_name\n")
             for i in input:
                 mg_count += 1
