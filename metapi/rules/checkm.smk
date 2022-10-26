@@ -21,8 +21,8 @@ if config["params"]["checkm"]["do"]:
         output:
             table = os.path.join(config["output"]["check"],
                                  "table/checkm/checkm.table.{assembler}.{binner_checkm}.{batchid}.tsv.gz"),
-            data = directory(os.path.join(config["output"]["check"],
-                                          "data/checkm/checkm.data.{assembler}.{binner_checkm}.{batchid}"))
+            data = os.path.join(config["output"]["check"],
+                                "data/checkm/checkm.data.{assembler}.{binner_checkm}.{batchid}.tar.gz")
         wildcard_constraints:
             batchid="\d+"
         params:
@@ -40,28 +40,37 @@ if config["params"]["checkm"]["do"]:
             config["params"]["checkm"]["threads"]
         shell:
             '''
+            DATA={output.data}
+            DATADIR=${{DATA%.tar.gz}}
+            TABLEGZ={output.table}
+            TABLE=${{TABLEGZ%.gz}}
+
             if [[ `wc -l {input} | awk '{{print $1}}'` -eq 0 ]];
             then
                 echo "No genome found, please check the input again" > {log} 2>&1
                 echo "Touch empty file and directory" >> {log} 2>&1
-                touch {output.table} >> {log} 2>&1
-                mkdir -p {output.data} >> {log} 2>&1
-            else
-                TABLE=${output.table}
 
+                touch $TABLE
+                pigz -f $TABLE
+                mkdir -p $DATADIR
+                tar -czvf $DATA $DATADIR
+                rm -rf $DATADIR
+            else
                 checkm lineage_wf \
                 --tab_table \
-                --file ${{TABLE%.gz}} \
+                --file $TABLE \
                 --threads {threads} \
                 --pplacer_threads {params.pplacer_threads} \
                 {params.reduced_tree} \
                 --extension faa \
                 --genes \
                 {input} \
-                {output.data} \
-                > {log} 2>&1
+                $DATADIR \
+                >{log} 2>&1
 
-                pigz -f ${{TABLE%.gz}}
+                pigz -f $TABLE
+                tar -czvf $DATA $DATADIR
+                rm -rf $DATADIR
             fi
             '''
 
@@ -76,9 +85,9 @@ if config["params"]["checkm"]["do"]:
                       binner_checkm=wildcards.binner_checkm,
                       batchid=list(set([i.split("/")[0] \
                                         for i in glob_wildcards(os.path.join(checkpoint_output,
-                                                                             "mags_input.{batchid}.tsv.gz")).batchid])))
+                                                                             "mags_input.{batchid}.tsv")).batchid])))
 
-   
+ 
     rule checkm_report:
         input:
             checkm_table = aggregate_checkm_output,
