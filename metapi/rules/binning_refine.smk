@@ -162,27 +162,29 @@ if config["params"]["binning"]["dastools"]["do"]:
         input:
             lambda wildcards: get_binning_done(wildcards, BINNERS_DASTOOLS)
         output:
-            contigs2bin = expand(
-                os.path.join(
-                    config["output"]["binning"],
-                    "mags_id/{{binning_group}}.{{assembly_group}}.{{assembler}}/{binner_dastools}_Contigs2Bin.tsv"),
-                    binner_dastools=BINNERS_DASTOOLS)
+            expand(os.path.join(
+                config["output"]["binning"],
+                "mags_id/{{binning_group}}.{{assembly_group}}.{{assembler}}/{binner_dastools}_Contigs2Bin.tsv"),
+                binner_dastools=BINNERS_DASTOOLS)
         run:
             import glob
+            import gzip
             import os
             from Bio import SeqIO
+            from natsort import natsorted
 
             i = -1
             for binning_done in input:
                 i += 1
                 mags_dir = os.path.dirname(binning_done)
-                shell(f'''rm -rf {output.contigs2bin[i]}''')
+                shell(f'''rm -rf {output[i]}''')
                 mags_list = glob.glob(mags_dir + "/*.bin.*.fa.gz")
+
                 if len(mags_list) == 0:
-                    shell(f'''touch {output.contigs2bin[i]}''')
+                    shell(f'''touch {output[i]}''')
                 else:
-                    with open(output.contigs2bin[i], 'w') as oh:
-                        for bin_fa in sorted(mags_list):
+                    with open(output[i], 'w') as oh:
+                        for bin_fa in natsorted(mags_list):
                             bin_id_list = os.path.basename(bin_fa).split(".")
                             bin_id = bin_id_list[-5] + "." + str(bin_id_list[-3])
                             with gzip.open(bin_fa, 'rt') as ih:
