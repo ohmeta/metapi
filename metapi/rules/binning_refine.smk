@@ -231,7 +231,7 @@ if config["params"]["binning"]["dastools"]["do"]:
             megabin_penalty = config["params"]["binning"]["dastools"]["megabin_penalty"],
             bin_prefix = os.path.join(
                 config["output"]["binning"],
-                "mags/{binning_group}.{assembly_group}.{assembler}/dastools/{binning_group}.{assembly_group}.{assembler}.dastools.bin")
+                "mags/{binning_group}.{assembly_group}.{assembler}/dastools/{binning_group}.{assembly_group}.{assembler}")
         threads:
             config["params"]["binning"]["threads"]
         shell:
@@ -289,13 +289,24 @@ if config["params"]["binning"]["dastools"]["do"]:
             python {params.wrapper_dir}/dastools_postprocess.py \
             {params.bin_prefix}
 
-            for FILESTR in `ls {params.bin_prefix}*`
+            for FILESTR in `ls -d {params.mags_dir}/*`
             do
                 if [ -f $FILESTR ] && [ "${{FILESTR##*.}}" != "gz" ];
                 then
                     pigz -f $FILESTR
                 fi
             done
+
+            if [ -d {params.bin_prefix}_DASTool_bins ];
+            then
+                for FILESTR in `ls -d {params.bin_prefix}_DASTool_bins/*`
+                do
+                    if [ -f $FILESTR ] && [ "${{FILESTR##*.}}" != "gz" ];
+                    then
+                        pigz -f $FILESTR
+                    fi
+                done
+            fi 
 
             touch {output}
             ''' 
