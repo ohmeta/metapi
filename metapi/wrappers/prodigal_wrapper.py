@@ -39,7 +39,11 @@ def run_prodigal(input_list):
     if os.path.exists(gff_file):
         subprocess.run(f'''pigz -f {gff_file}''', shell=True)
  
-    if (best_translation_table in [4, 11]) and (os.path.exists(pep_file)) and (os.stat(pep_file)[stat.ST_SIZE]) > 0:
+    if (best_translation_table in [4, 11]) and \
+        (os.path.exists(pep_file_gz)) and \
+        (os.path.exists(cds_file_gz)) and \
+        (os.path.exists(gff_file_gz)) and \
+        (os.stat(pep_file_gz)[stat.ST_SIZE]) > 0:
         return (bin_id, bin_fa, pep_file_gz, best_translation_table)
     else:
         return (bin_id, bin_fa, pep_file_gz, f"unknown: {best_translation_table}")
