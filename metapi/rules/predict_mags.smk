@@ -45,9 +45,26 @@ rule predict_mags_gene_prodigal_report:
             df_list = [pd.read_csv(i, sep="\t") for i in input]
             pd.concat(df_list, axis=0).to_csv(output[0], sep="\t", index=False)
 
- 
+
+checkm_df_list = []
+for binner_checkm in BINNERS_CHECKM:
+    checkm_df = ASSEMBLY_GROUPS.copy()
+    checkm_df["binner_checkm"] = binner_checkm 
+    checkm_df_list.append(checkm_df)
+CHECKM_GROUPS = pd.concat(checkm_df_list, axis=0)
+
+
 rule predict_mags_gene_prodigal_all:
     input:
+        expand(os.path.join(
+            config["output"]["predict"],
+            "mags_gene/{binning_group}.{assembly_group}.{assembler}.prodigal/{binner_checkm}/predict_done"),
+            zip,
+            binning_group=CHECKM_GROUPS["binning_group"],
+            assembly_group=CHECKM_GROUPS["assembly_group"],
+            assembler=CHECKM_GROUPS["assembler"],
+            binner_checkm=CHECKM_GROUPS["binner_checkm"]),
+ 
         expand(os.path.join(
             config["output"]["predict"],
             "report/mags_gene_stats_{assembler}_{binner_checkm}.tsv.gz"),
@@ -163,7 +180,7 @@ else:
 rule predict_mags_gene_all:
     input:
         rules.predict_mags_gene_prodigal_all.input,
-        rules.predict_mags_gene_prokka_all.input,
+        rules.predict_mags_gene_prokka_all.input
 
 
 rule predict_all:
