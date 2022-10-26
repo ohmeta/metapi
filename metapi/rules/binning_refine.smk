@@ -242,8 +242,13 @@ if config["params"]["binning"]["dastools"]["do"]:
             
             contigs2bin=$(python -c "import sys; print(','.join(sys.argv[1:]))" {input.contigs2bin})
 
-            FNA={input.scaftigs}
-            PEP={input.pep}
+            FNAGZ={input.scaftigs}
+            PEPGZ={input.pep}
+            FNA=${{FNAGZ%.gz}}
+            PEP=${{PEPGZ%.gz}}
+
+            rm -rf $PEP.{{all.b6,archaea.scg,bacteria.scg,findSCG.b6,scg.candidates.faa}}
+            rm -rf $PEP.{{all.b6,archaea.scg,bacteria.scg,findSCG.b6,scg.candidates.faa}}.gz
 
             pigz -dkf $FNA
             pigz -dkf $PEP
@@ -251,8 +256,8 @@ if config["params"]["binning"]["dastools"]["do"]:
             DAS_Tool \
             --bins $contigs2bin \
             --labels {params.binner} \
-            --contigs ${{FNA%.gz}} \
-            --proteins ${{PEP%.gz}} \
+            --contigs $FNA \
+            --proteins $PEP \
             --outputbasename {params.bin_prefix} \
             --search_engine {params.search_engine} \
             --write_bin_evals \
@@ -263,8 +268,16 @@ if config["params"]["binning"]["dastools"]["do"]:
             --megabin_penalty {params.megabin_penalty} \
             --threads {threads} --debug > {log} 2>&1
 
-            rm -rf ${{FNA%.gz}}
-            rm -rf ${{PEP%.gz}}
+            rm -rf $FNA
+            rm -rf $PEP
+
+            for FILESTR in `ls $PEP.*`
+            do
+                if [ -f $FILESTR ] && [ "${{FILESTR##*.}}" != "gz" ];
+                then
+                    pigz -f $FILESTR
+                fi
+            done
 
             exitcode=$?
             if [ $exitcode -eq 1 ]
