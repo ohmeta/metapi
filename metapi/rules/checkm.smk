@@ -45,6 +45,8 @@ if config["params"]["checkm"]["do"]:
             TABLEGZ={output.table}
             TABLE=${{TABLEGZ%.gz}}
 
+            rm -rf $DATA $DATADIR $TABLEGZ $TABLE
+
             if [[ `wc -l {input} | awk '{{print $1}}'` -eq 0 ]];
             then
                 echo "No genome found, please check the input again" > {log} 2>&1
