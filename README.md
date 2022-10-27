@@ -133,7 +133,8 @@ positional arguments:
   prepare_long_reads_all,
   prepare_reads_all,
   raw_fastqc_all,
-  raw_report_all, raw_all,
+  raw_report_all,
+  raw_all,
   trimming_sickle_all,
   trimming_fastp_all,
   trimming_report_all,
@@ -176,14 +177,18 @@ positional arguments:
   identify_all,
   predict_scaftigs_gene_prodigal_all,
   predict_scaftigs_gene_prokka_all,
-  predict_bins_gene_prodigal_all,
-  predict_bins_gene_prokka_all,
+  predict_mags_gene_prodigal_all,
+  predict_mags_gene_prokka_all,
   predict_scaftigs_gene_all,
-  predict_bins_gene_all,
+  predict_mags_gene_all,
   predict_all,
   checkm_all,
+  checkv_all,
+  check_all,
   dereplicate_mags_drep_all,
   dereplicate_mags_all,
+  dereplicate_vmags_all,
+  dereplicate_all,
   taxonomic_all,
   upload_sequencing_all,
   upload_assembly_all,
@@ -244,19 +249,28 @@ optional arguments:
 # run assembly
 ➤ metapi mag_wf assembly_all --use-conda --run-local
 
-# run binning (microbial MAG)
+# run binning (microbial MAGs)
 ➤ metapi mag_wf binning_all --use-conda --run-local
 
-# run identify (virus MAG)
+# run identify (viral MAGs)
 ➤ metapi mag_wf identify_all --use-conda --run-local
 
 # run gene predict
 ➤ metapi mag_wf predict_all --use-conda --run-local
 
-# run checkm
+# run checkm on microbial MAGs
 ➤ metapi mag_wf checkm_all --use-conda --run-local
 
-#run taxonomic 
+# run checkv on viral MAGs
+➤ metapi mag_wf checkv_all --use-conda --run-local
+
+# run dereplicate on microbial MAGs
+➤ metapi mag_wf dereplicate_mags_all --use-conda --run-local
+
+# run dereplicate on viral MAGs
+➤ metapi mag_wf dereplicate_vmags_all --use-conda --run-local
+
+#run taxonomic (currently on microbial MAGs)
 ➤ metapi mag_wf taxonomic_all --use-conda --run-local
 
 # run mag_wf all
@@ -409,7 +423,7 @@ Then metapi will use [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq) to g
     06.binning/
     06.identify/
     07.predict/
-    08.checkm/
+    08.check/
     09.dereplicate/
     10.taxonomic/
     99.upload/

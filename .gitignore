@@ -8,39 +8,40 @@
 .kdev4
 metapi.kdev4
 
+# snakemake
+.snakemake
+
+metapi/__pycache__/
+metapi/*.pyc 
+
+# pipenv
+build/
+dist/
+metapi.egg-info/
+release
+
+conda/*.gz
+
+notebooks/
+notebook
+
 # test
+test/
+test/simulation_test/metaconfig.yaml
+
+# examples
 example/basic_test/data/01.trimmed
 example/basic_test/data/02.assembly
 example/basic_test/data/03.alignment
 example/basic_test/data/04.binning
 example/basic_test/data/05.checkm
 example/basic_test/data/logs
-
-
-
-# snakemake
-.snakemake
-
-metapi/__pycache__/
-
-# pipenv
-build/
-dist/
-metapi.egg-info/
-
-conda/*.gz
-
-notebooks/
-
-test/
 examples/simulation_test
-metapi/*.pyc 
+examples
+
+# docs
+docs/hello.py
+
+# others
 index.list
 data.tar.gz 
-data/
-docs/hello.py
-test/simulation_test/metaconfig.yaml
-examples
-notebook
-release
-tests/test

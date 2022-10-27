@@ -68,6 +68,7 @@ WORKFLOWS_MAG = [
     "predict_all",
     "checkm_all",
     "checkv_all",
+    "check_all",
     "dereplicate_mags_drep_all",
     "dereplicate_mags_all",
     "dereplicate_vmags_all",

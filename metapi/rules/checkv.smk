@@ -168,5 +168,12 @@ else:
         input:
 
 
+rule check_all:
+    input:
+        rules.checkm_all.input,
+        rules.checkv_all.input
+
+
 localrules:
-    checkv_download_db
+    checkv_download_db,
+    check_all
