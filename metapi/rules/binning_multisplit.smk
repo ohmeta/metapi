@@ -49,7 +49,22 @@ if config["params"]["binning"]["vamb"]["do"]:
             min_contig = config["params"]["binning"]["vamb"]["min_contig"]
         shell:
             '''
+            set +e
             concatenate.py {output} {input} -m {params.min_contig} 2> {log}
+
+            exitcode=$?
+            echo "concatenate.py exit code is: $exitcode" >>{log} 2>&1
+
+            gzip -tv {output} 2>&1 | grep -oEi "OK"
+            grepcode=$?
+            if [ $grepcode -eq 0 ];
+            then
+                exit 0
+            else
+                rm -rf {output}
+                echo "{output} is not completed." >>{log} 2>&1
+                exit $grepcode
+            fi
             '''
 
 
