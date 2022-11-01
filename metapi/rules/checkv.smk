@@ -88,9 +88,6 @@ if config["params"]["checkv"]["do"]:
             proviruses_f = os.path.join(checkv_dir, "proviruses.fna")
             viruses_f = os.path.join(checkv_dir, "viruses.fna")
 
-            subprocess.run(f'''rm -rf {output.vmag}''', shell=True)
-            subprocess.run(f'''touch {output.vmag}''', shell=True)
-
             if os.path.exists(quality_summary_f):
                 quality_summary = pd.read_csv(quality_summary_f, sep="\t")
 
@@ -105,8 +102,6 @@ if config["params"]["checkv"]["do"]:
                 .set_index("contig_id")
 
                 print(f'''Identified {len(proviruses_df) + len(viruses_df)} complete, high or medium quality vMAGs''')
-
-                subprocess.run(f'''touch {output.vmag}''', shell=True)
 
                 with gzip.open(output.vmag, "wt") as oh:
                     if os.path.exists(proviruses_f):
@@ -140,6 +135,11 @@ if config["params"]["checkv"]["do"]:
                             else:
                                 print(f'''Viruses contig_id {contig_id} can't be found in {viruses_f}, please check it!''')
                                 sys.exit(1)
+
+            else:
+                vmag = os.path.splitext(ouptut.vmag)[0]
+                subprocess.run(f'''touch {vmag}''', shell=True)
+                subprocess.run(f'''pigz -f {vmag}''', shell=True)
 
 
     checkv_df_list = []
