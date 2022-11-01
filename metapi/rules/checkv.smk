@@ -123,6 +123,9 @@ if config["params"]["checkv"]["do"]:
                                 else:
                                     print(f'''Proviruses contig_id {contig_id} can't be found in {proviruses_f}, please check it!''')
                                     sys.exit(1)
+                    else:
+                        print(f'''No {proviruses_f} can be found''')
+
                     if os.path.exists(viruses_f):
                         viruses_rc = SeqIO.index_db(":memory:", viruses_f, "fasta")
                         for contig_id in viruses_df.index.unique():
@@ -135,6 +138,8 @@ if config["params"]["checkv"]["do"]:
                             else:
                                 print(f'''Viruses contig_id {contig_id} can't be found in {viruses_f}, please check it!''')
                                 sys.exit(1)
+                    else:
+                        print(f'''No {viruses_f} can be found''')
 
             else:
                 vmag = os.path.splitext(ouptut.vmag)[0]
