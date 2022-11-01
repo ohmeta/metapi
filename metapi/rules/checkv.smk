@@ -76,6 +76,7 @@ if config["params"]["checkv"]["do"]:
             identifier = "{identifier}"
         run:
             import os
+            import gzip
             import subprocess
             import pandas as pd
             from Bio import SeqIO
