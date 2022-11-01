@@ -126,43 +126,49 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
             db = config["params"]["identify"]["phamb"]["vogdb"]
         output:
             hmm = os.path.join(config["output"]["identify"],
-                               "hmm/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.hmmVOG.tbl.gz"),
-            tmp = temp(os.path.join(config["output"]["identify"],
-                                    "hmm/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.hmmVOG.tmp"))
-        log:
+                               "hmm/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.hmmVOG.tbl.gz")
+       log:
             os.path.join(config["output"]["identify"],
                          "logs/hmmsearch_vog/{binning_group}.{assembly_group}.{assembler}.phamb_hmmsearch_vog.log")
         benchmark:
             os.path.join(config["output"]["identify"],
                          "benchmark/hmmsearch_vog/{binning_group}.{assembly_group}.{assembler}.phamb_hmmsearch_vog.benchmark.txt")
         params:
-           hmmsearch_evalue = config["params"]["identify"]["phamb"]["hmmsearch_evalue"]
+           hmmsearch_evalue = config["params"]["identify"]["phamb"]["hmmsearch_evalue"],
+           tmp = os.path.join(config["output"]["identify"],
+                              "hmm/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.hmmVOG.tmp")
         threads:
             config["params"]["identify"]["threads"]
         conda:
             config["envs"]["phamb"]
         shell:
             '''
+            set +e
+
+            HMMGZ={output.hmm}
+            HMM=${{HMMGZ%.gz}}
+            PEPGZ={input.pep}
+            PEP=${{PEPGZ%.gz}}
+
             if [[ `zcat {input.pep} | wc -l` -eq 0 ]];
             then
-                touch {output.hmm} >> {log} 2>&1
+                touch $HMM >> {log} 2>&1
+                pigz -f $HMM >> {log} 2>&1
                 exit 0
             else
-                HMMGZ={output.hmm}
-                HMM=${{HMMGZ%.gz}}
-                PEPGZ={input.pep}
-                PEP=${{PEPGZ%.gz}}
-
                 pigz -dkf $PEPGZ
 
                 hmmsearch \
                 --cpu {threads} \
                 -E {params.hmmsearch_evalue} \
-                -o {output.tmp} \
+                -o {params.tmp} \
                 --tblout $HMM \
                 {input.db} \
                 $PEP \
                 >> {log} 2>&1
+
+                rm -rf {params.tmp}
+                rm -rf $PEP
 
                 exitcode=$?
                 if [ $exitcode -eq 0 ];
@@ -172,17 +178,14 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
                     if [ $grepcode -eq 1 ];
                     then
                         echo "hmmsearch failed" >> {log} 2>&1
-                        rm -rf $PEP
                         exit 1
                     else
                         echo "hmmsearch done" >> {log} 2>&1
                         pigz -f $HMM
-                        rm -rf $PEP
                         exit 0
                     fi
                 else
                     echo "hmmsearch failed" >> {log} 2>&1
-                    rm -rf $PEP
                     exit 1
                 fi
             fi
