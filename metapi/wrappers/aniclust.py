@@ -6,7 +6,7 @@
 import time, resource, platform, sys, argparse, gzip
 
 def parse_seqs(path):
-	handle = gzip.open(path) if path.split('.')[-1] == 'gz' else open(path)
+	handle = gzip.open(path, "rt") if path.split('.')[-1] == 'gz' else open(path)
 	id = next(handle).split()[0][1:]
 	seq = ''
 	for line in handle:
