@@ -167,9 +167,9 @@ rule dereplicate_vmags_clust:
         --fna {input.fa} \
         --ani {input.ani} \
         --out {output} \
-        --min_ani 95 \
-        --min_tcov 85 \
-        --min_qcov 0 \
+        --min_ani {params.min_ani} \
+        --min_tcov {params.min_tcov} \
+        --min_qcov {params.min_qcov} \
         >{log} 2>&1
         '''
 
