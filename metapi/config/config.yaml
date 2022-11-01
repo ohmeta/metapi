@@ -340,8 +340,8 @@ params:
       max_target_seqs: 25000   # blastn
       prec_identity: 90        # blastn
       min_ani: 95              # clust: Minimum average nucleotide identity 
-      min_qcov: 85             # clust: Minimum alignment coverage of longer sequence 
-      min_tcov: 0              # clust: Minimum sequence length 
+      min_tcov: 85             # clust: Minimum alignment coverage of longer sequence 
+      min_qcov: 0              # clust: Minimum sequence length 
 
 output:
   simulate: "results/00.simulate"
