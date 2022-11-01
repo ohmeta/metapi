@@ -35,7 +35,7 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
         output:
             hmm = os.path.join(config["output"]["identify"],
                                "hmm/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.hmmMiComplete105.tbl.gz")
-       log:
+        log:
             os.path.join(config["output"]["identify"],
                          "logs/hmmsearch_micomplete/{binning_group}.{assembly_group}.{assembler}.hmmsearch_micomplete.log")
         benchmark:
@@ -127,7 +127,7 @@ if config["params"]["identify"]["phamb"]["do"] and config["params"]["identify"][
         output:
             hmm = os.path.join(config["output"]["identify"],
                                "hmm/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.hmmVOG.tbl.gz")
-       log:
+        log:
             os.path.join(config["output"]["identify"],
                          "logs/hmmsearch_vog/{binning_group}.{assembly_group}.{assembler}.phamb_hmmsearch_vog.log")
         benchmark:
