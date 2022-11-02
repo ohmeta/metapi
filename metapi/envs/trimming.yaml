@@ -5,3 +5,4 @@ channels:
 dependencies:
   - sickle-trim=1.33
   - fastp=0.23.2
+  - pigz

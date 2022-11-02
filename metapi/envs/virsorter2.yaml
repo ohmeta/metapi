@@ -4,3 +4,4 @@ channels:
   - defaults
 dependencies:
   - virsorter=2.2.3
+  - pigz

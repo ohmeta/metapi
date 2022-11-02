@@ -4,3 +4,4 @@ channels:
   - defaults
 dependencies:
   - multiqc=1.13a
+  - pigz

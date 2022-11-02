@@ -4,3 +4,4 @@ channels:
   - defaults
 dependencies:
   - checkv=1.0.1
+  - pigz

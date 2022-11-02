@@ -4,6 +4,7 @@ channels:
   - bioconda
   - defaults
 dependencies:
+  - pigz
   - pytorch
   - torchvision 
   - cudatoolkit

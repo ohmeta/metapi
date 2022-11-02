@@ -4,3 +4,4 @@ channels:
   - defaults
 dependencies:
   - metabat2=2.15
+  - pigz

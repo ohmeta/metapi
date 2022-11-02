@@ -4,3 +4,4 @@ channels:
   - defaults
 dependencies:
   - fastqc=0.11.9
+  - pigz

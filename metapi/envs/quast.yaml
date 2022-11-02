@@ -4,3 +4,4 @@ channels:
   - defaults
 dependencies:
   - quast=5.2.0
+  - pigz

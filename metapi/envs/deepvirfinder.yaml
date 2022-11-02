@@ -11,3 +11,4 @@ dependencies:
   - Biopython
   - h5py=2.10.0
   - mkl-service=2.3.0
+  - pigz

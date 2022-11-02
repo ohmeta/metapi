@@ -4,3 +4,4 @@ channels:
   - defaults
 dependencies:
   - plass=4.687d7
+  - pigz

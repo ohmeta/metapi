@@ -3,6 +3,7 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - checkm-genome=1.1.11
+  - checkm-genome=1.2.2
   - prodigal=2.6.3
-  - pandas=1.4.2
+  - pandas=1.5.1
+  - pigz

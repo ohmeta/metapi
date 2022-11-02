@@ -5,3 +5,4 @@ channels:
 dependencies:
   - prodigal=2.6.3
   - prokka=1.14.6
+  - pigz

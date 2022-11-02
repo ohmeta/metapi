@@ -5,3 +5,4 @@ channels:
 dependencies:
   - gtdbtk=2.1.0
   - pandas
+  - pigz
