@@ -89,7 +89,7 @@ log_time(start)
 print("\nstoring edges...")
 num_edges = 0
 edges = dict([(x,[]) for x in seqs])
-handle = gzip.open(args['ani']) if args['ani'].split('.')[-1] == 'gz' else open(args['ani'])
+handle = gzip.open(args['ani'], "rt") if args['ani'].split('.')[-1] == 'gz' else open(args['ani'])
 for index, line in enumerate(handle):
 	qname, tname, num_alns, ani, qcov, tcov = line.split()
 	if qname == tname:
