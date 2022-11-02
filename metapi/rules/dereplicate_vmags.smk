@@ -193,7 +193,7 @@ rule dereplicate_vmags_postprocess:
         zcat {input.cluster} | awk '{{print $1}}' > {output.id_list}
 
         seqkit grep \
-        -f {output.id_list} \
+        -f {output.id_list} {input.fa} \
         --out-file {output.vmags} >{log} 2>&1
         '''
 
