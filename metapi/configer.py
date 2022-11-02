@@ -114,6 +114,7 @@ class metaconfig:
         "logs/09.dereplicate_vmags_blastn",
         "logs/09.dereplicate_vmags_compute_ani",
         "logs/09.dereplicate_vmags_clust",
+        "logs/09.dereplicate_vmags_postprocess",
         "logs/09.dereplicate_gene_prepare",
         "logs/09.dereplicate_gene_cdhit",
         "logs/10.taxonomic_gtdbtk",

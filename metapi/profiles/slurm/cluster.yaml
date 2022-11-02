@@ -520,6 +520,11 @@ dereplicate_vmags_clust:
   output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
   error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
 
+dereplicate_vmags_postprocess:
+  mem: "2G"
+  output: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/09.{rule}/{rule}.{wildcards.assembler}.{jobid}.e"
+
 taxonomic_gtdbtk:
   #partition: "hugemem"
   mem: "130G"

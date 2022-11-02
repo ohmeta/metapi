@@ -174,6 +174,30 @@ rule dereplicate_vmags_clust:
         '''
 
 
+rule dereplicate_vmags_postprocess:
+    input:
+        fa = os.path.join(config["output"]["dereplicate"],
+                          "genomes/virome/input/vMAGs_hmq.{assembler}.fa.gz"),
+        cluster = os.path.join(config["output"]["dereplicate"],
+                               "genomes/virome/cluster/vMAGs_hmq.{assembler}.cluster.tsv.gz")
+    output:
+        id_list = os.path.join(config["output"]["dereplicate"],
+                          "genomes/virome/representative/vMAGs_hmq.{assembler}.rep.id.list"),
+        vmags = os.path.join(config["output"]["dereplicate"],
+                             "genomes/virome/representative/vMAGs_hmq.{assembler}.rep.fa.gz")
+    log:
+        os.path.join(config["output"]["dereplicate"],
+                     "logs/virome/dereplicate_vmags_postprocess.{assembler}.log")
+    shell:
+        '''
+        zcat {input.cluster} | awk '{{print $1}}' > {output.id_list}
+
+        seqkit grep \
+        -f {output.id_list} \
+        --out-file {output.vmags} >{log} 2>&1
+        '''
+
+
 #rule dereplicate_vmags:
 #    input:
 #    output:
@@ -182,10 +206,17 @@ rule dereplicate_vmags_clust:
 
 rule dereplicate_vmags_all:
     input:
-        expand(
+        expand([
             os.path.join(
                 config["output"]["dereplicate"],
                 "genomes/virome/cluster/vMAGs_hmq.{assembler}.cluster.tsv.gz"),
+            os.path.join(
+                config["output"]["dereplicate"],
+                "genomes/virome/representative/vMAGs_hmq.{assembler}.rep.id.list"),
+            os.path.join(
+                config["output"]["dereplicate"],
+                "genomes/virome/representative/vMAGs_hmq.{assembler}.rep.fa.gz")
+                ],
                 assembler=ASSEMBLERS)
  
 
