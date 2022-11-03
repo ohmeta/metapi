@@ -273,6 +273,8 @@ if config["params"]["trimming"]["trimmomatic"]["do"]:
         output:
             summary = os.path.join(config["output"]["trimming"],
                                    "short_reads/{sample}/{sample}.trimmomatic.summary.txt"),
+            log = os.path.join(config["output"]["trimming"],
+                                   "short_reads/{sample}/{sample}.trimmomatic.summary.log"),
             reads = expand(
                 os.path.join(
                     config["output"]["trimming"],
@@ -305,30 +307,31 @@ if config["params"]["trimming"]["trimmomatic"]["do"]:
                 PE \
                 {params.phred} \
                 -threads {threads} \
-                -trimlog {log} \
                 -summary {output.summary} \
-                -basein {input} \
-                -baseout \
-                {output.reads[0]} {output.reads[0]}.unpaired \
-                {output.reads[1]} {output.reads[1]}.unpaired \
-                {params.trimmomatic_options}
+                {input} \
+                {output.reads[0]} {output.reads[0]}.unpaired.gz \
+                {output.reads[1]} {output.reads[1]}.unpaired.gz \
+                {params.trimmomatic_options} \
+                >{output.log} 2>&1
 
                 if [ "{params.save_unpaired}" == "false" ];
                 then
-                    rm -rf {output.reads[0]}.unpaired
-                    rm -rf {output.reads[1]}.unpaired
+                    rm -rf {output.reads[0]}.unpaired.gz
+                    rm -rf {output.reads[1]}.unpaired.gz
                 fi
             else
                 trimmomatic \
                 SE \
                 {params.phred} \
                 -threads {threads} \
-                -trimlog {log} \
                 -summary {output.summary} \
                 {input} \
                 {output.reads} \
-                {params.trimmomatic_options}
+                {params.trimmomatic_options} \
+                >{output.log} 2>&1
             fi
+
+            cp {output.log} {log}
             '''
 
 
@@ -336,7 +339,7 @@ if config["params"]["trimming"]["trimmomatic"]["do"]:
         input:
             expand(
                 os.path.join(config["output"]["trimming"],
-                             "short_reads/{sample}/{sample}.trimmomatic.summary.txt"),
+                             "short_reads/{sample}/{sample}.trimmomatic.log"),
                 sample=SAMPLES_ID_LIST)
         output:
             html = os.path.join(config["output"]["trimming"],
@@ -365,6 +368,8 @@ if config["params"]["trimming"]["trimmomatic"]["do"]:
             expand([
                 os.path.join(config["output"]["trimming"],
                              "short_reads/{sample}/{sample}.trimmomatic.summary.txt"),
+                os.path.join(config["output"]["trimming"],
+                             "short_reads/{sample}/{sample}.trimmomatic.log"),
                 os.path.join(config["output"]["trimming"],
                              "report/trimmomatic_multiqc_report.html"),
                 #os.path.join(config["output"]["trimming"],
