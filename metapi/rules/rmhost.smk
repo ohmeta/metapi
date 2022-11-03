@@ -668,12 +668,16 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
             then
                 if [ "{params.do_trimmomatic}" == "yes" ];
                 then
+                    trimpath=$(which trimmomatic)
+                    trimpathreal=$(realpath $trimpath)
+                    trimdir=$(dirname $trimpathreal)
+
                     kneaddata $input_reads \
                     {params.trf_options} \
                     --output {params.output_dir} \
                     --output-prefix {params.output_prefix} \
                     --reference-db {params.bowtie2_database} \
-                    --trimmomatic {trimmomatic_dir} \
+                    --trimmomatic $trimdir \
                     --trimmomatic-options '{params.trimmomatic_options}' \
                     --sequencer-source {params.sequencer_source} \
                     --bowtie2-options '{params.bowtie2_options} ' \
@@ -701,11 +705,15 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
                 then
                     if [ "{params.do_trimmomatic}" == "yes" ];
                     then
+                        trimpath=$(which trimmomatic)
+                        trimpathreal=$(realpath $trimpath)
+                        trimdir=$(dirname $trimpathreal)
+
                         kneaddata $input_reads \
                         {params.trf_options} \
                         --output {params.output_dir} \
                         --output-prefix {params.output_prefix} \
-                        --trimmomatic {trimmomatic} \
+                        --trimmomatic $trimdir \
                         --trimmomatic-options '{params.trimmomatic_options}' \
                         --sequencer-source {params.sequencer_source} \
                         --run-bmtagger \

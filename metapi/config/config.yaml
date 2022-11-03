@@ -82,7 +82,7 @@ params:
       do: False
       do_trf: False
       do_trimmomatic: False
-      trimmomatic_options: 'MINLEN:50 ILLUMINACLIP:/-PE.fa:2:40:15 SLIDINGWINDOW:4:20'
+      trimmomatic_options: 'MINLEN:50 ILLUMINACLIP:/path/to/adapters.fa:2:40:15 SLIDINGWINDOW:4:20' # eg: adapters: /path/to/TruSeq3-PE-2.fa
       sequencer_source: "TruSeq3" # ["NexteraPE", "TruSeq2", "TruSeq3", "none"]
       do_bmtagger: False
       do_bowtie2: True
