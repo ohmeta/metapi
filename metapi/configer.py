@@ -43,6 +43,8 @@ class metaconfig:
         "logs/01.trimming_sickle",
         "logs/01.trimming_fastp",
         "logs/01.trimming_fastp_multiqc",
+        "logs/01.trimming_trimmomatic",
+        "logs/01.trimming_trimmomatic_multiqc",
         "logs/01.trimming_report",
         "logs/01.trimming_report_refine",
         "logs/01.trimming_report_merge",

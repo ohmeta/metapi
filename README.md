@@ -57,7 +57,7 @@ You can install it via [bioconda](https://bioconda.github.io/):
 ➤ metapi init --help
 usage: metapi init [-h] [-d WORKDIR] [--check-samples] [-s SAMPLES]
                         [-b {simulate,trimming,rmhost,assembly,binning,checkm}]
-                        [--trimmer {sickle,fastp}]
+                        [--trimmer {sickle,fastp,trimmomatic}]
                         [--rmhoster {bwa,bowtie2,minimap2,kraken2,kneaddata}]
                         [--assembler {idba-ud,megahit,metaspades,spades,opera-ms} [{idba-ud,megahit,metaspades,spades,opera-ms} ...]]
                         [--binner BINNER [BINNER ...]]
@@ -82,7 +82,7 @@ optional arguments:
                         
   -b, --begin {simulate,trimming,rmhost,assembly,binning,checkm}
                         pipeline starting point (default: trimming)
-  --trimmer {sickle,fastp}
+  --trimmer {sickle,fastp,trimmomatic}
                         which trimmer used (default: fastp)
   --rmhoster {bwa,bowtie2,minimap2,kraken2,kneaddata}
                         which rmhoster used (default: bowtie2)
@@ -137,6 +137,7 @@ positional arguments:
   raw_all,
   trimming_sickle_all,
   trimming_fastp_all,
+  trimming_trimmomatic_all,
   trimming_report_all,
   trimming_all,
   rmhost_bwa_all,

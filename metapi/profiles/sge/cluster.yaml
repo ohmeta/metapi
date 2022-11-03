@@ -71,6 +71,16 @@ trimming_fastp_multiqc:
   output: "logs/01.{rule}/{rule}.{jobid}.o"
   error: "logs/01.{rule}/{rule}.{jobid}.e"
 
+trimming_trimmomatic:
+  mem: "3G"
+  output: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
+  error: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
+
+trimming_trimmomatic_multiqc:
+  mem: "2G"
+  output: "logs/01.{rule}/{rule}.{jobid}.o"
+  error: "logs/01.{rule}/{rule}.{jobid}.e"
+
 trimming_report:
   mem: "1G"
   output: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.o"

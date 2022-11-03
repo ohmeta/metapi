@@ -19,6 +19,7 @@ params:
 
   trimming:
     save_reads: False
+    threads: 8
     sickle:
       do: False
       quality_type: "sanger"
@@ -27,7 +28,6 @@ params:
       quality_cutoff: 20
     fastp: # recommand
       do: True
-      threads: 4
       use_slide_window: False # strict when using slide window
       disable_adapter_trimming: False
       detect_adapter_for_se: True # If activated, adapter_sequence will not used
@@ -47,6 +47,11 @@ params:
       n_base_limit: 5
       dedup: False
       dup_calc_accuracy: 3 # [1, 2, 3, 4, 5, 6] # only used when dedup: True
+    trimmomatic:
+      do: False
+      phred: "-phred33"
+      save_unpaired: False
+      trimmomatic_options: 'MINLEN:50 ILLUMINACLIP:/path/to/adapters.fa:2:40:15 SLIDINGWINDOW:4:20' # eg: adapters: /path/to/TruSeq3-PE-2.fa
 
   rmhost:
     host_fasta: "/home/jiezhu/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"

@@ -129,7 +129,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
         conda:
             config["envs"]["trimming"]
         threads:
-            config["params"]["trimming"]["fastp"]["threads"]
+            config["params"]["trimming"]["threads"]
         shell:
             '''
             if [ "{params.pe}" == "pe" ];
@@ -266,6 +266,117 @@ else:
         input:
 
 
+if config["params"]["trimming"]["trimmomatic"]["do"]:
+    rule trimming_trimmomatic:
+        input:
+            lambda wildcards: get_reads(wildcards, "raw")
+        output:
+            summary = os.path.join(config["output"]["trimming"],
+                                   "short_reads/{sample}/{sample}.trimmomatic.summary.txt"),
+            reads = expand(
+                os.path.join(
+                    config["output"]["trimming"],
+                    "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
+                read=[".1", ".2"] if IS_PE else "") \
+                if config["params"]["trimming"]["save_reads"] else \
+                   temp(expand(os.path.join(
+                       config["output"]["trimming"],
+                       "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
+                               read=[".1", ".2"] if IS_PE else ""))
+        params:
+            trimmomatic_options = config["params"]["trimming"]["trimmomatic"]["trimmomatic_options"],
+            phred = config["params"]["trimming"]["trimmomatic"]["phred"],
+            save_unpaired = "true" if config["params"]["trimming"]["trimmomatic"]["save_unpaired"] else "false",
+            pe = "pe" if IS_PE else "se"
+        log:
+            os.path.join(config["output"]["trimming"], "logs/{sample}.trimmomatic.log")
+        benchmark:
+            os.path.join(config["output"]["trimming"],
+                         "benchmark/trimmomatic/{sample}.trimmomatic.benchmark.txt")
+        conda:
+            config["envs"]["trimming"]
+        threads:
+            config["params"]["trimming"]["threads"]
+        shell:
+            '''
+            if [ "{params.pe}" == "pe" ];
+            then
+                trimmomatic \
+                PE \
+                {params.phred} \
+                -threads {threads} \
+                -trimlog {log} \
+                -summary {output.summary} \
+                -basein {input} \
+                -baseout \
+                {output.reads[0]} {output.reads[0]}.unpaired \
+                {output.reads[1]} {output.reads[1]}.unpaired \
+                {params.trimmomatic_options}
+
+                if [ "{params.save_unpaired}" == "false" ];
+                then
+                    rm -rf {output.reads[0]}.unpaired
+                    rm -rf {output.reads[1]}.unpaired
+                fi
+            else
+                trimmomatic \
+                SE \
+                {params.phred} \
+                -threads {threads} \
+                -trimlog {log} \
+                -summary {output.summary} \
+                {input} \
+                {output.reads} \
+                {params.trimmomatic_options}
+            fi
+            '''
+
+
+    rule trimming_trimmomatic_multiqc:
+        input:
+            expand(
+                os.path.join(config["output"]["trimming"],
+                             "short_reads/{sample}/{sample}.trimmomatic.summary.txt"),
+                sample=SAMPLES_ID_LIST)
+        output:
+            html = os.path.join(config["output"]["trimming"],
+                                "report/trimmomatic_multiqc_report.html")#,
+            #data_dir = directory(os.path.join(config["output"]["trimming"],
+            #                                  "report/trimmomatic_multiqc_report_data"))
+        log:
+            os.path.join(config["output"]["trimming"], "logs/multiqc.trimmomatic.log")
+        params:
+            outdir = os.path.join(config["output"]["trimming"], "report")
+        conda:
+            config["envs"]["multiqc"]
+        shell:
+            '''
+            multiqc \
+            --outdir {params.outdir} \
+            --title trimmomatic \
+            --module trimmomatic \
+            {input} \
+            2> {log}
+            '''
+
+           
+    rule trimming_trimmomatic_all:
+        input:
+            expand([
+                os.path.join(config["output"]["trimming"],
+                             "short_reads/{sample}/{sample}.trimmomatic.summary.txt"),
+                os.path.join(config["output"]["trimming"],
+                             "report/trimmomatic_multiqc_report.html"),
+                #os.path.join(config["output"]["trimming"],
+                #             "report/trimmomatic_multiqc_report_data")
+                ],
+                   sample=SAMPLES_ID_LIST)
+
+else:
+    rule trimming_trimmomatic_all:
+        input:
+
+
 if TRIMMING_DO and config["params"]["qcreport"]["do"]:
     rule trimming_report:
         input:
@@ -342,6 +453,7 @@ rule trimming_all:
     input:
         rules.trimming_sickle_all.input,
         rules.trimming_fastp_all.input,
+        rules.trimming_trimmomatic_all.input,
         rules.trimming_report_all.input#,
 
         #rules.raw_all.input
@@ -350,5 +462,6 @@ rule trimming_all:
 localrules:
     trimming_fastp_all,
     trimming_sickle_all,
+    trimming_trimmomatic_all,
     trimming_report_all,
     trimming_all

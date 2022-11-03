@@ -21,6 +21,7 @@ WORKFLOWS_MAG = [
     "raw_all",
     "trimming_sickle_all",
     "trimming_fastp_all",
+    "trimming_trimmomatic_all",
     "trimming_report_all",
     "trimming_all",
     "rmhost_bwa_all",
@@ -89,6 +90,7 @@ WORKFLOWS_GENE = [
     "raw_all",
     "trimming_sickle_all",
     "trimming_fastp_all",
+    "trimming_trimmomatic_all",
     "trimming_report_all",
     "trimming_all",
     "rmhost_bwa_all",
@@ -540,7 +542,7 @@ if begin from simulate:
         type=str,
         default="fastp",
         required=False,
-        choices=["sickle", "fastp"],
+        choices=["sickle", "fastp", "trimmomatic"],
         help="which trimmer used",
     )
     parser_init.add_argument(
