@@ -29,6 +29,8 @@ if config["params"]["trimming"]["sickle"]["do"]:
             quality_cutoff = config["params"]["trimming"]["sickle"]["quality_cutoff"],
             length_cutoff = config["params"]["trimming"]["sickle"]["length_cutoff"],
             pe = "pe" if IS_PE else "se"
+        priority:
+            10
         shell:
             '''
             if [ "{params.pe}" == "pe" ];
@@ -130,6 +132,8 @@ if config["params"]["trimming"]["fastp"]["do"]:
             config["envs"]["trimming"]
         threads:
             config["params"]["trimming"]["threads"]
+        priority:
+            10
         shell:
             '''
             if [ "{params.pe}" == "pe" ];
@@ -236,6 +240,8 @@ if config["params"]["trimming"]["fastp"]["do"]:
             outdir = os.path.join(config["output"]["trimming"], "report")
         conda:
             config["envs"]["multiqc"]
+        priority:
+            10
         shell:
             '''
             multiqc \
@@ -299,6 +305,8 @@ if config["params"]["trimming"]["trimmomatic"]["do"]:
             config["envs"]["trimming"]
         threads:
             config["params"]["trimming"]["threads"]
+        priority:
+            10
         shell:
             '''
             if [ "{params.pe}" == "pe" ];
@@ -352,6 +360,8 @@ if config["params"]["trimming"]["trimmomatic"]["do"]:
             outdir = os.path.join(config["output"]["trimming"], "report")
         conda:
             config["envs"]["multiqc"]
+        priority:
+            10
         shell:
             '''
             multiqc \
@@ -398,6 +408,8 @@ if TRIMMING_DO and config["params"]["qcreport"]["do"]:
             config["envs"]["report"]
         threads:
             config["params"]["qcreport"]["seqkit"]["threads"]
+        priority:
+            10
         shell:
             '''
             seqkit stats \
@@ -422,6 +434,8 @@ if TRIMMING_DO and config["params"]["qcreport"]["do"]:
             sample_id = "{sample}"
         threads:
             1
+        priority:
+            10
         run:
             if IS_PE:
                 metapi.change(str(input), str(output), params.sample_id, "trimming",
@@ -441,6 +455,8 @@ if TRIMMING_DO and config["params"]["qcreport"]["do"]:
             os.path.join(config["output"]["qcreport"], "trimming_stats.tsv.gz")
         threads:
             config["params"]["qcreport"]["seqkit"]["threads"]
+        priority:
+            10
         run:
             metapi.merge(input, metapi.parse, threads, output=output[0])
 

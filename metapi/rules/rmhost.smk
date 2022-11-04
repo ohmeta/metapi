@@ -36,6 +36,8 @@ if config["params"]["rmhost"]["bwa"]["do"]:
         params:
             index_prefix = config["params"]["rmhost"]["bwa"]["index_prefix"],
             bwa = "bwa-mem2" if config["params"]["rmhost"]["bwa"]["algorithms"] == "mem2" else "bwa"
+        priority:
+            20
         shell:
             '''
             {params.bwa} index -p {params.index_prefix} {input} 2> {log}
@@ -68,7 +70,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
         benchmark:
             os.path.join(config["output"]["rmhost"], "benchmark/bwa/{sample}.bwa.txt")
         priority:
-            10
+            20
         params:
             compression = config["params"]["rmhost"]["compression"],
             bwa = "bwa-mem2" if config["params"]["rmhost"]["bwa"]["algorithms"] == "mem2" else "bwa",
@@ -198,6 +200,8 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
             os.path.join(config["output"]["rmhost"], "logs/build_host_index_for_bowtie2.log")
         params:
             index_prefix = config["params"]["rmhost"]["bowtie2"]["index_prefix"]
+        priority:
+            20
         shell:
             '''
             bowtie2-build {input} {params.index_prefix} 2> {log}
@@ -241,6 +245,8 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
             save_bam = "yes" if config["params"]["rmhost"]["save_bam"] else "no"
         threads:
             config["params"]["rmhost"]["threads"]
+        priority:
+            20
         shell:
             '''
             if [ "{params.pe}" == "pe" ];
@@ -357,6 +363,8 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
             split_size = config["params"]["rmhost"]["minimap2"]["split_size"]
         conda:
             config["envs"]["align"]
+        priority:
+            20
         shell:
             '''
             minimap2 -I {params.split_size} -d {output} {intput}
@@ -388,7 +396,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
             os.path.join(config["output"]["rmhost"],
                          "benchmark/minimap2/{sample}.minimap2.txt")
         priority:
-            10
+            20
         params:
             preset = config["params"]["rmhost"]["minimap2"]["preset"],
             compression = config["params"]["rmhost"]["compression"],
@@ -536,7 +544,7 @@ if config["params"]["rmhost"]["kraken2"]["do"]:
             host_taxid = config["params"]["rmhost"]["kraken2"]["host_taxid"],
             pe = "pe" if IS_PE else "se"
         priority:
-            10
+            20
         threads:
             config["params"]["rmhost"]["threads"]
         shell:
@@ -649,7 +657,7 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
             output_dir = os.path.join(config["output"]["rmhost"], "short_reads/{sample}"),
             output_prefix = "{sample}.rmhost",
         priority:
-            10
+            20
         threads:
             config["params"]["rmhost"]["threads"]
         shell:
@@ -774,6 +782,8 @@ and (not config["params"]["rmhost"]["kneaddata"]["do"]):
         output:
             flagstat = os.path.join(config["output"]["rmhost"],
                                     "report/rmhost_align2host_stats.tsv.gz")
+        priority:
+            20
         run:
             input_list = [str(i) for i in input]
             metapi.flagstats_summary(input_list, 2, output=output.flagstat)
