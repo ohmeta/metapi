@@ -93,7 +93,7 @@ params:
       do_bowtie2: True
       decontaminate_pairs: "strict" # ["strict", "lenient", "unpaired"]
       bowtie2_options: "--very-sensitive --dovetail"
-      bowtie2_database: "/home/jiezhu/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"
+      bowtie2_database: "/home/jiezhu/databases/genomics/human/CHM13/chm13v2.0_plusY/" # directory, not bowtie2 index prefix
  
   qcreport:
     do: True
