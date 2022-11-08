@@ -13,7 +13,7 @@ threads = snakemake.threads
 log = snakemake.log
 
 output_dir = snakemake.params.get("output_dir", "")
-reads_format = snakeamke.params.get("reads_format", "")
+reads_format = snakemake.params.get("reads_format", "")
 is_pe = snakemake.params.get("is_pe", "")
 is_interleaved = snakemake.params.get("is_interleaved", "")
 check_paired = snakemake.params.get("check_paired", "")
