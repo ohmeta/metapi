@@ -67,10 +67,10 @@ if reads_format == "fastq":
                     oneline = gzip.open(fq1_, 'rt').readline().strip().split()[0]
                     if "/1" in oneline:
                         sp.run(
-                            f'''seqkit grep -f <(awk '{{print $0 "/1"}}' {idp} {fq1_} -o {fq_1} 2>> {log}''',
+                            f'''seqkit grep -f <(awk '{{print $0 "/1"}}' {idp}) {fq1_} -o {fq_1} 2>> {log}''',
                             shell=True)
                         sp.run(
-                            f'''seqkit grep -f <(awk '{{print $0 "/2"}}' {idp} {fq2_} -o {fq_2} 2>> {log}''',
+                            f'''seqkit grep -f <(awk '{{print $0 "/2"}}' {idp}) {fq2_} -o {fq_2} 2>> {log}''',
                             shell=True)
                     else:
                         sp.run(f'''seqkit grep -f {idp} {fq1_} -o {fq_1} 2>> {log}''', shell=True)
