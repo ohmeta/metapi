@@ -63,8 +63,8 @@ if config["params"]["raw"]["do"]:
         params:
             output_dir = os.path.join(config["output"]["raw"], "short_reads/{sample}"),
             is_pe = IS_PE,
-            is_interleaved = config["params"]["interleaved"],
-            reads_format = config["params"]["reads_format"]
+            is_interleaved = IS_INTERLEAVED,
+            reads_format = READS_FORMAT
         threads:
             config["params"]["raw"]["threads"]
         conda:
