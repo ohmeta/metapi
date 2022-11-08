@@ -6,16 +6,17 @@ import gzip
 import subprocess as sp
 
 
-input_fq_list = snakemake["input"]
-output_fq_list = snakemake["output"]["reads"]
+input_fq_list = snakemake.input
+output_fq_list = snakemake.output.get("reads", "")
 
-threads = snakemake["threads"]
-log = snakemake["log"]
+threads = snakemake.threads
+log = snakemake.log
 
-output_dir = snakemake["params"]["output_dir"]
-reads_format = snakeamke["params"]["reads_format"]
-is_pe = snakemake["params"]["is_pe"]
-is_interleaved = snakemake["params"]["is_interleaved"]
+output_dir = snakemake.params.get("output_dir", "")
+reads_format = snakeamke.params.get("reads_format", "")
+is_pe = snakemake.params.get("is_pe", "")
+is_interleaved = snakemake.params.get("is_interleaved", "")
+check_paired = snakemake.params.get("check_paired", "")
 
 reads_num = len(input_fq_list)
 
@@ -40,66 +41,72 @@ if reads_format == "fastq":
                 sp.run(f'''cat {fq1_str} > {fq1_} 2> {log}''', shell=True)
                 sp.run(f'''cat {fq2_str} > {fq2_} 2>> {log}''', shell=True)
 
-            id1 = f'''{output_dir}/id.list.1'''
-            id2 = f'''{output_dir}/id.list.2'''
-            idp = f'''{output_dir}/id.list.paired'''
+            
+            if check_paired:
+                id1 = f'''{output_dir}/id.list.1'''
+                id2 = f'''{output_dir}/id.list.2'''
+                idp = f'''{output_dir}/id.list.paired'''
 
-            sp.run(f'''seqkit seq -ni {fq1_} | sed 's#/1$##g' > {id1} 2>> {log}''', shell=True) 
-            sp.run(f'''seqkit seq -ni {fq2_} | sed 's#/2$##g' > {id2} 2>> {log}''', shell=True) 
+                sp.run(f'''seqkit seq -ni {fq1_} | sed 's#/1$##g' > {id1} 2>> {log}''', shell=True) 
+                sp.run(f'''seqkit seq -ni {fq2_} | sed 's#/2$##g' > {id2} 2>> {log}''', shell=True) 
 
-            if filecmp.cmp(id1, id2): 
-                sp.run(f'''mv {fq1_} {r1} 2>> {log}''', shell=True)
-                sp.run(f'''mv {fq2_} {r2} 2>> {log}''', shell=True)
+                if filecmp.cmp(id1, id2): 
+                    sp.run(f'''mv {fq1_} {r1} 2>> {log}''', shell=True)
+                    sp.run(f'''mv {fq2_} {r2} 2>> {log}''', shell=True)
 
-                sp.run(f'''rm -rf {id1} 2>> {log}''', shell=True)
-                sp.run(f'''rm -rf {id2} 2>> {log}''', shell=True)
-            else:
-                sp.run(
-                    f'''
-                    sort -T {output_dir} {id1} {id2} | \
-                    uniq -c | \
-                    awk '$1==2{{print $2}}' > {idp} 2>> {log}
-                    ''', shell=True)
-
-                oneline = gzip.open(fq1_, 'rt').readline().strip().split()[0]
-                if "/1" in oneline:
-                    sp.run(
-                        f'''seqkit grep -f <(awk '{{print $0 "/1"}}' {idp} {fq1_} -o {fq_1} 2>> {log}''',
-                        shell=True)
-                    sp.run(
-                        f'''seqkit grep -f <(awk '{{print $0 "/2"}}' {idp} {fq2_} -o {fq_2} 2>> {log}''',
-                        shell=True)
+                    sp.run(f'''rm -rf {id1} 2>> {log}''', shell=True)
+                    sp.run(f'''rm -rf {id2} 2>> {log}''', shell=True)
                 else:
-                    sp.run(f'''seqkit grep -f {idp} {fq1_} -o {fq_1} 2>> {log}''', shell=True)
-                    sp.run(f'''seqkit grep -f {idp} {fq2_} -o {fq_2} 2>> {log}''', shell=True)
+                    sp.run(
+                        f'''
+                        sort -T {output_dir} {id1} {id2} | \
+                        uniq -c | \
+                        awk '$1==2{{print $2}}' > {idp} 2>> {log}
+                        ''', shell=True)
 
-                sp.run(f'''rm -rf {fq1_} 2>> {log}''', shell=True)
-                sp.run(f'''rm -rf {fq2_} 2>> {log}''', shell=True)
-                sp.run(f'''rm -rf {idp} 2>> {log}''', shell=True)
-                sp.run(f'''rm -rf {id1} 2>> {log}''', shell=True)
-                sp.run(f'''rm -rf {id2} 2>> {log}''', shell=True)
+                    oneline = gzip.open(fq1_, 'rt').readline().strip().split()[0]
+                    if "/1" in oneline:
+                        sp.run(
+                            f'''seqkit grep -f <(awk '{{print $0 "/1"}}' {idp} {fq1_} -o {fq_1} 2>> {log}''',
+                            shell=True)
+                        sp.run(
+                            f'''seqkit grep -f <(awk '{{print $0 "/2"}}' {idp} {fq2_} -o {fq_2} 2>> {log}''',
+                            shell=True)
+                    else:
+                        sp.run(f'''seqkit grep -f {idp} {fq1_} -o {fq_1} 2>> {log}''', shell=True)
+                        sp.run(f'''seqkit grep -f {idp} {fq2_} -o {fq_2} 2>> {log}''', shell=True)
 
-                ## more check
-                sp.run(f'''mkdir -p {output_dir}/tmpfq''', shell=True)
-                sp.run(
-                    f'''
-                    pigz -b 102400 -dc {fq_1} | \
-                    paste - - - - | \
-                    LC_ALL=C sort --parallel 4 -n -T {output_dir}/tmpfq -S 8G | \
-                    tr '\t' '\n' | \
-                    pigz -b 102400 > {r1} \
-                    2>> {log}''', shell=True)
-                sp.run(
-                    f'''
-                    pigz -b 102400 -dc {fq_2} | \
-                    paste - - - - | \
-                    LC_ALL=C sort --parallel 4 -n -T {output_dir}/tmpfq -S 8G | \
-                    tr '\t' '\n' | \
-                    pigz -b 102400 > {r2} \
-                    2>> {log}''', shell=True)
+                    sp.run(f'''rm -rf {fq1_} 2>> {log}''', shell=True)
+                    sp.run(f'''rm -rf {fq2_} 2>> {log}''', shell=True)
+                    sp.run(f'''rm -rf {idp} 2>> {log}''', shell=True)
+                    sp.run(f'''rm -rf {id1} 2>> {log}''', shell=True)
+                    sp.run(f'''rm -rf {id2} 2>> {log}''', shell=True)
 
-                sp.run(f'''rm -rf {fq_1} 2>> {log}''', shell=True)
-                sp.run(f'''rm -rf {fq_2} 2>> {log}''', shell=True)
+                    ## more check
+                    sp.run(f'''mkdir -p {output_dir}/tmpfq''', shell=True)
+                    sp.run(
+                        f'''
+                        pigz -b 102400 -dc {fq_1} | \
+                        paste - - - - | \
+                        LC_ALL=C sort --parallel 4 -n -T {output_dir}/tmpfq -S 8G | \
+                        tr '\t' '\n' | \
+                        pigz -b 102400 > {r1} \
+                        2>> {log}''', shell=True)
+                    sp.run(
+                        f'''
+                        pigz -b 102400 -dc {fq_2} | \
+                        paste - - - - | \
+                        LC_ALL=C sort --parallel 4 -n -T {output_dir}/tmpfq -S 8G | \
+                        tr '\t' '\n' | \
+                        pigz -b 102400 > {r2} \
+                        2>> {log}''', shell=True)
+
+                    sp.run(f'''rm -rf {fq_1} 2>> {log}''', shell=True)
+                    sp.run(f'''rm -rf {fq_2} 2>> {log}''', shell=True)
+                    sp.run(f'''rm -rf {output_dir}/tmpfq''', shell=True)
+            else:
+                sp.run(f'''mv {fq_1} {r1} 2>> {log}''', shell=True)
+                sp.run(f'''mv {fq_2} {r2} 2>> {log}''', shell=True)
 
         else:
             sp.run(

@@ -13,6 +13,7 @@ params:
   raw:
     do: True
     threads: 8
+    check_paired: True
     save_reads: True
     fastqc:
       do: False
