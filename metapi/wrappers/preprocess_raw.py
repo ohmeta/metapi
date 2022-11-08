@@ -50,6 +50,9 @@ if reads_format == "fastq":
             if filecmp.cmp(id1, id2): 
                 sp.run(f'''mv {fq1_} {r1} 2>> {log}''', shell=True)
                 sp.run(f'''mv {fq2_} {r2} 2>> {log}''', shell=True)
+
+                sp.run(f'''rm -rf {id1} 2>> {log}''', shell=True)
+                sp.run(f'''rm -rf {id2} 2>> {log}''', shell=True)
             else:
                 sp.run(
                     f'''
@@ -73,9 +76,27 @@ if reads_format == "fastq":
                 sp.run(f'''rm -rf {fq1_} 2>> {log}''', shell=True)
                 sp.run(f'''rm -rf {fq2_} 2>> {log}''', shell=True)
                 sp.run(f'''rm -rf {idp} 2>> {log}''', shell=True)
+                sp.run(f'''rm -rf {id1} 2>> {log}''', shell=True)
+                sp.run(f'''rm -rf {id2} 2>> {log}''', shell=True)
 
-            sp.run(f'''rm -rf {id1} 2>> {log}''', shell=True)
-            sp.run(f'''rm -rf {id2} 2>> {log}''', shell=True)
+                ## more check
+                sp.run(f'''mkdir -p {output_dir}/tmpfq''', shell=True)
+                sp.run(
+                    f'''
+                    pigz -b 102400 -dc {fq_1} | \
+                    paste - - - - | \
+                    LC_ALL=C sort --parallel 4 -n -T {output_dir}/tmpfq -S 8G | \
+                    tr '\t' '\n' | \
+                    pigz -b 102400 > {r1} \
+                    2>> {log}''', shell=True)
+                sp.run(
+                    f'''
+                    pigz -b 102400 -dc {fq_2} | \
+                    paste - - - - | \
+                    LC_ALL=C sort --parallel 4 -n -T {output_dir}/tmpfq -S 8G | \
+                    tr '\t' '\n' | \
+                    pigz -b 102400 > {r2} \
+                    2>> {log}''', shell=True)
 
         else:
             sp.run(
