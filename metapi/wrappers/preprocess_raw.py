@@ -98,6 +98,9 @@ if reads_format == "fastq":
                     pigz -b 102400 > {r2} \
                     2>> {log}''', shell=True)
 
+                sp.run(f'''rm -rf {fq_1} 2>> {log}''', shell=True)
+                sp.run(f'''rm -rf {fq_2} 2>> {log}''', shell=True)
+
         else:
             sp.run(
                 f'''
