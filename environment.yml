@@ -18,4 +18,3 @@ dependencies:
   - seqkit
   - pigz
   - fd-find
-  - sra-tools=2.11.0

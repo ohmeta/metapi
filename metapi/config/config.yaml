@@ -415,6 +415,7 @@ upload:
 
 envs:
   simulate: "envs/simulate.yaml"
+  prepare: "envs/prepare.yaml"
   fastqc: "envs/fastqc.yaml"
   trimming: "envs/trimming.yaml"
   multiqc: "envs/multiqc.yaml"

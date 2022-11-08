@@ -61,132 +61,18 @@ if config["params"]["raw"]["do"]:
                         "short_reads/{{sample}}/{{sample}}.raw{read}.fq.gz"),
                     read=short_reads_suffix()))
         params:
-            output_dir = os.path.join(config["output"]["raw"],
-                                   "short_reads/{sample}"),
-            interleaved = config["params"]["interleaved"]
+            output_dir = os.path.join(config["output"]["raw"], "short_reads/{sample}"),
+            is_pe = IS_PE,
+            is_interleaved = config["params"]["interleaved"],
+            reads_format = config["params"]["reads_format"]
         threads:
             config["params"]["raw"]["threads"]
+        conda:
+            config["envs"]["prepare"]
         log:
             os.path.join(config["output"]["raw"], "logs/{sample}_prepare.log")
-        run:
-            import filecmp
-            import gzip
-
-            reads_num = len(input)
-
-            if READS_FORMAT == "fastq":
-                if IS_PE:
-                    if not params.interleaved:
-                        if reads_num == 2:
-                            os.symlink(os.path.realpath(input[0]), f'''{output.reads[0]}.temp.gz''')
-                            os.symlink(os.path.realpath(input[1]), f'''{output.reads[1]}.temp.gz''')
-                        else:
-                            shell(f'''cat {" ".join(input[0:reads_num//2])} > {output.reads[0]}.temp.gz 2>> {log}''')
-                            shell(f'''cat {" ".join(input[reads_num//2:])}  > {output.reads[1]}.temp.gz 2>> {log}''')
-
-                        shell(f'''seqkit seq -ni {output.reads[0]}.temp.gz | sed 's#/1$##g' > {params.output_dir}/id.list.1 2>> {log}''') 
-                        shell(f'''seqkit seq -ni {output.reads[1]}.temp.gz | sed 's#/2$##g' > {params.output_dir}/id.list.2 2>> {log}''') 
-
-                        if filecmp.cmp(f'''{params.output_dir}/id.list.1''', f'''{params.output_dir}/id.list.2'''): 
-                            shell(f'''mv {output.reads[0]}.temp.gz {output.reads[0]} 2>> {log}''')
-                            shell(f'''mv {output.reads[1]}.temp.gz {output.reads[1]} 2>> {log}''')
-                        else:
-                            shell(
-                                '''
-                                sort -T {params.output_dir} {params.output_dir}/id.list.1 {params.output_dir}/id.list.2 | \
-                                uniq -c | \
-                                awk '$1==2{{print $2}}' > {params.output_dir}/id.list.paired 2>> {log}
-                                ''')
-
-                            oneline = gzip.open(f'''{output.reads[0]}.temp.gz''', 'rt').readline().strip().split()[0]
-                            if "/1" in oneline:
-                                shell(
-                                    '''
-                                    seqkit grep -f <(awk '{{print $0 "/1"}}' {params.output_dir}/id.list.paired) {output.reads[0]}.temp.gz -o {output.reads[0]} 2>> {log}
-                                    seqkit grep -f <(awk '{{print $0 "/2"}}' {params.output_dir}/id.list.paired) {output.reads[1]}.temp.gz -o {output.reads[1]} 2>> {log}
-                                    ''')
-                            else:
-                                shell(
-                                    f'''
-                                    seqkit grep -f {params.output_dir}/id.list.paired {output.reads[0]}.temp.gz -o {output.reads[0]} 2>> {log}
-                                    seqkit grep -f {params.output_dir}/id.list.paired {output.reads[1]}.temp.gz -o {output.reads[1]} 2>> {log}
-                                    ''')
-
-                            shell(f'''rm -rf {output.reads[0]}.temp.gz 2>> {log}''')
-                            shell(f'''rm -rf {output.reads[1]}.temp.gz 2>> {log}''')
-                            shell(f'''rm -rf {params.output_dir}/id.list.paired 2>> {log}''')
-
-                        shell(f'''rm -rf {params.output_dir}/id.list.1 2>> {log}''')
-                        shell(f'''rm -rf {params.output_dir}/id.list.2 2>> {log}''')
-
-                    else:
-                        shell(
-                            '''
-                            cat {input} | \
-                            tee >(seqtk seq -1 - | pigz -cf -p {threads} > {output.reads[0]}) | \
-                            seqtk seq -2 - | pigz -cf -p {threads} > {output.reads[1]} 2>> {log}
-                            ''')
-                else:
-                    if reads_num == 1:
-                        os.symlink(os.path.realpath(input[0]), output.reads[0])
-                    else:
-                        shell('''cat {input} > {output.reads[0]} 2>> {log}''')
-
-            elif READS_FORMAT == "sra":
-                if reads_num == 1:
-                    sra_file = os.path.basename(input[0])
-                    shell(
-                        f'''
-                        rm -rf {params.output_dir}/{sra_file}* 2>> {log}
-                        rm -rf {params.output_dir}.{sra_file}.temp 2>> {log}
-
-                        fasterq-dump \
-                        --threads {threads} \
-                        --split-3 \
-                        --temp {params.output_dir}.{sra_file}.temp \
-                        --outdir {params.output_dir} {input[0]} 2>>{log}
-
-                        rm -rf {params.output_dir}.{sra_file}.temp 2>> {log}
-                        pigz -f --processes {threads} {params.output_dir}/{sra_file}_1.fastq 2>> {log}
-                        pigz -f --processes {threads} {params.output_dir}/{sra_file}_2.fastq 2>> {log}
-                        rm -rf {params.output_dir}/{sra_file}._*.fastq 2>> {log}
-
-                        mv {params.output_dir}/{sra_file}_1.fastq.gz {output.reads[0]} 2>> {log}
-                        mv {params.output_dir}/{sra_file}_2.fastq.gz {output.reads[1]} 2>> {log}
-                        ''')
-
-                else:
-                    r1_list = []
-                    r2_list = []
-                    for sra in input:
-                        sra_file = os.path.basename(sra)
-                        r1_list.append(os.path.join(params.output_dir,
-                                                 sra_file + "_1.fastq.gz"))
-                        r2_list.append(os.path.join(params.output_dir,
-                                                 sra_file + "_2.fastq.gz"))
-                        shell(
-                            f'''
-                            rm -rf {params.output_dir}/{sra_file}* 2>> {log}
-                            rm -rf {params.output_dir}.{sra_file}.temp 2>> {log}
-
-                            fasterq-dump \
-                            --threads {threads} \
-                            --split-3 \
-                            --temp {params.output_dir}.{sra_file}.temp \
-                            --outdir {params.output_dir} {sra} 2>> {log}
-
-                            rm -rf {params.output_dir}.{sra_file}.temp 2>> {log}
-                            pigz -f --processes {threads} {params.output_dir}/{sra_file}_1.fastq 2>> {log}
-                            pigz -f --processes {threads} {params.output_dir}/{sra_file}_2.fastq 2>> {log}
-                            rm -rf {params.output_dir}/{sra_file}._*.fastq 2>> {log}
-                            ''')
-
-                    r1_str = " ".join(r1_list)
-                    r2_str = " ".join(r2_list)
-                    shell(f'''cat {r1_str} > {output.reads[0]} 2>> {log}''')
-                    shell(f'''cat {r2_str} > {output.reads[1]} 2>> {log}''')
-                    shell(f'''rm -rf {r1_str} 2>> {log}''')
-                    shell(f'''rm -rf {r2_str} 2>> {log}''')
+        script:
+            "../wrappers/preprocess_raw.py"
 
 
     rule prepare_short_reads_all:

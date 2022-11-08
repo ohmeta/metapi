@@ -1,0 +1,10 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python
+  - coreutils
+  - seqkit
+  - pigz
+  - sra-tools=2.11.0 
