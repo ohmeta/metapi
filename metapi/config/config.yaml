@@ -139,7 +139,7 @@ params:
       only_save_scaftigs: True
       link_scaffolds: True
       memory: 50
-      kmers: ["21", "29", "39", "59", "79", "99", "119", "141"]
+      kmers: ["21", "33", "55", "77", "99", "127"] # please update it by yourself
     plass:
       do: False
       min_seq_id:
