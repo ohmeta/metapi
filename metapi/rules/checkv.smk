@@ -143,7 +143,7 @@ if config["params"]["checkv"]["do"]:
                         print(f'''No {viruses_f} can be found''')
 
             else:
-                vmag = os.path.splitext(ouptut.vmag)[0]
+                vmag = os.path.splitext(output.vmag)[0]
                 subprocess.run(f'''touch {vmag}''', shell=True)
                 subprocess.run(f'''pigz -f {vmag}''', shell=True)
 
