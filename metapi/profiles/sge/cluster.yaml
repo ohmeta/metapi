@@ -337,7 +337,7 @@ binning_dastools_preprocess:
 
 binning_dastools:
   mem: "1G"
-  output: "logs/06.{rule}/{rule}.{wildacrds.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_report:
