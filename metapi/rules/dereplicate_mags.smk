@@ -21,6 +21,10 @@ rule dereplicate_mags_prepare:
         pd.concat(mags_hmq_list, axis=0).to_csv(output.mags_hmq, header=False, sep="\t", index=False)
 
 
+localrules:
+    dereplicate_mags_prepare
+
+
 if config["params"]["dereplicate"]["drep"]["do"]:
     rule dereplicate_mags_drep:
         input:
@@ -98,6 +102,10 @@ if config["params"]["dereplicate"]["drep"]["do"]:
             rep_df_info.to_csv(output.rep_genomes_info, sep="\t", index=False)
 
 
+    localrules:
+        dereplicate_mags_drep_report
+
+
     rule dereplicate_mags_drep_all:
         input:
             expand([
@@ -122,7 +130,5 @@ rule dereplicate_mags_all:
 
 
 localrules:
-    dereplicate_mags_prepare,
-    dereplicate_mags_drep_report,
     dereplicate_mags_drep_all,
     dereplicate_mags_all

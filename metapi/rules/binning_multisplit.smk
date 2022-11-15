@@ -98,6 +98,10 @@ if config["params"]["binning"]["vamb"]["do"]:
                         oh.write(f'''{params.binning_group}.{assembly_group}\tS{count}\n''')
 
 
+    localrules:
+        binning_vamb_gen_metadata
+
+
     rule binning_vamb_dict_scaftigs:
         input:
             os.path.join(
@@ -507,6 +511,10 @@ if config["params"]["binning"]["vamb"]["do"]:
               .to_csv(output.metadata, sep='\t', index=False)
 
 
+    localrules:
+        binning_vamb_postprocess
+
+
     rule binning_vamb_all:
         input:
             rules.binning_vamb_prepare_all.input,
@@ -546,7 +554,5 @@ else:
 
 
 localrules:
-    binning_vamb_gen_metadata,
     binning_vamb_prepare_all,
-    binning_vamb_postprocess,
     binning_vamb_all

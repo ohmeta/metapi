@@ -858,7 +858,7 @@ if len(ASSEMBLERS) != 0:
         rule assembly_metaquast_all:
             input:
 
- 
+
     rule assembly_report:
         input:
             scaftigs = os.path.join(

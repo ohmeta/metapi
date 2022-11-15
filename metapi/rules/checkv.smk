@@ -19,7 +19,11 @@ if config["params"]["checkv"]["do"]:
             checkv download_database $(dirname {params.db}) \
             > {log} 2>&1
             '''
-    
+
+        
+    localrules:
+        checkv_download_db
+
 
     rule checkv:
         input:
@@ -181,5 +185,4 @@ rule check_all:
 
 
 localrules:
-    checkv_download_db,
     check_all

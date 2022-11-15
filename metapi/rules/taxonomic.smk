@@ -129,6 +129,11 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
 
             #rules.checkm_all.input,
 
+
+    localrules:
+        taxonomic_gtdbtk_prepare,
+        taxonomic_gtdbtk_report
+
 else:
     rule taxonomic_gtdbtk_all:
         input:
@@ -140,7 +145,5 @@ rule taxonomic_all:
 
 
 localrules:
-    taxonomic_gtdbtk_prepare,
     taxonomic_gtdbtk_all,
-    taxonomic_gtdbtk_report,
     taxonomic_all

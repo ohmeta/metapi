@@ -102,3 +102,8 @@ else:
 rule dereplicate_gene_all:
     input:
         rules.dereplicate_gene_cdhit_all.input
+
+
+localrules:
+    dereplicate_gene_cdhit_all,
+    dereplicate_gene_all

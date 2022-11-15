@@ -157,12 +157,15 @@ if config["params"]["checkm"]["do"]:
             #rules.predict_mags_gene_prodigal_all.input,
             #rules.binning_all.input,
 
+
+    localrules:
+        checkm_prepare,
+        checkm_report
+
 else:
     rule checkm_all:
         input:
 
 
 localrules:
-    checkm_prepare,
-    checkm_report,
     checkm_all

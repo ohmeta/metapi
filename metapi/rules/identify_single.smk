@@ -21,6 +21,10 @@ if config["params"]["identify"]["virsorter2"]["do"]:
             virsorter setup --db-dir {params.db_dir} --jobs {threads} >{log} 2>&1
             '''
 
+    
+    localrules:
+        identify_virsorter2_setup_db
+
 
 # https://github.com/EddyRivasLab/hmmer/issues/161
 # hmmsearch threads: 2 (recommand)
@@ -56,6 +60,10 @@ if config["params"]["identify"]["virsorter2"]["do"]:
                 cp $configfile {output}
             fi
             '''
+
+
+    localrules:
+        identify_virsorter2_config
 
 
     checkpoint identify_virsorter2_prepare:
@@ -389,8 +397,6 @@ rule identify_single_all:
 
 
 localrules:
-    identify_virsorter2_setup_db,
-    identify_virsorter2_config,
     identify_virsorter2_all,
     identify_deepvirfinder_all,
     identify_single_all

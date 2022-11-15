@@ -70,6 +70,10 @@ if config["params"]["binning"]["metabat2"]["do"]:
                 assembler=ASSEMBLY_GROUPS["assembler"])
 
 
+    localrules:
+        binning_metabat2_coverage_all
+
+
     rule binning_metabat2:
         input:
             scaftigs = os.path.join(
@@ -373,6 +377,10 @@ if config["params"]["binning"]["concoct"]["do"]:
                    results=["scaftigs.cut.fa.gz", "scaftigs.cut.bed.gz"])
 
 
+    localrules:
+        binning_concoct_cut_bed_all
+
+
     rule binning_concoct_coverage:
         input:
             scaftigs_bed = os.path.join(
@@ -563,7 +571,5 @@ else:
 
 localrules:
     binning_metabat2_all,
-    binning_metabat2_coverage_all,
     binning_maxbin2_all,
-    binning_concoct_cut_bed_all,
     binning_concoct_all
