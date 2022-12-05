@@ -146,7 +146,6 @@ def run_snakemake(args, unknown, snakefile, workflow):
             cmd += ["--conda-prefix", args.conda_prefix]
     else:
         cmd += [
-            "--rerun-incomplete",
             "--keep-going",
             "--printshellcmds",
             "--reason",
@@ -168,12 +167,12 @@ def run_snakemake(args, unknown, snakefile, workflow):
                     "--jobs", str(args.jobs)]
         elif args.debug:
             cmd += ["--debug-dag"]
-        else: 
+        else:
             cmd += ["--dry-run"]
 
         if args.dry_run and ("--dry-run" not in cmd):
             cmd += ["--dry-run"]
- 
+
     cmd_str = " ".join(cmd).strip()
     print("Running metapi %s:\n%s" % (workflow, cmd_str))
 
@@ -602,7 +601,7 @@ if begin from simulate:
         help="workflow. Allowed values are mag_wf, gene_wf",
     )
     parser_sync.add_argument(
-        "task", 
+        "task",
         metavar="TASK",
         nargs="?",
         type=str,
