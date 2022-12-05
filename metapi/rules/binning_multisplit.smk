@@ -4,7 +4,7 @@ for binning_group in SAMPLES_BINNING_GROUP_LIST:
     assembly_groups = sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, binning_group))
     count = 0
     for assembly_group in assembly_groups:
-        count += 1 
+        count += 1
         MULTIBINING_INDEX[binning_group][assembly_group] = f'''S{count}'''
 
 
@@ -190,9 +190,9 @@ if config["params"]["binning"]["vamb"]["do"]:
             minimap2 -t {threads} \
             -ax sr \
             {input.scaftigs_index} \
-            {input.reads} -N 5 2> {log} |
+            {input.reads} -N 5 2> {log} | \
             tee >(samtools flagstat \
-                  -@{threads} - | \
+                  -@4 - | \
                   pigz -cf > {output.flagstat}) | \
             grep -v "^@" | \
             cat {input.scaftigs_dict} - | \
@@ -233,16 +233,16 @@ if config["params"]["binning"]["vamb"]["do"]:
         shell:
             '''
             rm -rf {params.bam_dir}/{params.sample}.align2merged_scaftigs.bam.temp*
-            
+
             samtools sort {input.bam} \
-            -m 3G -@{threads} \
+            -m 3G -@4 \
             -T {params.bam_dir}/{params.sample}.align2merged_scaftigs.bam.temp \
             -O BAM \
             -o {output.bam} 2> {log}
-            
+
             rm -rf {params.bam_dir}/{params.sample}.align2merged_scaftigs.bam.temp*
             '''
- 
+
 
     rule binning_vamb_align_scaftigs_report:
         input:

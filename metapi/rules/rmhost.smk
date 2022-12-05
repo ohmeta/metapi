@@ -12,7 +12,7 @@ def trimming_stats_input(wildcards, have_single=False):
                       sample=wildcards.sample)
     else:
         return []
- 
+
 
 BWA_INDEX_SUFFIX = ["0123", "amb", "ann", "bwt.2bit.64", "pac"] if config["params"]["rmhost"]["bwa"]["algorithms"] == "mem2" \
 else ["amb", "ann", "bwt", "pac", "sa"]
@@ -96,17 +96,17 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     {params.index_prefix} \
                     {input.reads[0]} {input.reads[1]} | \
                     tee >(samtools flagstat \
-                          -@{threads} - | \
+                          -@4 - | \
                           pigz -cf > {output.flagstat}) | \
                     tee >(samtools fastq \
-                          -@{threads} \
+                          -@4 \
                           -c {params.compression} \
                           -N -f 12 -F 256 \
                           -1 {output.reads[0]} \
                           -2 {output.reads[1]} -) | \
                     samtools sort \
                     -m 3G \
-                    -@{threads} \
+                    -@4 \
                     -T {params.bam} \
                     -O BAM -o {params.bam} - \
                     2> {log}
@@ -117,10 +117,10 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     {params.index_prefix} \
                     {input.reads[0]} {input.reads[1]} | \
                     tee >(samtools flagstat \
-                          -@{threads} - | \
+                          -@4 - | \
                           pigz -cf > {output.flagstat}) | \
                     samtools fastq \
-                    -@{threads} \
+                    -@4 \
                     -c {params.compression} \
                     -N -f 12 -F 256 \
                     -1 {output.reads[0]} \
@@ -138,17 +138,17 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     {params.index_prefix} \
                     {input.reads[0]} | \
                     tee >(samtools flagstat \
-                          -@{threads} - | \
+                          -@4 - | \
                           pigz -cf > {output.flagstat}) | \
                     tee >(samtools fastq \
-                          -@{threads} \
+                          -@4 \
                           -c {params.compression} \
                           -N -f 4 -F 256 - | \
                           pigz -cf -p {threads} \
                           > {output.reads[0]}) | \
                     samtools sort \
                     -m 3G \
-                    -@{threads} \
+                    -@4 \
                     -T {params.bam} \
                     -O BAM -o {params.bam} - \
                     2> {log}
@@ -159,10 +159,10 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     {params.index_prefix} \
                     {input.reads[0]} | \
                     tee >(samtools flagstat \
-                          -@{threads} - | \
+                          -@4 - | \
                           pigz -cf > {output.flagstat}) | \
                     samtools fastq \
-                    -@{threads} \
+                    -@4 \
                     -c {params.compression} \
                     -N -f 4 -F 256 - | \
                     pigz -cf -p {threads} \
@@ -263,17 +263,17 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                     {params.presets} \
                     2> {log} | \
                     tee >(samtools flagstat \
-                          -@{threads} - | \
+                          -@4 - | \
                           pigz -cf > {output.flagstat}) | \
                     tee >(samtools fastq \
-                          -@{threads} \
+                          -@4 \
                           -c {params.compression} \
                           -N -f 12 -F 256 \
                           -1 {output.reads[0]} \
                           -2 {output.reads[1]} -) | \
                     samtools sort \
                     -m 3G \
-                    -@{threads} \
+                    -@4 \
                     -T {params.bam} \
                     -O BAM -o {params.bam} -
                 else
@@ -285,10 +285,10 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                     {params.presets} \
                     2> {log} | \
                     tee >(samtools flagstat \
-                          -@{threads} - | \
+                          -@4 - | \
                           pigz -cf > {output.flagstat}) | \
                     samtools fastq \
-                    -@{threads} \
+                    -@4 \
                     -c {params.compression} \
                     -N -f 12 -F 256 \
                     -1 {output.reads[0]} \
@@ -306,17 +306,17 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                     -U {input.reads[0]} \
                     2> {log} | \
                     tee >(samtools flagstat \
-                          -@{threads} - | \
+                          -@4 - | \
                           pigz -cf > {output.flagstat}) | \
                     tee >(samtools fastq \
-                          -@{threads} \
+                          -@4 \
                           -c {params.compression} \
                           -N -f 4 -F 256 - | \
                           pigz -cf -p {threads} \
                           > {output.reads[0]}) | \
                     samtools sort \
                     -m 3G \
-                    -@{threads} \
+                    -@4 \
                     -T {params.bam} \
                     -O BAM -o {params.bam} -
                 else
@@ -327,10 +327,10 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                     -U {input.reads[0]} \
                     2> {log} | \
                     tee >(samtools flagstat \
-                          -@{threads} - | \
+                          -@4 - | \
                           pigz -cf > {output.flagstat}) | \
                     samtools fastq \
-                    -@{threads} \
+                    -@4 \
                     -c {params.compression} \
                     -N -f 4 -F 256 - | \
                     pigz -cf -p {threads} \
@@ -368,14 +368,14 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
         shell:
             '''
             minimap2 -I {params.split_size} -d {output} {intput}
-            ''' 
+            '''
 
 
     rule rmhost_minimap2:
         input:
             lambda wildcards: trimming_stats_input(wildcards),
             reads = lambda wildcards: rmhost_input(wildcards),
-            index = config["params"]["rmhost"]["minimap2"]["index"] 
+            index = config["params"]["rmhost"]["minimap2"]["index"]
         output:
             flagstat = os.path.join(config["output"]["rmhost"],
                                     "report/flagstat/{sample}.align2host.flagstat.gz"),
@@ -420,17 +420,17 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                     {input.index} \
                     {input.reads[0]} {input.reads[1]} | \
                     tee >(samtools flagstat \
-                          -@{threads} - | \
+                          -@4 - | \
                           pigz -cf > {output.flagstat}) | \
                     tee >(samtools fastq \
-                          -@{threads} \
+                          -@4 \
                           -c {params.compression} \
                           -N -f 12 -F 256 \
                           -1 {output.reads[0]} \
                           -2 {output.reads[1]} -) | \
                     samtools sort \
                     -m 3G \
-                    -@{threads} \
+                    -@4 \
                     -T {params.bam} \
                     -O BAM -o {params.bam} - \
                     2> {log}
@@ -441,10 +441,10 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                     {input.index} \
                     {input.reads[0]} {input.reads[1]} | \
                     tee >(samtools flagstat \
-                          -@{threads} - | \
+                          -@4 - | \
                           pigz -cf > {output.flagstat}) | \
                     samtools fastq \
-                    -@{threads} \
+                    -@4 \
                     -c {params.compression} \
                     -N -f 12 -F 256 \
                     -1 {output.reads[0]} \
@@ -461,17 +461,17 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                     {input.index} \
                     {input.reads[0]} | \
                     tee >(samtools flagstat \
-                          -@{threads} - | \
+                          -@4 - | \
                           pigz -cf > {output.flagstat}) | \
                     tee >(samtools fastq \
-                          -@{threads} \
+                          -@4 \
                           -c {params.compression} \
                           -N -f 4 -F 256 - | \
                           pigz -cf -p {threads} \
                           > {output.reads[0]}) | \
                     samtools sort \
                     -m 3G \
-                    -@{threads} \
+                    -@4 \
                     -T {params.bam} \
                     -O BAM -o {params.bam} - \
                     2> {log}
@@ -481,10 +481,10 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                     {input.index} \
                     {input.reads[0]} | \
                     tee >(samtools flagstat \
-                          -@{threads} - | \
+                          -@4 - | \
                           pigz -cf > {output.flagstat}) | \
                     samtools fastq \
-                    -@{threads} \
+                    -@4 \
                     -c {params.compression} \
                     -N -f 4 -F 256 - | \
                     pigz -cf -p {threads} \
@@ -513,7 +513,7 @@ if config["params"]["rmhost"]["kraken2"]["do"]:
         input:
             lambda wildcards: trimming_stats_input(wildcards),
             reads = lambda wildcards: rmhost_input(wildcards),
-            database = config["params"]["rmhost"]["kraken2"]["database"] 
+            database = config["params"]["rmhost"]["kraken2"]["database"]
         output:
             table = temp(os.path.join(config["output"]["rmhost"],
                                       "short_reads/{sample}/{sample}.kraken2.table")),
@@ -664,7 +664,7 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
             '''
             rm -rf {params.output_dir}
 
-            input_reads="" 
+            input_reads=""
             if [ "{params.pe}" == "pe" ];
             then
                 input_reads="-i {input.reads[0]} -i {input.reads[1]}"
@@ -708,7 +708,7 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
                     --reorder \
                     --log {log}
                 fi
-            else 
+            else
                 if [ "{params.do_bmtagger}" == "yes" ];
                 then
                     if [ "{params.do_trimmomatic}" == "yes" ];
@@ -740,12 +740,12 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
                         --threads {threads} \
                         --reorder \
                         --log {log}
-                    fi 
+                    fi
                 fi
             fi
 
-            pigz -f -p {threads} {params.output_dir}/* 
-            
+            pigz -f -p {threads} {params.output_dir}/*
+
 
             if [ "{params.pe}" == "pe" ];
             then

@@ -97,13 +97,13 @@ rule alignment_reads_scaftigs:
         {params.bwa} mem \
         -t {threads} \
         {params.index_prefix} \
-        {input.reads} 2> {log} |
+        {input.reads} 2> {log} | \
         tee >(samtools flagstat \
-              -@{threads} - | \
+              -@4 - | \
               pigz -cf > {output.flagstat}) | \
         samtools sort \
         -m 3G \
-        -@{threads} \
+        -@4 \
         -T {output.bam} \
         -O BAM -o {output.bam} -
 
