@@ -46,10 +46,10 @@ if reads_format == "fastq":
                 id2 = f'''{output_dir}/id.list.2'''
                 idp = f'''{output_dir}/id.list.paired'''
 
-                sp.run(f'''seqkit seq -ni {fq1_} | sed 's#/1$##g' > {id1} 2>> {log}''', shell=True) 
-                sp.run(f'''seqkit seq -ni {fq2_} | sed 's#/2$##g' > {id2} 2>> {log}''', shell=True) 
+                sp.run(f'''seqkit seq -ni {fq1_} | sed 's#/1$##g' > {id1} 2>> {log}''', shell=True)
+                sp.run(f'''seqkit seq -ni {fq2_} | sed 's#/2$##g' > {id2} 2>> {log}''', shell=True)
 
-                if filecmp.cmp(id1, id2): 
+                if filecmp.cmp(id1, id2):
                     sp.run(f'''mv {fq1_} {r1} 2>> {log}''', shell=True)
                     sp.run(f'''mv {fq2_} {r2} 2>> {log}''', shell=True)
 
@@ -102,13 +102,14 @@ if reads_format == "fastq":
                     sp.run(f'''rm -rf {fq_2} 2>> {log}''', shell=True)
                     sp.run(f'''rm -rf {output_dir}/tmpfq''', shell=True)
             else:
-                sp.run(f'''mv {fq_1} {r1} 2>> {log}''', shell=True)
-                sp.run(f'''mv {fq_2} {r2} 2>> {log}''', shell=True)
+                sp.run(f'''mv {fq1_} {r1} 2>> {log}''', shell=True)
+                sp.run(f'''mv {fq2_} {r2} 2>> {log}''', shell=True)
 
         else:
+            fq_str = " ".join(input_fq_list)
             sp.run(
                 f'''
-                cat {input_fq_list[0]} | \
+                cat {fq_str} | \
                 tee >(seqtk seq -1 - | pigz -cf -p {threads} > {r1}) | \
                 seqtk seq -2 - | pigz -cf -p {threads} > {r2} 2>> {log}
                 ''', shell=True)
@@ -124,7 +125,7 @@ if reads_format == "fastq":
 elif reads_format == "sra":
     r1 = output_fq_list[0]
     r2 = output_fq_list[1]
- 
+
     if reads_num == 1:
         fq = input_fq_list[0]
         sra_file = os.path.basename(fq)
@@ -132,7 +133,7 @@ elif reads_format == "sra":
         sp.run(f'''rm -rf {output_dir}.{sra_file}.temp 2>> {log}''', shell=True)
 
         sp.run(
-            f''' 
+            f'''
             fasterq-dump \
             --threads {threads} \
             --split-3 \
