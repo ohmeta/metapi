@@ -37,7 +37,7 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
             config["params"]["taxonomic"]["threads"]
         shell:
             '''
-            export GTDB_DATA_PATH={params.gtdb_data_path}
+            export GTDBTK_DATA_PATH={params.gtdb_data_path}
 
             outdir=$(dirname {output})
 
