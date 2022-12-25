@@ -327,7 +327,7 @@ binning_vamb:
   partition: "gpu"
   qos: "gpu"
   gres: "gpu:1" # Thanks Juilian and Bill of HKU-HPC
-  mem: "20G"
+  mem: "12G"
   output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.e"
 

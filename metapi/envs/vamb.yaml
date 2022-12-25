@@ -6,7 +6,7 @@ channels:
   - defaults
 dependencies:
   - pigz
-  - pytorch=1.13.1=*cuda11.7*
+  - pytorch=*=*cuda11.3*
   - pysam
   - pip
   - pip: 
