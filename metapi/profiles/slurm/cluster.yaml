@@ -324,10 +324,10 @@ binning_vamb_gen_abundance_matrix:
   error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_vamb:
-  #partition: "gpu"
-  #qos: "gpu"
-  #gres: "gpu:1" # Thanks Juilian and Bill of HKU-HPC
-  mem: "10G"
+  partition: "gpu"
+  qos: "gpu"
+  gres: "gpu:1" # Thanks Juilian and Bill of HKU-HPC
+  mem: "20G"
   output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.e"
 

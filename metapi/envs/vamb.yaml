@@ -1,14 +1,13 @@
 channels:
   - pytorch
+  - nvidia
   - conda-forge
   - bioconda
   - defaults
 dependencies:
   - pigz
-  - pytorch
-  - torchvision 
-  - cudatoolkit
+  - pytorch=1.13.1=*cuda11.7*
   - pysam
   - pip
   - pip: 
-     - git+https://github.com/RasmussenLab/vamb@v3.0.7
+     - git+https://github.com/RasmussenLab/vamb@v3.0.9
