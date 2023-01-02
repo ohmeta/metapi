@@ -11,8 +11,13 @@ import pandas as pd
 
 import metapi
 
-WORKFLOWS_MAG = [
+
+WORKFLOWS_SIMULATE = [
     "simulate_all",
+    "all"
+]
+
+WORKFLOWS_MAG = [
     "prepare_short_reads_all",
     "prepare_long_reads_all",
     "prepare_reads_all",
@@ -83,7 +88,6 @@ WORKFLOWS_MAG = [
 ]
 
 WORKFLOWS_GENE = [
-    "simulate_all",
     "prepare_reads_all",
     "raw_fastqc_all",
     "raw_report_all",
@@ -257,6 +261,11 @@ def init(args, unknown):
     else:
         print("Please supply a workdir!")
         sys.exit(-1)
+
+
+def simulate_wf(args, unknown):
+    snakefile = os.path.join(os.path.dirname(__file__), "snakefiles/simulate_wf.smk")
+    run_snakemake(args, unknown, snakefile, "simulate_wf")
 
 
 def mag_wf(args, unknown):
@@ -486,6 +495,13 @@ def main():
         prog="metapi init",
         help="init project",
     )
+    parser_simulate_wf = subparsers.add_parser(
+        "simulate_wf",
+        formatter_class=metapi.custom_help_formatter,
+        parents=[common_parser, run_parser],
+        prog="metapi simulate",
+        help="simulate reads",
+    )
     parser_mag_wf = subparsers.add_parser(
         "mag_wf",
         formatter_class=metapi.custom_help_formatter,
@@ -569,6 +585,17 @@ if begin from simulate:
     )
     parser_init.set_defaults(func=init)
 
+    parser_simulate_wf.add_argument(
+        "task",
+        metavar="TASK",
+        nargs="?",
+        type=str,
+        default="all",
+        choices=WORKFLOWS_SIMULATE,
+        help="pipeline end point. Allowed values are " + ", ".join(WORKFLOWS_SIMULATE),
+    )
+    parser_simulate_wf.set_defaults(func=simulate_wf)
+
     parser_mag_wf.add_argument(
         "task",
         metavar="TASK",
@@ -597,8 +624,8 @@ if begin from simulate:
         nargs="?",
         type=str,
         default="mag_wf",
-        choices=["mag_wf", "gene_wf"],
-        help="workflow. Allowed values are mag_wf, gene_wf",
+        choices=["simulate_wf", "mag_wf", "gene_wf"],
+        help="workflow. Allowed values are simulate_wf, mag_wf, gene_wf",
     )
     parser_sync.add_argument(
         "task",

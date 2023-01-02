@@ -51,14 +51,11 @@ if config["params"]["assembly"]["metaspades"]["do"]:
 if config["params"]["assembly"]["spades"]["do"]:
     ASSEMBLERS += ["spades"]
 
-if config["params"]["simulate"]["do"]:
-    SAMPLES = metapi.parse_genomes(config["params"]["samples"],
-                                   config["output"]["simulate"])
-else:
-    SAMPLES = metapi.parse_samples(config["params"]["samples"],
-                                   config["params"]["interleaved"],
-                                   config["params"]["reads_layout"],
-                                   config["params"]["begin"])
+
+SAMPLES = metapi.parse_samples(config["params"]["samples"],
+                               config["params"]["interleaved"],
+                               config["params"]["reads_layout"],
+                               config["params"]["begin"])
 
 
 READS_FORMAT = "sra" \
@@ -66,7 +63,6 @@ READS_FORMAT = "sra" \
        else "fastq"
 
 
-include: "../rules/simulate.smk"
 include: "../rules/raw.smk"
 include: "../rules/trimming.smk"
 include: "../rules/rmhost.smk"
