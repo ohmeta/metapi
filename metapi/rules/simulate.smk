@@ -23,12 +23,8 @@ if config["params"]["simulate"]["do"]:
             abundance = lambda wildcards: metapi.get_simulate_info(SAMPLES, wildcards, "abundance")
         threads:
             config["params"]["simulate"]["threads"]
-        run:
-            metapi.simulate_short_reads(input.genomes,
-                                        params.output_prefix,
-                                        output.r1, output.r2, output.abunf,
-                                        params.model, params.reads_num,
-                                        params.abundance, threads, str(log))
+        script:
+            "../wrappers/simulate_reads.py"
 
 
     rule simulate_all:
