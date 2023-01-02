@@ -56,7 +56,6 @@ def simulate_short_reads(
 
 
 simulate_short_reads(
-    input.genomes,
     snakemake.input["genomes"],
     snakemake.params["output_prefix"],
     snakemake.output["r1"],
