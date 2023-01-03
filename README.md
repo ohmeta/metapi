@@ -46,6 +46,7 @@ You can install it via [bioconda](https://bioconda.github.io/):
     available subcommands:
 
     init         init project
+    simulate_wf  simulate reads
     mag_wf       metagenome-assembly-genome pipeline
     gene_wf      metagenome-assembly-gene pipeline
     sync         metapi sync project
@@ -128,7 +129,6 @@ optional arguments:
 positional arguments:
   TASK                  pipeline end point. Allowed values are
   
-  simulate_all,
   prepare_short_reads_all,
   prepare_long_reads_all,
   prepare_reads_all,
