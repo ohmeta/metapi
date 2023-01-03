@@ -3,19 +3,19 @@
 import sys
 from pprint import pprint
 import pandas as pd
-
-import metapi
-
 from snakemake.utils import min_version
 
 min_version("7.0")
-
 shell.executable("bash")
+
+#sys.path.insert(0, "/home/jiezhu/toolkit/metapi_dev")
+import metapi
 
 METAPI_DIR = metapi.__path__[0]
 WRAPPER_DIR = os.path.join(METAPI_DIR, "wrappers")
 DATA_DIR = os.path.join(METAPI_DIR, "data")
 
+pprint(METAPI_DIR)
 
 IS_PE = True \
     if config["params"]["reads_layout"] == "pe" \
@@ -99,18 +99,14 @@ if config["params"]["binning"]["dastools"]["do"]:
 BINNERS_CHECKM = config["params"]["checkm"]["check_binners"]
 
 
-if config["params"]["simulate"]["do"]:
-    SAMPLES = metapi.parse_genomes(config["params"]["samples"],
-                                   config["output"]["simulate"])
-else:
-    SAMPLES = metapi.parse_samples(config["params"]["samples"],
-                                   config["params"]["interleaved"],
-                                   config["params"]["reads_layout"],
-                                   config["params"]["begin"])
+SAMPLES = metapi.parse_samples(config["params"]["samples"],
+                               config["params"]["interleaved"],
+                               config["params"]["reads_layout"],
+                               config["params"]["begin"])
 
-    SAMPLES_ID_LIST = SAMPLES.index.get_level_values("sample_id").unique()
-    SAMPLES_ASSEMBLY_GROUP_LIST = SAMPLES.index.get_level_values("assembly_group").unique()
-    SAMPLES_BINNING_GROUP_LIST = SAMPLES.index.get_level_values("binning_group").unique()
+SAMPLES_ID_LIST = SAMPLES.index.get_level_values("sample_id").unique()
+SAMPLES_ASSEMBLY_GROUP_LIST = SAMPLES.index.get_level_values("assembly_group").unique()
+SAMPLES_BINNING_GROUP_LIST = SAMPLES.index.get_level_values("binning_group").unique()
 
 
 READS_FORMAT = "sra" \
@@ -137,7 +133,6 @@ if config["params"]["begin"] == "binning":
 """
 
 
-include: "../rules/simulate.smk"
 include: "../rules/raw.smk"
 include: "../rules/trimming.smk"
 include: "../rules/rmhost.smk"
