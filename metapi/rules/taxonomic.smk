@@ -139,6 +139,44 @@ else:
         input:
 
 
+
+#if config["params"]["taxonomic"]["genomad"]["do"]:
+#    rule taxonomic_genomad:
+#        input:
+#            rep_fna = os.path.join(
+#                config["output"]["dereplicate"],
+#                "genomes/virome/representative/vMAGs_hmq.{assembler}.rep.fa.gz"),
+#            db = config["params"]["taxonomic"]["genomad"]["genomad_db"]
+#        output:
+#            os.path.join(config["output"]["taxonomic"], "table/genomad/genomad.out.{assembler}/genomad_done")
+#        benchmark:
+#
+#        log:
+#
+#        params:
+#            min_score = config["params"]["taxonomic"]["genomad"]["min_score"],
+#            output_dir = os.path.join(config["output"]["taxonomic"], "table/genomad/genomad.out.{assembler}")
+#        conda:
+#            config["envs"]["genomad"]
+#        threads:
+#            config["params"]["taxonomic"]["threads"]
+#        shell:
+#            '''
+#            genomad end-to-end \
+#            --min-score {params.min_score} \
+#            --cleanup \
+#            --threads {threads}\
+#            {input.rep_fna} \
+#            {params.output_dir} \
+#            {input.db} \
+#            >{log} 2>&1
+#
+#            touch {output.genomad_done}
+#            '''
+
+
+
+
 rule taxonomic_all:
     input:
         rules.taxonomic_gtdbtk_all.input

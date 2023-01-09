@@ -295,17 +295,6 @@ params:
     db: /home/jiezhu/databases/ecogenomics/CheckV/checkv-db-v1.4
     checkv_identifier: ["virsorter2", "phamb"]
 
-  taxonomic:
-    threads: 8
-    gtdbtk:
-      do: True
-      pplacer_threads: 1
-      batch_num: 1000
-      gtdb_data_path: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release207_v2"
-      metadata_archaea: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release207_v2/ar53_metadata_r207.tsv"
-      metadata_bacteria: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release207_v2/bac120_metadata_r207.tsv"
-      gtdb_to_ncbi_script: "/home/jiezhu/toolkit/GTDBTk/scripts/gtdb_to_ncbi_majority_vote.py"
-
   dereplicate:
     drep:
       do: True
@@ -348,6 +337,21 @@ params:
       min_ani: 95              # clust: Minimum average nucleotide identity 
       min_tcov: 85             # clust: Minimum alignment coverage of longer sequence 
       min_qcov: 0              # clust: Minimum sequence length 
+
+  taxonomic:
+    threads: 8
+    gtdbtk:
+      do: True
+      pplacer_threads: 1
+      batch_num: 1000
+      gtdb_data_path: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release207_v2"
+      metadata_archaea: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release207_v2/ar53_metadata_r207.tsv"
+      metadata_bacteria: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release207_v2/bac120_metadata_r207.tsv"
+      gtdb_to_ncbi_script: "/home/jiezhu/toolkit/GTDBTk/scripts/gtdb_to_ncbi_majority_vote.py"
+    genomad:
+      do: True
+      genomad_db: " /home/jiezhu/databases/ecogenomics/geNomad/genomad_db_latest"
+      min_score: 0.6
 
 output:
   simulate: "results/00.simulate"
