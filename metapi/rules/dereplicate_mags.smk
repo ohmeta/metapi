@@ -1,31 +1,32 @@
-rule dereplicate_mags_prepare:
-    input:
-        genomes_info = expand(os.path.join(config["output"]["check"],
-                                           "report/checkm/checkm_table_{{assembler}}_{binner_checkm}.tsv.gz"),
-                              binner_checkm=BINNERS_CHECKM),
-        mags_hmq = expand(os.path.join(config["output"]["check"],
-                                       "report/checkm/MAGs_hmq_{{assembler}}_{binner_checkm}.tsv.gz"),
-                          binner_checkm=BINNERS_CHECKM)
-    output:
-        genomes_info = os.path.join(config["output"]["dereplicate"],
-                                    "genomes_info/bacteriome/checkm_table_genomes_info.{assembler}.all.tsv"),
-        mags_hmq = os.path.join(config["output"]["dereplicate"],
-                                "genomes_info/bacteriome/MAGs_hmq.{assembler}.all.tsv")
-    run:
-        import pandas as pd
+if config["params"]["checkm"]["do"]:
+    rule dereplicate_mags_prepare:
+        input:
+            genomes_info = expand(os.path.join(config["output"]["check"],
+                                            "report/checkm/checkm_table_{{assembler}}_{binner_checkm}.tsv.gz"),
+                                binner_checkm=BINNERS_CHECKM),
+            mags_hmq = expand(os.path.join(config["output"]["check"],
+                                        "report/checkm/MAGs_hmq_{{assembler}}_{binner_checkm}.tsv.gz"),
+                            binner_checkm=BINNERS_CHECKM)
+        output:
+            genomes_info = os.path.join(config["output"]["dereplicate"],
+                                        "genomes_info/bacteriome/checkm_table_genomes_info.{assembler}.all.tsv"),
+            mags_hmq = os.path.join(config["output"]["dereplicate"],
+                                    "genomes_info/bacteriome/MAGs_hmq.{assembler}.all.tsv")
+        run:
+            import pandas as pd
 
-        genomes_info_list = [pd.read_csv(i, sep="\t") for i in input.genomes_info]
-        pd.concat(genomes_info_list, axis=0).to_csv(output.genomes_info, sep="\t", index=False)
+            genomes_info_list = [pd.read_csv(i, sep="\t") for i in input.genomes_info]
+            pd.concat(genomes_info_list, axis=0).to_csv(output.genomes_info, sep="\t", index=False)
 
-        mags_hmq_list = [pd.read_csv(i, sep="\t", header=None) for i in input.mags_hmq]
-        pd.concat(mags_hmq_list, axis=0).to_csv(output.mags_hmq, header=False, sep="\t", index=False)
-
-
-localrules:
-    dereplicate_mags_prepare
+            mags_hmq_list = [pd.read_csv(i, sep="\t", header=None) for i in input.mags_hmq]
+            pd.concat(mags_hmq_list, axis=0).to_csv(output.mags_hmq, header=False, sep="\t", index=False)
 
 
-if config["params"]["dereplicate"]["drep"]["do"]:
+    localrules:
+        dereplicate_mags_prepare
+
+
+if config["params"]["dereplicate"]["drep"]["do"] and config["params"]["checkm"]["do"]:
     rule dereplicate_mags_drep:
         input:
             genomes_info = os.path.join(config["output"]["dereplicate"],
