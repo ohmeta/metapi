@@ -523,8 +523,8 @@ dereplicate_vmags_postprocess:
 taxonomic_gtdbtk:
   #partition: "hugemem"
   mem: "50G"
-  output: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.batchid}.{jobid}.o"
-  error: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.batchid}.{jobid}.e"
+  output: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.dereper}.{wildcards.batchid}.{jobid}.o"
+  error: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.dereper}.{wildcards.batchid}.{jobid}.e"
 
 upload_md5_short_reads:
   mem: "1G"

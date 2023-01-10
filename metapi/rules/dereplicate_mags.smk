@@ -111,7 +111,7 @@ if config["params"]["dereplicate"]["drep"]["do"] and config["params"]["checkm"][
         output:
             rep_genomes_info = os.path.join(
                 config["output"]["dereplicate"],
-                "report/bacteriome/checkm_table_genomes_info.{assembler}.derep.tsv.gz")
+                "report/bacteriome/checkm_table_genomes_info.{assembler}.drep.tsv.gz")
         run:
             import pandas as pd
             from glob import glob
@@ -141,7 +141,7 @@ if config["params"]["dereplicate"]["drep"]["do"] and config["params"]["checkm"][
                 os.path.join(config["output"]["dereplicate"],
                              "genomes/bacteriome/MAGs_hmq.{assembler}.drep.out/drep_done"),
                 os.path.join(config["output"]["dereplicate"],
-                             "report/bacteriome/checkm_table_genomes_info.{assembler}.derep.tsv.gz")],
+                             "report/bacteriome/checkm_table_genomes_info.{assembler}.drep.tsv.gz")],
                 assembler=ASSEMBLERS)
  
 else:

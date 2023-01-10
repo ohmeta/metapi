@@ -8,7 +8,6 @@ from snakemake.utils import min_version
 min_version("7.0")
 shell.executable("bash")
 
-sys.path.insert(0, "/home/jiezhu/toolkit/metapi_dev")
 import metapi
 
 METAPI_DIR = metapi.__path__[0]
@@ -97,6 +96,13 @@ if config["params"]["binning"]["dastools"]["do"]:
 
 
 BINNERS_CHECKM = config["params"]["checkm"]["check_binners"]
+
+
+DEREPERS = []
+if config["params"]["dereplicate"]["drep"]["do"]:
+    DEREPERS.append("drep")
+if config["params"]["dereplicate"]["galah"]["do"]:
+    DEREPERS.append("galah")
 
 
 SAMPLES = metapi.parse_samples(config["params"]["samples"],
