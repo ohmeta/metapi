@@ -213,6 +213,8 @@ if config["params"]["dereplicate"]["galah"]["do"] and config["params"]["checkm"]
             --output-representative-fasta-directory $outdir/dereplicated_genomes \
             --threads {threads} \
             > {log} 2>&1
+
+            touch {output}
             '''
 
 
