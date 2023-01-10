@@ -83,7 +83,7 @@ if config["params"]["dereplicate"]["cdhit"]["do_gene"]:
             -T {threads} >{log} 2>&1
 
             rm -rf ${{FFNIN%.gz}}
-            pigz -f -p {threads} $${{FFNOUT%.gz}}
+            pigz -f -p {threads} ${{FFNOUT%.gz}}
             '''
 
 
