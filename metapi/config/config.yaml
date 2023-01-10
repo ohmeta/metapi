@@ -304,8 +304,8 @@ params:
       filtering_contamination: 25
       genome_comparison_algorithm: "ANImf"
       clustering_primary_ANI: 0.9
-      clustering_secondary_ANI: 0.99
-      cov_thresh: 0.1
+      clustering_secondary_ANI: 0.95
+      cov_thresh: 0.3
       coverage_method: "larger"
       cluster_algorithm: "average"
       external_params: ""
