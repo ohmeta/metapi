@@ -122,7 +122,7 @@ if config["params"]["checkm"]["do"]:
             genomes_info = pd.merge(mags_report, gene_table, how="inner", on=["bin_id", "bin_file"])\
                              .merge(checkm_table, how="inner", on="bin_id")
 
-            genomes_info["genome"] = genomes_info["bin_id"] + ".fa"
+            genomes_info["genome"] = genomes_info["bin_id"] + ".fa.gz"
             genomes_info.to_csv(output.genomes_info, sep='\t', index=False)
 
             genomes_info.query('%s=="high_quality"' % params.standard)\
