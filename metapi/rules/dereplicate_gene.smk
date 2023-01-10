@@ -84,6 +84,7 @@ if config["params"]["dereplicate"]["cdhit"]["do_gene"]:
 
             rm -rf ${{FFNIN%.gz}}
             pigz -f -p {threads} ${{FFNOUT%.gz}}
+            pigz -f -p {threads} ${{FFNOUT%.gz}}.clstr
             '''
 
 
