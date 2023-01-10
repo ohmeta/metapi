@@ -44,7 +44,7 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
             gtdbtk classify_wf \
             --batchfile {input.mags_input} \
             --out_dir $outdir \
-            --extension fa \
+            --extension fa.gz \
             --cpus {threads} \
             --pplacer_cpus {params.pplacer_threads} \
             > {log} 2>&1

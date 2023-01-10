@@ -95,7 +95,7 @@ if config["params"]["dereplicate"]["drep"]["do"] and config["params"]["checkm"][
             genomes_info = pd.read_csv(input.genomes_info, sep="\t")
             
             rep_dir = os.path.join(os.path.dirname(input.drep_done), "dereplicated_genomes")
-            rep_list = [os.path.basename(i) for i in sorted(glob(f'''{rep_dir}/*.fa'''))]
+            rep_list = [os.path.basename(i) for i in sorted(glob(f'''{rep_dir}/*.fa.gz'''))]
 
             rep_df = pd.DataFrame({"genome": rep_list})
             rep_df_info = rep_df.merge(genomes_info, how="left", on="genome")
