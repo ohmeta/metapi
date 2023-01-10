@@ -3,13 +3,14 @@
 import time
 import gzip
 import os
+import sys
 import subprocess
 
 import pandas as pd
 from Bio import bgzf
 
 
-def gtdbtk_prepare(rep_table, batch_num, mags_dir):
+def gtdbtk_prepare_from_mags(rep_table, batch_num, mags_dir):
     os.makedirs(mags_dir, exist_ok=True)
 
     table_df = pd.read_csv(rep_table, sep="\t")
@@ -19,13 +20,58 @@ def gtdbtk_prepare(rep_table, batch_num, mags_dir):
         for batch in range(0, len(table_df), batch_num):
             batchid += 1
             columns_list = list(table_df.columns)
+
             bin_file_index = columns_list.index("bin_file")
             genome_index = columns_list.index("genome")
             best_translation_table_index = columns_list.index("best_translation_table")
+
             table_split = table_df.iloc[batch:batch+batch_num,
                                         [bin_file_index, genome_index, best_translation_table_index]]
-            table_split.to_csv(os.path.join(mags_dir, f"mags_input.{batchid}.tsv"),
-                               sep="\t", index=False, header=None)
+
+            table_split\
+                .to_csv(os.path.join(mags_dir, f"mags_input.{batchid}.tsv"),
+                        sep="\t", index=False, header=None)
+    else:
+        subprocess.run(f'''touch {os.path.join(mags_dir, "mags_input.0.tsv")}''', shell=True)
+
+
+def gtdbtk_prepare_from_genes(rep_table, batch_num, mags_dir):
+    os.makedirs(mags_dir, exist_ok=True)
+
+    table_df = pd.read_csv(rep_table, sep="\t")
+
+    batchid = -1
+    if len(table_df) > 0:
+        for batch in range(0, len(table_df), batch_num):
+            batchid += 1
+            columns_list = list(table_df.columns)
+
+            pep_file_index = columns_list.index("pep_file")
+            best_translation_table_index = columns_list.index("best_translation_table")
+
+            table_split = table_df.iloc[batch:batch+batch_num,
+                                        [pep_file_index, best_translation_table_index]]
+
+            table_split["pep_location"] = table_split.apply(lambda x: os.path.splitext(x["pep_file"])[0], axis=1)
+            table_split["pep_basename"] = table_split.apply(lambda x: os.path.basename(x["pep_location"]), axis=1)
+ 
+            table_split\
+                .loc[:, ["pep_location", "pep_basename", "best_translation_table"]]\
+                .to_csv(os.path.join(mags_dir, f"mags_input.{batchid}.tsv"),
+                        sep="\t", index=False, header=None)
+            pepcount = 0 
+            for pep_file in table_split["pep_file"]:
+                pep_file_ = os.path.splitext(pep_file)[0]
+                if not os.path.exists(pep_file_):
+                    subprocess.run(f"pigz -dkf {pep_file}", shell=True)
+                if os.path.exists(pep_file_):
+                    pepcount += 1
+            if pepcount == len(table_split):
+                print(f"Uncompress done for batchid: {batchid}")
+            else:
+                print(f"Uncompress failed for batchid: {batchid}")
+                print(f"Please check when prepare input for gtdbtk")
+                sys.exit(-1)
     else:
         subprocess.run(f'''touch {os.path.join(mags_dir, "mags_input.0.tsv")}''', shell=True)
 

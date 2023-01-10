@@ -8,9 +8,10 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
         params:
             batch_num = config["params"]["taxonomic"]["gtdbtk"]["batch_num"]
         run:
-            metapi.gtdbtk_prepare(input.rep_genomes_info,
-                                  params.batch_num,
-                                  output.mags_dir)
+            metapi.gtdbtk_prepare_from_mags(
+                input.rep_genomes_info,
+                params.batch_num,
+                output.mags_dir)
 
 
     rule taxonomic_gtdbtk:
@@ -44,7 +45,7 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
             gtdbtk classify_wf \
             --batchfile {input.mags_input} \
             --out_dir $outdir \
-            --extension fa.gz \
+            --extension gz \
             --cpus {threads} \
             --pplacer_cpus {params.pplacer_threads} \
             > {log} 2>&1

@@ -45,7 +45,8 @@ from metapi.checkmer import checkm_prepare
 from metapi.checkmer import checkm_reporter
 
 from metapi.classifier import demultiplex
-from metapi.classifier import gtdbtk_prepare
+from metapi.classifier import gtdbtk_prepare_from_mags
+from metapi.classifier import gtdbtk_prepare_from_genes
 
 from metapi.uploader import gen_samples_info
 from metapi.uploader import gen_info
