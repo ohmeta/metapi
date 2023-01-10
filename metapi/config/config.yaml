@@ -296,6 +296,18 @@ params:
     checkv_identifier: ["virsorter2", "phamb"]
 
   dereplicate:
+    cdhit:
+      do_gene: True
+      do_proteins: False
+      threads: 32
+      sequence_identity_threshold: 0.95
+      alignment_coverage_for_shorter_sequence: 0.9
+      word_length: 8
+      use_global_sequence_identity: 0
+      memory_limit: 0
+      cluster_description_length: 0
+      default_algorithm: 0
+      both_alignment: 1
     drep:
       do: True
       threads: 32
@@ -309,25 +321,18 @@ params:
       coverage_method: "larger"
       cluster_algorithm: "average"
       external_params: ""
-    cdhit:
-      do_gene: True
-      do_proteins: False
-      threads: 32
-      sequence_identity_threshold: 0.95
-      alignment_coverage_for_shorter_sequence: 0.9
-      word_length: 8
-      use_global_sequence_identity: 0
-      memory_limit: 0
-      cluster_description_length: 0
-      default_algorithm: 0
-      both_alignment: 1
     galah:
-      ani: 99
-      max_contamination:
-      min_completeness: 0
-      prethreshold_ani: 95
+      do: True
       threads: 32
-
+      min_completeness: 75
+      max_contamination: 25
+      ani: 95
+      min_aligned_fraction: 60
+      fragment_length: 3000
+      quality_formula: "Parks2020_reduced"
+      precluster_ani: 90
+      precluster_method: "dashing"
+ 
   dereplicate_vmags:
     threads: 8
     blast:
@@ -446,5 +451,6 @@ envs:
   checkv: "envs/checkv.yaml"
   cdhit: "envs/cdhit.yaml"
   drep: "envs/drep.yaml"
+  galah: "envs/galah.yaml"
   gtdbtk: "envs/gtdbtk.yaml"
   blast: "envs/blast.yaml"

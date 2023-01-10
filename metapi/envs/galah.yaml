@@ -3,5 +3,5 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - drep=3.4.0
+  - galah=0.3.1
   - pigz

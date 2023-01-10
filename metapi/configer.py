@@ -111,6 +111,7 @@ class metaconfig:
         "logs/08.checkv",
         "logs/08.checkv_postprocess",
         "logs/09.dereplicate_mags_drep",
+        "logs/09.dereplicate_mags_galah",
         "logs/09.dereplicate_vmags_prepare",
         "logs/09.dereplicate_vmags_build_db",
         "logs/09.dereplicate_vmags_blastn",
