@@ -138,6 +138,50 @@ if config["params"]["checkm"]["do"]:
               .loc[:, "bin_file"].to_csv(output.mags_lq, sep='\t', index=False, header=False)
 
 
+    rule checkm_report_merge: 
+        input:
+            genomes_info = expand(os.path.join(
+                config["output"]["check"],
+                "report/checkm/checkm_table_{{assembler}}_{binner_checkm}.tsv.gz"),
+                binner_checkm=BINNERS_CHECKM),
+            mags_hmq = expand(os.path.join(
+                config["output"]["check"],
+                "report/checkm/MAGs_hmq_{{assembler}}_{binner_checkm}.tsv.gz"),
+                binner_checkm=BINNERS_CHECKM)
+        output:
+            genomes_info = os.path.join(
+                config["output"]["check"],
+                "report/checkm/checkm_table_genomes_info.{assembler}.all.tsv"),
+            genomes_info_simple = os.path.join(
+                config["output"]["check"],
+                "report/checkm/checkm_table_genomes_info.{assembler}.all.simple.csv"),
+            mags_hmq = os.path.join(
+                config["output"]["check"],
+                "report/checkm/MAGs_hmq.{assembler}.all.tsv")
+        run:
+            import os
+            import pandas as pd
+
+            mags_hmq_list = [pd.read_csv(i, sep="\t", header=None) for i in input.mags_hmq]
+            pd.concat(mags_hmq_list, axis=0).to_csv(output.mags_hmq, header=False, sep="\t", index=False)
+
+            genomes_info_list = [pd.read_csv(i, sep="\t") for i in input.genomes_info]
+            genomes_info_df = pd.concat(genomes_info_list)
+            genomes_info_df.to_csv(output.genomes_info, sep="\t", index=False)
+
+            genomes_info_df_simple = genomes_info_df.loc[:, ["bin_file", "completeness", "contamination"]]
+            genomes_info_df_simple["genome"] = genomes_info_df_simple.apply(
+                lambda x: os.path.splitext(x["bin_file"])[0], axis=1
+            )
+            genomes_info_df_simple\
+                .loc[:, ["genome", "completeness", "contamination"]]\
+                .to_csv(output.genomes_info_simple, index=False)
+
+
+    localrules:
+        checkm_report_merge
+
+
     rule checkm_all:
         input:
             expand([
@@ -150,7 +194,13 @@ if config["params"]["checkm"]["do"]:
                 os.path.join(config["output"]["check"],
                              "report/checkm/MAGs_lq_{assembler}_{binner_checkm}.tsv.gz"),
                 os.path.join(config["output"]["check"],
-                             "report/checkm/MAGs_hmq_{assembler}_{binner_checkm}.tsv.gz")],
+                             "report/checkm/MAGs_hmq_{assembler}_{binner_checkm}.tsv.gz"),
+                os.path.join(config["output"]["check"],
+                             "report/checkm/checkm_table_genomes_info.{assembler}.all.tsv"),
+                os.path.join(config["output"]["check"],
+                             "report/checkm/checkm_table_genomes_info.{assembler}.all.simple.csv"),
+                os.path.join(config["output"]["check"],
+                             "report/checkm/MAGs_hmq.{assembler}.all.tsv")],
                 assembler=ASSEMBLERS,
                 binner_checkm=BINNERS_CHECKM)
 
