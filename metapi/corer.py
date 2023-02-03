@@ -82,6 +82,7 @@ WORKFLOWS_MAG = [
     "dereplicate_all",
     "taxonomic_gtdbtk_all",
     "taxonomic_all",
+    "databases_all",
     "upload_sequencing_all",
     "upload_assembly_all",
     "upload_all",

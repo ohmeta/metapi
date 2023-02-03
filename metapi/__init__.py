@@ -48,6 +48,8 @@ from metapi.classifier import demultiplex
 from metapi.classifier import gtdbtk_prepare_from_mags
 from metapi.classifier import gtdbtk_prepare_from_genes
 
+from metapi.taxonomyer import refine_taxonomy
+
 from metapi.uploader import gen_samples_info
 from metapi.uploader import gen_info
 

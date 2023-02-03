@@ -358,6 +358,18 @@ params:
       genomad_db: " /home/jiezhu/databases/ecogenomics/geNomad/genomad_db_latest"
       min_score: 0.6
 
+  databases:
+    bacteriome:
+      name: "MAG"
+      rep_level: "species"
+    virome:
+      name: "vMAG"
+      rep_level: "species"
+    mycobiome:
+      name: "fMAG"
+      rep_level: "species"
+
+
 output:
   simulate: "results/00.simulate"
   raw: "results/00.raw"
@@ -372,7 +384,9 @@ output:
   check: "results/08.check"
   dereplicate: "results/09.dereplicate"
   taxonomic: "results/10.taxonomic"
+  databases: "results/11.databases"
   upload: "results/99.upload"
+
 
 upload:
   do: False
