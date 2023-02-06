@@ -91,11 +91,12 @@ def update_genomes(rep_info):
         strain_heterogeneity = rep_info.at[i, "strain_heterogeneity"]
         quality_score = rep_info.at[i, "quality_score"]
         bin_file = rep_info.at[i, "bin_file"]
+        bin_id = rep_info.at[i, "bin_id"]
         genome_path = rep_info.at[i, "genome_path"]
         genome_id = rep_info.at[i, "genome_id"]
 
         if bin_file.endswith(".gz"):
-            handle = gzip.open(bin_file, 'wt')
+            handle = gzip.open(bin_file, 'rt')
         else:
             handle = open(bin_file, 'r')
 
@@ -109,10 +110,9 @@ def update_genomes(rep_info):
 
                 rc_id = rc.id
                 rc.id = contig_name
-                rc.description = f"{genome_id}|{rc_id}|gtdb_classification={clade_lineage}|completeness={completeness}|contamination={contamination}|strain_heterogeneity={strain_heterogeneity}|quality_scroe={quality_score}"
-                print(rc.description)
+                rc.description = f"{genome_id}|original_contig_id={rc_id}|original_bin_id={bin_id}|gtdb_classification={clade_lineage}|completeness={completeness}|contamination={contamination}|strain_heterogeneity={strain_heterogeneity}|quality_scroe={quality_score}"
                 SeqIO.write(rc, oh, "fasta") 
-        
+ 
         handle.close()
 
 
@@ -138,7 +138,6 @@ def refine_taxonomy(genomes_info_f, tax_info_f, map_name, rep_level, base_dir, o
     # step 3: save taxonomy
     os.makedirs(os.path.dirname(out_file), exist_ok=True)
     rep_info.to_csv(out_file, sep="\t", index=False)
-    rep_info.to_csv(out_file + ".bak", sep="\t", index=False)
 
     # setp 4: update genomes
     update_genomes(rep_info)

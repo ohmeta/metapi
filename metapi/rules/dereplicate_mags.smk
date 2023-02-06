@@ -107,7 +107,7 @@ if config["params"]["dereplicate"]["galah"]["do"] and config["params"]["checkm"]
                 "report/checkm/checkm_table_genomes_info.{assembler}.all.simple.csv"),
             mags_hmq = os.path.join(
                 config["output"]["check"],
-                "report/bacteriome/MAGs_hmq.{assembler}.all.tsv")
+                "report/checkm/MAGs_hmq.{assembler}.all.tsv")
         output:
             os.path.join(config["output"]["dereplicate"], "genomes/bacteriome/MAGs_hmq.{assembler}.galah.out/galah_done")
         log:
