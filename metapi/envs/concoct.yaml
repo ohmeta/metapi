@@ -4,4 +4,10 @@ channels:
   - defaults
 dependencies:
   - concoct=1.1.0
-  - pigz
+  - libopenblas=*=openmp*
+  - mkl
+  - python>=3
+  - samtools>=1.9
+  - scikit-learn=1.1.*
+variables:
+  USE_OPENMP: 1
