@@ -5,4 +5,6 @@ channels:
 dependencies:
   - kraken2=2.1.2
   - krakentools=1.2
+  - bracken=2.8
+  - krona=2.8.1
   - pigz

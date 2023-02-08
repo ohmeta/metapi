@@ -159,6 +159,7 @@ include: "../rules/dereplicate_gene.smk"
 include: "../rules/dereplicate_mags.smk"
 include: "../rules/dereplicate_vmags.smk"
 include: "../rules/taxonomic.smk"
+include: "../rules/databases.smk"
 include: "../rules/upload.smk"
 
 
@@ -178,4 +179,5 @@ rule all:
         rules.check_all.input,
         rules.dereplicate_all.input,
         rules.taxonomic_all.input,
+        rules.databases_all.input,
         rules.upload_all.input

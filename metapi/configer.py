@@ -121,6 +121,11 @@ class metaconfig:
         "logs/09.dereplicate_gene_prepare",
         "logs/09.dereplicate_gene_cdhit",
         "logs/10.taxonomic_gtdbtk",
+        "logs/11.databases_bacteriome_refine_taxonomy",
+        "logs/11.databases_bacteriome_generate_taxdump",
+        "logs/11.databases_bacteriome_extract_taxonomy",
+        "logs/11.databases_bacteriome_kmcp_compute",
+        "logs/11.databases_bacteriome_kmcp_index",
         "logs/99.upload_md5_short_reads",
         "logs/99.upload_md5_scaftigs"
     ]

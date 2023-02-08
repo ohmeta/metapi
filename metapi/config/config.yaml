@@ -359,12 +359,29 @@ params:
       min_score: 0.6
 
   databases:
+    threads: 8
     bacteriome:
       name: "MAG"
       rep_level: "species"
+      kmcp:
+        compute:
+          kmer: 21
+          split_number: 10
+        index:
+          false_positive_rate: 0.3
     virome:
       name: "vMAG"
       rep_level: "species"
+      kmcp:
+        compute:
+          kmer: 21
+          split_number: 10
+          split_overlap: 150
+        index:
+          false_positive_rate: 0.05
+          num_hash: 1
+          block_sizeX_kmers_t: "100K"
+          block_size8_kmers_t: "1M"
     mycobiome:
       name: "fMAG"
       rep_level: "species"
@@ -468,3 +485,5 @@ envs:
   galah: "envs/galah.yaml"
   gtdbtk: "envs/gtdbtk.yaml"
   blast: "envs/blast.yaml"
+  taxonkit: "envs/taxonkit.yaml"
+  kmcp: "envs/kmcp.yaml"
