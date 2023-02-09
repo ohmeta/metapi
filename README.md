@@ -191,6 +191,7 @@ positional arguments:
   dereplicate_vmags_all,
   dereplicate_all,
   taxonomic_all,
+  databases_all,
   upload_sequencing_all,
   upload_assembly_all,
   upload_all,
@@ -273,6 +274,10 @@ optional arguments:
 
 #run taxonomic (currently on microbial MAGs)
 ➤ metapi mag_wf taxonomic_all --use-conda --run-local
+
+
+# run databases (generate databases for profiling)
+➤ metapi mag_wf databases_all --use-conda --run-local
 
 # run mag_wf all
 ➤ metapi mag_wf --use-conda --run-local
@@ -427,6 +432,7 @@ Then metapi will use [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq) to g
     08.check/
     09.dereplicate/
     10.taxonomic/
+    11.databases/
     99.upload/
 ```
 
