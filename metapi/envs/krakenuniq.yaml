@@ -1,0 +1,9 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - krakenuniq=1.0.3
+  - bracken=2.8
+  - jellyfish=0.9.0
+  - pigz

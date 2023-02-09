@@ -128,6 +128,8 @@ class metaconfig:
         "logs/11.databases_bacteriome_kmcp_index",
         "logs/11.databases_bacteriome_kraken2_build",
         "logs/11.databases_bacteriome_kraken2_bracken_build",
+        "logs/11.databases_bacteriome_krakenuniq_build",
+        "logs/11.databases_bacteriome_krakenuniq_bracken_build",
         "logs/99.upload_md5_short_reads",
         "logs/99.upload_md5_scaftigs"
     ]

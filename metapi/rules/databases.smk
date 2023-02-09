@@ -246,23 +246,25 @@ if config["params"]["databases"]["bacteriome"]["kraken2"]["do"]:
             config["params"]["databases"]["threads"]
         shell:
             '''
-            rm -rf {params.db}
-            mkdir -p {params.db} 
+            dbdir=$(realpath {params.db})
+            rm -rf $dbdir
+            mkdir -p $dbdir
 
             fnadir=$(realpath $(dirname {input.fnadone}))
             dmpdir=$(realpath {params.tax})
 
             cp {input.taxdump[3]} $fnadir/
 
-            pushd {params.db}
+            pushd $dbdir
             ln -s $fnadir library
             ln -s $dmpdir taxonomy
             popd
 
             kraken2-build \
             --build \
-            --db {params.db} \
-            > {log} 2>&1
+            --threads {threads} \
+            --db $dbdir \
+            >{log} 2>&1
             '''
 
 
@@ -293,9 +295,13 @@ if config["params"]["databases"]["bacteriome"]["kraken2"]["do"]:
             config["params"]["databases"]["threads"]
         shell:
             '''
+            dbdir=$(realpath {params.db})
+
+            rm -rf {log}
+
             for kmer in {params.kmers};
             do
-                bracken-build -d {params.db} -t {threads} -k {params.ksize} -l $kmer >>{log} 2>&1
+                bracken-build -d $dbdir -t {threads} -k {params.ksize} -l $kmer >>{log} 2>&1
             done
             '''
 
@@ -320,10 +326,126 @@ else:
         input:
 
 
+if config["params"]["databases"]["bacteriome"]["krakenuniq"]["do"]:
+    rule databases_bacteriome_krakenuniq_build:
+        input:
+            fnadone = os.path.join(config["output"]["databases"],
+                "bacteriome/fna.{assembler}.{dereper}/done"),
+            taxtab = os.path.join(
+                config["output"]["databases"],
+                "bacteriome/taxdump.{assembler}.{dereper}/taxonomy.tab"),
+            taxdump = expand(os.path.join(
+                config["output"]["databases"],
+                "bacteriome/taxdump.{{assembler}}.{{dereper}}/{taxdump}"),
+                taxdump=["names.dmp", "nodes.dmp", "taxid.map", "prelim_map.txt"])
+        output:
+            expand(os.path.join(config["output"]["databases"],
+                "bacteriome/databases.{{assembler}}.{{dereper}}/krakenuniq/index/{ku}"),
+                ku=["database.kdb", "database.idx", "taxDB"])
+        log:
+            os.path.join(config["output"]["databases"],
+                "logs/krakenuniq/krakenuniq_build.{assembler}.{dereper}.log")
+        benchmark:
+            os.path.join(config["output"]["databases"],
+                "benchmark/krakenuniq/krakenuniq_build.{assembler}.{dereper}.benchmark.txt")
+        params:
+            tax = os.path.join(config["output"]["databases"],
+                "bacteriome/taxdump.{assembler}.{dereper}"),
+            db = os.path.join(config["output"]["databases"],
+                "bacteriome/databases.{assembler}.{dereper}/krakenuniq/index")
+        conda:
+            config["envs"]["krakenuniq"]
+        threads:
+            config["params"]["databases"]["threads"]
+        shell:
+            '''
+            dbdir=$(realpath {params.db})
+            rm -rf $dbdir
+            mkdir -p $dbdir
+
+            fnadir=$(realpath $(dirname {input.fnadone}))
+            dmpdir=$(realpath {params.tax})
+
+            cp {input.taxdump[3]} $fnadir/
+
+            pushd $dbdir
+            ln -s $fnadir library
+            ln -s $dmpdir taxonomy
+            popd
+
+            jellyfish=$(command -v jellyfish)
+            export JELLYFISH_BIN=$jellyfish
+
+            krakenuniq-build \
+            --threads {threads} \
+            --db $dbdir \
+            >{log} 2>&1
+            '''
+
+
+    rule databases_bacteriome_krakenuniq_bracken_build:
+        input:
+            expand(os.path.join(config["output"]["databases"],
+                "bacteriome/databases.{{assembler}}.{{dereper}}/krakenuniq/index/{ku}"),
+                ku=["database.kdb", "database.idx", "taxDB"])
+        output:
+            expand(os.path.join(config["output"]["databases"],
+                "bacteriome/databases.{{assembler}}.{{dereper}}/krakenuniq/index/database{kmers}mers.{suffix}"),
+                kmers=config["params"]["databases"]["bacteriome"]["krakenuniq"]["bracken"]["kmers"],
+                suffix=["kmer_distrib", "kraken"])
+        log:
+            os.path.join(config["output"]["databases"],
+                "logs/krakenuniq/bracken_build.{assembler}.{dereper}.log")
+        benchmark:
+            os.path.join(config["output"]["databases"],
+                "benchmark/krakenuniq/bracken_build.{assembler}.{dereper}.benchmark.txt")
+        params:
+            db = os.path.join(config["output"]["databases"],
+                "bacteriome/databases.{assembler}.{dereper}/krakenuniq/index"),
+            ksize=config["params"]["databases"]["bacteriome"]["krakenuniq"]["bracken"]["ksize"],
+            kmers=config["params"]["databases"]["bacteriome"]["krakenuniq"]["bracken"]["kmers"]
+        conda:
+            config["envs"]["krakenuniq"]
+        threads:
+            config["params"]["databases"]["threads"]
+        shell:
+            '''
+            dbdir=$(realpath {params.db})
+
+            rm -rf {log}
+
+            for kmer in {params.kmers};
+            do
+                bracken-build -d $dbdir -t {threads} -k {params.ksize} -l $kmer >>{log} 2>&1
+            done
+            '''
+
+
+    rule databases_bacteriome_krakenuniq_all:
+        input:
+            expand([
+                os.path.join(
+                    config["output"]["databases"],
+                    "bacteriome/databases.{assembler}.{dereper}/krakenuniq/index/{ku}"),
+                os.path.join(
+                    config["output"]["databases"],
+                    "bacteriome/databases.{assembler}.{dereper}/krakenuniq/index/database{kmers}mers.{suffix}")],
+                    ku=["database.kdb", "database.idex", "taxDB"],
+                    kmers=config["params"]["databases"]["bacteriome"]["krakenuniq"]["bracken"]["kmers"],
+                    suffix=["kmer_distrib", "kraken"],
+                    assembler=ASSEMBLERS,
+                    dereper=DEREPERS)
+
+else:
+    rule databases_bacteriome_krakenuniq_all:
+        input:
+
+
 rule databases_bacteriome_all:
     input:
         rules.databases_bacteriome_kmcp_all.input,
-        rules.databases_bacteriome_kraken2_all.input
+        rules.databases_bacteriome_kraken2_all.input,
+        rules.databases_bacteriome_krakenuniq_all.input
 
 
 rule databases_all:
@@ -333,4 +455,5 @@ rule databases_all:
 
 localrules:
     databases_bacteriome_kmcp_all,
-    databases_bacteriome_kraken2_all
+    databases_bacteriome_kraken2_all,
+    databases_bacteriome_krakenuniq_all

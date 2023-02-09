@@ -583,6 +583,16 @@ databases_bacteriome_kraken2_bracken_build:
   output: "logs/11.{rule}/{rule}.{wildcards.assembler}.{wildcards.dereper}.{jobid}.o"
   error: "logs/11.{rule}/{rule}.{wildcards.assembler}.{wildcards.dereper}.{jobid}.e"
 
+databases_bacteriome_krakenuniq_build:
+  mem: "8G"
+  output: "logs/11.{rule}/{rule}.{wildcards.assembler}.{wildcards.dereper}.{jobid}.o"
+  error: "logs/11.{rule}/{rule}.{wildcards.assembler}.{wildcards.dereper}.{jobid}.e"
+
+databases_bacteriome_krakenuniq_bracken_build:
+  mem: "8G"
+  output: "logs/11.{rule}/{rule}.{wildcards.assembler}.{wildcards.dereper}.{jobid}.o"
+  error: "logs/11.{rule}/{rule}.{wildcards.assembler}.{wildcards.dereper}.{jobid}.e"
+
 upload_md5_short_reads:
   mem: "1G"
   output: "logs/99.{rule}/{rule}.{wildcards.sample}.{jobid}.o"

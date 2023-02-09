@@ -36,7 +36,8 @@ def set_genomes(rep_info, map_name, base_dir):
             out_dir = os.path.join(out_dir, genome_index[k:k+3])
 
         genome_id = f"{map_name}_GENOME_{genome_index}"
-        genome_path = os.path.join(out_dir, f"{genome_id}.fna.gz")
+        #genome_path = os.path.join(out_dir, f"{genome_id}.fna.gz")
+        genome_path = os.path.join(out_dir, f"{genome_id}.fna")
 
         rep_info.at[i, "genome_id"] = genome_id
         rep_info.at[i, "genome_path"] = genome_path
@@ -104,7 +105,8 @@ def update_genomes(rep_info):
 
         os.makedirs(os.path.dirname(genome_path), exist_ok=True)
 
-        with bgzf.BgzfWriter(genome_path, 'wb') as oh:
+        #with bgzf.BgzfWriter(genome_path, 'wb') as oh:
+        with open(genome_path, 'w') as oh:
             j = -1
             for rc in SeqIO.parse(handle, "fasta"):
                 j += 1
