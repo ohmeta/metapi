@@ -430,7 +430,7 @@ if config["params"]["databases"]["bacteriome"]["krakenuniq"]["do"]:
                 os.path.join(
                     config["output"]["databases"],
                     "bacteriome/databases.{assembler}.{dereper}/krakenuniq/index/database{kmers}mers.{suffix}")],
-                    ku=["database.kdb", "database.idex", "taxDB"],
+                    ku=["database.kdb", "database.idx", "taxDB"],
                     kmers=config["params"]["databases"]["bacteriome"]["krakenuniq"]["bracken"]["kmers"],
                     suffix=["kmer_distrib", "kraken"],
                     assembler=ASSEMBLERS,
