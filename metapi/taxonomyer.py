@@ -48,7 +48,9 @@ def set_lineages(genome_id, classification, rep_level):
 
     tax_list = []
     for i in classification.split(";"):
-        tax_list.append(i.split("__", maxsplit=1)[1].replace(" ", "_"))
+        taxname = i.split("__", maxsplit=1)[1].replace(" ", "_")
+        if taxname != "":
+            tax_list.append(taxname)
     ##print(tax_list)
 
     lineage_list = []
