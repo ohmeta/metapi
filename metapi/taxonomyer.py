@@ -114,7 +114,7 @@ def update_genomes(rep_info):
 
                 rc_id = rc.id
                 rc.id = contig_name
-                rc.description = f"{genome_id}|original_contig_id={rc_id}|original_bin_id={bin_id}|gtdb_classification={clade_lineage}|completeness={completeness}|contamination={contamination}|strain_heterogeneity={strain_heterogeneity}|quality_scroe={quality_score}"
+                rc.description = f"{genome_id}|original_contig_id={rc_id}|original_bin_id={bin_id}|gtdb_classification={clade_lineage}|completeness={completeness}|contamination={contamination}|strain_heterogeneity={strain_heterogeneity}|quality_score={quality_score}"
                 SeqIO.write(rc, oh, "fasta") 
  
         handle.close()
