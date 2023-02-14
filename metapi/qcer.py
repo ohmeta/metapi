@@ -224,6 +224,33 @@ def compute_host_rate(df, steps, samples_id_list, allow_miss_samples=True, **kwa
     return df
 
 
+def qc_summary_merge(df, **kwargs):
+    df_host_rate = df.loc[:, ["id", "format", "type", "fq_type", "host_rate"]].drop_duplicates()
+
+    df_l = df.loc[:, ["id", "format", "type", "step", "fq_type",
+                     "num_seqs", "sum_len", "min_len", "avg_len", "max_len",
+                     "Q1", "Q2", "Q3", "sum_gap", "Q20(%)", "Q30(%)"]]
+
+    df_w = df_l.groupby(["id", "format", "type", "step", "fq_type"])\
+            .agg(
+                num_seqs=("num_seqs", "sum"),
+                sum_len=("sum_len", "sum"),
+                min_len=("min_len", "sum"),
+                avg_len=("avg_len", "mean"),
+                max_len=("max_len", "max"),
+                Q1=("Q1", "mean"),
+                Q2=("Q2", "mean"),
+                Q3=("Q3", "mean"),
+                Q20_per=("Q20(%)", "mean"),
+                Q30_per=("Q30(%)", "mean")
+            ).reset_index()
+
+    df_summary = pd.merge(df_w, df_host_rate, how="inner", on=["id", "format", "type", "fq_type"])
+
+    if "output" in kwargs:
+        df_summary.to_csv(kwargs["output"], sep="\t", index=False)
+
+
 def qc_bar_plot(df, engine, stacked=False, **kwargs):
     if engine == "seaborn":
         # seaborn don't like stacked barplot

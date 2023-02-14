@@ -25,6 +25,7 @@ from metapi.sampler import get_multibinning_group_by_assembly_group
 
 from metapi.qcer import change
 from metapi.qcer import compute_host_rate
+from metapi.qcer import qc_summary_merge
 from metapi.qcer import qc_bar_plot
 from metapi.qcer import parse_fastp_json
 
