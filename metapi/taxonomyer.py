@@ -86,7 +86,9 @@ def set_lineages(genome_id, classification, rep_level):
     return pd.Series(lineage_list)
 
 
-def update_genomes(rep_info):
+def update_genomes(rep_info, scaftigs_info):
+    oh1 = open(scaftigs_info, 'w')
+
     for i in range(0, len(rep_info)):
         clade_lineage = rep_info.at[i, "lineage"]
         completeness = rep_info.at[i, "completeness"]
@@ -106,21 +108,25 @@ def update_genomes(rep_info):
         os.makedirs(os.path.dirname(genome_path), exist_ok=True)
 
         #with bgzf.BgzfWriter(genome_path, 'wb') as oh:
-        with open(genome_path, 'w') as oh:
+
+        with open(genome_path, 'w') as oh2:
             j = -1
             for rc in SeqIO.parse(handle, "fasta"):
                 j += 1
                 contig_name = f"{genome_id}_{j}"
+                oh1.write(f"{genome_id}\t{contig_name}\n")
 
                 rc_id = rc.id
                 rc.id = contig_name
                 rc.description = f"{genome_id}|original_contig_id={rc_id}|original_bin_id={bin_id}|gtdb_classification={clade_lineage}|completeness={completeness}|contamination={contamination}|strain_heterogeneity={strain_heterogeneity}|quality_score={quality_score}"
-                SeqIO.write(rc, oh, "fasta") 
- 
+                SeqIO.write(rc, oh2, "fasta") 
+
         handle.close()
 
+    oh1.close()
 
-def refine_taxonomy(genomes_info_f, tax_info_f, map_name, rep_level, base_dir, out_file):
+
+def refine_taxonomy(genomes_info_f, tax_info_f, map_name, rep_level, base_dir, out_file, scaftigs_info):
     genomes_info = pd.read_csv(genomes_info_f, sep="\t")
     tax_info = pd.read_csv(tax_info_f, sep="\t").rename(columns={"user_genome": "genome"})
 
@@ -144,5 +150,5 @@ def refine_taxonomy(genomes_info_f, tax_info_f, map_name, rep_level, base_dir, o
     rep_info.to_csv(out_file, sep="\t", index=False)
 
     # setp 4: update genomes
-    update_genomes(rep_info)
+    update_genomes(rep_info, scaftigs_info)
 

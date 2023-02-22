@@ -10,6 +10,9 @@ rule databases_bacteriome_refine_taxonomy:
         taxonomy = os.path.join(
             config["output"]["databases"],
             "bacteriome/taxonomy.{assembler}.{dereper}/taxonomy.tsv"),
+        scaftigs = os.path.join(
+            config["output"]["databases"],
+            "bacteriome/taxonomy.{assembler}.{dereper}/scaftigs.tsv"),
         fnadone = os.path.join(config["output"]["databases"],
             "bacteriome/fna.{assembler}.{dereper}/done")
     params:
@@ -30,7 +33,8 @@ rule databases_bacteriome_refine_taxonomy:
             params.db_name,
             params.rep_level,
             params.base_dir,
-            output.taxonomy)
+            output.taxonomy,
+            output.scaftigs)
 
         shell("touch {output.fnadone}")
 
@@ -44,7 +48,7 @@ rule databases_bacteriome_generate_taxdump:
         taxdump = expand(os.path.join(
             config["output"]["databases"],
             "bacteriome/taxdump.{{assembler}}.{{dereper}}/{taxdump}"),
-            taxdump=["names.dmp", "nodes.dmp", "taxid.map", "prelim_map.txt"]),
+            taxdump=["names.dmp", "nodes.dmp", "taxid.map"]),
         taxmap = expand(os.path.join(
             config["output"]["databases"],
             "bacteriome/taxdump.{{assembler}}.{{dereper}}/data/{taxmap}.map"),
@@ -73,8 +77,6 @@ rule databases_bacteriome_generate_taxdump:
         --force -A 1 \
         -R superkingdom,phylum,class,order,family,genus,species,strain 2> {log}
 
-        awk '{{print "TAXID\t" $0}}' {params.out_dir}/taxid.map > {params.out_dir}/prelim_map.txt
-
         mkdir -p {params.out_dir}/data
 
         cp {params.out_dir}/taxid.map {params.out_dir}/data/taxid.map
@@ -87,12 +89,45 @@ rule databases_bacteriome_generate_taxdump:
         '''
 
 
+rule databases_bacteriome_generate_prelim_map:
+    input:
+        fnadone = os.path.join(config["output"]["databases"],
+            "bacteriome/fna.{assembler}.{dereper}/done"),
+        scaftigs = os.path.join(
+            config["output"]["databases"],
+            "bacteriome/taxonomy.{assembler}.{dereper}/scaftigs.tsv"),
+        taxid = os.path.join(
+            config["output"]["databases"],
+            "bacteriome/taxdump.{assembler}.{dereper}/taxid.map")
+    output:
+        prelim_map = os.path.join(
+            config["output"]["databases"],
+            "bacteriome/taxdump.{assembler}.{dereper}/prelim_map.txt"),
+        prelim_map_fna = os.path.join(
+            config["output"]["databases"],
+            "bacteriome/fna.{assembler}.{dereper}/prelim_map.txt")
+    run:
+        import os
+        import pandas as pd
+
+        scaftigs_info = pd.read_csv(input.scaftigs, sep="\t", names=["genome_id", "scaftigs_id"])
+        taxid_info = pd.read_csv(input.taxid, sep="\t", names=["genome_id", "tax_id"])
+        prelim_map = pd.merge(scaftigs_info, taxid_info, how="inner", on=["genome_id"])
+        prelim_map["first"] = "TAXID"
+
+        prelim_map.loc[:, ["first", "scaftigs_id", "tax_id"]]\
+        .to_csv(output.prelim_map, sep="\t", index=False, header=None)
+
+        fnadir = os.path.dirname(input.fnadone)
+        shell("cp {output.prelim_map} {output.prelim_map_fna}")
+
+
 rule databases_bacteriome_extract_taxonomy:
     input:
         taxdump = expand(os.path.join(
             config["output"]["databases"],
             "bacteriome/taxdump.{{assembler}}.{{dereper}}/{taxdump}"),
-            taxdump=["names.dmp", "nodes.dmp", "taxid.map", "prelim_map.txt"])
+            taxdump=["names.dmp", "nodes.dmp"])
     output:
         taxtab = os.path.join(
             config["output"]["databases"],
@@ -157,9 +192,6 @@ if config["params"]["databases"]["bacteriome"]["kmcp"]["do"]:
 
     rule databases_bacteriome_kmcp_index:
         input:
-            taxtab = os.path.join(
-                config["output"]["databases"],
-                "bacteriome/taxdump.{assembler}.{dereper}/taxonomy.tab"),
             taxmap = expand(os.path.join(
                 config["output"]["databases"],
                 "bacteriome/taxdump.{{assembler}}.{{dereper}}/data/{taxmap}.map"),
@@ -224,7 +256,13 @@ if config["params"]["databases"]["bacteriome"]["kraken2"]["do"]:
             taxdump = expand(os.path.join(
                 config["output"]["databases"],
                 "bacteriome/taxdump.{{assembler}}.{{dereper}}/{taxdump}"),
-                taxdump=["names.dmp", "nodes.dmp", "taxid.map", "prelim_map.txt"])
+                taxdump=["names.dmp", "nodes.dmp"]),
+            prelim_map = os.path.join(
+                config["output"]["databases"],
+                "bacteriome/taxdump.{assembler}.{dereper}/prelim_map.txt"),
+            prelim_map_fna = os.path.join(
+                config["output"]["databases"],
+                "bacteriome/fna.{assembler}.{dereper}/prelim_map.txt")
         output:
             expand(os.path.join(config["output"]["databases"],
                 "bacteriome/databases.{{assembler}}.{{dereper}}/kraken2/index/{k2}.k2d"),
@@ -252,8 +290,6 @@ if config["params"]["databases"]["bacteriome"]["kraken2"]["do"]:
 
             fnadir=$(realpath $(dirname {input.fnadone}))
             dmpdir=$(realpath {params.tax})
-
-            cp {input.taxdump[3]} $fnadir/
 
             pushd $dbdir
             ln -s $fnadir library
@@ -337,7 +373,13 @@ if config["params"]["databases"]["bacteriome"]["krakenuniq"]["do"]:
             taxdump = expand(os.path.join(
                 config["output"]["databases"],
                 "bacteriome/taxdump.{{assembler}}.{{dereper}}/{taxdump}"),
-                taxdump=["names.dmp", "nodes.dmp", "taxid.map", "prelim_map.txt"])
+                taxdump=["names.dmp", "nodes.dmp"]),
+            prelim_map = os.path.join(
+                config["output"]["databases"],
+                "bacteriome/taxdump.{assembler}.{dereper}/prelim_map.txt"),
+            prelim_map_fna = os.path.join(
+                config["output"]["databases"],
+                "bacteriome/fna.{assembler}.{dereper}/prelim_map.txt")
         output:
             expand(os.path.join(config["output"]["databases"],
                 "bacteriome/databases.{{assembler}}.{{dereper}}/krakenuniq/index/{ku}"),
@@ -365,8 +407,6 @@ if config["params"]["databases"]["bacteriome"]["krakenuniq"]["do"]:
 
             fnadir=$(realpath $(dirname {input.fnadone}))
             dmpdir=$(realpath {params.tax})
-
-            cp {input.taxdump[3]} $fnadir/
 
             pushd $dbdir
             ln -s $fnadir library

@@ -123,6 +123,7 @@ class metaconfig:
         "logs/10.taxonomic_gtdbtk",
         "logs/11.databases_bacteriome_refine_taxonomy",
         "logs/11.databases_bacteriome_generate_taxdump",
+        "logs/11.databases_bacteriome_generate_prelim_map",
         "logs/11.databases_bacteriome_extract_taxonomy",
         "logs/11.databases_bacteriome_kmcp_compute",
         "logs/11.databases_bacteriome_kmcp_index",

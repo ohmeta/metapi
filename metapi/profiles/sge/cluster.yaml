@@ -536,6 +536,11 @@ databases_bacteriome_generate_taxdump:
   output: "logs/11.{rule}/{rule}.{wildcards.assembler}.{wildcards.dereper}.{jobid}.o"
   error: "logs/11.{rule}/{rule}.{wildcards.assembler}.{wildcards.dereper}.{jobid}.e"
 
+databases_bacteriome_generate_prelim_map:
+  mem: "1G"
+  output: "logs/11.{rule}/{rule}.{wildcards.assembler}.{wildcards.dereper}.{jobid}.o"
+  error: "logs/11.{rule}/{rule}.{wildcards.assembler}.{wildcards.dereper}.{jobid}.e"
+
 databases_bacteriome_extract_taxonomy:
   mem: "1G"
   output: "logs/11.{rule}/{rule}.{wildcards.assembler}.{wildcards.dereper}.{jobid}.o"
