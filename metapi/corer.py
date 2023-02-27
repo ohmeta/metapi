@@ -172,7 +172,8 @@ def run_snakemake(args, unknown, snakefile, workflow):
             cmd += ["--local-cores", str(args.local_cores),
                     "--jobs", str(args.jobs)]
         elif args.run_remote:
-            cmd += ["--profile", args.profile,
+            profile_path = os.path.join("./profiles", args.cluster_engine)
+            cmd += ["--profile", profile_path,
                     "--local-cores", str(args.local_cores),
                     "--jobs", str(args.jobs)]
         elif args.debug:
@@ -413,12 +414,6 @@ def main():
         help="config.yaml",
     )
     run_parser.add_argument(
-        "--profile",
-        type=str,
-        default="./profiles/slurm",
-        help="cluster profile name",
-    )
-    run_parser.add_argument(
         "--cores",
         type=int,
         default=240,
@@ -456,18 +451,21 @@ def main():
     run_parser.add_argument(
         "--run-local",
         default=False,
+        dest="run_local",
         action="store_true",
         help="run pipeline on local computer",
     )
     run_parser.add_argument(
         "--run-remote",
         default=False,
+        dest="run_remote",
         action="store_true",
         help="run pipeline on remote cluster",
     )
     run_parser.add_argument(
         "--cluster-engine",
         default="slurm",
+        dest="cluster_engine",
         choices=["slurm", "sge", "lsf", "pbs-torque"],
         help="cluster workflow manager engine, support slurm(sbatch) and sge(qsub)"
     )
