@@ -156,6 +156,7 @@ def run_snakemake(args, unknown, snakefile, workflow):
             cmd += ["--conda-prefix", args.conda_prefix]
     else:
         cmd += [
+            "--rerun-incomplete",
             "--keep-going",
             "--printshellcmds",
             "--reason",
