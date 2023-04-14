@@ -499,8 +499,7 @@ if "spades" in ASSEMBLERS:
                 wildcards, 
                 os.path.join(config["output"]["assembly"],
                              f"reads/spades/{wildcards.binning_group}.{wildcards.assembly_group}")),
-            reads_dir = os.path.join(config["output"]["assembly"], "reads/spades/{binning_group}.{assembly_group}"),
-            pe = "pe" if IS_PE else "se"
+            reads_dir = os.path.join(config["output"]["assembly"], "reads/spades/{binning_group}.{assembly_group}")
         threads:
             config["params"]["assembly"]["threads"]
         log:
