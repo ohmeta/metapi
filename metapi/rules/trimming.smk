@@ -133,7 +133,12 @@ if config["params"]["trimming"]["fastp"]["do"]:
                 reads = expand(os.path.join(
                     config["output"]["trimming"],
                     "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                    read=[".1", ".2"])
+                    read=[".1", ".2"]) \
+                    if config["params"]["trimming"]["save_reads"] else \
+                    temp(expand(os.path.join(
+                        config["output"]["trimming"],
+                        "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
+                                read=[".1", ".2"]))
             params:
                 output_prefix = os.path.join(config["output"]["trimming"],
                                             "short_reads/{sample}/{sample}"),
@@ -218,7 +223,12 @@ if config["params"]["trimming"]["fastp"]["do"]:
                 reads = expand(os.path.join(
                     config["output"]["trimming"],
                     "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                    read=[""])
+                    read=[""]) \
+                    if config["params"]["trimming"]["save_reads"] else \
+                    temp(expand(os.path.join(
+                        config["output"]["trimming"],
+                        "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
+                        read=[""]))
             params:
                 output_prefix = os.path.join(config["output"]["trimming"],
                                             "short_reads/{sample}/{sample}"),
