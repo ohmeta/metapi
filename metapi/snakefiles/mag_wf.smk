@@ -8,6 +8,7 @@ from snakemake.utils import min_version
 min_version("7.0")
 shell.executable("bash")
 
+sys.path.insert(0, "/home/jiezhu/toolkit/metapi_dev")
 import metapi
 
 METAPI_DIR = metapi.__path__[0]
@@ -153,6 +154,7 @@ include: "../rules/binning_report.smk"
 include: "../rules/identify_single.smk"
 include: "../rules/identify_multi.smk"
 include: "../rules/predict_mags.smk"
+include: "../rules/annotation.smk"
 include: "../rules/checkm.smk"
 include: "../rules/checkv.smk"
 include: "../rules/dereplicate_gene.smk"
@@ -176,6 +178,7 @@ rule all:
         rules.identify_single_all.input,
         rules.identify_multi_all.input,
         rules.predict_mags_gene_all.input,
+        rules.annotation_all.input,
         rules.check_all.input,
         rules.dereplicate_all.input,
         rules.taxonomic_all.input,
