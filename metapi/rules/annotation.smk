@@ -5,9 +5,9 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
             scaftigs = os.path.join(
                 config["output"]["assembly"],
                 "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz"),
-            phamb_rf_done = os.path.join(
-                config["output"]["identify"],
-                "vmags_phamb/{binning_group}.{assembler}/phamb_randomforest_done")
+            vamb_done = os.path.join(
+                config["output"]["binning"],
+                "mags_vamb/{binning_group}.{assembler}/binning_done")
         output:
             mags_dir = directory(os.path.join(config["output"]["annotation"],
                 "dbscan_swa/{binning_group}.{assembler}.mags"))
@@ -15,8 +15,8 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
             phamb_utils = config["params"]["annotation"]["dbscan_swa"]["phamb_utils"],
             min_binsize = config["params"]["annotation"]["dbscan_swa"]["min_binsize"],
             cluster_tsv = os.path.join(
-                config["output"]["identify"],
-                "vmags_phamb/{binning_group}.{assembler}/clusters.tsv")
+                config["output"]["binning"],
+                "mags_vamb/{binning_group}.{assembler}/clusters.tsv")
         shell:
             '''
             python {params.phamb_utils} \
