@@ -75,22 +75,35 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
             for i in glob_wildcards(os.path.join(checkpoint_output, "vamb_bins_{batchnum}.fna")).batchnum])))
 
 
-    rule annotation_prophage_dbscan_swa_all:
+    rule annotation_prophage_dbscan_swa_merge:
         input:
             aggregate_dbscan_swa_output
+        output:
+            os.path.join(
+                config["output"]["annotation"],
+                "dbscan_swa/{binning_group}.{assembler}.output/done")
+        shell:
+            '''
+            touch {output}
+            '''
+
+
+    rule annotation_prophage_dbscan_swa_all:
+        input:
+            expand(os.path.join(
+                config["output"]["annotation"],
+                "dbscan_swa/{binning_group}.{assembler}.output/done"),
+                binning_group=SAMPLES_BINNING_GROUP_LIST,
+                assembler=ASSEMBLERS)
 
 else:
     rule annotation_prophage_dbscan_swa_all:
         input:
 
 
-    rule annotation_all:
-        input:
-            rules.annotation_prophage_dbscan_swa_all.input
-
-else:
-    rule annotation_all:
-        input:
+rule annotation_all:
+    input:
+        rules.annotation_prophage_dbscan_swa_all.input
 
 
 localrules:
