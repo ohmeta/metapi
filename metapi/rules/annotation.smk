@@ -84,9 +84,13 @@ else:
         input:
 
 
-rule annotation_all:
-    input:
-        rules.annotation_prophage_dbscan_swa_all.input
+    rule annotation_all:
+        input:
+            rules.annotation_prophage_dbscan_swa_all.input
+
+else:
+    rule annotation_all:
+        input:
 
 
 localrules:
