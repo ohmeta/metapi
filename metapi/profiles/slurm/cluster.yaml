@@ -472,6 +472,16 @@ predict_mags_gene_prokka_multiqc:
   output: "logs/07.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.o"
   error: "logs/07.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{jobid}.e"
 
+annotation_prophage_dbscan_swa_prepare:
+  mem: "20G"
+  output: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.e"
+
+annotation_prophage_dbscan_swa:
+  mem: "20G"
+  output: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.batchnum}.{jobid}.o"
+  error: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.batchnum}.{jobid}.e"
+
 checkm_lineage_wf:
   mem: "50G"
   output: "logs/08.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{wildcards.batchid}.{jobid}.o"
