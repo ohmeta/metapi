@@ -42,7 +42,7 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
             outdir = os.path.join(config["output"]["annotation"], "dbscan_swa/{binning_group}.{assembler}.output/vamb_bins_{batchnum}"),
             prefix = "test"
         threads:
-            config["params"]["annotation"]["dbscan_swa"]["threads"]
+            config["params"]["annotation"]["threads"]
         shell:
             '''
             python {params.dbscan_swa_script} \
