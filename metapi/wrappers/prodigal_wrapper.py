@@ -43,15 +43,16 @@ def run_prodigal(input_list):
         subprocess.run(f'''rm -rf {cds_file}''', shell=True)
         subprocess.run(f'''rm -rf {gff_file}''', shell=True)
  
-    if (best_translation_table in [4, 11]) and \
-        (os.path.exists(pep_file_gz)) and \
-        (os.path.exists(cds_file_gz)) and \
-        (os.path.exists(gff_file_gz)) and \
-        (os.stat(pep_file_gz)[stat.ST_SIZE]) > 0:
-        return (bin_id, bin_fa, pep_file_gz, best_translation_table)
+    if best_translation_table in [4, 11]:
+        if (os.path.exists(pep_file_gz)) and (os.path.exists(cds_file_gz)) and (os.path.exists(gff_file_gz)) and (os.stat(pep_file_gz)[stat.ST_SIZE]) > 0:
+            return (bin_id, bin_fa, pep_file_gz, best_translation_table)
+        else:
+            return None
     else:
-        #return (bin_id, bin_fa, pep_file_gz, f"unknown: {best_translation_table}")
-        return None
+        if (os.path.exists(pep_file_gz)) and (os.path.exists(cds_file_gz)) and (os.path.exists(gff_file_gz)) and (os.stat(pep_file_gz)[stat.ST_SIZE]) > 0:
+            return (bin_id, bin_fa, pep_file_gz, f"unknown: {best_translation_table}")
+        else: 
+            return None
 
 
 workers = int(sys.argv[1])
