@@ -68,12 +68,6 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
             --add_annotation none \
             >{log} 2>&1
 
-            cat {params.outdir}/*.fna > {output.fna}
-            cat {params.outdir}/*.faa > {output.faa}
-
-            head -1 {params.outdir}/*1*summary.txt > {output.summary}
-            tail -n +2 -q {params.outdir}/*prophage_summary.txt >> {output.summary}
-
             touch {output.done}
             '''
 
@@ -93,12 +87,28 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
         input:
             aggregate_dbscan_swa_output
         output:
-            os.path.join(
-                config["output"]["annotation"],
-                "dbscan_swa/{binning_group}.{assembler}.output/done")
+            fna = os.path.join(config["output"]["annotation"], "dbscan_swa/{binning_group}.{assembler}.prophage/prophage.fna"),
+            faa = os.path.join(config["output"]["annotation"], "dbscan_swa/{binning_group}.{assembler}.prophage/prophage.faa"),
+            summary = os.path.join(config["output"]["annotation"], "dbscan_swa/{binning_group}.{assembler}.prophage/prophage_summary.tsv")
         shell:
             '''
-            touch {output}
+            outdone={input}[0]
+            outdir=$(dirname $outdone)
+            summary=$outdir/test_DBSCAN-SWA_prophage_summary.txt
+            head -1 $summary > {output.summary}
+
+            for outdone in {input}
+            do
+                outdir=$(dirname $outdone)
+
+                FNA=$outdir/test_DBSCAN-SWA_prophage.fna
+                FAA=$outdir/test_DBSCAN-SWA_prophage.faa
+                summary=$outdir/test_DBSCAN-SWA_prophage_summary.txt
+
+                [ -s $fna ] && cat $FNA >> {output.fna}
+                [ -s $faa ] && cat $FAA >> {output.faa}
+                [ -s $summary ] && tail -n +2 -q $summary >> {output.summary}
+            done
             '''
 
 
@@ -106,9 +116,10 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
         input:
             expand(os.path.join(
                 config["output"]["annotation"],
-                "dbscan_swa/{binning_group}.{assembler}.output/done"),
+                "dbscan_swa/{binning_group}.{assembler}.prophage/{results}"),
                 binning_group=SAMPLES_BINNING_GROUP_LIST,
-                assembler=ASSEMBLERS)
+                assembler=ASSEMBLERS,
+                results=["prophage.fna", "prophage.faa", "prophage_summary.tsv"])
 
 else:
     rule annotation_prophage_dbscan_swa_all:
