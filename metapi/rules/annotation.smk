@@ -44,10 +44,7 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
                 config["output"]["annotation"],
                 "dbscan_swa/{binning_group}.{assembler}.mags/vamb_bins.{batchid}.fna")
         output:
-            done = os.path.join(config["output"]["annotation"], "dbscan_swa/{binning_group}.{assembler}.output/vamb_bins.{batchid}/done"),
-            fna = os.path.join(config["output"]["annotation"], "dbscan_swa/{binning_group}.{assembler}.prophage/{batchid}.fna"),
-            faa = os.path.join(config["output"]["annotation"], "dbscan_swa/{binning_group}.{assembler}.prophage/{batchid}.faa"),
-            summary = os.path.join(config["output"]["annotation"], "dbscan_swa/{binning_group}.{assembler}.prophage/{batchid}.summary.txt")
+            done = os.path.join(config["output"]["annotation"], "dbscan_swa/{binning_group}.{assembler}.output/vamb_bins.{batchid}/done")
         log:
             os.path.join(config["output"]["annotation"], "logs/dbscan_swa/{binning_group}.{assembler}.{batchid}.dbscan_swa.log")
         benchmark:
