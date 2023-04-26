@@ -72,6 +72,7 @@ WORKFLOWS_MAG = [
     "predict_scaftigs_gene_all",
     "predict_mags_gene_all",
     "predict_all",
+    "annotation_prophage_dbscan_swa_all",
     "annotation_all",
     "checkm_all",
     "checkv_all",

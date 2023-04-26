@@ -31,15 +31,19 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
         input:
             os.path.join(
                 config["output"]["annotation"],
-                "dbscan_swa/{binning_group}.{assembler}.mags/vamb_bins_{batchnum}.fna")
+                "dbscan_swa/{binning_group}.{assembler}.mags/vamb_bins.{batchid}.fna")
         output:
-            done = os.path.join(config["output"]["annotation"], "dbscan_swa/{binning_group}.{assembler}.outout/vamb_bins_{batchnum}/done"),
-            fna = os.path.join(config["output"]["annotation"], "dbscan_swa/{binning_group}.{assembler}.prophage/{batchnum}.fna"),
-            faa = os.path.join(config["output"]["annotation"], "dbscan_swa/{binning_group}.{assembler}.prophage/{batchnum}.faa"),
-            summary = os.path.join(config["output"]["annotation"], "dbscan_swa/{binning_group}.{assembler}.prophage/{batchnum}.summary.txt")
+            done = os.path.join(config["output"]["annotation"], "dbscan_swa/{binning_group}.{assembler}.output/vamb_bins.{batchid}/done"),
+            fna = os.path.join(config["output"]["annotation"], "dbscan_swa/{binning_group}.{assembler}.prophage/{batchid}.fna"),
+            faa = os.path.join(config["output"]["annotation"], "dbscan_swa/{binning_group}.{assembler}.prophage/{batchid}.faa"),
+            summary = os.path.join(config["output"]["annotation"], "dbscan_swa/{binning_group}.{assembler}.prophage/{batchid}.summary.txt")
+        log:
+            os.path.join(config["output"]["annotation"], "logs/dbscan_swa/{binning_group}.{assembler}.{batchid}.dbscan_swa.log")
+        benchmark:
+            os.path.join(config["output"]["annotation"], "benchmark/dbscan_swa/{binning_group}.{assembler}.{batchid}.dbscan_swa.benchmark.txt")
         params:
             dbscan_swa_script = config["params"]["annotation"]["dbscan_swa"]["script"],
-            outdir = os.path.join(config["output"]["annotation"], "dbscan_swa/{binning_group}.{assembler}.output/vamb_bins_{batchnum}"),
+            outdir = os.path.join(config["output"]["annotation"], "dbscan_swa/{binning_group}.{assembler}.output/vamb_bins.{batchid}"),
             prefix = "test"
         threads:
             config["params"]["annotation"]["threads"]
@@ -68,11 +72,10 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
 
         return expand(os.path.join(
             config["output"]["annotation"],
-            "dbscan_swa/{binning_group}.{assembler}.output/vamb_bins_{batchnum}/done"),
-            binner_group=wildcards.binning_group,
+            "dbscan_swa/{binning_group}.{assembler}.output/vamb_bins.{batchid}/done"),
+            binning_group=wildcards.binning_group,
             assembler=wildcards.assembler,
-            batchnum=list(set([i.split("/")[0] \
-            for i in glob_wildcards(os.path.join(checkpoint_output, "vamb_bins_{batchnum}.fna")).batchnum])))
+            batchid=list(set([i for i in glob_wildcards(os.path.join(checkpoint_output, "vamb_bins.{batchid}.fna")).batchid])))
 
 
     rule annotation_prophage_dbscan_swa_merge:
