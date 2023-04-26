@@ -11,6 +11,14 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
         output:
             mags_dir = directory(os.path.join(config["output"]["annotation"],
                 "dbscan_swa/{binning_group}.{assembler}.mags"))
+        log:
+            os.path.join(
+                config["output"]["annotation"],
+                "logs/dbscan_swa_prepare/{binning_group}.{assembler}.dbscan_swa_prepare.log")
+        benchmark:
+            os.path.join(
+                config["output"]["annotation"],
+                "benchmark/dbscan_swa_prepare/{binning_group}.{assembler}.dbscan_swa_prepare.benchmark.txt")
         params:
             phamb_utils = config["params"]["annotation"]["dbscan_swa"]["phamb_utils"],
             batch_num = config["params"]["annotation"]["dbscan_swa"]["batch_num"],
@@ -25,7 +33,8 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
             {params.cluster_tsv} \
             {output} \
             -m {params.min_binsize} \
-            -b {params.batch_num}
+            -b {params.batch_num} \
+            >{log} 2>&1
             '''
 
 
