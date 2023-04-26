@@ -13,6 +13,7 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
                 "dbscan_swa/{binning_group}.{assembler}.mags"))
         params:
             phamb_utils = config["params"]["annotation"]["dbscan_swa"]["phamb_utils"],
+            batch_num = config["params"]["annotation"]["dbscan_swa"]["batch_num"],
             min_binsize = config["params"]["annotation"]["dbscan_swa"]["min_binsize"],
             cluster_tsv = os.path.join(
                 config["output"]["binning"],
@@ -23,7 +24,8 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
             {input.scaftigs} \
             {params.cluster_tsv} \
             {output} \
-            -m {params.min_binsize}
+            -m {params.min_binsize} \
+            -b {params.batch_num}
             '''
 
 

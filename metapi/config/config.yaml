@@ -281,6 +281,7 @@ params:
     threads: 8
     dbscan_swa:
       do: True
+      batch_num: 1000
       min_binsize: 5000
       script: /home/jiezhu/toolkit/DBSCAN-SWA-1/bin/dbscan-swa.py
       phamb_utils: /home/jiezhu/toolkit/phamb/workflows/mag_annotation/scripts/get_contigs_vamb_bins.py
