@@ -479,8 +479,8 @@ annotation_prophage_dbscan_swa_prepare:
 
 annotation_prophage_dbscan_swa:
   mem: "20G"
-  output: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.batchnum}.{jobid}.o"
-  error: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.batchnum}.{jobid}.e"
+  output: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.batchid}.{jobid}.o"
+  error: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.batchid}.{jobid}.e"
 
 checkm_lineage_wf:
   mem: "50G"
