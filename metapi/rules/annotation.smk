@@ -89,10 +89,13 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
             summary = os.path.join(config["output"]["annotation"], "dbscan_swa/{binning_group}.{assembler}.prophage/prophage_summary.tsv")
         shell:
             '''
-            outdone={input}[0]
-            outdir=$(dirname $outdone)
-            summary=$outdir/test_DBSCAN-SWA_prophage_summary.txt
-            head -1 $summary > {output.summary}
+            for outdone in {input}
+            do
+                outdir=$(dirname $outdone)
+                summary=$outdir/test_DBSCAN-SWA_prophage_summary.txt
+                head -1 $summary > {output.summary}
+                break
+            done
 
             for outdone in {input}
             do
@@ -102,8 +105,8 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
                 FAA=$outdir/test_DBSCAN-SWA_prophage.faa
                 summary=$outdir/test_DBSCAN-SWA_prophage_summary.txt
 
-                [ -s $fna ] && cat $FNA >> {output.fna}
-                [ -s $faa ] && cat $FAA >> {output.faa}
+                [ -s $FNA ] && cat $FNA >> {output.fna}
+                [ -s $FAA ] && cat $FAA >> {output.faa}
                 [ -s $summary ] && tail -n +2 -q $summary >> {output.summary}
             done
             '''
