@@ -12,42 +12,28 @@ def pass_gzip_format(fq_list):
         if pd.isna(fq):
             pass
         elif not fq.endswith(".gz"):
-            cancel = False
+            cancel = True
             print(f"{fq} is not gzip format")
     return cancel
 
 
-def parse_samples(samples_tsv):
+def parse_samples(samples_tsv, sra_headers, fq_headers):
     samples_df = pd.read_csv(samples_tsv, sep="\t")
-    samples_df = samples_df.applymap(str)
+    #samples_df = samples_df.applymap(str)
 
     samples_df["multibinning_group"] = samples_df["assembly_group"] + "__" + samples_df["binning_group"]
     samples_df = samples_df.set_index(["sample_id", "assembly_group", "binning_group", "multibinning_group"])
 
     cancel = False
 
-    sra_headers = [
-        "sra_pe",
-        "sra_se",
-        "sra_long"
-    ]
-
-    fastq_headers = [
-        "short_forward_reads",
-        "short_reverse_reads",
-        "short_intervead_reads",
-        "short_single_reads",
-        "long_reads"
-    ]
-
     # check header
     is_sra = False
     is_fastq = False
-    for sra in sra_headers:
-        if sra in samples_df.columns:
+    for sra_k, sra_v in sra_headers.items():
+        if sra_v in samples_df.columns:
             is_sra = True
-    for fq in fastq_headers:
-        if fq in samples_df.columns:
+    for fq_k, fq_v in fq_headers.items():
+        if fq_v in samples_df.columns:
             is_fastq = True
     if is_sra and is_fastq:
         cancel = True
@@ -66,25 +52,25 @@ def parse_samples(samples_tsv):
 
     # check fastq headers
     if is_fastq:
-        if ("short_forward_reads" in samples_df.columns) and ("short_reverse_reads" in samples_df.columns):
-            if "short_intervedad_reads" in samples_df.columns:
+        if (fq_headers["PE_FORWARD"] in samples_df.columns) and (fq_headers["PE_REVERSE"] in samples_df.columns):
+            if fq_headers["INTERLEAVED"] in samples_df.columns:
                 cancel = True
-                print("can't specific short_forward_reads, short_reverse_reads and short_intervead_reads at the same time")
-                print("please only provide short_forward_reads and short_reverse_reads, or short_intervead_reads")
+                print(f'''can't specific {fq_headers["PE_FORWARD"]}, {fq_headers["PE_REVERSE"]} and {fq_headers["INTERLEAVED"]} at the same time''')
+                print(f'''please only specific {fq_headers["PE_FORWARD"]} and {fq_headers["PE_REVERSE"]}, or {fq_headers["INTERLEAVED"]}''')
             else:
                 pass
-        elif ("short_forward_reads" in samples_df.columns) or ("short_rverse_reads" in samples_df.columns):
+        elif (fq_headers["PE_FORWARD"] in samples_df.columns) or (fq_headers["PE_REVERSE"] in samples_df.columns):
             cancel = True
-            print("Please specific short_forward_reads and short_reverse_reads at the same time")
+            print(f'''please only specific {fq_headers["PE_FORWARD"]} and {fq_headers["PE_REVERSE"]} at the same time''')
         else:
             pass
 
     # check reads_format
     for sample_id in samples_df.index.get_level_values("sample_id").unique():
         # check short paired-end reads
-        if ("short_forward_reads" in samples_df.columns) and ("short_reverse_reads" in samples_df.columns):
-            forward_reads = samples_df.loc[sample_id, :, :, :]["short_forward_reads"].tolist()
-            reverse_reads = samples_df.loc[sample_id, :, :, :]["short_reverse_reads"].tolist()
+        if (fq_headers["PE_FORWARD"] in samples_df.columns) and (fq_headers["PE_REVERSE"] in samples_df.columns):
+            forward_reads = samples_df.loc[sample_id, :, :, :][fq_headers["PE_FORWARD"]].tolist()
+            reverse_reads = samples_df.loc[sample_id, :, :, :][fq_headers["PE_REVERSE"]].tolist()
 
             for forward_read, reverse_read in zip(forward_reads, reverse_reads):
                 if pd.isna(forward_read) and pd.isna(reverse_read):
@@ -100,24 +86,27 @@ def parse_samples(samples_tsv):
                     print(f"It seems short paired-end reads only specific forward or reverse reads, please check again!")
 
         # check short single-end reads
-        if "short_single_reads" in samples_df.columns:
-            single_reads = samples_df.loc[sample_id, :, :, :]["short_single_reads"].tolist()
+        if fq_headers["SE"] in samples_df.columns:
+            single_reads = samples_df.loc[sample_id, :, :, :][fq_headers["SE"]].tolist()
             cancel = pass_gzip_format(single_reads)
 
         # check long reads
-        if "long_reads" in samples_df.columns:
-            long_reads = samples_df.loc[sample_id, :, :, :]["long_reads"].tolist()
+        if fq_headers["LONG"] in samples_df.columns:
+            long_reads = samples_df.loc[sample_id, :, :, :][fq_headers["LONG"]].tolist()
             cancel = pass_gzip_format(long_reads)
 
         # check short_interleaved
-        if "short_interleaved" in samples_df.columns:
-            interleaved_reads = samples_df.loc[sample_id, :, :, :]["long_reads"].tolist()
+        if fq_headers["INTERLEAVED"] in samples_df.columns:
+            interleaved_reads = samples_df.loc[sample_id, :, :, :][fq_headers["INTERLEAVED"]].tolist()
             cancel = pass_gzip_format(interleaved_reads)
 
     if cancel:
         sys.exit(-1)
     else:
-        return samples_df
+        if is_sra:
+            return samples_df, "SRA"
+        else:
+            return samples_df, "FQ"
 
 
 def parse_mags(mags_dir):
