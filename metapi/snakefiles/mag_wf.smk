@@ -106,26 +106,7 @@ if config["params"]["dereplicate"]["galah"]["do"]:
     DEREPERS.append("galah")
 
 
-SRA_HEADERS = {
-    "PE": "sra_pe",
-    "SE": "sra_se",
-    "LONG": "sra_long"
-}
-
-FQ_HEADERS = {
-    "PE_FORWARD": "short_forward_reads",
-    "PE_REVERSE": "short_reverse_reads",
-    "INTERLEAVED": "short_interleaved_reads",
-    "SE": "short_single_reads",
-    "LONG": "long_reads"
-}
-
-HEADERS = {
-    "SRA": SRA_HEADERS,
-    "FQ": FQ_HEADERS
-}
-
-SAMPLES, DT = metapi.parse_samples(config["params"]["samples"], SRA_HEADERS, FQ_HEADERS)
+SAMPLES, DT = metapi.parse_samples(config["params"]["samples"])
 
 SAMPLES_ID_LIST = SAMPLES.index.get_level_values("sample_id").unique()
 SAMPLES_ASSEMBLY_GROUP_LIST = SAMPLES.index.get_level_values("assembly_group").unique()

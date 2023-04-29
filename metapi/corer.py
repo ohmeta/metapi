@@ -18,9 +18,7 @@ WORKFLOWS_SIMULATE = [
 ]
 
 WORKFLOWS_MAG = [
-    "prepare_short_reads_all",
-    "prepare_long_reads_all",
-    "prepare_reads_all",
+    "raw_prepare_reads_all",
     "raw_fastqc_all",
     "raw_report_all",
     "raw_all",

@@ -1,35 +1,26 @@
-def raw_input(wildcards):
-    fqs = {}
-    headers = HEADERS[DT]
-    for k, v in headers.items():
-        if v in SAMPLES.columns:
-            reads = metapi.get_reads(SAMPLES, wildcards, v)
-            if len(reads) > 0:
-                fqs[v] = reads
-    return fqs
-
-
-rule prepare_reads:
+rule raw_prepare_reads:
     input:
-        unpack(raw_input)
+        lambda wildcards: metapi.get_raw_input_list(wildcards, SAMPLES, DT)
     output:
         os.path.join(config["output"]["raw"], "reads/{sample}/done")
+    log:
+        os.path.join(config["output"]["raw"], "logs/raw_prepare_reads/{sample}_prepare.log")
+    benchmark:
+        os.path.join(config["output"]["raw"], "benchmark/raw_prepare_reads/{sample}_prepare.log")
     params:
         sample_id = "{sample}",
-        input_files = lambda wildcards: raw_input(wildcards),
-        headers = HEADERS,
+        input_files = lambda wildcards: metapi.get_raw_input_dict(wildcards, SAMPLES, DT),
+        headers = metapi.HEADERS,
         check_paired = config["params"]["raw"]["check_paired"]
     threads:
         config["params"]["raw"]["threads"]
     conda:
         config["envs"]["raw"]
-    log:
-        os.path.join(config["output"]["raw"], "logs/{sample}_prepare.log")
     script:
         "../wrappers/preprocess_raw.py"
 
 
-rule prepare_reads_all:
+rule raw_prepare_reads_all:
     input:
         expand(os.path.join(config["output"]["raw"], "reads/{sample}/done"),
         sample=SAMPLES_ID_LIST)
@@ -37,15 +28,17 @@ rule prepare_reads_all:
 
 rule raw_fastqc:
     input:
-        rules.prepare_reads.output
+        rules.raw_prepare_reads.output
     output:
         directory(os.path.join(config["output"]["raw"], "fastqc/{sample}.fastqc.out"))
-    conda:
-        config["envs"]["fastqc"]
+    log:
+        os.path.join(config["output"]["raw"], "logs/raw_fastqc/{sample}_prepare.log")
+    benchmark:
+        os.path.join(config["output"]["raw"], "benchmark/raw_fastqc/{sample}_prepare.log")
     threads:
         config["params"]["raw"]["threads"]
-    log:
-        os.path.join(config["output"]["raw"], "logs/{sample}.fastqc.log")
+    conda:
+        config["envs"]["fastqc"]
     shell:
         '''
         mkdir -p {output}
@@ -93,7 +86,7 @@ rule raw_fastqc_all:
 
 rule raw_report:
     input:
-        rules.prepare_reads.output
+        rules.raw_prepare_reads.output
     output:
         temp(os.path.join(config["output"]["raw"], "report/stats/{sample}_raw_stats.tsv.raw"))
     conda:
@@ -154,13 +147,13 @@ rule raw_report_all:
 
 rule raw_all:
     input:
-        rules.prepare_reads_all.input,
+        rules.raw_prepare_reads_all.input,
         rules.raw_fastqc_all.input,
         rules.raw_report_all.input
 
 
 localrules:
-    prepare_reads_all,
+    raw_prepare_reads_all,
     raw_fastqc_all,
     raw_report_all,
     raw_all

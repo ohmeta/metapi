@@ -12,6 +12,9 @@ from metapi.simulator import parse_genomes
 from metapi.simulator import get_simulate_info
 from metapi.simulator import simulate_short_reads
 
+from metapi.sampler import HEADERS
+from metapi.sampler import get_raw_input_list
+from metapi.sampler import get_raw_input_dict
 from metapi.sampler import parse_samples
 from metapi.sampler import get_reads
 from metapi.sampler import get_sample_id
