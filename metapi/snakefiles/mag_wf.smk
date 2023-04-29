@@ -8,6 +8,7 @@ from snakemake.utils import min_version
 min_version("7.0")
 shell.executable("bash")
 
+sys.path.insert(0, "/home/jiezhu/toolkit/metapi_dev_pe_se")
 import metapi
 
 METAPI_DIR = metapi.__path__[0]
@@ -105,10 +106,26 @@ if config["params"]["dereplicate"]["galah"]["do"]:
     DEREPERS.append("galah")
 
 
-SAMPLES = metapi.parse_samples(config["params"]["samples"],
-                               config["params"]["interleaved"],
-                               config["params"]["reads_layout"],
-                               config["params"]["begin"])
+SRA_HEADERS = {
+    "PE": "sra_pe",
+    "SE": "sra_se",
+    "LONG": "sra_long"
+}
+
+FQ_HEADERS = {
+    "PE_FORWARD": "short_forward_reads",
+    "PE_REVERSE": "short_reverse_reads",
+    "INTERLEAVED": "short_interleaved_reads",
+    "SE": "short_single_reads",
+    "LONG": "long_reads"
+}
+
+HEADERS = {
+    "SRA": SRA_HEADERS,
+    "FQ": FQ_HEADERS
+}
+
+SAMPLES, DT = metapi.parse_samples(config["params"]["samples"], SRA_HEADERS, FQ_HEADERS)
 
 SAMPLES_ID_LIST = SAMPLES.index.get_level_values("sample_id").unique()
 SAMPLES_ASSEMBLY_GROUP_LIST = SAMPLES.index.get_level_values("assembly_group").unique()
@@ -140,46 +157,46 @@ if config["params"]["begin"] == "binning":
 
 
 include: "../rules/raw.smk"
-include: "../rules/trimming.smk"
-include: "../rules/rmhost.smk"
-include: "../rules/qcreport.smk"
-include: "../rules/assembly.smk"
-include: "../rules/predict_scaftigs.smk"
-include: "../rules/alignment.smk"
-include: "../rules/binning.smk"
-include: "../rules/binning_multisplit.smk"
-include: "../rules/binning_refine.smk"
-include: "../rules/binning_report.smk"
-include: "../rules/identify_single.smk"
-include: "../rules/identify_multi.smk"
-include: "../rules/predict_mags.smk"
-include: "../rules/annotation.smk"
-include: "../rules/checkm.smk"
-include: "../rules/checkv.smk"
-include: "../rules/dereplicate_gene.smk"
-include: "../rules/dereplicate_mags.smk"
-include: "../rules/dereplicate_vmags.smk"
-include: "../rules/taxonomic.smk"
-include: "../rules/databases.smk"
-include: "../rules/upload.smk"
+#include: "../rules/trimming.smk"
+#include: "../rules/rmhost.smk"
+#include: "../rules/qcreport.smk"
+#include: "../rules/assembly.smk"
+#include: "../rules/predict_scaftigs.smk"
+#include: "../rules/alignment.smk"
+#include: "../rules/binning.smk"
+#include: "../rules/binning_multisplit.smk"
+#include: "../rules/binning_refine.smk"
+#include: "../rules/binning_report.smk"
+#include: "../rules/identify_single.smk"
+#include: "../rules/identify_multi.smk"
+#include: "../rules/predict_mags.smk"
+#include: "../rules/annotation.smk"
+#include: "../rules/checkm.smk"
+#include: "../rules/checkv.smk"
+#include: "../rules/dereplicate_gene.smk"
+#include: "../rules/dereplicate_mags.smk"
+#include: "../rules/dereplicate_vmags.smk"
+#include: "../rules/taxonomic.smk"
+#include: "../rules/databases.smk"
+#include: "../rules/upload.smk"
 
 
 rule all:
     input:
         rules.raw_all.input,
-        rules.trimming_all.input,
-        rules.rmhost_all.input,
-        rules.qcreport_all.input,
-        rules.assembly_all.input,
-        rules.predict_scaftigs_gene_all.input,
-        rules.alignment_all.input,
-        rules.binning_all.input,
-        rules.identify_single_all.input,
-        rules.identify_multi_all.input,
-        rules.predict_mags_gene_all.input,
-        rules.annotation_all.input,
-        rules.check_all.input,
-        rules.dereplicate_all.input,
-        rules.taxonomic_all.input,
-        rules.databases_all.input,
-        rules.upload_all.input
+        #rules.trimming_all.input,
+        #rules.rmhost_all.input,
+        #rules.qcreport_all.input,
+        #rules.assembly_all.input,
+        #rules.predict_scaftigs_gene_all.input,
+        #rules.alignment_all.input,
+        #rules.binning_all.input,
+        #rules.identify_single_all.input,
+        #rules.identify_multi_all.input,
+        #rules.predict_mags_gene_all.input,
+        #rules.annotation_all.input,
+        #rules.check_all.input,
+        #rules.dereplicate_all.input,
+        #rules.taxonomic_all.input,
+        #rules.databases_all.input,
+        #rules.upload_all.input

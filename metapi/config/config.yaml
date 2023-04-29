@@ -95,7 +95,7 @@ params:
       decontaminate_pairs: "strict" # ["strict", "lenient", "unpaired"]
       bowtie2_options: "--very-sensitive --dovetail"
       bowtie2_database: "/home/jiezhu/databases/genomics/human/CHM13/chm13v2.0_plusY/" # directory, not bowtie2 index prefix
- 
+
   qcreport:
     do: True
     seqkit:
@@ -478,7 +478,7 @@ upload:
 
 envs:
   simulate: "envs/simulate.yaml"
-  prepare: "envs/prepare.yaml"
+  raw: "envs/raw.yaml"
   fastqc: "envs/fastqc.yaml"
   trimming: "envs/trimming.yaml"
   multiqc: "envs/multiqc.yaml"
