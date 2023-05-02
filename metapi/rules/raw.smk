@@ -142,7 +142,7 @@ rule raw_report_merge:
         head -1 {input[0]} > {output}
         for report in {input}
         do
-            tail -q -n +2 $report >> {output}
+            tail -q -n +2 $report >> {output} 2>>{log}
         done
         '''
 
