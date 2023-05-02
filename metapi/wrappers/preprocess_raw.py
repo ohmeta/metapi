@@ -36,10 +36,10 @@ for k in input_tags:
         is_fastq = False
 
 # final file
-r1 = os.path.join(outdir_pe, f"{sample_id}.raw.1.fq.gz")
-r2 = os.path.join(outdir_pe, f"{sample_id}.raw.2.fq.gz")
-rs = os.path.join(outdir_se, f"{sample_id}.se.fq.gz")
-rl = os.path.join(outdir_long, f"{sample_id}.long.fq.gz")
+r1 = os.path.join(outdir_pe, f"{sample_id}.raw.pe.1.fq.gz")
+r2 = os.path.join(outdir_pe, f"{sample_id}.raw.pe.2.fq.gz")
+rs = os.path.join(outdir_se, f"{sample_id}.raw.se.fq.gz")
+rl = os.path.join(outdir_long, f"{sample_id}.raw.long.fq.gz")
 
 # temp file
 execute(f'''rm -rf {outdir}''')
