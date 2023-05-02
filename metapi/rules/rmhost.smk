@@ -44,48 +44,46 @@ if config["params"]["rmhost"]["bwa"]["do"]:
             '''
 
 
-    rule rmhost_bwa:
-        input:
-            lambda wildcards: trimming_stats_input(wildcards),
-            reads = lambda wildcards: rmhost_input(wildcards),
-            index = expand("{prefix}.{suffix}",
-                           prefix=config["params"]["rmhost"]["bwa"]["index_prefix"],
-                           suffix=BWA_INDEX_SUFFIX)
-        output:
-            flagstat = os.path.join(config["output"]["rmhost"],
-                                    "report/flagstat/{sample}.align2host.flagstat.gz"),
-            reads = expand(os.path.join(
-                config["output"]["rmhost"],
-                "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
-                           read=[".1", ".2"] if IS_PE else "") \
-                           if config["params"]["rmhost"]["save_reads"] else \
-                              temp(expand(os.path.join(
-                                  config["output"]["rmhost"],
-                                  "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
-                                          read=[".1", ".2"] if IS_PE else ""))
-        conda:
-            config["envs"]["align"]
-        log:
-            os.path.join(config["output"]["rmhost"], "logs/{sample}.bwa.log")
-        benchmark:
-            os.path.join(config["output"]["rmhost"], "benchmark/bwa/{sample}.bwa.txt")
-        priority:
-            20
-        params:
-            compression = config["params"]["rmhost"]["compression"],
-            bwa = "bwa-mem2" if config["params"]["rmhost"]["bwa"]["algorithms"] == "mem2" else "bwa",
-            minimum_seed_length = config["params"]["rmhost"]["bwa"]["minimum_seed_length"],
-            index_prefix = config["params"]["rmhost"]["bwa"]["index_prefix"],
-            bam = os.path.join(config["output"]["rmhost"], "bam/{sample}/{sample}.align2host.sorted.bam"),
-            bam_dir = os.path.join(config["output"]["rmhost"], "bam/{sample}"),
-            pe = "pe" if IS_PE else "se",
-            save_bam = "yes" if config["params"]["rmhost"]["save_bam"] else "no"
-        threads:
-            config["params"]["rmhost"]["threads"]
-        shell:
-            '''
-            if [ "{params.pe}" == "pe" ];
-            then
+    if IS_PE:
+        rule rmhost_bwa:
+            input:
+                lambda wildcards: trimming_stats_input(wildcards),
+                reads = lambda wildcards: rmhost_input(wildcards),
+                index = expand("{prefix}.{suffix}",
+                            prefix=config["params"]["rmhost"]["bwa"]["index_prefix"],
+                            suffix=BWA_INDEX_SUFFIX)
+            output:
+                flagstat = os.path.join(config["output"]["rmhost"],
+                                        "report/flagstat/{sample}.align2host.flagstat.gz"),
+                reads = expand(os.path.join(
+                    config["output"]["rmhost"],
+                    "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                            read=[".1", ".2"]) \
+                            if config["params"]["rmhost"]["save_reads"] else \
+                                temp(expand(os.path.join(
+                                    config["output"]["rmhost"],
+                                    "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                                            read=[".1", ".2"]))
+            conda:
+                config["envs"]["align"]
+            log:
+                os.path.join(config["output"]["rmhost"], "logs/{sample}.bwa.log")
+            benchmark:
+                os.path.join(config["output"]["rmhost"], "benchmark/bwa/{sample}.bwa.txt")
+            priority:
+                20
+            params:
+                compression = config["params"]["rmhost"]["compression"],
+                bwa = "bwa-mem2" if config["params"]["rmhost"]["bwa"]["algorithms"] == "mem2" else "bwa",
+                minimum_seed_length = config["params"]["rmhost"]["bwa"]["minimum_seed_length"],
+                index_prefix = config["params"]["rmhost"]["bwa"]["index_prefix"],
+                bam = os.path.join(config["output"]["rmhost"], "bam/{sample}/{sample}.align2host.sorted.bam"),
+                bam_dir = os.path.join(config["output"]["rmhost"], "bam/{sample}"),
+                save_bam = "yes" if config["params"]["rmhost"]["save_bam"] else "no"
+            threads:
+                config["params"]["rmhost"]["threads"]
+            shell:
+                '''
                 if [ "{params.save_bam}" == "yes" ];
                 then
                     mkdir -p {params.bam_dir}
@@ -96,14 +94,14 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     {params.index_prefix} \
                     {input.reads[0]} {input.reads[1]} | \
                     tee >(samtools flagstat \
-                          -@4 - | \
-                          pigz -cf > {output.flagstat}) | \
+                        -@4 - | \
+                        pigz -cf > {output.flagstat}) | \
                     tee >(samtools fastq \
-                          -@4 \
-                          -c {params.compression} \
-                          -N -f 12 -F 256 \
-                          -1 {output.reads[0]} \
-                          -2 {output.reads[1]} -) | \
+                        -@4 \
+                        -c {params.compression} \
+                        -N -f 12 -F 256 \
+                        -1 {output.reads[0]} \
+                        -2 {output.reads[1]} -) | \
                     samtools sort \
                     -m 3G \
                     -@4 \
@@ -117,8 +115,8 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     {params.index_prefix} \
                     {input.reads[0]} {input.reads[1]} | \
                     tee >(samtools flagstat \
-                          -@4 - | \
-                          pigz -cf > {output.flagstat}) | \
+                        -@4 - | \
+                        pigz -cf > {output.flagstat}) | \
                     samtools fastq \
                     -@4 \
                     -c {params.compression} \
@@ -127,7 +125,48 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     -2 {output.reads[1]} - \
                     2> {log}
                 fi
-            else
+                '''
+
+    else:
+        rule rmhost_bwa:
+            input:
+                lambda wildcards: trimming_stats_input(wildcards),
+                reads = lambda wildcards: rmhost_input(wildcards),
+                index = expand("{prefix}.{suffix}",
+                            prefix=config["params"]["rmhost"]["bwa"]["index_prefix"],
+                            suffix=BWA_INDEX_SUFFIX)
+            output:
+                flagstat = os.path.join(config["output"]["rmhost"],
+                                        "report/flagstat/{sample}.align2host.flagstat.gz"),
+                reads = expand(os.path.join(
+                    config["output"]["rmhost"],
+                    "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                            read=[""]) \
+                            if config["params"]["rmhost"]["save_reads"] else \
+                                temp(expand(os.path.join(
+                                    config["output"]["rmhost"],
+                                    "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                                            read=[""]))
+            conda:
+                config["envs"]["align"]
+            log:
+                os.path.join(config["output"]["rmhost"], "logs/{sample}.bwa.log")
+            benchmark:
+                os.path.join(config["output"]["rmhost"], "benchmark/bwa/{sample}.bwa.txt")
+            priority:
+                20
+            params:
+                compression = config["params"]["rmhost"]["compression"],
+                bwa = "bwa-mem2" if config["params"]["rmhost"]["bwa"]["algorithms"] == "mem2" else "bwa",
+                minimum_seed_length = config["params"]["rmhost"]["bwa"]["minimum_seed_length"],
+                index_prefix = config["params"]["rmhost"]["bwa"]["index_prefix"],
+                bam = os.path.join(config["output"]["rmhost"], "bam/{sample}/{sample}.align2host.sorted.bam"),
+                bam_dir = os.path.join(config["output"]["rmhost"], "bam/{sample}"),
+                save_bam = "yes" if config["params"]["rmhost"]["save_bam"] else "no"
+            threads:
+                config["params"]["rmhost"]["threads"]
+            shell:
+                '''
                 if [ "{params.save_bam}" == "yes" ];
                 then
                     mkdir -p {params.bam_dir}
@@ -138,14 +177,14 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     {params.index_prefix} \
                     {input.reads[0]} | \
                     tee >(samtools flagstat \
-                          -@4 - | \
-                          pigz -cf > {output.flagstat}) | \
+                        -@4 - | \
+                        pigz -cf > {output.flagstat}) | \
                     tee >(samtools fastq \
-                          -@4 \
-                          -c {params.compression} \
-                          -N -f 4 -F 256 - | \
-                          pigz -cf -p {threads} \
-                          > {output.reads[0]}) | \
+                        -@4 \
+                        -c {params.compression} \
+                        -N -f 4 -F 256 - | \
+                        pigz -cf -p {threads} \
+                        > {output.reads[0]}) | \
                     samtools sort \
                     -m 3G \
                     -@4 \
@@ -159,8 +198,8 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     {params.index_prefix} \
                     {input.reads[0]} | \
                     tee >(samtools flagstat \
-                          -@4 - | \
-                          pigz -cf > {output.flagstat}) | \
+                        -@4 - | \
+                        pigz -cf > {output.flagstat}) | \
                     samtools fastq \
                     -@4 \
                     -c {params.compression} \
@@ -169,8 +208,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     > {output.reads[0]} \
                     2> {log}
                 fi
-            fi
-            '''
+                '''
 
 
     rule rmhost_bwa_all:
@@ -208,49 +246,47 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
             '''
 
 
-    rule rmhost_bowtie2:
-        input:
-            lambda wildcards: trimming_stats_input(wildcards),
-            reads = lambda wildcards: rmhost_input(wildcards),
-            index = expand("{prefix}.{suffix}",
-                           prefix=config["params"]["rmhost"]["bowtie2"]["index_prefix"],
-                           suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
-        output:
-            flagstat = os.path.join(config["output"]["rmhost"],
-                                    "report/flagstat/{sample}.align2host.flagstat.gz"),
-            reads = expand(os.path.join(
-                config["output"]["rmhost"],
-                "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
-                           read=[".1", ".2"] if IS_PE else "") \
-                           if config["params"]["rmhost"]["save_reads"] else \
-                              temp(expand(os.path.join(
-                                  config["output"]["rmhost"],
-                                  "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
-                                          read=[".1", ".2"] if IS_PE else ""))
-        conda:
-            config["envs"]["align"]
-        log:
-            os.path.join(config["output"]["rmhost"], "logs/{sample}.bowtie2.log")
-        benchmark:
-            os.path.join(config["output"]["rmhost"], "benchmark/bowtie2/{sample}.bowtie2.txt")
-        priority:
-            10
-        params:
-            presets = config["params"]["rmhost"]["bowtie2"]["presets"],
-            compression = config["params"]["rmhost"]["compression"],
-            index_prefix = config["params"]["rmhost"]["bowtie2"]["index_prefix"],
-            bam = os.path.join(config["output"]["rmhost"], "bam/{sample}/{sample}.align2host.sorted.bam"),
-            bam_dir = os.path.join(config["output"]["rmhost"], "bam/{sample}"),
-            pe = "pe" if IS_PE else "se",
-            save_bam = "yes" if config["params"]["rmhost"]["save_bam"] else "no"
-        threads:
-            config["params"]["rmhost"]["threads"]
-        priority:
-            20
-        shell:
-            '''
-            if [ "{params.pe}" == "pe" ];
-            then
+    if IS_PE:
+        rule rmhost_bowtie2:
+            input:
+                lambda wildcards: trimming_stats_input(wildcards),
+                reads = lambda wildcards: rmhost_input(wildcards),
+                index = expand("{prefix}.{suffix}",
+                            prefix=config["params"]["rmhost"]["bowtie2"]["index_prefix"],
+                            suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
+            output:
+                flagstat = os.path.join(config["output"]["rmhost"],
+                                        "report/flagstat/{sample}.align2host.flagstat.gz"),
+                reads = expand(os.path.join(
+                    config["output"]["rmhost"],
+                    "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                            read=[".1", ".2"]) \
+                            if config["params"]["rmhost"]["save_reads"] else \
+                                temp(expand(os.path.join(
+                                    config["output"]["rmhost"],
+                                    "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                                            read=[".1", ".2"]))
+            conda:
+                config["envs"]["align"]
+            log:
+                os.path.join(config["output"]["rmhost"], "logs/{sample}.bowtie2.log")
+            benchmark:
+                os.path.join(config["output"]["rmhost"], "benchmark/bowtie2/{sample}.bowtie2.txt")
+            priority:
+                10
+            params:
+                presets = config["params"]["rmhost"]["bowtie2"]["presets"],
+                compression = config["params"]["rmhost"]["compression"],
+                index_prefix = config["params"]["rmhost"]["bowtie2"]["index_prefix"],
+                bam = os.path.join(config["output"]["rmhost"], "bam/{sample}/{sample}.align2host.sorted.bam"),
+                bam_dir = os.path.join(config["output"]["rmhost"], "bam/{sample}"),
+                save_bam = "yes" if config["params"]["rmhost"]["save_bam"] else "no"
+            threads:
+                config["params"]["rmhost"]["threads"]
+            priority:
+                20
+            shell:
+                '''
                 if [ "{params.save_bam}" == "yes" ];
                 then
                     mkdir -p {params.bam_dir}
@@ -263,14 +299,14 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                     {params.presets} \
                     2> {log} | \
                     tee >(samtools flagstat \
-                          -@4 - | \
-                          pigz -cf > {output.flagstat}) | \
+                        -@4 - | \
+                        pigz -cf > {output.flagstat}) | \
                     tee >(samtools fastq \
-                          -@4 \
-                          -c {params.compression} \
-                          -N -f 12 -F 256 \
-                          -1 {output.reads[0]} \
-                          -2 {output.reads[1]} -) | \
+                        -@4 \
+                        -c {params.compression} \
+                        -N -f 12 -F 256 \
+                        -1 {output.reads[0]} \
+                        -2 {output.reads[1]} -) | \
                     samtools sort \
                     -m 3G \
                     -@4 \
@@ -285,8 +321,8 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                     {params.presets} \
                     2> {log} | \
                     tee >(samtools flagstat \
-                          -@4 - | \
-                          pigz -cf > {output.flagstat}) | \
+                        -@4 - | \
+                        pigz -cf > {output.flagstat}) | \
                     samtools fastq \
                     -@4 \
                     -c {params.compression} \
@@ -294,7 +330,49 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                     -1 {output.reads[0]} \
                     -2 {output.reads[1]} -
                 fi
-            else
+                '''
+
+    else:
+        rule rmhost_bowtie2:
+            input:
+                lambda wildcards: trimming_stats_input(wildcards),
+                reads = lambda wildcards: rmhost_input(wildcards),
+                index = expand("{prefix}.{suffix}",
+                            prefix=config["params"]["rmhost"]["bowtie2"]["index_prefix"],
+                            suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
+            output:
+                flagstat = os.path.join(config["output"]["rmhost"],
+                                        "report/flagstat/{sample}.align2host.flagstat.gz"),
+                reads = expand(os.path.join(
+                    config["output"]["rmhost"],
+                    "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                            read=[""]) \
+                            if config["params"]["rmhost"]["save_reads"] else \
+                                temp(expand(os.path.join(
+                                    config["output"]["rmhost"],
+                                    "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                                            read=[""]))
+            conda:
+                config["envs"]["align"]
+            log:
+                os.path.join(config["output"]["rmhost"], "logs/{sample}.bowtie2.log")
+            benchmark:
+                os.path.join(config["output"]["rmhost"], "benchmark/bowtie2/{sample}.bowtie2.txt")
+            priority:
+                10
+            params:
+                presets = config["params"]["rmhost"]["bowtie2"]["presets"],
+                compression = config["params"]["rmhost"]["compression"],
+                index_prefix = config["params"]["rmhost"]["bowtie2"]["index_prefix"],
+                bam = os.path.join(config["output"]["rmhost"], "bam/{sample}/{sample}.align2host.sorted.bam"),
+                bam_dir = os.path.join(config["output"]["rmhost"], "bam/{sample}"),
+                save_bam = "yes" if config["params"]["rmhost"]["save_bam"] else "no"
+            threads:
+                config["params"]["rmhost"]["threads"]
+            priority:
+                20
+            shell:
+                '''
                 if [ "{params.save_bam}" == "yes" ];
                 then
                     mkdir -p {params.bam_dir}
@@ -306,14 +384,14 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                     -U {input.reads[0]} \
                     2> {log} | \
                     tee >(samtools flagstat \
-                          -@4 - | \
-                          pigz -cf > {output.flagstat}) | \
+                        -@4 - | \
+                        pigz -cf > {output.flagstat}) | \
                     tee >(samtools fastq \
-                          -@4 \
-                          -c {params.compression} \
-                          -N -f 4 -F 256 - | \
-                          pigz -cf -p {threads} \
-                          > {output.reads[0]}) | \
+                        -@4 \
+                        -c {params.compression} \
+                        -N -f 4 -F 256 - | \
+                        pigz -cf -p {threads} \
+                        > {output.reads[0]}) | \
                     samtools sort \
                     -m 3G \
                     -@4 \
@@ -327,8 +405,8 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                     -U {input.reads[0]} \
                     2> {log} | \
                     tee >(samtools flagstat \
-                          -@4 - | \
-                          pigz -cf > {output.flagstat}) | \
+                        -@4 - | \
+                        pigz -cf > {output.flagstat}) | \
                     samtools fastq \
                     -@4 \
                     -c {params.compression} \
@@ -336,8 +414,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                     pigz -cf -p {threads} \
                     > {output.reads[0]}
                 fi
-            fi
-            '''
+                '''
 
 
     rule rmhost_bowtie2_all:
@@ -371,45 +448,43 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
             '''
 
 
-    rule rmhost_minimap2:
-        input:
-            lambda wildcards: trimming_stats_input(wildcards),
-            reads = lambda wildcards: rmhost_input(wildcards),
-            index = config["params"]["rmhost"]["minimap2"]["index"]
-        output:
-            flagstat = os.path.join(config["output"]["rmhost"],
-                                    "report/flagstat/{sample}.align2host.flagstat.gz"),
-            reads = expand(os.path.join(
-                config["output"]["rmhost"],
-                "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
-                           read=[".1", ".2"] if IS_PE else "") \
-                           if config["params"]["rmhost"]["save_reads"] else \
-                              temp(expand(os.path.join(
-                                  config["output"]["rmhost"],
-                                  "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
-                                          read=[".1", ".2"] if IS_PE else ""))
-        conda:
-            config["envs"]["align"]
-        log:
-            os.path.join(config["output"]["rmhost"], "logs/{sample}.minimap2.log")
-        benchmark:
-            os.path.join(config["output"]["rmhost"],
-                         "benchmark/minimap2/{sample}.minimap2.txt")
-        priority:
-            20
-        params:
-            preset = config["params"]["rmhost"]["minimap2"]["preset"],
-            compression = config["params"]["rmhost"]["compression"],
-            bam = os.path.join(config["output"]["rmhost"], "bam/{sample}/{sample}.align2host.sorted.bam"),
-            bam_dir = os.path.join(config["output"]["rmhost"], "bam/{sample}"),
-            pe = "pe" if IS_PE else "se",
-            save_bam = "yes" if config["params"]["rmhost"]["save_bam"] else "no"
-        threads:
-            config["params"]["rmhost"]["threads"]
-        shell:
-            '''
-            if [ "{params.pe}" == "pe" ];
-            then
+    if IS_PE:
+        rule rmhost_minimap2:
+            input:
+                lambda wildcards: trimming_stats_input(wildcards),
+                reads = lambda wildcards: rmhost_input(wildcards),
+                index = config["params"]["rmhost"]["minimap2"]["index"]
+            output:
+                flagstat = os.path.join(config["output"]["rmhost"],
+                                        "report/flagstat/{sample}.align2host.flagstat.gz"),
+                reads = expand(os.path.join(
+                    config["output"]["rmhost"],
+                    "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                            read=[".1", ".2"]) \
+                            if config["params"]["rmhost"]["save_reads"] else \
+                                temp(expand(os.path.join(
+                                    config["output"]["rmhost"],
+                                    "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                                            read=[".1", ".2"]))
+            conda:
+                config["envs"]["align"]
+            log:
+                os.path.join(config["output"]["rmhost"], "logs/{sample}.minimap2.log")
+            benchmark:
+                os.path.join(config["output"]["rmhost"],
+                            "benchmark/minimap2/{sample}.minimap2.txt")
+            priority:
+                20
+            params:
+                preset = config["params"]["rmhost"]["minimap2"]["preset"],
+                compression = config["params"]["rmhost"]["compression"],
+                bam = os.path.join(config["output"]["rmhost"], "bam/{sample}/{sample}.align2host.sorted.bam"),
+                bam_dir = os.path.join(config["output"]["rmhost"], "bam/{sample}"),
+                save_bam = "yes" if config["params"]["rmhost"]["save_bam"] else "no"
+            threads:
+                config["params"]["rmhost"]["threads"]
+            shell:
+                '''
                 if [ "{params.save_bam}" == "yes" ];
                 then
                     mkdir -p {params.bam_dir}
@@ -420,14 +495,14 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                     {input.index} \
                     {input.reads[0]} {input.reads[1]} | \
                     tee >(samtools flagstat \
-                          -@4 - | \
-                          pigz -cf > {output.flagstat}) | \
+                        -@4 - | \
+                        pigz -cf > {output.flagstat}) | \
                     tee >(samtools fastq \
-                          -@4 \
-                          -c {params.compression} \
-                          -N -f 12 -F 256 \
-                          -1 {output.reads[0]} \
-                          -2 {output.reads[1]} -) | \
+                        -@4 \
+                        -c {params.compression} \
+                        -N -f 12 -F 256 \
+                        -1 {output.reads[0]} \
+                        -2 {output.reads[1]} -) | \
                     samtools sort \
                     -m 3G \
                     -@4 \
@@ -441,8 +516,8 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                     {input.index} \
                     {input.reads[0]} {input.reads[1]} | \
                     tee >(samtools flagstat \
-                          -@4 - | \
-                          pigz -cf > {output.flagstat}) | \
+                        -@4 - | \
+                        pigz -cf > {output.flagstat}) | \
                     samtools fastq \
                     -@4 \
                     -c {params.compression} \
@@ -451,7 +526,45 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                     -2 {output.reads[1]} - \
                     2> {log}
                 fi
-            else
+                '''
+
+    else:
+        rule rmhost_minimap2:
+            input:
+                lambda wildcards: trimming_stats_input(wildcards),
+                reads = lambda wildcards: rmhost_input(wildcards),
+                index = config["params"]["rmhost"]["minimap2"]["index"]
+            output:
+                flagstat = os.path.join(config["output"]["rmhost"],
+                                        "report/flagstat/{sample}.align2host.flagstat.gz"),
+                reads = expand(os.path.join(
+                    config["output"]["rmhost"],
+                    "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                            read=[""]) \
+                            if config["params"]["rmhost"]["save_reads"] else \
+                                temp(expand(os.path.join(
+                                    config["output"]["rmhost"],
+                                    "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                                            read=[""]))
+            conda:
+                config["envs"]["align"]
+            log:
+                os.path.join(config["output"]["rmhost"], "logs/{sample}.minimap2.log")
+            benchmark:
+                os.path.join(config["output"]["rmhost"],
+                            "benchmark/minimap2/{sample}.minimap2.txt")
+            priority:
+                20
+            params:
+                preset = config["params"]["rmhost"]["minimap2"]["preset"],
+                compression = config["params"]["rmhost"]["compression"],
+                bam = os.path.join(config["output"]["rmhost"], "bam/{sample}/{sample}.align2host.sorted.bam"),
+                bam_dir = os.path.join(config["output"]["rmhost"], "bam/{sample}"),
+                save_bam = "yes" if config["params"]["rmhost"]["save_bam"] else "no"
+            threads:
+                config["params"]["rmhost"]["threads"]
+            shell:
+                '''
                 if [ "{params.save_bam}" == "yes" ];
                 then
                     mkdir -p {params.bam_dir}
@@ -461,14 +574,14 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                     {input.index} \
                     {input.reads[0]} | \
                     tee >(samtools flagstat \
-                          -@4 - | \
-                          pigz -cf > {output.flagstat}) | \
+                        -@4 - | \
+                        pigz -cf > {output.flagstat}) | \
                     tee >(samtools fastq \
-                          -@4 \
-                          -c {params.compression} \
-                          -N -f 4 -F 256 - | \
-                          pigz -cf -p {threads} \
-                          > {output.reads[0]}) | \
+                        -@4 \
+                        -c {params.compression} \
+                        -N -f 4 -F 256 - | \
+                        pigz -cf -p {threads} \
+                        > {output.reads[0]}) | \
                     samtools sort \
                     -m 3G \
                     -@4 \
@@ -481,8 +594,8 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                     {input.index} \
                     {input.reads[0]} | \
                     tee >(samtools flagstat \
-                          -@4 - | \
-                          pigz -cf > {output.flagstat}) | \
+                        -@4 - | \
+                        pigz -cf > {output.flagstat}) | \
                     samtools fastq \
                     -@4 \
                     -c {params.compression} \
@@ -491,8 +604,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                     > {output.reads[0]} \
                     2> {log}
                 fi
-            fi
-            '''
+                '''
 
 
     rule rmhost_minimap2_all:
@@ -509,48 +621,46 @@ else:
 
 
 if config["params"]["rmhost"]["kraken2"]["do"]:
-    rule rmhost_kraken2:
-        input:
-            lambda wildcards: trimming_stats_input(wildcards),
-            reads = lambda wildcards: rmhost_input(wildcards),
-            database = config["params"]["rmhost"]["kraken2"]["database"]
-        output:
-            table = temp(os.path.join(config["output"]["rmhost"],
-                                      "short_reads/{sample}/{sample}.kraken2.table")),
-            report = os.path.join(config["output"]["rmhost"],
-                                  "short_reads/{sample}/{sample}.kraken2.report.gz"),
-            reads = expand(os.path.join(
-                config["output"]["rmhost"],
-                "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
-                           read=[".1", ".2"] if IS_PE else "") \
-                           if config["params"]["rmhost"]["save_reads"] else \
-                              temp(expand(os.path.join(
-                                  config["output"]["rmhost"],
-                                  "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
-                                          read=[".1", ".2"] if IS_PE else ""))
-        conda:
-            config["envs"]["kraken2"]
-        log:
-            os.path.join(config["output"]["rmhost"], "logs/{sample}.kraken2.log")
-        benchmark:
-            os.path.join(config["output"]["rmhost"],
-                         "benchmark/kraken2/{sample}.kraken2.txt")
-        params:
-            report = os.path.join(config["output"]["rmhost"],
-                                  "short_reads/{sample}/{sample}.kraken2.report"),
-            confidence = config["params"]["rmhost"]["kraken2"]["confidence"],
-            min_base_quality = config["params"]["rmhost"]["kraken2"]["min_base_quality"],
-            min_hit_groups = config["params"]["rmhost"]["kraken2"]["min_hit_groups"],
-            host_taxid = config["params"]["rmhost"]["kraken2"]["host_taxid"],
-            pe = "pe" if IS_PE else "se"
-        priority:
-            20
-        threads:
-            config["params"]["rmhost"]["threads"]
-        shell:
-            '''
-            if [ "{params.pe}" == "pe" ];
-            then
+    if IS_PE:
+        rule rmhost_kraken2:
+            input:
+                lambda wildcards: trimming_stats_input(wildcards),
+                reads = lambda wildcards: rmhost_input(wildcards),
+                database = config["params"]["rmhost"]["kraken2"]["database"]
+            output:
+                table = temp(os.path.join(config["output"]["rmhost"],
+                                        "short_reads/{sample}/{sample}.kraken2.table")),
+                report = os.path.join(config["output"]["rmhost"],
+                                    "short_reads/{sample}/{sample}.kraken2.report.gz"),
+                reads = expand(os.path.join(
+                    config["output"]["rmhost"],
+                    "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                            read=[".1", ".2"]) \
+                            if config["params"]["rmhost"]["save_reads"] else \
+                                temp(expand(os.path.join(
+                                    config["output"]["rmhost"],
+                                    "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                                            read=[".1", ".2"]))
+            conda:
+                config["envs"]["kraken2"]
+            log:
+                os.path.join(config["output"]["rmhost"], "logs/{sample}.kraken2.log")
+            benchmark:
+                os.path.join(config["output"]["rmhost"],
+                            "benchmark/kraken2/{sample}.kraken2.txt")
+            params:
+                report = os.path.join(config["output"]["rmhost"],
+                                    "short_reads/{sample}/{sample}.kraken2.report"),
+                confidence = config["params"]["rmhost"]["kraken2"]["confidence"],
+                min_base_quality = config["params"]["rmhost"]["kraken2"]["min_base_quality"],
+                min_hit_groups = config["params"]["rmhost"]["kraken2"]["min_hit_groups"],
+                host_taxid = config["params"]["rmhost"]["kraken2"]["host_taxid"]
+            priority:
+                20
+            threads:
+                config["params"]["rmhost"]["threads"]
+            shell:
+                '''
                 kraken2 \
                 --threads {threads} \
                 --db {input.database} \
@@ -579,7 +689,48 @@ if config["params"]["rmhost"]["kraken2"]["do"]:
                 -o {output.reads[0]} \
                 -o2 {output.reads[1]} \
                 >>{log} 2>&1
-            else
+                '''
+
+    else:
+        rule rmhost_kraken2:
+            input:
+                lambda wildcards: trimming_stats_input(wildcards),
+                reads = lambda wildcards: rmhost_input(wildcards),
+                database = config["params"]["rmhost"]["kraken2"]["database"]
+            output:
+                table = temp(os.path.join(config["output"]["rmhost"],
+                                        "short_reads/{sample}/{sample}.kraken2.table")),
+                report = os.path.join(config["output"]["rmhost"],
+                                    "short_reads/{sample}/{sample}.kraken2.report.gz"),
+                reads = expand(os.path.join(
+                    config["output"]["rmhost"],
+                    "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                            read=[""]) \
+                            if config["params"]["rmhost"]["save_reads"] else \
+                                temp(expand(os.path.join(
+                                    config["output"]["rmhost"],
+                                    "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                                            read=[""]))
+            conda:
+                config["envs"]["kraken2"]
+            log:
+                os.path.join(config["output"]["rmhost"], "logs/{sample}.kraken2.log")
+            benchmark:
+                os.path.join(config["output"]["rmhost"],
+                            "benchmark/kraken2/{sample}.kraken2.txt")
+            params:
+                report = os.path.join(config["output"]["rmhost"],
+                                    "short_reads/{sample}/{sample}.kraken2.report"),
+                confidence = config["params"]["rmhost"]["kraken2"]["confidence"],
+                min_base_quality = config["params"]["rmhost"]["kraken2"]["min_base_quality"],
+                min_hit_groups = config["params"]["rmhost"]["kraken2"]["min_hit_groups"],
+                host_taxid = config["params"]["rmhost"]["kraken2"]["host_taxid"]
+            priority:
+                20
+            threads:
+                config["params"]["rmhost"]["threads"]
+            shell:
+                '''
                 kraken2 \
                 --threads {threads} \
                 --db {input.database} \
@@ -605,8 +756,7 @@ if config["params"]["rmhost"]["kraken2"]["do"]:
                 -s {input.reads[0]} \
                 -o {output.reads[0]} \
                 >>{log} 2>&1
-            fi
-            '''
+                '''
 
 
     rule rmhost_kraken2_all:
@@ -623,93 +773,51 @@ else:
 
 
 if config["params"]["rmhost"]["kneaddata"]["do"]:
-    rule rmhost_kneaddata:
-        input:
-            lambda wildcards: trimming_stats_input(wildcards),
-            reads = lambda wildcards: rmhost_input(wildcards)
-        output:
-            reads = expand(os.path.join(
-                config["output"]["rmhost"],
-                "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
-                           read=[".1", ".2"] if IS_PE else "") \
-                           if config["params"]["rmhost"]["save_reads"] else \
-                              temp(expand(os.path.join(
-                                  config["output"]["rmhost"],
-                                  "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
-                                          read=[".1", ".2"] if IS_PE else ""))
-        conda:
-            config["envs"]["kneaddata"]
-        log:
-            os.path.join(config["output"]["rmhost"], "logs/{sample}.kneaddata.log")
-        benchmark:
-            os.path.join(config["output"]["rmhost"],
-                         "benchmark/kneaddata/{sample}.kneaddata.txt")
-        params:
-            trf_options = "--run-trf" if config["params"]["rmhost"]["kneaddata"]["do_trf"] else "--bypass-trf",
-            do_trimmomatic = "yes" if config["params"]["rmhost"]["kneaddata"]["do_trimmomatic"] else "no",
-            trimmomatic_options = config["params"]["rmhost"]["kneaddata"]["trimmomatic_options"],
-            sequencer_source = config["params"]["rmhost"]["kneaddata"]["sequencer_source"],
-            do_bowtie2 = "yes" if config["params"]["rmhost"]["kneaddata"]["do_bowtie2"] else "no",
-            bowtie2_options = config["params"]["rmhost"]["kneaddata"]["bowtie2_options"],
-            decontaminate_pairs = config["params"]["rmhost"]["kneaddata"]["decontaminate_pairs"],
-            bowtie2_database = config["params"]["rmhost"]["kneaddata"]["bowtie2_database"],
-            do_bmtagger = "yes" if config["params"]["rmhost"]["kneaddata"]["do_bmtagger"] else "no",
-            output_dir = os.path.join(config["output"]["rmhost"], "short_reads/{sample}"),
-            output_prefix = "{sample}.rmhost",
-        priority:
-            20
-        threads:
-            config["params"]["rmhost"]["threads"]
-        shell:
-            '''
-            rm -rf {params.output_dir}
+    if IS_PE:
+        rule rmhost_kneaddata:
+            input:
+                lambda wildcards: trimming_stats_input(wildcards),
+                reads = lambda wildcards: rmhost_input(wildcards)
+            output:
+                reads = expand(os.path.join(
+                    config["output"]["rmhost"],
+                    "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                            read=[".1", ".2"]) \
+                            if config["params"]["rmhost"]["save_reads"] else \
+                                temp(expand(os.path.join(
+                                    config["output"]["rmhost"],
+                                    "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                                            read=[".1", ".2"]))
+            conda:
+                config["envs"]["kneaddata"]
+            log:
+                os.path.join(config["output"]["rmhost"], "logs/{sample}.kneaddata.log")
+            benchmark:
+                os.path.join(config["output"]["rmhost"],
+                            "benchmark/kneaddata/{sample}.kneaddata.txt")
+            params:
+                trf_options = "--run-trf" if config["params"]["rmhost"]["kneaddata"]["do_trf"] else "--bypass-trf",
+                do_trimmomatic = "yes" if config["params"]["rmhost"]["kneaddata"]["do_trimmomatic"] else "no",
+                trimmomatic_options = config["params"]["rmhost"]["kneaddata"]["trimmomatic_options"],
+                sequencer_source = config["params"]["rmhost"]["kneaddata"]["sequencer_source"],
+                do_bowtie2 = "yes" if config["params"]["rmhost"]["kneaddata"]["do_bowtie2"] else "no",
+                bowtie2_options = config["params"]["rmhost"]["kneaddata"]["bowtie2_options"],
+                decontaminate_pairs = config["params"]["rmhost"]["kneaddata"]["decontaminate_pairs"],
+                bowtie2_database = config["params"]["rmhost"]["kneaddata"]["bowtie2_database"],
+                do_bmtagger = "yes" if config["params"]["rmhost"]["kneaddata"]["do_bmtagger"] else "no",
+                output_dir = os.path.join(config["output"]["rmhost"], "short_reads/{sample}"),
+                output_prefix = "{sample}.rmhost",
+            priority:
+                20
+            threads:
+                config["params"]["rmhost"]["threads"]
+            shell:
+                '''
+                rm -rf {params.output_dir}
 
-            input_reads=""
-            if [ "{params.pe}" == "pe" ];
-            then
                 input_reads="-i {input.reads[0]} -i {input.reads[1]}"
-            else
-                input_reads="-i {input.reads}"
-            fi
 
-            if [ "{params.do_bowtie2}" == "yes" ];
-            then
-                if [ "{params.do_trimmomatic}" == "yes" ];
-                then
-                    trimpath=$(which trimmomatic)
-                    trimpathreal=$(realpath $trimpath)
-                    trimdir=$(dirname $trimpathreal)
-
-                    kneaddata $input_reads \
-                    {params.trf_options} \
-                    --output {params.output_dir} \
-                    --output-prefix {params.output_prefix} \
-                    --reference-db {params.bowtie2_database} \
-                    --trimmomatic $trimdir \
-                    --trimmomatic-options '{params.trimmomatic_options}' \
-                    --sequencer-source {params.sequencer_source} \
-                    --bowtie2-options '{params.bowtie2_options} ' \
-                    --decontaminate-pairs {params.decontaminate_pairs} \
-                    --remove-intermediate-output \
-                    --threads {threads} \
-                    --reorder \
-                    --log {log}
-                else
-                    kneaddata $input_reads \
-                    {params.trf_options} \
-                    --bypass-trim \
-                    --output {params.output_dir} \
-                    --output-prefix {params.output_prefix} \
-                    --reference-db {params.bowtie2_database} \
-                    --bowtie2-options '{params.bowtie2_options} ' \
-                    --decontaminate-pairs {params.decontaminate_pairs} \
-                    --remove-intermediate-output \
-                    --threads {threads} \
-                    --reorder \
-                    --log {log}
-                fi
-            else
-                if [ "{params.do_bmtagger}" == "yes" ];
+                if [ "{params.do_bowtie2}" == "yes" ];
                 then
                     if [ "{params.do_trimmomatic}" == "yes" ];
                     then
@@ -721,10 +829,12 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
                         {params.trf_options} \
                         --output {params.output_dir} \
                         --output-prefix {params.output_prefix} \
+                        --reference-db {params.bowtie2_database} \
                         --trimmomatic $trimdir \
                         --trimmomatic-options '{params.trimmomatic_options}' \
                         --sequencer-source {params.sequencer_source} \
-                        --run-bmtagger \
+                        --bowtie2-options '{params.bowtie2_options} ' \
+                        --decontaminate-pairs {params.decontaminate_pairs} \
                         --remove-intermediate-output \
                         --threads {threads} \
                         --reorder \
@@ -735,26 +845,178 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
                         --bypass-trim \
                         --output {params.output_dir} \
                         --output-prefix {params.output_prefix} \
-                        --run-bmtagger \
+                        --reference-db {params.bowtie2_database} \
+                        --bowtie2-options '{params.bowtie2_options} ' \
+                        --decontaminate-pairs {params.decontaminate_pairs} \
                         --remove-intermediate-output \
                         --threads {threads} \
                         --reorder \
                         --log {log}
                     fi
+                else
+                    if [ "{params.do_bmtagger}" == "yes" ];
+                    then
+                        if [ "{params.do_trimmomatic}" == "yes" ];
+                        then
+                            trimpath=$(which trimmomatic)
+                            trimpathreal=$(realpath $trimpath)
+                            trimdir=$(dirname $trimpathreal)
+
+                            kneaddata $input_reads \
+                            {params.trf_options} \
+                            --output {params.output_dir} \
+                            --output-prefix {params.output_prefix} \
+                            --trimmomatic $trimdir \
+                            --trimmomatic-options '{params.trimmomatic_options}' \
+                            --sequencer-source {params.sequencer_source} \
+                            --run-bmtagger \
+                            --remove-intermediate-output \
+                            --threads {threads} \
+                            --reorder \
+                            --log {log}
+                        else
+                            kneaddata $input_reads \
+                            {params.trf_options} \
+                            --bypass-trim \
+                            --output {params.output_dir} \
+                            --output-prefix {params.output_prefix} \
+                            --run-bmtagger \
+                            --remove-intermediate-output \
+                            --threads {threads} \
+                            --reorder \
+                            --log {log}
+                        fi
+                    fi
                 fi
-            fi
 
-            pigz -f -p {threads} {params.output_dir}/*
+                pigz -f -p {threads} {params.output_dir}/*
 
 
-            if [ "{params.pe}" == "pe" ];
-            then
                 mv {params.output_dir}/{params.output_prefix}_paired_1.fastq.gz {output.reads[0]}
                 mv {params.output_dir}/{params.output_prefix}_paired_2.fastq.gz {output.reads[1]}
-            else
+                '''
+
+    else:
+        rule rmhost_kneaddata:
+            input:
+                lambda wildcards: trimming_stats_input(wildcards),
+                reads = lambda wildcards: rmhost_input(wildcards)
+            output:
+                reads = expand(os.path.join(
+                    config["output"]["rmhost"],
+                    "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                            read=[""]) \
+                            if config["params"]["rmhost"]["save_reads"] else \
+                                temp(expand(os.path.join(
+                                    config["output"]["rmhost"],
+                                    "short_reads/{{sample}}/{{sample}}.rmhost{read}.fq.gz"),
+                                            read=[""]))
+            conda:
+                config["envs"]["kneaddata"]
+            log:
+                os.path.join(config["output"]["rmhost"], "logs/{sample}.kneaddata.log")
+            benchmark:
+                os.path.join(config["output"]["rmhost"],
+                            "benchmark/kneaddata/{sample}.kneaddata.txt")
+            params:
+                trf_options = "--run-trf" if config["params"]["rmhost"]["kneaddata"]["do_trf"] else "--bypass-trf",
+                do_trimmomatic = "yes" if config["params"]["rmhost"]["kneaddata"]["do_trimmomatic"] else "no",
+                trimmomatic_options = config["params"]["rmhost"]["kneaddata"]["trimmomatic_options"],
+                sequencer_source = config["params"]["rmhost"]["kneaddata"]["sequencer_source"],
+                do_bowtie2 = "yes" if config["params"]["rmhost"]["kneaddata"]["do_bowtie2"] else "no",
+                bowtie2_options = config["params"]["rmhost"]["kneaddata"]["bowtie2_options"],
+                decontaminate_pairs = config["params"]["rmhost"]["kneaddata"]["decontaminate_pairs"],
+                bowtie2_database = config["params"]["rmhost"]["kneaddata"]["bowtie2_database"],
+                do_bmtagger = "yes" if config["params"]["rmhost"]["kneaddata"]["do_bmtagger"] else "no",
+                output_dir = os.path.join(config["output"]["rmhost"], "short_reads/{sample}"),
+                output_prefix = "{sample}.rmhost",
+            priority:
+                20
+            threads:
+                config["params"]["rmhost"]["threads"]
+            shell:
+                '''
+                rm -rf {params.output_dir}
+
+                input_reads="-i {input.reads}"
+
+                if [ "{params.do_bowtie2}" == "yes" ];
+                then
+                    if [ "{params.do_trimmomatic}" == "yes" ];
+                    then
+                        trimpath=$(which trimmomatic)
+                        trimpathreal=$(realpath $trimpath)
+                        trimdir=$(dirname $trimpathreal)
+
+                        kneaddata $input_reads \
+                        {params.trf_options} \
+                        --output {params.output_dir} \
+                        --output-prefix {params.output_prefix} \
+                        --reference-db {params.bowtie2_database} \
+                        --trimmomatic $trimdir \
+                        --trimmomatic-options '{params.trimmomatic_options}' \
+                        --sequencer-source {params.sequencer_source} \
+                        --bowtie2-options '{params.bowtie2_options} ' \
+                        --decontaminate-pairs {params.decontaminate_pairs} \
+                        --remove-intermediate-output \
+                        --threads {threads} \
+                        --reorder \
+                        --log {log}
+                    else
+                        kneaddata $input_reads \
+                        {params.trf_options} \
+                        --bypass-trim \
+                        --output {params.output_dir} \
+                        --output-prefix {params.output_prefix} \
+                        --reference-db {params.bowtie2_database} \
+                        --bowtie2-options '{params.bowtie2_options} ' \
+                        --decontaminate-pairs {params.decontaminate_pairs} \
+                        --remove-intermediate-output \
+                        --threads {threads} \
+                        --reorder \
+                        --log {log}
+                    fi
+                else
+                    if [ "{params.do_bmtagger}" == "yes" ];
+                    then
+                        if [ "{params.do_trimmomatic}" == "yes" ];
+                        then
+                            trimpath=$(which trimmomatic)
+                            trimpathreal=$(realpath $trimpath)
+                            trimdir=$(dirname $trimpathreal)
+
+                            kneaddata $input_reads \
+                            {params.trf_options} \
+                            --output {params.output_dir} \
+                            --output-prefix {params.output_prefix} \
+                            --trimmomatic $trimdir \
+                            --trimmomatic-options '{params.trimmomatic_options}' \
+                            --sequencer-source {params.sequencer_source} \
+                            --run-bmtagger \
+                            --remove-intermediate-output \
+                            --threads {threads} \
+                            --reorder \
+                            --log {log}
+                        else
+                            kneaddata $input_reads \
+                            {params.trf_options} \
+                            --bypass-trim \
+                            --output {params.output_dir} \
+                            --output-prefix {params.output_prefix} \
+                            --run-bmtagger \
+                            --remove-intermediate-output \
+                            --threads {threads} \
+                            --reorder \
+                            --log {log}
+                        fi
+                    fi
+                fi
+
+                pigz -f -p {threads} {params.output_dir}/*
+
+
                 mv {params.output_dir}/{params.output_prefix}.fastq.gz {output.reads}
-            fi
-            '''
+                '''
 
 
     rule rmhost_kneaddata_all:

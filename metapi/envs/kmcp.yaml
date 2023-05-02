@@ -4,3 +4,4 @@ channels:
   - defaults
 dependencies:
   - kmcp=0.9.1
+  - pigz

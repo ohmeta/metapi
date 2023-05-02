@@ -146,9 +146,11 @@ if config["params"]["binning"]["vamb"]["do"]:
                          "logs/vamb/index/minimap2_index_merged_scaftigs.{binning_group}.{assembler}.log")
         params:
             index_size = config["params"]["binning"]["vamb"]["index_size"]
+        threads:
+            config["params"]["alignment"]["threads"]
         shell:
             '''
-            minimap2 -I {params.index_size} -d {output} {input} 2> {log}
+            minimap2 -t {threads} -I {params.index_size} -d {output} {input} 2> {log}
             '''
 
 

@@ -277,6 +277,16 @@ params:
         do: False
         kingdom: "Bacteria"
 
+  annotation:
+    threads: 8
+    dbscan_swa:
+      do: True
+      batch_num: 1000
+      min_binsize: 5000
+      script: /home/jiezhu/toolkit/DBSCAN-SWA-1/bin/dbscan-swa.py
+      phamb_utils: /home/jiezhu/toolkit/phamb/workflows/mag_annotation/scripts/get_contigs_vamb_bins.py
+
+
   checkm:
     do: True
     check_binners: ["metabat2", "concoct", "maxbin2", "vamb", "dastools"]
@@ -332,7 +342,7 @@ params:
       quality_formula: "Parks2020_reduced"
       precluster_ani: 90
       precluster_method: "dashing"
- 
+
   dereplicate_vmags:
     threads: 8
     blast:
@@ -409,6 +419,7 @@ output:
   binning: "results/06.binning"
   identify: "results/06.identify"
   predict: "results/07.predict"
+  annotation: "results/07.annotation"
   check: "results/08.check"
   dereplicate: "results/09.dereplicate"
   taxonomic: "results/10.taxonomic"

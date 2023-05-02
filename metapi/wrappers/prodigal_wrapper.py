@@ -32,21 +32,27 @@ def run_prodigal(input_list):
 
     best_translation_table = prodigal_runner.run(bin_fa, True)
 
-    if os.path.exists(pep_file):
+    if os.path.exists(pep_file) and (os.path.getsize(pep_file) > 0):
         subprocess.run(f'''pigz -f {pep_file}''', shell=True)
-    if os.path.exists(cds_file):
-        subprocess.run(f'''pigz -f {cds_file}''', shell=True)
-    if os.path.exists(gff_file):
-        subprocess.run(f'''pigz -f {gff_file}''', shell=True)
- 
-    if (best_translation_table in [4, 11]) and \
-        (os.path.exists(pep_file_gz)) and \
-        (os.path.exists(cds_file_gz)) and \
-        (os.path.exists(gff_file_gz)) and \
-        (os.stat(pep_file_gz)[stat.ST_SIZE]) > 0:
-        return (bin_id, bin_fa, pep_file_gz, best_translation_table)
+        if os.path.exists(cds_file) and (os.path.getsize(cds_file) > 0):
+            subprocess.run(f'''pigz -f {cds_file}''', shell=True)
+        if os.path.exists(gff_file) and (os.path.getsize(gff_file) > 0):
+            subprocess.run(f'''pigz -f {gff_file}''', shell=True)
     else:
-        return (bin_id, bin_fa, pep_file_gz, f"unknown: {best_translation_table}")
+        subprocess.run(f'''rm -rf {pep_file}''', shell=True)
+        subprocess.run(f'''rm -rf {cds_file}''', shell=True)
+        subprocess.run(f'''rm -rf {gff_file}''', shell=True)
+ 
+    if best_translation_table in [4, 11]:
+        if (os.path.exists(pep_file_gz)) and (os.path.exists(cds_file_gz)) and (os.path.exists(gff_file_gz)) and (os.stat(pep_file_gz)[stat.ST_SIZE]) > 0:
+            return (bin_id, bin_fa, pep_file_gz, best_translation_table)
+        else:
+            return None
+    else:
+        if (os.path.exists(pep_file_gz)) and (os.path.exists(cds_file_gz)) and (os.path.exists(gff_file_gz)) and (os.stat(pep_file_gz)[stat.ST_SIZE]) > 0:
+            return (bin_id, bin_fa, pep_file_gz, f"unknown: {best_translation_table}")
+        else: 
+            return None
 
 
 workers = int(sys.argv[1])
@@ -68,7 +74,8 @@ subprocess.run(f'''mkdir -p {output_dir}''', shell=True)
 
 with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as executor:
     for table_df in executor.map(run_prodigal, input_list):
-        table_list.append(table_df)
+        if table_df is not None:
+            table_list.append(table_df)
 
 table_df = pd.DataFrame(table_list, columns=["bin_id", "bin_file", "pep_file", "best_translation_table"])
 table_df.to_csv(output_done, sep="\t", index=False)

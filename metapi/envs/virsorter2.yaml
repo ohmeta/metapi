@@ -3,5 +3,5 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - virsorter=2.2.3
+  - virsorter=2.2.4
   - pigz

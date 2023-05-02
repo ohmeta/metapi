@@ -153,6 +153,7 @@ include: "../rules/binning_report.smk"
 include: "../rules/identify_single.smk"
 include: "../rules/identify_multi.smk"
 include: "../rules/predict_mags.smk"
+include: "../rules/annotation.smk"
 include: "../rules/checkm.smk"
 include: "../rules/checkv.smk"
 include: "../rules/dereplicate_gene.smk"
@@ -176,6 +177,7 @@ rule all:
         rules.identify_single_all.input,
         rules.identify_multi_all.input,
         rules.predict_mags_gene_all.input,
+        rules.annotation_all.input,
         rules.check_all.input,
         rules.dereplicate_all.input,
         rules.taxonomic_all.input,

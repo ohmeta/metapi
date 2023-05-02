@@ -9,5 +9,6 @@ dependencies:
   - python>=3
   - samtools>=1.9
   - scikit-learn=1.1.*
+  - pigz
 variables:
   USE_OPENMP: 1
