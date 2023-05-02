@@ -264,7 +264,7 @@ params:
       micompletedb: /home/jiezhu/databases/ecogenomics/miComplete/Bact105.hmm
       vogdb: /home/jiezhu/databases/ecogenomics/VOGDB/vog211/ALLVOG.hmm
       hmmsearch_evalue: 1.0e-05
-      randomforest_script: /home/jiezhu/toolkit/phamb/workflows/mag_annotation/scripts/run_RF.py
+      randomforest_script: /home/jiezhu/toolkit/phamb/workflows/mag_annotation/scripts/run_RF.py.py
       min_binsize: 2000 # default: 5000
 
   predict:
