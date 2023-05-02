@@ -43,9 +43,9 @@ rule raw_fastqc:
         '''
         mkdir -p {output}
 
-        R1=$(jq -r -M '.PE_FORWARD' {input} | sed 's/null//g')
-        R2=$(jq -r -M '.PE_REVERSE' {input} | sed 's/null//g')
-        RS=$(jq -r -M '.SE' {input} | sed 's/null//g')
+        R1=$(jq -r -M '.PE_FORWARD' {input} | sed 's/^null$//g')
+        R2=$(jq -r -M '.PE_REVERSE' {input} | sed 's/^null$//g')
+        RS=$(jq -r -M '.SE' {input} | sed 's/^null$//g')
 
         fastqc \
         --outdir {output} \
@@ -108,10 +108,10 @@ rule raw_report:
         config["envs"]["report"]
     shell:
         '''
-        R1=$(jq -r -M '.PE_FORWARD' {input} | sed 's/null//g')
-        R2=$(jq -r -M '.PE_REVERSE' {input} | sed 's/null//g')
-        RS=$(jq -r -M '.SE' {input} | sed 's/null//g')
-        RL=$(jq -r -M '.LONG' {input} | sed 's/null//g')
+        R1=$(jq -r -M '.PE_FORWARD' {input} | sed 's/^null$//g')
+        R2=$(jq -r -M '.PE_REVERSE' {input} | sed 's/^null$//g')
+        RS=$(jq -r -M '.SE' {input} | sed 's/^null$//g')
+        RL=$(jq -r -M '.LONG' {input} | sed 's/^null$//g')
 
         seqkit stats \
         --all \
