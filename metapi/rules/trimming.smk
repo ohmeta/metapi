@@ -71,7 +71,7 @@ if config["params"]["trimming"]["sickle"]["do"]:
                 >>{log} 2>&1
             fi
 
-            echo '{{"PE_FORWARD": $FQ1, "PE_REVERSE": $FQ2, "SE": $FQS}}' | \
+            echo "{{\\"PE_FORWARD\\": \\"$FQ1\\", \\"PE_REVERSE\\": \\"$FQ2\\", \\"SE\\": \\"$FQS\\"}}" | \
             jq . > {output}
             '''
 
@@ -209,8 +209,8 @@ if config["params"]["trimming"]["fastp"]["do"]:
             if [ $RS != "" ];
             then
                 FQS={params.se_prefix}.trimming.se.fq.gz
-                HTML={params.pe_prefix}.fastp.se.html
-                JSON={params.pe_prefix}.fastp.se.json
+                HTML={params.se_prefix}.fastp.se.html
+                JSON={params.se_prefix}.fastp.se.json
 
                 if [ "{params.use_slide_window}" == "yes" ];
                 then
@@ -254,7 +254,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
                 fi
             fi
 
-            echo '{{"PE_FORWARD": $FQ1, "PE_REVERSE": $FQ2, "SE": $FQS}}' | \
+            echo "{{\\"PE_FORWARD\\": \\"$FQ1\\", \\"PE_REVERSE\\": \\"$FQ2\\", \\"SE\\": \\"$FQS\\"}}" | \
             jq . > {output}
             '''
 
@@ -343,7 +343,7 @@ if config["params"]["trimming"]["trimmomatic"]["do"]:
                 >>{log} 2>&1
             fi
 
-            echo '{{"PE_FORWARD": $FQ1, "PE_REVERSE": $FQ2, "SE": $FQS}}' | \
+            echo "{{\\"PE_FORWARD\\": \\"$FQ1\\", \\"PE_REVERSE\\": \\"$FQ2\\", \\"SE\\": \\"$FQS\\"}}" | \
             jq . > {output}
             '''
 

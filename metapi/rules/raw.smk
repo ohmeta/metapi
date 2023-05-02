@@ -30,7 +30,7 @@ rule raw_fastqc:
     input:
         rules.raw_prepare_reads.output
     output:
-        directory(os.path.join(config["output"]["raw"], "report/fastqc/{sample}.fastqc"))
+        directory(os.path.join(config["output"]["raw"], "report/fastqc/{sample}"))
     log:
         os.path.join(config["output"]["raw"], "logs/raw_fastqc/{sample}.log")
     benchmark:
@@ -58,7 +58,7 @@ rule raw_fastqc:
 
 rule raw_fastqc_multiqc:
     input:
-        expand(os.path.join(config["output"]["raw"], "report/fastqc/{sample}.fastqc"),
+        expand(os.path.join(config["output"]["raw"], "report/fastqc/{sample}"),
         sample=SAMPLES_ID_LIST)
     output:
         os.path.join(config["output"]["raw"], "report/multiqc/fastqc_multiqc_report.html")
@@ -86,7 +86,7 @@ rule raw_fastqc_multiqc:
 rule raw_fastqc_all:
     input:
         expand([
-            os.path.join(config["output"]["raw"], "report/fastqc/{sample}.fastqc"),
+            os.path.join(config["output"]["raw"], "report/fastqc/{sample}"),
             os.path.join(config["output"]["raw"], "report/multiqc/fastqc_multiqc_report.html")],
             sample=SAMPLES_ID_LIST)
 
