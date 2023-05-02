@@ -36,11 +36,11 @@ if config["params"]["trimming"]["sickle"]["do"]:
             FQ2=""
             FQS=""
 
-            if [ $R1 != " " ]
+            if [ $R1 != " " ];
             then
-                FQ1=${params.pe_prefix}.trimming.pe.1.fq.gz
-                FQ2=${params.pe_prefix}.trimming.pe.2.fq.gz
-                FQPESI=${params.pe_prefix}.trimming.pe.single.fq.gz
+                FQ1={params.pe_prefix}.trimming.pe.1.fq.gz
+                FQ2={params.pe_prefix}.trimming.pe.2.fq.gz
+                FQPESI={params.pe_prefix}.trimming.pe.single.fq.gz
 
                 sickle pe \
                 --pe-file1 $R1 \
@@ -55,10 +55,10 @@ if config["params"]["trimming"]["sickle"]["do"]:
                 >{log} 2>&1
             fi
 
-            if [ $RS != " " ]
+            if [ $RS != " " ];
             then
-                FQS=${params.se_prefix}.trimming.se.fq.gz
-                FQSESI=${params.se_prefix}.trimming.se.single.fq.gz
+                FQS={params.se_prefix}.trimming.se.fq.gz
+                FQSESI={params.se_prefix}.trimming.se.single.fq.gz
 
                 sickle se \
                 --fastq-file $RS \
@@ -153,12 +153,12 @@ if config["params"]["trimming"]["fastp"]["do"]:
             FQ2=""
             FQS=""
 
-            if [ $R1 != "" ]
+            if [ $R1 != "" ];
             then
-                FQ1=${params.pe_prefix}.trimming.pe.1.fq.gz
-                FQ2=${params.pe_prefix}.trimming.pe.2.fq.gz
-                HTML=${params.pe_prefix}.trimming.pe.html
-                JSON=${params.pe_prefix}.trimming.pe.json
+                FQ1={params.pe_prefix}.trimming.pe.1.fq.gz
+                FQ2={params.pe_prefix}.trimming.pe.2.fq.gz
+                HTML={params.pe_prefix}.fastp.pe.html
+                JSON={params.pe_prefix}.fastp.pe.json
 
                 if [ "{params.use_slide_window}" == "yes" ];
                 then
@@ -206,11 +206,11 @@ if config["params"]["trimming"]["fastp"]["do"]:
                 fi
             fi
 
-            if [ $RS != "" ]
+            if [ $RS != "" ];
             then
-                FQS=${params.se_prefix}.trimming.se.fq.gz
-                HTML=${params.pe_prefix}.trimming.se.html
-                JSON=${params.pe_prefix}.trimming.se.json
+                FQS={params.se_prefix}.trimming.se.fq.gz
+                HTML={params.pe_prefix}.fastp.se.html
+                JSON={params.pe_prefix}.fastp.se.json
 
                 if [ "{params.use_slide_window}" == "yes" ];
                 then
@@ -307,10 +307,10 @@ if config["params"]["trimming"]["trimmomatic"]["do"]:
             FQ2=""
             FQS=""
 
-            if [ $R1 != "" ]
+            if [ $R1 != "" ];
             then
-                FQ1=${params.pe_prefix}.trimming.pe.1.fq.gz
-                FQ2=${params.pe_prefix}.trimming.pe.2.fq.gz
+                FQ1={params.pe_prefix}.trimming.pe.1.fq.gz
+                FQ2={params.pe_prefix}.trimming.pe.2.fq.gz
 
                 trimmomatic PE \
                 {params.phred} \
@@ -329,9 +329,9 @@ if config["params"]["trimming"]["trimmomatic"]["do"]:
                 fi
             fi
 
-            if [ $RS != "" ]
+            if [ $RS != "" ];
             then
-                FQS=${params.se_prefix}.trimming.se.fq.gz
+                FQS={params.se_prefix}.trimming.se.fq.gz
 
                 trimmomatic SE \
                 {params.phred} \
