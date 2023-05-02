@@ -2,7 +2,7 @@
 
 import os
 import filecmp
-import gzip
+import json
 from executor import execute
 from pprint import pprint
 
@@ -46,8 +46,13 @@ execute(f'''rm -rf {outdir}''')
 execute(f'''mkdir -p {outdir}''')
 execute(f'''rm -rf {log}''')
 
+samples_dict ={}
+
 if is_fastq:
     if headers["FQ"]["PE_FORWARD"] in input_tags:
+        samples_dict["PE_FORWARD"] = r1
+        samples_dict["PE_REVERSE"] = r2
+
         execute(f'''mkdir -p {outdir_pe}''')
         execute(f'''mkdir -p {outdir_pe_temp}''')
 
@@ -127,6 +132,9 @@ if is_fastq:
         execute(f'''rm -rf {outdir_pe_temp}''')
 
     elif headers["FQ"]["INTERLEAVED"] in input_tags:
+        samples_dict["PE_FORWARD"] = r1
+        samples_dict["PE_REVERSE"] = r2
+
         execute(f'''mkdir -p {outdir_pe}''')
 
         fq = " ".join(input_files[headers["FQ"]["INTERLEAVED"]])
@@ -138,6 +146,8 @@ if is_fastq:
             ''')
 
     if headers["FQ"]["SE"] in input_tags:
+        samples_dict["SE"] = rs
+
         execute(f'''mkdir -p {outdir_se}''')
 
         single_reads = input_files[headers["FQ"]["SE"]]
@@ -149,6 +159,8 @@ if is_fastq:
             execute(f'''cat {fq} > {rs} 2>> {log}''')
 
     if headers["FQ"]["LONG"] in input_tags:
+        samples_dict["LONG"] = rl
+
         execute(f'''mkdir -p {outdir_long}''')
 
         long_reads = input_files[headers["FQ"]["LONG"]]
@@ -161,6 +173,9 @@ if is_fastq:
 
 else:
     if headers["SRA"]["PE"] in input_tags:
+        samples_dict["PE_FORWARD"] = r1
+        samples_dict["PE_REVERSE"] = r2
+
         execute(f'''mkdir -p {outdir_pe}''')
         execute(f'''mkdir -p {outdir_pe_temp}''')
 
@@ -226,6 +241,8 @@ else:
 
 
     if headers["SRA"]["SE"] in input_tags:
+        samples_dict["SE"] = rs
+
         execute(f'''mkdir -p {outdir_se}''')
         execute(f'''mkdir -p {outdir_se_temp}''')
 
@@ -280,6 +297,8 @@ else:
 
 
     if headers["SRA"]["LONG"] in input_tags:
+        samples_dict["LONG"] = rl
+
         execute(f'''mkdir -p {outdir_long}''')
         execute(f'''mkdir -p {outdir_long_temp}''')
 
@@ -333,5 +352,6 @@ else:
         execute(f'''rm -rf {outdir_long_temp}''')
 
 
-# touch done
-execute(f'''touch {output}''')
+samples_obct = json.dumps(samples_dict, indent=2)
+with open(output, 'wt') as oh:
+    oh.write(samples_obct)

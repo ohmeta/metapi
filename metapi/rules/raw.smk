@@ -1,15 +1,15 @@
 rule raw_prepare_reads:
     input:
-        lambda wildcards: metapi.get_raw_input_list(wildcards, SAMPLES, DT)
+        lambda wildcards: metapi.get_raw_input_list(wildcards, SAMPLES, DATA_TYPE)
     output:
-        os.path.join(config["output"]["raw"], "reads/{sample}/done")
+        os.path.join(config["output"]["raw"], "reads/{sample}/{sample}.json")
     log:
-        os.path.join(config["output"]["raw"], "logs/raw_prepare_reads/{sample}_prepare.log")
+        os.path.join(config["output"]["raw"], "logs/raw_prepare_reads/{sample}.log")
     benchmark:
-        os.path.join(config["output"]["raw"], "benchmark/raw_prepare_reads/{sample}_prepare.log")
+        os.path.join(config["output"]["raw"], "benchmark/raw_prepare_reads/{sample}.txt")
     params:
         sample_id = "{sample}",
-        input_files = lambda wildcards: metapi.get_raw_input_dict(wildcards, SAMPLES, DT),
+        input_files = lambda wildcards: metapi.get_raw_input_dict(wildcards, SAMPLES, DATA_TYPE),
         headers = metapi.HEADERS,
         check_paired = config["params"]["raw"]["check_paired"]
     threads:
@@ -22,7 +22,7 @@ rule raw_prepare_reads:
 
 rule raw_prepare_reads_all:
     input:
-        expand(os.path.join(config["output"]["raw"], "reads/{sample}/done"),
+        expand(os.path.join(config["output"]["raw"], "reads/{sample}/{sample}.json"),
         sample=SAMPLES_ID_LIST)
 
 
@@ -30,11 +30,11 @@ rule raw_fastqc:
     input:
         rules.raw_prepare_reads.output
     output:
-        directory(os.path.join(config["output"]["raw"], "fastqc/{sample}.fastqc.out"))
+        directory(os.path.join(config["output"]["raw"], "report/fastqc/{sample}.fastqc"))
     log:
-        os.path.join(config["output"]["raw"], "logs/raw_fastqc/{sample}_prepare.log")
+        os.path.join(config["output"]["raw"], "logs/raw_fastqc/{sample}.log")
     benchmark:
-        os.path.join(config["output"]["raw"], "benchmark/raw_fastqc/{sample}_prepare.log")
+        os.path.join(config["output"]["raw"], "benchmark/raw_fastqc/{sample}.txt")
     threads:
         config["params"]["raw"]["threads"]
     conda:
@@ -43,44 +43,51 @@ rule raw_fastqc:
         '''
         mkdir -p {output}
 
+        R1=$(jq -r -M '.PE_FORWARD' {input} | sed 's/null//g')
+        R2=$(jq -r -M '.PE_REVERSE' {input} | sed 's/null//g')
+        RS=$(jq -r -M '.SE' {input} | sed 's/null//g')
+
         fastqc \
         --outdir {output} \
         --threads {threads} \
         --format fastq \
-        {input} \
-        2> {log}
+        $R1 $R2 $RS \
+        >{log} 2>&1
         '''
 
 
 rule raw_fastqc_multiqc:
     input:
-        expand(os.path.join(config["output"]["raw"], "fastqc/{sample}.fastqc.out"),
+        expand(os.path.join(config["output"]["raw"], "report/fastqc/{sample}.fastqc"),
         sample=SAMPLES_ID_LIST)
     output:
-        html = os.path.join(config["output"]["raw"], "report/fastqc_multiqc_report.html")
-    conda:
-        config["envs"]["multiqc"]
-    params:
-        outdir = os.path.join(config["output"]["raw"], "report")
+        os.path.join(config["output"]["raw"], "report/multiqc/fastqc_multiqc_report.html")
     log:
-        os.path.join(config["output"]["raw"], "logs/multiqc_fastqc.log")
+        os.path.join(config["output"]["raw"], "logs/raw_fastqc_multiqc/raw_fastqc_multiqc.log")
+    benchmark:
+        os.path.join(config["output"]["raw"], "benchmark/raw_fastqc_multiqc/raw_fastqc_multiqc.txt")
     threads:
         1
+    conda:
+        config["envs"]["multiqc"]
     shell:
         '''
+        OUTDIR=$(dirname {output})
+
         multiqc \
-        --outdir {params.outdir} \
+        --outdir $OUTDIR \
         --title fastqc \
-        --module fastqc {input} \
-        2> {log}
+        --module fastqc \
+        {input} \
+        >{log} 2>&1
         '''
 
 
 rule raw_fastqc_all:
     input:
         expand([
-            os.path.join(config["output"]["raw"], "fastqc/{sample}.fastqc.out"),
-            os.path.join(config["output"]["raw"], "report/fastqc_multiqc_report.html")],
+            os.path.join(config["output"]["raw"], "report/fastqc/{sample}.fastqc"),
+            os.path.join(config["output"]["raw"], "report/multiqc/fastqc_multiqc_report.html")],
             sample=SAMPLES_ID_LIST)
 
 
