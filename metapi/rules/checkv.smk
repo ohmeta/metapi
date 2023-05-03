@@ -54,6 +54,7 @@ if config["params"]["checkv"]["do"]:
         shell:
             '''
             rm -rf {params.outdir}
+            mkdir -p {params.outdir}
 
             FILESIZE=$(stat -c %s {input.viral})
 
