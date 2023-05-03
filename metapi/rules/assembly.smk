@@ -8,157 +8,52 @@ for assembler in ASSEMBLERS:
 ASSEMBLY_GROUPS = pd.concat(assembly_df_list, axis=0)
 
 
-def get_reads_for_assembly(wildcards, step, have_single=False, have_long=False):
+def get_samples_for_assembly_list(wildcards):
     samples_id_list = metapi.get_samples_id_by_assembly_and_binning_group(SAMPLES, wildcards.assembly_group, wildcards.binning_group)
-    short_reads = get_short_reads_list(step, samples_id_list)
-
-    if have_long:
-        long_reads = get_long_reads_list("raw", samples_id_list)
-        return short_reads, long_reads
-    else:
-        return short_reads
+    return expand(os.path.join(config["output"][STEPS[-1]], "reads/{sample}/{sample}.json"), sample=samples_id_list)
 
 
-def assembly_input_with_short_reads(wildcards):
-    if RMHOST_DO:
-        return get_reads_for_assembly(wildcards, "rmhost", False, False)
-    elif TRIMMING_DO:
-        return get_reads_for_assembly(wildcards, "trimming", False, False)
-    else:
-        return get_reads_for_assembly(wildcards, "raw", False, False)
+def get_samples_for_assembly_dict(wildcards):
+    import json
+    samples_dict = {
+        "PE_FORWARD": [],
+        "PE_REVERSE": [],
+        "SE": []
+    }
+
+    input_list = get_samples_for_assembly_list(wildcards)
+    for sample_json in input_list:
+        with open(sample_json, "rt") as ih:
+            jsondata = json.load(ih)
+
+            if "PE_FORWARD" in jsondata:
+                if jsondata["PE_FORWARD"] != "":
+                    samples_dict["PE_FORWARD"].append(jsondata["PE_FORWARD"])
+
+            if "PE_REVERSE" in jsondata:
+                if jsondata["PE_REVERSE"] != "":
+                    samples_dict["PE_REVERSE"].append(jsondata["PE_REVERSE"])
+
+            if "SE" in jsondata:
+                if jsondata["SE"] != "":
+                    samples_dict["SE"].append(jsondata["SE"])
+
+    return samples_dict
 
 
-def assembly_input_with_short_and_long_reads(wildcards):
-    if RMHOST_DO:
-        return get_reads_for_assembly(wildcards, "rmhost", False, True)
-    elif TRIMMING_DO:
-        return get_reads_for_assembly(wildcards, "trimming", False, True)
-    else:
-        return get_reads_for_assembly(wildcards, "raw", False, True)
+def get_samples_for_assembly_megahit(wildcards):
+    samples_dict = get_samples_for_assembly_dict(wildcards)
+
+    cmd = ""
+    if len(samples_dict["PE_FORWARD"]) > 0:
+        cmd = f'''-1 {",".join(samples_dict["PE_FORWARD"])} -2 {",".join(samples_dict["PE_REVERSE"])}'''
+    if len(samples_dict["SE"]) > 0:
+        cmd += f'''-r {",".join(samples_dict["SE"])}'''
+    return cmd
 
 
-def get_megahit_input_str(wildcards):
-    input_list = assembly_input_with_short_reads(wildcards)
-    if IS_PE:
-        inputstr = f'''-1 {",".join(input_list[0])} -2 {",".join(input_list[1])}'''
-    else:
-        inputstr = f'''-r {",".join(input_list[0])}'''
-    return inputstr
-
-
-if "megahit" in ASSEMBLERS:
-    rule assembly_megahit:
-        input:
-            unpack(assembly_input_with_short_reads)
-        output:
-            scaftigs = os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.megahit/{binning_group}.{assembly_group}.megahit.scaftigs.fa.gz"),
-            gfa = os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.megahit/{binning_group}.{assembly_group}.megahit.scaftigs.gfa.gz")
-        conda:
-            config["envs"]["megahit"]
-        benchmark:
-            os.path.join(config["output"]["assembly"],
-                         "benchmark/megahit/{binning_group}.{assembly_group}.megahit.benchmark.txt")
-        priority:
-            20
-        params:
-            output_prefix = "{binning_group}.{assembly_group}",
-            min_contig = config["params"]["assembly"]["megahit"]["min_contig"],
-            k_list = ",".join(config["params"]["assembly"]["megahit"]["k_list"]),
-            presets = config["params"]["assembly"]["megahit"]["presets"],
-            output_dir = os.path.join(config["output"]["assembly"],
-                                      "scaftigs/{binning_group}.{assembly_group}.megahit"),
-            contigs = os.path.join(config["output"]["assembly"],
-                                   "scaftigs/{binning_group}.{assembly_group}.megahit/{binning_group}.{assembly_group}.contigs.fa"),
-            fastg = os.path.join(config["output"]["assembly"],
-                                 "scaftigs/{binning_group}.{assembly_group}.megahit/{binning_group}.{assembly_group}.megahit.scaftigs.fastg"),
-            gfa = os.path.join(config["output"]["assembly"],
-                               "scaftigs/{binning_group}.{assembly_group}.megahit/{binning_group}.{assembly_group}.megahit.scaftigs.gfa"),
-            only_save_scaftigs = "yes" if config["params"]["assembly"]["megahit"]["only_save_scaftigs"] else "no",
-            inputstr = lambda wildcards: get_megahit_input_str(wildcards)
-        threads:
-            config["params"]["assembly"]["threads"]
-        log:
-            os.path.join(config["output"]["assembly"],
-                         "logs/{binning_group}.{assembly_group}.megahit.log")
-        shell:
-            """
-            set +e
-
-            if [ -e {params.output_dir}/options.json ];
-            then
-                megahit --continue --out-dir {params.output_dir}
-            else 
-                kmeropts=""
-
-                if [ "{params.presets}" != "" ];
-                then
-                    kmeropts="--presets {params.presets}"
-                else
-                    kmeropts="--k-list {params.k_list}"
-                fi
-
-                rm -rf {params.output_dir}
-
-                megahit \
-                {params.inputstr} \
-                -t {threads} \
-                $kmeropts \
-                --min-contig-len {params.min_contig} \
-                --out-dir {params.output_dir} \
-                --out-prefix {params.output_prefix} \
-                2> {log}
-            fi
-
-            if [ -f {params.contigs} ];
-            then
-
-                knum=`grep "^>" {params.contigs} | head -1 | sed 's/>k//g' | awk -F_ '{{print $1}}'`
-
-                megahit_toolkit contig2fastg $knum {params.contigs} > {params.fastg}
-
-                fastg2gfa {params.fastg} > {params.gfa}
-                pigz -f -p {threads} {params.fastg}
-                pigz -f -p {threads} {params.gfa}
-
-                pigz -f -p {threads} {params.contigs}
-                mv {params.contigs}.gz {output.scaftigs}
-
-                if [ "{params.only_save_scaftigs}" == "yes" ];
-                then
-                    fd -t f -E "*.gz" . {params.output_dir} -x rm -rf {{}}
-                    rm -rf {params.output_dir}/intermediate_contigs
-                fi
-            else
-                touch {params.output_dir}/FAILED
-            fi
-            """
-
-
-    rule assembly_megahit_all:
-        input:
-            expand([
-                os.path.join(
-                    config["output"]["assembly"],
-                    "scaftigs/{binning_group}.{assembly_group}.megahit/{binning_group}.{assembly_group}.megahit.scaftigs.fa.gz"),
-                os.path.join(
-                    config["output"]["assembly"],
-                    "scaftigs/{binning_group}.{assembly_group}.megahit/{binning_group}.{assembly_group}.megahit.scaftigs.gfa.gz")
-                    ],
-                    zip,
-                    binning_group=ASSEMBLY_GROUP["binning_group"],
-                    assembly_group=ASSEMBLY_GROUP["assembly_group"])
-
-else:
-    rule assembly_megahit_all:
-        input:
-
-
-def prepare_idbaud_input(wildcards, reads):
-    input_list = assembly_input_with_short_reads(wildcards)
+def get_samples_for_assembly_idbaud(wildcards):
+    samples_dict = get_samples_for_assembly_dict(wildcards)
     cmd = ""
 
     if IS_PE:
@@ -179,71 +74,155 @@ def prepare_idbaud_input(wildcards, reads):
     return cmd
 
 
-if "idba_ud" in ASSEMBLERS:
-    rule assembly_idba_ud:
-        input:
-            unpack(assembly_input_with_short_reads)
-        output:
-            scaftigs = os.path.join(
-                config["output"]["assembly"],
-                "scaftigs/{binning_group}.{assembly_group}.idba_ud/{binning_group}.{assembly_group}.idba_ud.scaftigs.fa.gz")
-        conda:
-            config["envs"]["idbaud"]
-        benchmark:
-            os.path.join(config["output"]["assembly"],
-                         "benchmark/idba_ud/{binning_group}.{assembly_group}.idba_ud.benchmark.txt")
-        priority:
-            20
-        params:
-            prefix = "{binning_group}.{assembly_group}",
-            output_dir = os.path.join(config["output"]["assembly"], "scaftigs/{binning_group}.{assembly_group}.idba_ud"),
-            mink = config["params"]["assembly"]["idba_ud"]["mink"],
-            maxk = config["params"]["assembly"]["idba_ud"]["maxk"],
-            step = config["params"]["assembly"]["idba_ud"]["step"],
-            min_contig = config["params"]["assembly"]["idba_ud"]["min_contig"],
-            only_save_scaftigs = "yes" if config["params"]["assembly"]["idba_ud"]["only_save_scaftigs"] else "no",
-            idbaud_cmd = lambda wildcards: prepare_idbaud_input(
-                wildcards, 
-                os.path.join(config["output"]["assembly"], f"reads/idba_ud/{wildcards.binning_group}.{wildcards.assembly_group}/reads.fa")),
-            reads = os.path.join(config["output"]["assembly"], "reads/idba_ud/{binning_group}.{assembly_group}/reads.fa")
-        threads:
-            config["params"]["assembly"]["threads"]
-        log:
-            os.path.join(config["output"]["assembly"],
-                         "logs/{binning_group}.{assembly_group}.idba_ud.log")
-        shell:
-            '''
-            rm -rf {params.output_dir}
-            mkdir -p {params.output_dir}
-            mkdir -p $(dirname {params.reads})
+rule assembly_megahit:
+    input:
+        lambda wildcards: get_samples_for_assembly(wildcards)
+    output:
+        scaftigs = os.path.join(config["output"]["assembly"], "scaftigs/{binning_group}.{assembly_group}.megahit/{binning_group}.{assembly_group}.megahit.scaftigs.fa.gz"),
+        gfa = os.path.join(config["output"]["assembly"], "scaftigs/{binning_group}.{assembly_group}.megahit/{binning_group}.{assembly_group}.megahit.scaftigs.gfa.gz")
+    log:
+        os.path.join(config["output"]["assembly"], "logs/assembly_megahit/{binning_group}.{assembly_group}.log")
+    benchmark:
+        os.path.join(config["output"]["assembly"], "benchmark/assembly_megahit/{binning_group}.{assembly_group}.txt")
+    params:
+        reads = lambda wildcards: get_samples_for_assembly_megahit(wildcards),
+        prefix = "{binning_group}.{assembly_group}",
+        min_contig = config["params"]["assembly"]["megahit"]["min_contig"],
+        k_list = ",".join(config["params"]["assembly"]["megahit"]["k_list"]),
+        presets = config["params"]["assembly"]["megahit"]["presets"],
+        only_save_scaftigs = "yes" if config["params"]["assembly"]["megahit"]["only_save_scaftigs"] else "no"
+    priority:
+        20
+    threads:
+        config["params"]["assembly"]["threads"]
+    conda:
+        config["envs"]["megahit"]
+    shell:
+        """
+        set +e
 
-            {params.idbaud_cmd}
+        OUTDIR=$(dirname {output.scaftigs})
+        CONTIGS=$OUTDIR/{params.prefix}.contigs.fa
+        FASTG=$OUTDIR/{params.prefix}.megahit.scaftigs.fastg.gz
 
-            idba_ud \
-            -r {params.reads} \
-            --mink {params.mink} \
-            --maxk {params.maxk} \
-            --step {params.step} \
-            --min_contig {params.min_contig} \
-            -o {params.output_dir} \
-            --num_threads {threads} \
-            --pre_correction \
-            > {log}
+        if [ -e $OUTDIR/options.json ];
+        then
+            megahit --continue --out-dir $OUTDIR
+        else
+            rm -rf $OUTDIR
+            KMEROPTS=""
+            if [ "{params.presets}" != "" ];
+            then
+                KMEROPTS="--presets {params.presets}"
+            else
+                KMEROPTS="--k-list {params.k_list}"
+            fi
 
-            rm -rf {params.reads}
+            megahit \
+            {params.reads} \
+            -t {threads} \
+            $KMEROPTS \
+            --min-contig-len {params.min_contig} \
+            --out-dir $OUTDIR \
+            --out-prefix {params.output_prefix} \
+            >{log} 2>&1
+        fi
 
-            sed -i 's#^>#>{params.prefix}_#g' {params.output_dir}/scaffold.fa
+        if [ -f $CONTIGS ];
+        then
+            knum=`grep "^>" {params.contigs} | head -1 | sed 's/>k//g' | awk -F_ '{{print $1}}'`
+            megahit_toolkit contig2fastg $knum $CONTIGS | pigz -f -p {threads} > $FASTG
+            fastg2gfa $FASTG | pigz -f -p {threads} > {output.gfa}
 
-            pigz -f -p {threads} {params.output_dir}/scaffold.fa
-            mv {params.output_dir}/scaffold.fa.gz {output.scaftigs}
+            pigz -f -p {threads} $CONTIGS
+            mv $CONTIGS.gz {output.scaftigs}
 
             if [ "{params.only_save_scaftigs}" == "yes" ];
             then
-                find {params.output_dir} -type f ! -wholename "{output.scaftigs}" -delete
+                fd -t f -E "*.gz" . $OUTDIR -x rm -rf {{}}
+                rm -rf $OUTDIR/intermediate_contigs
             fi
-            '''
+        else
+            touch $OUTDIR/FAILED
+        fi
+        """
 
 
+if "megahit" in ASSEMBLERS:
+    rule assembly_megahit_all:
+        input:
+            expand([
+                os.path.join(config["output"]["assembly"], "scaftigs/{binning_group}.{assembly_group}.megahit/{binning_group}.{assembly_group}.megahit.scaftigs.fa.gz"),
+                os.path.join(config["output"]["assembly"], "scaftigs/{binning_group}.{assembly_group}.megahit/{binning_group}.{assembly_group}.megahit.scaftigs.gfa.gz")],
+                zip,
+                binning_group=ASSEMBLY_GROUP["binning_group"],
+                assembly_group=ASSEMBLY_GROUP["assembly_group"])
+
+else:
+    rule assembly_megahit_all:
+        input:
+
+
+rule assembly_idbaud:
+    input:
+        lambda wildcards: get_samples_for_assembly(wildcards)
+    output:
+        scaftigs = os.path.join(config["output"]["assembly"], "scaftigs/{binning_group}.{assembly_group}.idbaud/{binning_group}.{assembly_group}.idbaud.scaftigs.fa.gz")
+    log:
+        os.path.join(config["output"]["assembly"], "logs/assembly_idbaud/{binning_group}.{assembly_group}.log")
+    benchmark:
+        os.path.join(config["output"]["assembly"], "benchmark/assembly_idbaud/{binning_group}.{assembly_group}.txt")
+    params:
+        prefix = "{binning_group}.{assembly_group}",
+        mink = config["params"]["assembly"]["idba_ud"]["mink"],
+        maxk = config["params"]["assembly"]["idba_ud"]["maxk"],
+        step = config["params"]["assembly"]["idba_ud"]["step"],
+        min_contig = config["params"]["assembly"]["idba_ud"]["min_contig"],
+        only_save_scaftigs = "yes" if config["params"]["assembly"]["idba_ud"]["only_save_scaftigs"] else "no",
+        idbaud_cmd = lambda wildcards: prepare_idbaud_input(
+            wildcards, 
+            os.path.join(config["output"]["assembly"], f"reads/idba_ud/{wildcards.binning_group}.{wildcards.assembly_group}/reads.fa")),
+        reads = os.path.join(config["output"]["assembly"], "reads/idba_ud/{binning_group}.{assembly_group}/reads.fa")
+    priority:
+        20
+    threads:
+        config["params"]["assembly"]["threads"]
+    conda:
+        config["envs"]["idbaud"]
+    shell:
+        '''
+        OUTDIR=$(dirname {output.scaftigs})
+        rm -rf $OUTDIR
+        mkdir -p $OUTDIR
+
+        {params.idbaud_cmd}
+
+        idba_ud \
+        -r {params.reads} \
+        --mink {params.mink} \
+        --maxk {params.maxk} \
+        --step {params.step} \
+        --min_contig {params.min_contig} \
+        -o {params.output_dir} \
+        --num_threads {threads} \
+        --pre_correction \
+        > {log}
+
+        rm -rf {params.reads}
+
+        sed -i 's#^>#>{params.prefix}_#g' {params.output_dir}/scaffold.fa
+
+        pigz -f -p {threads} {params.output_dir}/scaffold.fa
+        mv {params.output_dir}/scaffold.fa.gz {output.scaftigs}
+
+        if [ "{params.only_save_scaftigs}" == "yes" ];
+        then
+            find {params.output_dir} -type f ! -wholename "{output.scaftigs}" -delete
+        fi
+        '''
+
+
+if "idba_ud" in ASSEMBLERS:
     rule assembly_idba_ud_all:
         input:
             expand(os.path.join(
