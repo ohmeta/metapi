@@ -948,8 +948,13 @@ and (not config["params"]["rmhost"]["kneaddata"]["do"]):
             input_list = [str(i) for i in input]
             metapi.flagstats_summary(input_list, 2, output=output.flagstat)
 
+
+    rule rmhost_alignment_report_all:
+        input:
+            rules.rmhost_alignment_report.output
+
 else:
-    rule rmhost_alignment_report:
+    rule rmhost_alignment_report_all:
         input:
 
 
@@ -1029,7 +1034,7 @@ rule rmhost_all:
         rules.rmhost_minimap2_all.input,
         rules.rmhost_kraken2_all.input,
         rules.rmhost_kneaddata_all.input,
-        rules.rmhost_alignment_report.input,
+        rules.rmhost_alignment_report_all.input,
         rules.rmhost_report_all.input
 
 
@@ -1039,5 +1044,6 @@ localrules:
     rmhost_minimap2_all,
     rmhost_kraken2_all,
     rmhost_kneaddata_all,
+    rmhost_alignment_report_all,
     rmhost_report_all,
     rmhost_all
