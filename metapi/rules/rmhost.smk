@@ -941,12 +941,12 @@ and (not config["params"]["rmhost"]["kneaddata"]["do"]):
             expand(os.path.join(config["output"]["rmhost"], "reads/{sample}/{sample}.json"),
             sample=SAMPLES_ID_LIST)
         output:
-            fagstat = os.path.join(config["output"]["rmhost"], "report/rmhost_align2host_stats.tsv.gz")
+            os.path.join(config["output"]["rmhost"], "report/rmhost_align2host_stats.tsv")
         priority:
             20
         run:
             input_list = [str(i) for i in input]
-            metapi.flagstats_summary(input_list, 2, output=output.flagstat)
+            metapi.flagstats_summary(input_list, 2, output=str(output))
 
 
     rule rmhost_alignment_report_all:

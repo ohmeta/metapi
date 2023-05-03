@@ -57,23 +57,23 @@ def flagstats_summary(flagstats, method, **kwargs):
 
     for flagstat_file in list_handle:
         if os.path.exists(flagstat_file.strip()):
-            info = {}
-            info["sample_id"] = os.path.basename(flagstat_file.strip()).split(".")[0]
-
             stat_lists = []
-            if flagstat_file.ends_with(".json"):
+            if flagstat_file.endswith(".json"):
                 with open(flagstat_file.strip(), "rt") as jsonh:
                     jsondata = json.load(jsonh)
                     if "PE_ALIGN_STATS" in jsondata:
-                        stat_lists.append(jsondata["PE_ALIGN_STATS"])
+                        stat_lists.append(["pe_align", jsondata["PE_ALIGN_STATS"]])
                     if "SE_ALIGN_STATS" in jsondata:
-                        stat_lists.append(jsondata["SE_ALIGN_STATS"])
+                        stat_lists.append(["se_align", jsondata["SE_ALIGN_STATS"]])
             else:
-                stat_lists.append(flagstat_file.strip())
+                stat_lists.append(["align", flagstat_file.strip()])
 
             for stat_file in stat_lists:
-                stat_list = gzip.open(stat_file, "rt").readlines()
+                info = {}
+                info["sample_id"] = os.path.basename(stat_file[1].strip()).split(".")[0]
+                info["align_way"] = stat_file[0]
 
+                stat_list = open(stat_file[1], "rt").readlines()
                 info["total_num"] = stat_list[0].split(" ")[0]
 
                 if len(stat_list) == 13:
