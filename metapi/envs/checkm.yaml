@@ -7,3 +7,4 @@ dependencies:
   - prodigal=2.6.3
   - pandas=1.5.1
   - pigz
+  - jq

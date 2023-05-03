@@ -8,3 +8,4 @@ dependencies:
   - bracken=2.8
   - krona=2.8.1
   - pigz
+  - jq

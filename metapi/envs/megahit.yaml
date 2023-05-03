@@ -7,3 +7,4 @@ dependencies:
   - gfa1
   - pigz
   - fd-find
+  - jq

@@ -6,3 +6,4 @@ dependencies:
   - das_tool=1.1.4
   - diamond=2.0.14
   - pigz
+  - jq

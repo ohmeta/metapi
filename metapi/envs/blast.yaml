@@ -5,3 +5,4 @@ channels:
 dependencies:
   - blast=2.13.0
   - pigz
+  - jq

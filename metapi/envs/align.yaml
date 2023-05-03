@@ -9,3 +9,4 @@ dependencies:
   - bwa-mem2=2.2.1
   - bowtie2=2.4.5
   - pigz
+  - jq

@@ -7,3 +7,4 @@ dependencies:
   - dashing=1.0
   - fastani=1.33
   - pigz
+  - jq

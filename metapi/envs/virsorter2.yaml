@@ -5,3 +5,4 @@ channels:
 dependencies:
   - virsorter=2.2.4
   - pigz
+  - jq
