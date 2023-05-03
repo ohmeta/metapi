@@ -1,7 +1,4 @@
 params:
-  reads_layout: "pe"
-  interleaved: False
-  have_long: False
   fq_encoding: "sanger"
   begin: "trimming"
   samples: "samples.tsv"
@@ -11,7 +8,6 @@ params:
     threads: 8
 
   raw:
-    do: True
     threads: 8
     check_paired: True
     save_reads: True

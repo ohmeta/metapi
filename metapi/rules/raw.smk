@@ -73,6 +73,7 @@ rule raw_fastqc_multiqc:
     shell:
         '''
         OUTDIR=$(dirname {output})
+        rm -rf $OUTDIR
 
         multiqc \
         --outdir $OUTDIR \

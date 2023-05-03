@@ -25,8 +25,9 @@ if config["params"]["trimming"]["sickle"]["do"]:
             OUTDIR=$(dirname {output})
             OUTPE=$(dirname {params.pe_prefix})
             OUTSE=$(dirname {params.se_prefix})
+
             rm -rf $OUTDIR $OUTPE $OUTSE
-            mkdir -p $OUTDIR $OUTPE $OUTSE
+            mkdir -p $OUTDIR
 
             R1=$(jq -r -M '.PE_FORWARD' {input} | sed 's/^null$//g')
             R2=$(jq -r -M '.PE_REVERSE' {input} | sed 's/^null$//g')
@@ -41,6 +42,8 @@ if config["params"]["trimming"]["sickle"]["do"]:
                 FQ1={params.pe_prefix}.trimming.pe.1.fq.gz
                 FQ2={params.pe_prefix}.trimming.pe.2.fq.gz
                 FQPESI={params.pe_prefix}.trimming.pe.single.fq.gz
+
+                mkdir -p $OUTPE
 
                 sickle pe \
                 --pe-file1 $R1 \
@@ -59,6 +62,8 @@ if config["params"]["trimming"]["sickle"]["do"]:
             then
                 FQS={params.se_prefix}.trimming.se.fq.gz
                 FQSESI={params.se_prefix}.trimming.se.single.fq.gz
+
+                mkdir -p $OUTSE
 
                 sickle se \
                 --fastq-file $RS \
@@ -87,25 +92,6 @@ else:
         input:
 
 
-ADAPTER_OPERATION = ""
-adapter_sequence = config["params"]["trimming"]["fastp"]["adapter_sequence"]
-adapter_sequence_r2 = config["params"]["trimming"]["fastp"]["adapter_sequence_r2"]
-
-if config["params"]["trimming"]["fastp"]["disable_adapter_trimming"]:
-    adapter_operation = "--disable_adapter_trimming"
-else:
-    if IS_PE:
-        if config["params"]["trimming"]["fastp"]["detect_adapter_for_pe"]:
-            ADAPTER_OPERATION = "--detect_adapter_for_pe"
-        else:
-            ADAPTER_OPERATION = f'''--adapter_sequence {adapter_sequence} --adapter_sequence_r2 {adapter_sequence_r2}'''
-    else:
-        if config["params"]["trimming"]["fastp"]["detect_adapter_for_se"]:
-            ADAPTER_OPERATION = ""
-        else:
-            ADAPTER_OPERATION = f'''--adapter_sequence {adapter_sequence}'''
-
-
 if config["params"]["trimming"]["fastp"]["do"]:
     rule trimming_fastp:
         input:
@@ -119,6 +105,12 @@ if config["params"]["trimming"]["fastp"]["do"]:
         params:
             pe_prefix = os.path.join(config["output"]["trimming"], "reads/{sample}/pe/{sample}"),
             se_prefix = os.path.join(config["output"]["trimming"], "reads/{sample}/se/{sample}"),
+            adapter_sequence = config["params"]["trimming"]["fastp"]["adapter_sequence"],
+            adapter_sequence_r2 = config["params"]["trimming"]["fastp"]["adapter_sequence_r2"],
+            adapter_operation = "--disable_adapter_trimming" \
+            if config["params"]["trimming"]["fastp"]["disable_adapter_trimming"] else "",
+            detect_adapter_pe = config["params"]["trimming"]["fastp"]["detect_adapter_for_pe"],
+            detect_adapter_se = config["params"]["trimming"]["fastp"]["detect_adapter_for_se"],
             compression = config["params"]["trimming"]["fastp"]["compression"],
             cut_front_window_size = config["params"]["trimming"]["fastp"]["cut_front_window_size"],
             cut_front_mean_quality = config["params"]["trimming"]["fastp"]["cut_front_mean_quality"],
@@ -131,6 +123,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
             use_slide_window = "yes" if config["params"]["trimming"]["fastp"]["use_slide_window"] else "no",
             dedup = f'''--dedup --dup_calc_accuracy {config["params"]["trimming"]["fastp"]["dup_calc_accuracy"]}''' \
                 if config["params"]["trimming"]["fastp"]["dedup"] else ""
+
         priority:
             10
         threads:
@@ -142,8 +135,9 @@ if config["params"]["trimming"]["fastp"]["do"]:
             OUTDIR=$(dirname {output})
             OUTPE=$(dirname {params.pe_prefix})
             OUTSE=$(dirname {params.se_prefix})
+
             rm -rf $OUTDIR $OUTPE $OUTSE
-            mkdir -p $OUTDIR $OUTPE $OUTSE
+            mkdir -p $OUTDIR
 
             R1=$(jq -r -M '.PE_FORWARD' {input} | sed 's/^null$//g')
             R2=$(jq -r -M '.PE_REVERSE' {input} | sed 's/^null$//g')
@@ -152,6 +146,26 @@ if config["params"]["trimming"]["fastp"]["do"]:
             FQ1=""
             FQ2=""
             FQS=""
+            ADAPTER_OPERATION_PE=""
+            ADAPTER_OPERATION_SE=""
+
+            ADAPTER_OPERATION="{params.adapter_operation}"
+            if [ $ADAPTER_OPERATION == "" ];
+            then
+                if [ "{params.detect_adapter_pe}" == "True" ]
+                then
+                    ADAPTER_OPERATION_PE="--detect_adapter_for_pe"
+                else 
+                    ADAPTER_OPERATION_PE="--adapter_sequence {params.adapter_sequence} --adapter_sequence_r2 {params.adapter_sequence_r2}"
+                fi
+
+                if [ "{params.detect_adapter_se}" == "True" ]
+                then
+                    ADAPTER_OPERATION_SE="--detect_adapter_for_se"
+                esle
+                    ADAPTER_OPERATION_SE="--adapter_sequence {params.adapter_sequence}"
+                fi
+            fi
 
             if [ $R1 != "" ];
             then
@@ -159,6 +173,8 @@ if config["params"]["trimming"]["fastp"]["do"]:
                 FQ2={params.pe_prefix}.trimming.pe.2.fq.gz
                 HTML={params.pe_prefix}.fastp.pe.html
                 JSON={params.pe_prefix}.fastp.pe.json
+
+                mkdir -p $OUTPE
 
                 if [ "{params.use_slide_window}" == "yes" ];
                 then
@@ -168,7 +184,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
                     --out1 $FQ1 \
                     --out2 $FQ2 \
                     --compression {params.compression} \
-                    {ADAPTER_OPERATION} \
+                    $ADAPTER_OPERATION_PE \
                     {params.dedup} \
                     --cut_front \
                     --cut_right \
@@ -189,7 +205,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
                     --out1 $FQ1 \
                     --out2 $FQ2 \
                     --compression {params.compression} \
-                    {ADAPTER_OPERATION} \
+                    $ADAPTER_OPERATION_PE \
                     {params.dedup} \
                     --cut_front \
                     --cut_tail \
@@ -212,13 +228,15 @@ if config["params"]["trimming"]["fastp"]["do"]:
                 HTML={params.se_prefix}.fastp.se.html
                 JSON={params.se_prefix}.fastp.se.json
 
+                mkdir -p $OUTSE
+
                 if [ "{params.use_slide_window}" == "yes" ];
                 then
                     fastp \
                     --in1 $RS \
                     --out1 $FQS \
                     --compression {params.compression} \
-                    {ADAPTER_OPERATION} \
+                    $ADAPTER_OPERATION_SE \
                     {params.dedup} \
                     --cut_front \
                     --cut_right \
@@ -237,7 +255,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
                     --in1 $RS \
                     --out1 $FQS \
                     --compression {params.compression} \
-                    {ADAPTER_OPERATION} \
+                    $ADAPTER_OPERATION_SE \
                     {params.dedup} \
                     --cut_front \
                     --cut_tail \
@@ -296,8 +314,9 @@ if config["params"]["trimming"]["trimmomatic"]["do"]:
             OUTDIR=$(dirname {output})
             OUTPE=$(dirname {params.pe_prefix})
             OUTSE=$(dirname {params.se_prefix})
+
             rm -rf $OUTDIR $OUTPE $OUTSE
-            mkdir -p $OUTDIR $OUTPE $OUTSE
+            mkdir -p $OUTDIR
 
             R1=$(jq -r -M '.PE_FORWARD' {input} | sed 's/^null$//g')
             R2=$(jq -r -M '.PE_REVERSE' {input} | sed 's/^null$//g')
@@ -311,6 +330,8 @@ if config["params"]["trimming"]["trimmomatic"]["do"]:
             then
                 FQ1={params.pe_prefix}.trimming.pe.1.fq.gz
                 FQ2={params.pe_prefix}.trimming.pe.2.fq.gz
+
+                mkdir -p $OUTPE
 
                 trimmomatic PE \
                 {params.phred} \
@@ -332,6 +353,8 @@ if config["params"]["trimming"]["trimmomatic"]["do"]:
             if [ $RS != "" ];
             then
                 FQS={params.se_prefix}.trimming.se.fq.gz
+
+                mkdir -p $OUTSE
 
                 trimmomatic SE \
                 {params.phred} \
@@ -401,9 +424,9 @@ if TRIMMING_DO and config["params"]["qcreport"]["do"]:
         output:
             os.path.join(config["output"]["qcreport"], "trimming_stats.tsv")
         log:
-            os.path.join(config["output"]["raw"], "logs/trimming_report_merge/raw_report_merge.log")
+            os.path.join(config["output"]["raw"], "logs/trimming_report_merge/trimming_report_merge.log")
         benchmark:
-            os.path.join(config["output"]["raw"], "benchmark/trimming_report_merge/raw_report_merge.txt")
+            os.path.join(config["output"]["raw"], "benchmark/trimming_report_merge/trimming_report_merge.txt")
         priority:
             10
         threads:
