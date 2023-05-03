@@ -1020,7 +1020,7 @@ if RMHOST_DO and config["params"]["qcreport"]["do"]:
 
     rule rmhost_report_all:
         input:
-            os.path.join(config["output"]["qcreport"], "rmhost_stats.tsv")
+            rules.rmhost_report_merge.output
 
 else:
     rule rmhost_report_all:

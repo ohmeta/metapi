@@ -155,7 +155,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
                 if [ "{params.detect_adapter_pe}" == "True" ]
                 then
                     ADAPTER_OPERATION_PE="--detect_adapter_for_pe"
-                else 
+                else
                     ADAPTER_OPERATION_PE="--adapter_sequence {params.adapter_sequence} --adapter_sequence_r2 {params.adapter_sequence_r2}"
                 fi
 
@@ -443,7 +443,7 @@ if TRIMMING_DO and config["params"]["qcreport"]["do"]:
 
     rule trimming_report_all:
         input:
-            os.path.join(config["output"]["qcreport"], "trimming_stats.tsv")
+            rules.trimming_report_merge.output
 
 else:
     rule trimming_report_all:
