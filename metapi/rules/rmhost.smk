@@ -184,8 +184,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
             \\"PE_REVERSE\\": \\"$FQ2\\", \
             \\"SE\\": \\"$FQS\\", \
             \\"PE_ALIGN_STATS\\": \\"$STATSPE\\", \
-            \\"SE_ALIGN_STATS\\": \\"$STATSSE\\", \
-            }}" | \
+            \\"SE_ALIGN_STATS\\": \\"$STATSSE\\" }}" | \
             jq . > {output}
             '''
 
@@ -378,8 +377,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
             \\"PE_REVERSE\\": \\"$FQ2\\", \
             \\"SE\\": \\"$FQS\\", \
             \\"PE_ALIGN_STATS\\": \\"$STATSPE\\", \
-            \\"SE_ALIGN_STATS\\": \\"$STATSSE\\", \
-            }}" | \
+            \\"SE_ALIGN_STATS\\": \\"$STATSSE\\" }}" | \
             jq . > {output}
             '''
 
@@ -565,8 +563,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
             \\"PE_REVERSE\\": \\"$FQ2\\", \
             \\"SE\\": \\"$FQS\\", \
             \\"PE_ALIGN_STATS\\": \\"$STATSPE\\", \
-            \\"SE_ALIGN_STATS\\": \\"$STATSSE\\", \
-            }}" | \
+            \\"SE_ALIGN_STATS\\": \\"$STATSSE\\" }}" | \
             jq . > {output}
             '''
 
@@ -696,7 +693,10 @@ if config["params"]["rmhost"]["kraken2"]["do"]:
                 >>{log} 2>&1
             fi
 
-            echo "{{\\"PE_FORWARD\\": \\"$FQ1\\", \\"PE_REVERSE\\": \\"$FQ2\\", \\"SE\\": \\"$FQS\\"}}" | \
+            echo "{{ \
+            \\"PE_FORWARD\\": \\"$FQ1\\", \
+            \\"PE_REVERSE\\": \\"$FQ2\\", \
+            \\"SE\\": \\"$FQS\\ "}}" | \
             jq . > {output}
             '''
 
@@ -915,7 +915,10 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
                 mv $OUTSE/{params.output_prefix}.fastq.gz $FQS
             fi
 
-            echo "{{\\"PE_FORWARD\\": \\"$FQ1\\", \\"PE_REVERSE\\": \\"$FQ2\\", \\"SE\\": \\"$FQS\\"}}" | \
+            echo "{{ \
+            \\"PE_FORWARD\\": \\"$FQ1\\", \
+            \\"PE_REVERSE\\": \\"$FQ2\\", \
+            \\"SE\\": \\"$FQS\\ "}}" | \
             jq . > {output}
             '''
 
