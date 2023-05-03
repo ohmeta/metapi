@@ -92,65 +92,70 @@ rule raw_fastqc_all:
             sample=SAMPLES_ID_LIST)
 
 
-rule raw_report:
-    input:
-        rules.raw_prepare_reads.output
-    output:
-        os.path.join(config["output"]["raw"], "report/stats/{sample}_raw_stats.tsv")
-    log:
-        os.path.join(config["output"]["raw"], "logs/raw_report/{sample}.log")
-    benchmark:
-        os.path.join(config["output"]["raw"], "benchmark/raw_report/{sample}.txt")
-    params:
-        fq_encoding = config["params"]["fq_encoding"]
-    threads:
-        config["params"]["qcreport"]["seqkit"]["threads"]
-    conda:
-        config["envs"]["report"]
-    shell:
-        '''
-        R1=$(jq -r -M '.PE_FORWARD' {input} | sed 's/^null$//g')
-        R2=$(jq -r -M '.PE_REVERSE' {input} | sed 's/^null$//g')
-        RS=$(jq -r -M '.SE' {input} | sed 's/^null$//g')
-        RL=$(jq -r -M '.LONG' {input} | sed 's/^null$//g')
+if config["params"]["qcreport"]["do"]:
+    rule raw_report:
+        input:
+            rules.raw_prepare_reads.output
+        output:
+            os.path.join(config["output"]["raw"], "report/stats/{sample}_raw_stats.tsv")
+        log:
+            os.path.join(config["output"]["raw"], "logs/raw_report/{sample}.log")
+        benchmark:
+            os.path.join(config["output"]["raw"], "benchmark/raw_report/{sample}.txt")
+        params:
+            fq_encoding = config["params"]["fq_encoding"]
+        threads:
+            config["params"]["qcreport"]["seqkit"]["threads"]
+        conda:
+            config["envs"]["report"]
+        shell:
+            '''
+            R1=$(jq -r -M '.PE_FORWARD' {input} | sed 's/^null$//g')
+            R2=$(jq -r -M '.PE_REVERSE' {input} | sed 's/^null$//g')
+            RS=$(jq -r -M '.SE' {input} | sed 's/^null$//g')
+            RL=$(jq -r -M '.LONG' {input} | sed 's/^null$//g')
 
-        seqkit stats \
-        --all \
-        --basename \
-        --tabular \
-        --fq-encoding {params.fq_encoding} \
-        --out-file {output} \
-        --threads {threads} \
-        $R1 $R2 $RS $RL \
-        >{log} 2>&1
-        '''
-
-
-rule raw_report_merge:
-    input:
-        expand(os.path.join(config["output"]["raw"], "report/stats/{sample}_raw_stats.tsv"),
-        sample=SAMPLES_ID_LIST)
-    output:
-        os.path.join(config["output"]["qcreport"], "raw_stats.tsv")
-    log:
-        os.path.join(config["output"]["raw"], "logs/raw_report_merge/raw_report_merge.log")
-    benchmark:
-        os.path.join(config["output"]["raw"], "benchmark/raw_report_merge/raw_report_merge.txt")
-    threads:
-        config["params"]["qcreport"]["seqkit"]["threads"]
-    shell:
-        '''
-        head -1 {input[0]} > {output}
-        for report in {input}
-        do
-            tail -q -n +2 $report >> {output} 2>>{log}
-        done
-        '''
+            seqkit stats \
+            --all \
+            --basename \
+            --tabular \
+            --fq-encoding {params.fq_encoding} \
+            --out-file {output} \
+            --threads {threads} \
+            $R1 $R2 $RS $RL \
+            >{log} 2>&1
+            '''
 
 
-rule raw_report_all:
-    input:
-        os.path.join(config["output"]["qcreport"], "raw_stats.tsv")
+    rule raw_report_merge:
+        input:
+            expand(os.path.join(config["output"]["raw"], "report/stats/{sample}_raw_stats.tsv"),
+            sample=SAMPLES_ID_LIST)
+        output:
+            os.path.join(config["output"]["qcreport"], "raw_stats.tsv")
+        log:
+            os.path.join(config["output"]["raw"], "logs/raw_report_merge/raw_report_merge.log")
+        benchmark:
+            os.path.join(config["output"]["raw"], "benchmark/raw_report_merge/raw_report_merge.txt")
+        threads:
+            config["params"]["qcreport"]["seqkit"]["threads"]
+        shell:
+            '''
+            head -1 {input[0]} > {output}
+            for report in {input}
+            do
+                tail -q -n +2 $report >> {output} 2>>{log}
+            done
+            '''
+
+
+    rule raw_report_all:
+        input:
+            os.path.join(config["output"]["qcreport"], "raw_stats.tsv")
+
+else:
+    rule raw_report_all:
+        input:
 
 
 rule raw_all:
