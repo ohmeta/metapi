@@ -303,7 +303,7 @@ params:
     do: True
     threads: 8
     db: /home/jiezhu/databases/ecogenomics/CheckV/checkv-db-v1.4
-    checkv_identifier: ["virsorter2", "phamb"]
+    checkv_identifier: ["virsorter2", "phamb", "dbscan_swa"]
 
   dereplicate:
     cdhit:
