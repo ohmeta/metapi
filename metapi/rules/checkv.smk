@@ -54,13 +54,19 @@ if config["params"]["checkv"]["do"]:
         shell:
             '''
             rm -rf {params.outdir}
+            mkdir -p {params.outdir}
 
-            checkv end_to_end \
-            {input.viral} \
-            {params.outdir} \
-            -t {threads} \
-            -d {params.db} \
-            >{log} 2>&1
+            FILESIZE=$(stat -c %s {input.viral})
+
+            if [ $FILESIZE -gt 0 ];
+            then
+                checkv end_to_end \
+                {input.viral} \
+                {params.outdir} \
+                -t {threads} \
+                -d {params.db} \
+                >{log} 2>&1
+            fi
 
             touch {output}
             '''
