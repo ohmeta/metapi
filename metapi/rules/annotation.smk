@@ -125,18 +125,19 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
                  "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.metadata.tsv.gz"),
             all_fna = get_dbscan_swa_merged_output
         output:
-            os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/distribution_done")
+            assembly_fna = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/{binning_group}.{assembly_group}.{assembler}.dbscan_swa.combined.fa.gz"),
+            done = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/distribution_done")
         params:
-            working_dir = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa"),
-            assembly_fna = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/{binning_group}.{assembly_group}.{assembler}.dbscan_swa.combined.fa"),
+            working_dir = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa"), 
             assembly_group = "{assembly_group}"
         run:
             shell("rm -rf {params.working_dir}")
             shell("mkdir -p {params.working_dir}")
-            shell("touch {params.assembly_fna}")
+            # shell("touch {params.assembly_fna}")
 
             import pandas as pd
             from Bio import SeqIO
+            import gzip
 
             ### record assembly_group : alias ###
             tab = pd.read_table(input.metadata)
@@ -149,11 +150,11 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
                 if assembly_vamb_id[vamb_id] != params.assembly_group:
                     # print(vamb_id, assembly_vamb_id[vamb_id])
                     continue
-                with open(params.assembly_fna, "a") as f:
+                with gzip.open(output.assembly_fna, "at") as f:
                     f.write(record.format("fasta"))
 
-            shell("gzip -f {params.assembly_fna}")
-            shell("touch {output}")
+            # shell("gzip -f {params.assembly_fna}")
+            shell("touch {output.done}")
 
     rule annotation_prophage_dbscan_swa_all:
         input:
