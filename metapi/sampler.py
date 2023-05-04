@@ -1,8 +1,12 @@
 #!/usr/bin/env python
+
 import glob
 import os
 import sys
+import json
 
+from ruamel.yaml import YAML
+from executor import execute
 import pandas as pd
 
 
@@ -213,3 +217,336 @@ def sample_cluster_info(sample_df):
         assembly_groups = sorted(assembly_groups)
         for i in range(0, len(assembly_groups)):
             print(f'''{assembly_groups[i]}\tS{i+1}''')
+
+
+def get_samples_for_assembly_list(wildcards, samples_df, samples_dir):
+    samples_id_list = get_samples_id_by_assembly_and_binning_group(samples_df, wildcards.assembly_group, wildcards.binning_group)
+    samples_json_list = []
+    for sample_id in samples_id_list:
+        samples_json_list.append(os.path.join(samples_dir, f'''reads/{sample_id}/{sample_id}.json'''))
+    return samples_json_list
+
+
+def get_samples_for_assembly_dict(wildcards, samples_df, samples_dir):
+    samples_dict = {
+        "PE_FORWARD": [],
+        "PE_REVERSE": [],
+        "SE": []
+    }
+
+    input_list = get_samples_for_assembly_list(wildcards, samples_df, samples_dir)
+    for sample_json in input_list:
+        with open(sample_json, "rt") as ih:
+            jsondata = json.load(ih)
+
+            if jsondata.get("PE_FORWARD", []) > 0:
+                samples_dict["PE_FORWARD"].append(jsondata["PE_FORWARD"])
+                samples_dict["PE_REVERSE"].append(jsondata["PE_REVERSE"])
+
+            if jsondata.get("SE", []) > 0:
+                samples_dict["SE"].append(jsondata["SE"])
+
+    return samples_dict
+
+
+def get_samples_for_assembly_megahit(wildcards, samples_df, samples_dir):
+    samples_dict = get_samples_for_assembly_dict(wildcards, samples_df, samples_dir)
+
+    reads = ""
+    if len(samples_dict.get("PE_FORWARD", [])) > 0:
+        reads = f'''-1 {",".join(samples_dict["PE_FORWARD"])} -2 {",".join(samples_dict["PE_REVERSE"])}'''
+    if len(samples_dict.get("SE", [])) > 0:
+        reads += f'''-r {",".join(samples_dict["SE"])}'''
+
+    return reads
+
+
+def get_samples_for_assembly_idba_ud(wildcards, samples_df, samples_dir):
+    samples_dict = get_samples_for_assembly_dict(wildcards, samples_df, samples_dir)
+    reads = os.path.join(
+        samples_dir,
+        "reads_asm",
+        f"{wildcards.binning_group}.{wildcards.assembly_group}/idba_ud/reads_temp")
+    reads_dir = os.path.dirname(reads)
+
+    cmd = f'''(mkdir -p {reads_dir})'''
+
+    input_str = ""
+
+    if len(samples_dict.get("PE_FORWARD", [])) > 0:
+        pe_forward_list = samples_dict["PE_FORWARD"]
+        pe_reverse_list = samples_dict["PE_REVERSE"]
+        reads_short = f"{reads}.short.fa"
+        if len(pe_forward_list) == 1:
+            cmd = f''' && (seqtk mergepe {pe_forward_list[0]} {pe_reverse_list[0]} | seqtk seq -A - > {reads_short})'''
+        else:
+            cmd = f''' && (cat {" ".join(pe_forward_list)} > {reads}.pe.1.fq.gz)'''
+            cmd += f''' && (cat {" ".join(pe_reverse_list)} > {reads}.pe.2.fq.gz)'''
+            cmd += f''' && (seqtk mergepe {reads}.pe.1.fq.gz {reads}.pe.2.fq.gz | seqtk seq -A - > {reads_short})'''
+            cmd += f''' && (rm -rf {reads}.pe.1.fq.gz {reads}.pe.2.fq.gz)'''
+        input_str = f"-r {reads_short}"
+
+    # FIXME can we combined PE and SE data?
+    if len(samples_dict.get("SE", [])) > 0:
+        se_list = samples_dict["SE"]
+        reads_short = f"{reads}.short.fa"
+        if len(se_list) == 1:
+            cmd += f''' && (seqtk seq -A {se_list[0]} >> {reads_short})'''
+        else:
+            cmd = f''' && (cat {" ".join(se_list)} > {reads}.se.fq.gz)'''
+            cmd += f''' && (seqtk seq -A {reads}.se.fq.gz >> {reads_short})'''
+            cmd += f''' && (rm -rf {reads}.se.fq.gz)'''
+        input_str = f"-r {reads_short}"
+
+    if len(samples_dict.get("LONG", [])) > 0:
+        long_list = samples_dict["LONG"]
+        reads_long = f"{reads}.long.fa"
+        if len(long_list) == 1:
+            cmd += f''' && (seqtk seq -A {long_list[0]} > {reads_long})'''
+        else:
+            cmd = f''' && (cat {" ".join(long_list)} > {reads}.long.fq.gz)'''
+            cmd += f''' && (seqtk seq -A {reads}.long.fq.gz > {reads_long})'''
+            cmd += f''' && (rm -rf {reads}.long.fq.gz)'''
+        input_str = f"{input_str} -l {reads_long}"
+
+    return cmd, input_str, reads_dir
+
+
+def get_samples_for_assembly_spades(wildcards, samples_df, samples_dir, assembler):
+    """
+    ### Read-pair libraries
+
+    By using command line interface, you can specify up to nine different paired-end libraries,
+    up to nine mate-pair libraries and also up to nine high-quality mate-pair ones.
+    If you wish to use more, you can use [YAML data set file](#yaml).
+    We further refer to paired-end and mate-pair libraries simply as to read-pair libraries.
+
+    By default, SPAdes assumes that paired-end and high-quality mate-pair reads have forward-reverse (fr)
+    orientation and usual mate-pairs have reverse-forward (rf) orientation.
+    However, different orientations can be set for any library by using SPAdes options.
+
+    To distinguish reads in pairs we refer to them as left and right reads.
+    For forward-reverse orientation, the forward reads correspond to the left reads and the reverse reads, to the right.
+    Similarly, in reverse-forward orientation left and right reads correspond to reverse and forward reads, respectively, etc.
+
+
+    [
+        {
+            orientation: "fr",
+            type: "paired-end",
+            right reads: [
+                "/FULL_PATH_TO_DATASET/lib_pe1_right_1.fastq",
+                "/FULL_PATH_TO_DATASET/lib_pe1_right_2.fastq"
+            ],
+            left reads: [
+                "/FULL_PATH_TO_DATASET/lib_pe1_left_1.fastq",
+                "/FULL_PATH_TO_DATASET/lib_pe1_left_2.fastq"
+            ]
+        },
+        {
+            orientation: "rf",
+            type: "mate-pairs",
+            right reads: [
+                "/FULL_PATH_TO_DATASET/lib_mp1_right.fastq"
+            ],
+            left reads: [
+                "/FULL_PATH_TO_DATASET/lib_mp1_left.fastq"
+            ]
+        },
+        {
+            type: "single",
+            single reads: [
+                "/FULL_PATH_TO_DATASET/pacbio_ccs.fastq"
+            ]
+        },
+        {
+            type: "pacbio",
+            single reads: [
+                "/FULL_PATH_TO_DATASET/pacbio_clr.fastq"
+            ]
+        }
+    ]
+    """
+
+    yaml = YAML()
+    yaml.default_flow_style = False
+
+    samples_dict = get_samples_for_assembly_dict(wildcards, samples_df, samples_dir)
+    datasets = []
+
+    have_pe = False
+    if len(samples_dict.get("PE_FORWARD", [])) > 0:
+        have_pe = True
+        datasets_pe = {}
+        #datasets_pe["orientation"] = "fr"
+        datasets_pe["type"] = "paired-end"
+        datasets_pe["left reads"] = [os.path.realpath(fq) for fq in samples_dict["PE_FORWARD"]]
+        datasets_pe["right reads"] = [os.path.realpath(fq) for fq in samples_dict["PE_REVERSE"]]
+        datasets.append(datasets_pe)
+
+    if assembler == "metaspades":
+        if not have_pe:
+            print("Currently metaSPAdes supports only a single short-read library which has to be paired-end.")
+            sys.exit(-1)
+
+    if assembler != "metaspades":
+        if len(samples_dict.get("SE", [])) > 0:
+            datasets_se = {}
+            datasets_se["type"] = "single"
+            datasets_se["single reads"] = [os.path.realpath(fq) for fq in samples_dict["SE"]]
+            datasets.append(datasets_se)
+
+    if len(samples_dict.get("LONG", [])) > 0:
+        datasets_long = {}
+        # FIXME or nanopore ?
+        datasets_long["type"] = "pacbio" # or nanopore ? # FIXME
+        datasets_long["single reads"] = [os.path.realpath(fq) for fq in samples_dict["LONG"]]
+
+    datasets_yaml = os.path.join(
+        samples_dir,
+        "reads_asm",
+        f"{wildcards.binning_group}.{wildcards.assembly_group}/spades/datasets.yaml")
+    os.makedirs(os.path.dirname(datasets_yaml), exist_ok=True)
+
+    with open(datasets_yaml, "wt") as oh:
+        yaml.dump(datasets, oh)
+
+    return datasets_yaml
+
+
+def get_samples_for_assembly_plass(wildcards, samples_df, samples_dir):
+    samples_dict = get_samples_for_assembly_dict(wildcards, samples_df, samples_dir)
+
+    reads = os.path.join(
+        samples_dir,
+        "reads_asm",
+        f"{wildcards.binning_group}.{wildcards.assembly_group}/plass/reads_temp")
+    reads_dir = os.path.dirname(reads)
+
+    cmd = f'''(mkdir -p {reads_dir})'''
+
+    reads_pe_list = []
+    if len(samples_dict.get("PE_FORWARD", [])) > 0:
+        for r1, r2 in zip(samples_dict["PE_FORWARD"], samples_dict["PE_REVERSE"]):
+            reads_pe_list.append(r1)
+            reads_pe_list.append(r2)
+    reads_pe = ""
+    if len(reads_pe_list) > 0:
+        reads_pe = " ".join(reads_pe_list)
+
+    reads_se = ""
+    reads_se_list = samples_dict.get("SE", [])
+    if len(reads_se_list) == 1:
+        reads_se = reads_se_list[0]
+    elif len(reads_se_list) > 1:
+        reads_se = f"{reads}.se.fq.gz"
+        cmd += f'''&& (cat {" ".join(reads_se_list)} > {reads_se})'''
+
+    return cmd, reads_pe, reads_se, reads_dir
+
+
+def get_samples_for_assembly_opera_ms(wildcards, samples_df, samples_dir, asm_dir):
+    samples_dict = get_samples_for_assembly_dict(wildcards, samples_df, samples_dir)
+    prefix = f"{wildcards.binning_group}.{wildcards.assembly_group}"
+
+    reads = os.path.join(
+        samples_dir,
+        "reads_asm",
+        f"{prefix}/opera_ms/reads_temp")
+    reads_dir = os.path.dirname(reads)
+
+    cmd = f'''(mkdir -p {reads_dir})'''
+
+    input_str = ""
+
+    reads_pe1 = ""
+    reads_pe2 = ""
+    if len(samples_dict.get("PE_FORWARD", [])) > 0:
+        pe_forward_list = samples_dict["PE_FORWARD"]
+        pe_reverse_list = samples_dict["PE_REVERSE"]
+        if len(pe_forward_list) == 1:
+            reads_pe1 = pe_forward_list[0]
+            reads_pe2 = pe_reverse_list[0]
+        else:
+            reads_pe1 = f'''{reads}.pe.1.fq.gz'''
+            reads_pe2 = f'''{reads}.pe.2.fq.gz'''
+            cmd += f''' && (cat {" ".join(pe_forward_list)} > {reads_pe1})'''
+            cmd += f''' && (cat {" ".join(pe_reverse_list)} > {reads_pe2})'''
+        input_str = f"{input_str} --short-read1 {reads_pe1} --short-read2 {reads_pe2}"
+
+    reads_long = ""
+    if len(samples_dict.get("LONG", [])) > 0:
+        long_list = samples_dict["LONG"]
+        if len(long_list) == 1:
+            reads_long = long_list[0]
+        else:
+            reads_long = f'''{reads}.long.fq.gz'''
+            cmd += f''' && (cat {" ".join(long_list)} > {reads_long})'''
+        input_str = f"{input_str} --long-read {reads_long}"
+
+    scaftigs_gz = os.path.join(
+        asm_dir,
+        "scaftigs",
+        f"{prefix}.{wildcards.assembler}/{prefix}.{wildcards.assembler}.scaftigs.fa.gz")
+    scaftigs = os.path.join(
+        samples_dir,
+        "reads_asm",
+        f"{prefix}/opera_ms/scafitgs_temp.fa")
+    cmd += f'''&& (pigz -f -dkc {scaftigs_gz} > {scaftigs})'''
+    input_str = f"{input_str} --contig-file {scaftigs}"
+
+    return cmd, input_str, reads_dir
+
+
+def get_samples_for_metaquast(wildcards, samples_df, samples_dir):
+    samples_dict = get_samples_for_assembly_dict(wildcards, samples_df, samples_dir)
+    prefix = f"{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}"
+
+    reads = os.path.join(
+        samples_dir,
+        "reads_asm",
+        f"{prefix}/metaquast/reads_temp")
+    reads_dir = os.path.dirname(reads)
+
+    cmd = f'''(mkdir -p {reads_dir})'''
+
+    input_str = ""
+
+    reads_pe1 = ""
+    reads_pe2 = ""
+    if len(samples_dict.get("PE_FORWARD", [])) > 0:
+        pe_forward_list = samples_dict["PE_FORWARD"]
+        pe_reverse_list = samples_dict["PE_REVERSE"]
+        if len(pe_forward_list) == 1:
+            reads_pe1 = pe_forward_list[0]
+            reads_pe2 = pe_reverse_list[0]
+        else:
+            reads_pe1 = f'''{reads}.pe.1.fq.gz'''
+            reads_pe2 = f'''{reads}.pe.2.fq.gz'''
+            cmd += f''' && (cat {" ".join(pe_forward_list)} > {reads_pe1})'''
+            cmd += f''' && (cat {" ".join(pe_reverse_list)} > {reads_pe2})'''
+        input_str = f"{input_str} --pe1 {reads_pe1} --pe2 {reads_pe2}"
+
+    reads_se = ""
+    if len(samples_dict.get("SE", [])) > 0:
+        reads_se_list = samples_dict.get("SE", [])
+        if len(reads_se_list) == 1:
+            reads_se = reads_se_list[0]
+        elif len(reads_se_list) > 1:
+            reads_se = f"{reads}.se.fq.gz"
+            cmd += f'''&& (cat {" ".join(reads_se_list)} > {reads_se})'''
+        input_str = f"{input_str} --single {reads_se}"
+
+    reads_long = ""
+    if len(samples_dict.get("LONG", [])) > 0:
+        long_list = samples_dict["LONG"]
+        if len(long_list) == 1:
+            reads_long = long_list[0]
+        else:
+            reads_long = f'''{reads}.long.fq.gz'''
+            cmd += f''' && (cat {" ".join(long_list)} > {reads_long})'''
+        input_str = f"{input_str} --pacbio {reads_long}"
+        # FIXME
+        #input_str = f"{input_str} --nanopore {reads_long}"
+
+    return cmd, input_str, reads_dir

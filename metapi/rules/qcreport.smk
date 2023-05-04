@@ -4,6 +4,8 @@ if TRIMMING_DO:
 if RMHOST_DO:
     STEPS += ["rmhost"]
 
+SAMPLESDIR = os.path.join(config["output"][STEPS[-1]])
+
 if config["params"]["qcreport"]["do"]:
     rule qcreport_summary:
         input:

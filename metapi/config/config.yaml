@@ -483,7 +483,7 @@ envs:
   kraken2: "envs/kraken2.yaml"
   kneaddata: "envs/kneaddata.yaml"
   megahit: "envs/megahit.yaml"
-  idbaud: "envs/idbaud.yaml"
+  idba_ud: "envs/idba.yaml"
   spades: "envs/spades.yaml"
   plass: "envs/plass.yaml"
   quast: "envs/quast.yaml"
