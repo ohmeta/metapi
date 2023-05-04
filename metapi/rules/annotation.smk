@@ -144,15 +144,20 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
             assembly_vamb_id = {vamb_id : binning_assembly.split(".")[-1] for vamb_id, binning_assembly in zip(tab.iloc[:,1], tab.iloc[:, 0])}
 
             ### read the prophage fna ###
+            n = 0
             for record in SeqIO.parse(input.all_fna[0], 'fasta'):
                 desc = record.description
                 vamb_id = desc.split("|")[0].split("C")[0]
                 if assembly_vamb_id[vamb_id] != params.assembly_group:
                     # print(vamb_id, assembly_vamb_id[vamb_id])
                     continue
+                n += 1
                 with gzip.open(output.assembly_fna, "at") as f:
                     f.write(record.format("fasta"))
 
+            if n == 0:
+                with gzip.open(output.assembly_fna, "wt") as f:
+                    f.write("")
             # shell("gzip -f {params.assembly_fna}")
             shell("touch {output.done}")
 
