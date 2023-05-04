@@ -257,9 +257,9 @@ def get_samples_for_assembly_megahit(wildcards, samples_df, samples_dir):
 
     reads = ""
     if len(samples_dict.get("PE_FORWARD", [])) > 0:
-        reads = f'''-1 {",".join(samples_dict["PE_FORWARD"])} -2 {",".join(samples_dict["PE_REVERSE"])}'''
+        reads = f''' -1 {",".join(samples_dict["PE_FORWARD"])} -2 {",".join(samples_dict["PE_REVERSE"])} '''
     if len(samples_dict.get("SE", [])) > 0:
-        reads += f'''-r {",".join(samples_dict["SE"])}'''
+        reads += f''' -r {",".join(samples_dict["SE"])} '''
 
     return reads
 
@@ -287,7 +287,7 @@ def get_samples_for_assembly_idba_ud(wildcards, samples_df, samples_dir):
             cmd += f''' && (cat {" ".join(pe_reverse_list)} > {reads}.pe.2.fq.gz)'''
             cmd += f''' && (seqtk mergepe {reads}.pe.1.fq.gz {reads}.pe.2.fq.gz | seqtk seq -A - > {reads_short})'''
             cmd += f''' && (rm -rf {reads}.pe.1.fq.gz {reads}.pe.2.fq.gz)'''
-        input_str = f"-r {reads_short}"
+        input_str = f" -r {reads_short} "
 
     # FIXME can we combined PE and SE data?
     if len(samples_dict.get("SE", [])) > 0:
@@ -299,7 +299,7 @@ def get_samples_for_assembly_idba_ud(wildcards, samples_df, samples_dir):
             cmd = f''' && (cat {" ".join(se_list)} > {reads}.se.fq.gz)'''
             cmd += f''' && (seqtk seq -A {reads}.se.fq.gz >> {reads_short})'''
             cmd += f''' && (rm -rf {reads}.se.fq.gz)'''
-        input_str = f"-r {reads_short}"
+        input_str = f" -r {reads_short} "
 
     if len(samples_dict.get("LONG", [])) > 0:
         long_list = samples_dict["LONG"]
@@ -310,7 +310,7 @@ def get_samples_for_assembly_idba_ud(wildcards, samples_df, samples_dir):
             cmd = f''' && (cat {" ".join(long_list)} > {reads}.long.fq.gz)'''
             cmd += f''' && (seqtk seq -A {reads}.long.fq.gz > {reads_long})'''
             cmd += f''' && (rm -rf {reads}.long.fq.gz)'''
-        input_str = f"{input_str} -l {reads_long}"
+        input_str = f" {input_str} -l {reads_long} "
 
     return cmd, input_str, reads_dir
 
@@ -443,7 +443,7 @@ def get_samples_for_assembly_plass(wildcards, samples_df, samples_dir):
         reads_se = reads_se_list[0]
     elif len(reads_se_list) > 1:
         reads_se = f"{reads}.se.fq.gz"
-        cmd += f'''&& (cat {" ".join(reads_se_list)} > {reads_se})'''
+        cmd += f''' && (cat {" ".join(reads_se_list)} > {reads_se})'''
 
     return cmd, reads_pe, reads_se, reads_dir
 
@@ -475,7 +475,7 @@ def get_samples_for_assembly_opera_ms(wildcards, samples_df, samples_dir, asm_di
             reads_pe2 = f'''{reads}.pe.2.fq.gz'''
             cmd += f''' && (cat {" ".join(pe_forward_list)} > {reads_pe1})'''
             cmd += f''' && (cat {" ".join(pe_reverse_list)} > {reads_pe2})'''
-        input_str = f"{input_str} --short-read1 {reads_pe1} --short-read2 {reads_pe2}"
+        input_str = f" {input_str} --short-read1 {reads_pe1} --short-read2 {reads_pe2} "
 
     reads_long = ""
     if len(samples_dict.get("LONG", [])) > 0:
@@ -485,7 +485,7 @@ def get_samples_for_assembly_opera_ms(wildcards, samples_df, samples_dir, asm_di
         else:
             reads_long = f'''{reads}.long.fq.gz'''
             cmd += f''' && (cat {" ".join(long_list)} > {reads_long})'''
-        input_str = f"{input_str} --long-read {reads_long}"
+        input_str = f" {input_str} --long-read {reads_long} "
 
     scaftigs_gz = os.path.join(
         asm_dir,
@@ -495,8 +495,8 @@ def get_samples_for_assembly_opera_ms(wildcards, samples_df, samples_dir, asm_di
         samples_dir,
         "reads_asm",
         f"{prefix}/opera_ms/scafitgs_temp.fa")
-    cmd += f'''&& (pigz -f -dkc {scaftigs_gz} > {scaftigs})'''
-    input_str = f"{input_str} --contig-file {scaftigs}"
+    cmd += f''' && (pigz -f -dkc {scaftigs_gz} > {scaftigs})'''
+    input_str = f" {input_str} --contig-file {scaftigs} "
 
     return cmd, input_str, reads_dir
 
@@ -528,7 +528,7 @@ def get_samples_for_metaquast(wildcards, samples_df, samples_dir):
             reads_pe2 = f'''{reads}.pe.2.fq.gz'''
             cmd += f''' && (cat {" ".join(pe_forward_list)} > {reads_pe1})'''
             cmd += f''' && (cat {" ".join(pe_reverse_list)} > {reads_pe2})'''
-        input_str = f"{input_str} --pe1 {reads_pe1} --pe2 {reads_pe2}"
+        input_str = f" {input_str} --pe1 {reads_pe1} --pe2 {reads_pe2} "
 
     reads_se = ""
     if len(samples_dict.get("SE", [])) > 0:
@@ -537,8 +537,8 @@ def get_samples_for_metaquast(wildcards, samples_df, samples_dir):
             reads_se = reads_se_list[0]
         elif len(reads_se_list) > 1:
             reads_se = f"{reads}.se.fq.gz"
-            cmd += f'''&& (cat {" ".join(reads_se_list)} > {reads_se})'''
-        input_str = f"{input_str} --single {reads_se}"
+            cmd += f''' && (cat {" ".join(reads_se_list)} > {reads_se})'''
+        input_str = f" {input_str} --single {reads_se} "
 
     reads_long = ""
     if len(samples_dict.get("LONG", [])) > 0:
@@ -548,7 +548,7 @@ def get_samples_for_metaquast(wildcards, samples_df, samples_dir):
         else:
             reads_long = f'''{reads}.long.fq.gz'''
             cmd += f''' && (cat {" ".join(long_list)} > {reads_long})'''
-        input_str = f"{input_str} --pacbio {reads_long}"
+        input_str = f" {input_str} --pacbio {reads_long} "
         # FIXME
         #input_str = f"{input_str} --nanopore {reads_long}"
 
