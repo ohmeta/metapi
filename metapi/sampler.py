@@ -222,8 +222,11 @@ def sample_cluster_info(sample_df):
 def get_samples_for_assembly_list(wildcards, samples_df, samples_dir):
     samples_id_list = get_samples_id_by_assembly_and_binning_group(samples_df, wildcards.assembly_group, wildcards.binning_group)
     samples_json_list = []
+
     for sample_id in samples_id_list:
-        samples_json_list.append(os.path.join(samples_dir, f'''reads/{sample_id}/{sample_id}.json'''))
+        jsonfile = os.path.join(samples_dir, f"reads/{sample_id}/{sample_id}.json")
+        samples_json_list.append(jsonfile)
+
     return samples_json_list
 
 
@@ -239,11 +242,11 @@ def get_samples_for_assembly_dict(wildcards, samples_df, samples_dir):
         with open(sample_json, "rt") as ih:
             jsondata = json.load(ih)
 
-            if jsondata.get("PE_FORWARD", []) > 0:
+            if len(jsondata.get("PE_FORWARD", [])) > 0:
                 samples_dict["PE_FORWARD"].append(jsondata["PE_FORWARD"])
                 samples_dict["PE_REVERSE"].append(jsondata["PE_REVERSE"])
 
-            if jsondata.get("SE", []) > 0:
+            if len(jsondata.get("SE", [])) > 0:
                 samples_dict["SE"].append(jsondata["SE"])
 
     return samples_dict

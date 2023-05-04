@@ -58,13 +58,13 @@ rule assembly_megahit:
             $KMEROPTS \
             --min-contig-len {params.min_contig} \
             --out-dir $OUTDIR \
-            --out-prefix {params.output_prefix} \
+            --out-prefix {params.prefix} \
             >{log} 2>&1
         fi
 
         if [ -f $CONTIGS ];
         then
-            knum=`grep "^>" {params.contigs} | head -1 | sed 's/>k//g' | awk -F_ '{{print $1}}'`
+            knum=`grep "^>" $CONTIGS | head -1 | sed 's/>k//g' | awk -F_ '{{print $1}}'`
             megahit_toolkit contig2fastg $knum $CONTIGS | pigz -f -p {threads} > $FASTG
             fastg2gfa $FASTG | pigz -f -p {threads} > {output.gfa}
 
@@ -526,46 +526,45 @@ rule assembly_opera_ms:
         20
     threads:
         config["params"]["assembly"]["threads"]
-    run:
-        shell(
-            '''
-            OUTDIR=$(dirname {output})
-            rm -rf $OUTDIR
+    shell:
+        '''
+        OUTDIR=$(dirname {output})
+        rm -rf $OUTDIR
 
-            {params.reads_cmd[0]}
+        {params.reads_cmd[0]}
 
-            perl {params.opera_ms} \
-            {params.reads_cmd[1]} \
-            --num-processors {threads} \
-            --out-dir $OUTDIR \
-            {params.no_ref_clustering} \
-            {params.no_strain_clustering} \
-            {params.no_gap_filling} \
-            {params.polishing} \
-            {params.genome_db} \
-            --long-read-mapper {params.long_read_mapper} \
-            --short-read-assembler {params.short_read_assembler} \
-            --contig-len-thr {params.contig_len_threshold} \
-            --contig-edge-len {params.contig_edge_len} \
-            --contig-window-len {params.contig_window_len} \
-            >{log} 2>&1
+        perl {params.opera_ms} \
+        {params.reads_cmd[1]} \
+        --num-processors {threads} \
+        --out-dir $OUTDIR \
+        {params.no_ref_clustering} \
+        {params.no_strain_clustering} \
+        {params.no_gap_filling} \
+        {params.polishing} \
+        {params.genome_db} \
+        --long-read-mapper {params.long_read_mapper} \
+        --short-read-assembler {params.short_read_assembler} \
+        --contig-len-thr {params.contig_len_threshold} \
+        --contig-edge-len {params.contig_edge_len} \
+        --contig-window-len {params.contig_window_len} \
+        >{log} 2>&1
 
-            rm -rf {params.reads_cmd[2]}
+        rm -rf {params.reads_cmd[2]}
 
-            pigz -f -p {threads} $OUTDIR/contigs.fasta
+        pigz -f -p {threads} $OUTDIR/contigs.fasta
 
-            if [ "{params.polishing}" != "" ];
-            then
-                pigz -f -p {threads} $OUTDIR/contigs.polished.fasta
-                pushd $OUTDIR && \
-                ln -s contigs.polished.fasta.gz {params.prefix}.opera_ms.scaftigs.fa.gz && \
-                popd
-            else
-                pushd $OUTDIR && \
-                ln -s contigs.fasta.gz {params.prefix}.opera_ms.scaftigs.fa.gz && \
-                popd
-            fi
-            '''
+        if [ "{params.polishing}" != "" ];
+        then
+            pigz -f -p {threads} $OUTDIR/contigs.polished.fasta
+            pushd $OUTDIR && \
+            ln -s contigs.polished.fasta.gz {params.prefix}.opera_ms.scaftigs.fa.gz && \
+            popd
+        else
+            pushd $OUTDIR && \
+            ln -s contigs.fasta.gz {params.prefix}.opera_ms.scaftigs.fa.gz && \
+            popd
+        fi
+        '''
 
 
 if "opera_ms" in ASSEMBLERS:
