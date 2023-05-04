@@ -125,35 +125,40 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
                  "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.metadata.tsv.gz"),
             all_fna = get_dbscan_swa_merged_output
         output:
-            os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/distribution_done")
+            assembly_fna = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/{binning_group}.{assembly_group}.{assembler}.dbscan_swa.combined.fa.gz"),
+            done = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/distribution_done")
         params:
-            working_dir = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa"),
-            assembly_fna = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/{binning_group}.{assembly_group}.{assembler}.dbscan_swa.combined.fa"),
+            working_dir = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa"), 
             assembly_group = "{assembly_group}"
         run:
             shell("rm -rf {params.working_dir}")
             shell("mkdir -p {params.working_dir}")
-            shell("touch {params.assembly_fna}")
+            # shell("touch {params.assembly_fna}")
 
             import pandas as pd
             from Bio import SeqIO
+            import gzip
 
             ### record assembly_group : alias ###
             tab = pd.read_table(input.metadata)
             assembly_vamb_id = {vamb_id : binning_assembly.split(".")[-1] for vamb_id, binning_assembly in zip(tab.iloc[:,1], tab.iloc[:, 0])}
 
             ### read the prophage fna ###
-            for record in SeqIO.parse(input.all_fna[0], 'fasta'):
-                desc = record.description
-                vamb_id = desc.split("|")[0].split("C")[0]
-                if assembly_vamb_id[vamb_id] != params.assembly_group:
-                    # print(vamb_id, assembly_vamb_id[vamb_id])
-                    continue
-                with open(params.assembly_fna, "a") as f:
+            n = 0
+            with gzip.open(output.assembly_fna, "at") as f:
+                for record in SeqIO.parse(input.all_fna[0], 'fasta'):
+                    desc = record.description
+                    vamb_id = desc.split("|")[0].split("C")[0]
+                    if assembly_vamb_id[vamb_id] != params.assembly_group:
+                        # print(vamb_id, assembly_vamb_id[vamb_id])
+                        continue
+                    n += 1
                     f.write(record.format("fasta"))
 
-            shell("gzip -f {params.assembly_fna}")
-            shell("touch {output}")
+                if n == 0:
+                    f.write("")
+            # shell("gzip -f {params.assembly_fna}")
+            shell("touch {output.done}")
 
     rule annotation_prophage_dbscan_swa_all:
         input:
