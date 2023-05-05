@@ -17,9 +17,16 @@ def alignment_input_with_short_reads(wildcards):
         return get_reads(wildcards, "raw", False, False)
 
 
+INDEX_SUFFIX = ["amb", "ann", "bwt", "pac", "sa"]
+if config["params"]["alignment"]["aligner"] == "bwa-mem2":
+    INDEX_SUFFIX = ["0123", "amb", "ann", "bwt.2bit.64", "pac"]
+elif config["params"]["alignment"]["aligner"] == "bowtie2":
+    INDEX_SUFFIX = ["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"]
+
+
 rule alignment_scaftigs_index:
     input:
-        scaftigs = os.path.join(
+        os.path.join(
             config["output"]["assembly"],
             "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
     output:
@@ -27,96 +34,157 @@ rule alignment_scaftigs_index:
             os.path.join(
                 config["output"]["alignment"],
                 "index/{{binning_group}}.{{assembly_group}}.{{assembler}}/{{binning_group}}.{{assembly_group}}.{{assembler}}.scaftigs.fa.gz.{suffix}"),
-            suffix=BWA_INDEX_SUFFIX) if config["params"]["alignment"]["save_bam"] else \
+            suffix=INDEX_SUFFIX) if config["params"]["alignment"]["save_bam"] else \
         temp(expand(
             os.path.join(
                 config["output"]["alignment"],
                 "index/{{binning_group}}.{{assembly_group}}.{{assembler}}/{{binning_group}}.{{assembly_group}}.{{assembler}}.scaftigs.fa.gz.{suffix}"),
-            suffix=BWA_INDEX_SUFFIX))
-    conda:
-        config["envs"]["align"]
+            suffix=INDEX_SUFFIX))
     log:
-        os.path.join(
-            config["output"]["alignment"],
-            "logs/index/{binning_group}.{assembly_group}.{assembler}.scaftigs.index.log")
+        os.path.join(config["output"]["alignment"], "logs/alignment_scaftigs_index/{binning_group}.{assembly_group}.{assembler}.log")
+    benchmark:
+        os.path.join(config["output"]["alignment"], "benchmark/alignment_scaftigs_index/{binning_group}.{assembly_group}.{assembler}.txt")
     params:
-        bwa = "bwa-mem2" if config["params"]["alignment"]["algorithms"] == "mem2" else "bwa",
-        output_prefix = os.path.join(
+        aligner = config["params"]["alignment"]["aligner"]
+        prefix = os.path.join(
             config["output"]["alignment"],
             "index/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
+    threads:
+        config["params"]["alignment"]["threads"]
+    conda:
+        config["envs"]["align"]
     shell:
         '''
-        {params.bwa} index {input.scaftigs} -p {params.output_prefix} 2> {log}
+        if [ "{params.aligner}" == "bwa" ] | [ "{params.aligner}" == "bwa-mem2" ];
+        then
+            {params.aligner} index \
+            {input} \
+            -p {params.prefix} \
+            >{log} 2>&1
+        elif [ "{params.aligner}" == "bwa-mem2" ];
+        then
+            bowtie2-build \
+            --threads {threads} \
+            {input} \
+            {params.prefix} \
+            >{log} 2>&1
+        fi
         '''
 
 
-rule alignment_reads_scaftigs:
+rule alignment_scaftigs_reads:
     input:
-        reads = alignment_input_with_short_reads,
+        reads = os.path.join(SAMPLESDIR, "reads/{sample}/{sample}.json"),
         index = expand(os.path.join(
             config["output"]["alignment"],
             "index/{{binning_group}}.{{assembly_group}}.{{assembler}}/{{binning_group}}.{{assembly_group}}.{{assembler}}.scaftigs.fa.gz.{suffix}"),
             suffix=BWA_INDEX_SUFFIX)
     output:
-        flagstat = os.path.join(
-            config["output"]["alignment"],
-            "report/flagstat/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.flagstat.gz"),
         bam = os.path.join(
             config["output"]["alignment"],
-            "bam/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.sorted.bam") \
+            "bam/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.sorted.bam") \
             if config["params"]["alignment"]["save_bam"] else \
             temp(os.path.join(
                 config["output"]["alignment"],
-                "bam/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.sorted.bam")),
+                "bam/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.sorted.bam")),
         bai = os.path.join(
             config["output"]["alignment"],
-            "bam/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.sorted.bam.bai") \
+            "bam/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.sorted.bam.bai") \
             if config["params"]["alignment"]["save_bam"] else \
             temp(os.path.join(
                 config["output"]["alignment"],
-                "bam/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.sorted.bam.bai"))
-    conda:
-        config["envs"]["align"]
+                "bam/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.sorted.bam.bai"))
     log:
-        os.path.join(config["output"]["alignment"],
-                     "logs/alignment/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.log")
+        os.path.join(
+            config["output"]["alignment"],
+            "logs/alignment_scaftigs_reads/{binning_group}.{assembly_group}.{assembler}/{sample}.log")
     benchmark:
-        os.path.join(config["output"]["alignment"],
-                     "benchmark/alignment/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.benchmark.txt")
+        os.path.join(
+            config["output"]["alignment"],
+            "benchmark/alignment_scaftigs_reads/{binning_group}.{assembly_group}.{assembler}/{sample}.txt")
     params:
-        bwa = "bwa-mem2" if config["params"]["alignment"]["algorithms"] == "mem2" else "bwa",
-        index_prefix = os.path.join(
+        aligner = config["params"]["alignment"]["aligner"],
+        prefix = os.path.join(
             config["output"]["alignment"],
             "index/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
     threads:
         config["params"]["alignment"]["threads"]
+    conda:
+        config["envs"]["align"]
     shell:
         '''
-        rm -rf {output.bam}*
+        OUTDIR=$(dirname {output.bam})
+        OUTPE=$OUTDIR/pe
+        OUTSE=$OUTDIR/se
 
-        {params.bwa} mem \
-        -t {threads} \
-        {params.index_prefix} \
-        {input.reads} 2> {log} | \
-        tee >(samtools flagstat \
-              -@4 - | \
-              pigz -cf > {output.flagstat}) | \
-        samtools sort \
-        -m 3G \
-        -@4 \
-        -T {output.bam} \
-        -O BAM -o {output.bam} -
+        rm -rf $OUTDIR
+        mkdir -p $OUTDIR
 
-        samtools index -@{threads} {output.bam} {output.bai} 2>> {log}
+        R1=$(jq -r -M '.PE_FORWARD' {input.reads} | sed 's/^null$//g')
+        R2=$(jq -r -M '.PE_REVERSE' {input.reads} | sed 's/^null$//g')
+        RS=$(jq -r -M '.SE' {input.reads} | sed 's/^null$//g')
+
+        if [ "{params.aligner}" == "bwa" ] | [ "{params.aligner} == "bwa-mem2" ];
+        then
+            if [ $R1 != "" ];
+            then
+                mkdir -p $OUTPE
+                STATSPE=$OUTDIR/pe.stats
+
+                {params.bwa} mem \
+                -t {threads} \
+                {params.index} \
+                $R1 $R2 \
+                2> {log} | \
+                tee >(samtools flagstat \
+                -@4 - > $STATSPE) | \
+                samtools sort \
+                -m 3G \
+                -@4 \
+                -T $OUTPE/temp \
+                -O BAM -o $OUTPE/sorted.bam -
+            fi
+
+            if [ $RS != "" ];
+            then
+                mkdir -p $OUTSE
+                STATSSE=$OUTDIR/pe.stats
+
+                {params.bwa} mem \
+                -t {threads} \
+                {params.index} \
+                $RS \
+                2> {log} | \
+                tee >(samtools flagstat \
+                -@4 - > $STATSSE) | \
+                samtools sort \
+                -m 3G \
+                -@4 \
+                -T $OUTSE/temp \
+                -O BAM -o $OUTSE/sorted.bam -
+            fi
+
+            if [ -s $OUTPE/sorted.bam ] & [ -s $OUTSE/sorted.bam ];
+            then
+                samtools merge $OUTPE/sorted.bam $OUTSE/sorted.bam
+
+
+            samtools index -@{threads} {output.bam} {output.bai} 2>> {log}
+        elif [ "{params.aligner}" == "bowtie2" ];
+        then
+
+
+
+        fi
         '''
 
 
-rule alignment_reads_scaftigs_all:
+rule alignment_scaftigs_reads_all:
     input:
         expand([
             os.path.join(
                 config["output"]["alignment"],
-                "report/flagstat/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.flagstat.gz"),
+                "report/flagstat/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.flagstat"),
             os.path.join(
                 config["output"]["alignment"],
                 "bam/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.sorted.bam"),
@@ -130,24 +198,36 @@ rule alignment_reads_scaftigs_all:
             sample=ALIGNMENT_GROUPS["sample_id"])
 
 
+rule alignment_base_depth:
+    input:
+        os.path.join(
+            config["output"]["alignment"],
+            "bam/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.sorted.bam")
+    output:
+        os.path.join(
+            config["output"]["alignment"],
+            "depth/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.depth.gz")
+    log:
+        os.path.join(
+            config["output"]["alignment"],
+            "logs/alignment_base_depth/{binning_group}.{assembly_group}.{assembler}/{sample}.log")
+    benchmark:
+        os.path.join(
+            config["output"]["alignment"],
+            "benchmark/alignment_base_depth/{binning_group}.{assembly_group}.{assembler}/{sample}.txt")
+    threads:
+        config["params"]["alignment"]["threads"]
+    conda:
+        config["envs"]["align"]
+    shell:
+        '''
+        samtools depth {input} | \
+        pigz -q -f -p {threads} -c \
+        > {output} 2> {log}
+        '''
+
+
 if config["params"]["alignment"]["cal_base_depth"]:
-    rule alignment_base_depth:
-        input:
-            os.path.join(
-                config["output"]["alignment"],
-                "bam/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.sorted.bam")
-        output:
-            os.path.join(
-                config["output"]["alignment"],
-                "depth/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.depth.gz")
-        conda:
-            config["envs"]["align"]
-        shell:
-            '''
-            samtools depth {input} | gzip -c > {output}
-            '''
-
-
     rule alignment_base_depth_all:
         input:
             expand(os.path.join(
@@ -169,14 +249,15 @@ rule alignment_report:
         expand(
             os.path.join(
                 config["output"]["alignment"],
-                "report/flagstat/{binning_group}.{assembly_group}.{{assembler}}/{sample}.align2scaftigs.flagstat.gz"),
+                "report/flagstat/{binning_group}.{assembly_group}.{{assembler}}/{sample}.align2scaftigs.flagstat"),
                 zip,
                 binning_group=ALIGNMENT_GROUP["binning_group"],
                 assembly_group=ALIGNMENT_GROUP["assembly_group"],
                 sample=ALIGNMENT_GROUP["sample_id"])
     output:
-        flagstat = os.path.join(config["output"]["alignment"],
-                                "report/alignment_flagstat_{assembler}_bwa.tsv.gz")
+        flagstat = os.path.join(
+            config["output"]["alignment"],
+            "report/alignment_flagstat_{assembler}_bwa.tsv")
     run:
         input_list = [str(i) for i in input]
         metapi.flagstats_summary(input_list, 2, output=output.flagstat)
@@ -187,20 +268,18 @@ rule alignment_report_all:
         expand(
             os.path.join(
                 config["output"]["alignment"],
-                "report/alignment_flagstat_{assembler}_bwa.tsv.gz"),
+                "report/alignment_flagstat_{assembler}_bwa.tsv"),
             assembler=ASSEMBLERS)
 
 
 rule alignment_all:
     input:
-        #rules.alignment_reads_scaftigs_all,
         rules.alignment_base_depth_all.input,
         rules.alignment_report_all.input
 
 
 localrules:
+    alignment_scaftigs_reads_all,
     alignment_base_depth_all,
-    alignment_reads_scaftigs_all,
-    alignment_report,
     alignment_report_all,
     alignment_all
