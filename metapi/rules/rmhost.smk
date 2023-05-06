@@ -46,6 +46,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
         params:
             pe_prefix = os.path.join(config["output"]["rmhost"], "reads/{sample}/pe/{sample}"),
             se_prefix = os.path.join(config["output"]["rmhost"], "reads/{sample}/se/{sample}"),
+            report_dir = os.path.join(config["output"]["rmhost"], "report/flagstat/{sample}"),
             compression = config["params"]["rmhost"]["compression"],
             bwa = "bwa-mem2" if config["params"]["rmhost"]["bwa"]["algorithms"] == "mem2" else "bwa",
             minimum_seed_length = config["params"]["rmhost"]["bwa"]["minimum_seed_length"],
@@ -66,7 +67,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
             OUTSE=$(dirname {params.se_prefix})
 
             rm -rf $OUTDIR $OUTPE $OUTSE
-            mkdir -p $OUTDIR
+            mkdir -p $OUTDIR {params.report_dir}
 
             R1=$(jq -r -M '.PE_FORWARD' {input.reads} | sed 's/^null$//g')
             R2=$(jq -r -M '.PE_REVERSE' {input.reads} | sed 's/^null$//g')
@@ -82,7 +83,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
             then
                 FQ1={params.pe_prefix}.rmhost.pe.1.fq.gz
                 FQ2={params.pe_prefix}.rmhost.pe.2.fq.gz
-                STATSPE={params.pe_prefix}.rmhost.pe.align_stats.txt
+                STATSPE={params.report_dir}/rmhost.pe.align_stats.txt
 
                 mkdir -p $OUTPE
                 rm -rf {params.pe_bam_dir}
@@ -132,7 +133,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
             if [ $RS != "" ];
             then
                 FQS={params.se_prefix}.rmhost.se.fq.gz
-                STATSSE={params.se_prefix}.rmhost.se.align_stats.txt
+                STATSSE={params.report_dir}/rmhost.se.align_stats.txt
 
                 mkdir -p $OUTSE
                 rm -rf {params.se_bam_dir}
@@ -238,6 +239,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
         params:
             pe_prefix = os.path.join(config["output"]["rmhost"], "reads/{sample}/pe/{sample}"),
             se_prefix = os.path.join(config["output"]["rmhost"], "reads/{sample}/se/{sample}"),
+            report_dir = os.path.join(config["output"]["rmhost"], "report/flagstat/{sample}"),
             presets = config["params"]["rmhost"]["bowtie2"]["presets"],
             compression = config["params"]["rmhost"]["compression"],
             index_prefix = config["params"]["rmhost"]["bowtie2"]["index_prefix"],
@@ -257,7 +259,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
             OUTSE=$(dirname {params.se_prefix})
 
             rm -rf $OUTDIR $OUTPE $OUTSE
-            mkdir -p $OUTDIR
+            mkdir -p $OUTDIR {params.report_dir}
 
             R1=$(jq -r -M '.PE_FORWARD' {input.reads} | sed 's/^null$//g')
             R2=$(jq -r -M '.PE_REVERSE' {input.reads} | sed 's/^null$//g')
@@ -273,7 +275,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
             then
                 FQ1={params.pe_prefix}.rmhost.pe.1.fq.gz
                 FQ2={params.pe_prefix}.rmhost.pe.2.fq.gz
-                STATSPE={params.pe_prefix}.rmhost.pe.align_stats.txt
+                STATSPE={params.report_dir}/rmhost.pe.align_stats.txt
 
                 mkdir -p $OUTPE
                 rm -rf {params.pe_bam_dir}
@@ -325,7 +327,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
             if [ $RS != "" ];
             then
                 FQS={params.se_prefix}.rmhost.se.fq.gz
-                STATSSE={params.se_prefix}.rmhost.se.align_stats.txt
+                STATSSE={params.report_dir}/rmhost.se.align_stats.txt
 
                 mkdir -p $OUTSE
                 rm -rf {params.se_bam_dir}
@@ -429,6 +431,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
         params:
             pe_prefix = os.path.join(config["output"]["rmhost"], "reads/{sample}/pe/{sample}"),
             se_prefix = os.path.join(config["output"]["rmhost"], "reads/{sample}/se/{sample}"),
+            report_dir = os.path.join(config["output"]["rmhost"], "report/flagstat/{sample}"),
             preset = config["params"]["rmhost"]["minimap2"]["preset"],
             compression = config["params"]["rmhost"]["compression"],
             pe_bam_dir = os.path.join(config["output"]["rmhost"], "bam/{sample}/pe"),
@@ -447,7 +450,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
             OUTSE=$(dirname {params.se_prefix})
 
             rm -rf $OUTDIR $OUTPE $OUTSE
-            mkdir -p $OUTDIR
+            mkdir -p $OUTDIR {params.report_dir}
 
             R1=$(jq -r -M '.PE_FORWARD' {input.reads} | sed 's/^null$//g')
             R2=$(jq -r -M '.PE_REVERSE' {input.reads} | sed 's/^null$//g')
@@ -463,7 +466,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
             then
                 FQ1={params.pe_prefix}.rmhost.pe.1.fq.gz
                 FQ2={params.pe_prefix}.rmhost.pe.2.fq.gz
-                STATSPE={params.pe_prefix}.rmhost.pe.align_stats.txt
+                STATSPE={params.report_dir}/rmhost.pe.align_stats.txt
 
                 mkdir -p $OUTPE
                 rm -rf {params.pe_bam_dir}
@@ -513,7 +516,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
             if [ $RS != "" ];
             then
                 FQS={params.se_prefix}.rmhost.se.fq.gz
-                STATSSE={params.se_prefix}.rmhost.se.align_stats.txt
+                STATSSE={params.report_dir}/rmhost.se.align_stats.txt
 
                 mkdir -p $OUTSE
                 rm -rf {params.se_bam_dir}

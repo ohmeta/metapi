@@ -45,8 +45,8 @@ rule alignment_scaftigs_index:
     benchmark:
         os.path.join(config["output"]["alignment"], "benchmark/alignment_scaftigs_index/{binning_group}.{assembly_group}.{assembler}.txt")
     params:
-        aligner = config["params"]["alignment"]["aligner"]
-        prefix = os.path.join(
+        aligner = config["params"]["alignment"]["aligner"],
+        index = os.path.join(
             config["output"]["alignment"],
             "index/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
     threads:
@@ -59,14 +59,14 @@ rule alignment_scaftigs_index:
         then
             {params.aligner} index \
             {input} \
-            -p {params.prefix} \
+            -p {params.index} \
             >{log} 2>&1
-        elif [ "{params.aligner}" == "bwa-mem2" ];
+        elif [ "{params.aligner}" == "bowtie2" ];
         then
             bowtie2-build \
             --threads {threads} \
             {input} \
-            {params.prefix} \
+            {params.index} \
             >{log} 2>&1
         fi
         '''
@@ -138,7 +138,7 @@ rule alignment_scaftigs_reads:
                 mkdir -p $OUTPE
                 STATSPE=$STATSDIR/{params.aligner}.pe.flagstat
 
-                {params.bwa} mem \
+                {params.aligner} mem \
                 -t {threads} \
                 {params.index} \
                 $R1 $R2 \
@@ -157,7 +157,7 @@ rule alignment_scaftigs_reads:
                 mkdir -p $OUTSE
                 STATSSE=$STATSDIR/{params.aligner}.se.flagstat
 
-                {params.bwa} mem \
+                {params.aligner} mem \
                 -t {threads} \
                 {params.index} \
                 $RS \
@@ -313,9 +313,7 @@ rule alignment_report:
                 assembly_group=ALIGNMENT_GROUP["assembly_group"],
                 sample=ALIGNMENT_GROUP["sample_id"])
     output:
-        flagstat = os.path.join(
-            config["output"]["alignment"],
-            "report/alignment_flagstat_{assembler}_bwa.tsv")
+        flagstat = os.path.join(config["output"]["alignment"], "report/alignment_flagstat_{assembler}.tsv")
     run:
         input_list = [str(i) for i in input]
         metapi.flagstats_summary(input_list, 2, output=output.flagstat)
@@ -323,11 +321,8 @@ rule alignment_report:
 
 rule alignment_report_all:
     input:
-        expand(
-            os.path.join(
-                config["output"]["alignment"],
-                "report/alignment_flagstat_{assembler}.tsv"),
-            assembler=ASSEMBLERS)
+        expand(os.path.join(config["output"]["alignment"], "report/alignment_flagstat_{assembler}.tsv"),
+        assembler=ASSEMBLERS)
 
 
 rule alignment_all:
