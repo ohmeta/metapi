@@ -37,7 +37,7 @@ if config["params"]["trimming"]["sickle"]["do"]:
             FQ2=""
             FQS=""
 
-            if [ $R1 != " " ];
+            if [ "$R1" != " " ];
             then
                 FQ1={params.pe_prefix}.trimming.pe.1.fq.gz
                 FQ2={params.pe_prefix}.trimming.pe.2.fq.gz
@@ -58,7 +58,7 @@ if config["params"]["trimming"]["sickle"]["do"]:
                 >{log} 2>&1
             fi
 
-            if [ $RS != " " ];
+            if [ "$RS" != " " ];
             then
                 FQS={params.se_prefix}.trimming.se.fq.gz
                 FQSESI={params.se_prefix}.trimming.se.single.fq.gz
@@ -150,7 +150,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
             ADAPTER_OPERATION_SE=""
 
             ADAPTER_OPERATION="{params.adapter_operation}"
-            if [ $ADAPTER_OPERATION == "" ];
+            if [ "$ADAPTER_OPERATION" == "" ];
             then
                 if [ "{params.detect_adapter_pe}" == "True" ]
                 then
@@ -161,13 +161,13 @@ if config["params"]["trimming"]["fastp"]["do"]:
 
                 if [ "{params.detect_adapter_se}" == "True" ]
                 then
-                    ADAPTER_OPERATION_SE="--detect_adapter_for_se"
-                esle
+                    ADAPTER_OPERATION_SE=""
+                else
                     ADAPTER_OPERATION_SE="--adapter_sequence {params.adapter_sequence}"
                 fi
             fi
 
-            if [ $R1 != "" ];
+            if [ "$R1" != "" ];
             then
                 FQ1={params.pe_prefix}.trimming.pe.1.fq.gz
                 FQ2={params.pe_prefix}.trimming.pe.2.fq.gz
@@ -222,7 +222,7 @@ if config["params"]["trimming"]["fastp"]["do"]:
                 fi
             fi
 
-            if [ $RS != "" ];
+            if [ "$RS" != "" ];
             then
                 FQS={params.se_prefix}.trimming.se.fq.gz
                 HTML={params.se_prefix}.fastp.se.html
@@ -326,7 +326,7 @@ if config["params"]["trimming"]["trimmomatic"]["do"]:
             FQ2=""
             FQS=""
 
-            if [ $R1 != "" ];
+            if [ "$R1" != "" ];
             then
                 FQ1={params.pe_prefix}.trimming.pe.1.fq.gz
                 FQ2={params.pe_prefix}.trimming.pe.2.fq.gz
@@ -350,7 +350,7 @@ if config["params"]["trimming"]["trimmomatic"]["do"]:
                 fi
             fi
 
-            if [ $RS != "" ];
+            if [ "$RS" != "" ];
             then
                 FQS={params.se_prefix}.trimming.se.fq.gz
 

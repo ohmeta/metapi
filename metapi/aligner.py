@@ -61,9 +61,9 @@ def flagstats_summary(flagstats, method, **kwargs):
             if flagstat_file.endswith(".json"):
                 with open(flagstat_file.strip(), "rt") as jsonh:
                     jsondata = json.load(jsonh)
-                    if "PE_ALIGN_STATS" in jsondata:
+                    if jsondata.get("PE_ALIGN_STATS", "") != "":
                         stat_lists.append(["pe_align", jsondata["PE_ALIGN_STATS"]])
-                    if "SE_ALIGN_STATS" in jsondata:
+                    if jsondata.get("SE_ALIGN_STATS", "") != "":
                         stat_lists.append(["se_align", jsondata["SE_ALIGN_STATS"]])
             else:
                 stat_lists.append(["align", flagstat_file.strip()])

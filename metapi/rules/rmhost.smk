@@ -79,7 +79,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
             STATSPE=""
             STATSSE=""
 
-            if [ $R1 != "" ];
+            if [ "$R1" != "" ];
             then
                 FQ1={params.pe_prefix}.rmhost.pe.1.fq.gz
                 FQ2={params.pe_prefix}.rmhost.pe.2.fq.gz
@@ -130,7 +130,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                 fi
             fi
 
-            if [ $RS != "" ];
+            if [ "$RS" != "" ];
             then
                 FQS={params.se_prefix}.rmhost.se.fq.gz
                 STATSSE={params.report_dir}/rmhost.se.align_stats.txt
@@ -271,7 +271,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
             STATSPE=""
             STATSSE=""
 
-            if [ $R1 != "" ];
+            if [ "$R1" != "" ];
             then
                 FQ1={params.pe_prefix}.rmhost.pe.1.fq.gz
                 FQ2={params.pe_prefix}.rmhost.pe.2.fq.gz
@@ -324,7 +324,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                 fi
             fi
 
-            if [ $RS != "" ];
+            if [ "$RS" != "" ];
             then
                 FQS={params.se_prefix}.rmhost.se.fq.gz
                 STATSSE={params.report_dir}/rmhost.se.align_stats.txt
@@ -462,7 +462,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
             STATSPE=""
             STATSSE=""
 
-            if [ $R1 != "" ];
+            if [ "$R1" != "" ];
             then
                 FQ1={params.pe_prefix}.rmhost.pe.1.fq.gz
                 FQ2={params.pe_prefix}.rmhost.pe.2.fq.gz
@@ -513,7 +513,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                 fi
             fi
 
-            if [ $RS != "" ];
+            if [ "$RS" != "" ];
             then
                 FQS={params.se_prefix}.rmhost.se.fq.gz
                 STATSSE={params.report_dir}/rmhost.se.align_stats.txt
@@ -622,7 +622,7 @@ if config["params"]["rmhost"]["kraken2"]["do"]:
             FQ2=""
             FQS=""
 
-            if [ $R1 != "" ];
+            if [ "$R1" != "" ];
             then
                 FQ1={params.pe_prefix}.rmhost.pe.1.fq.gz
                 FQ2={params.pe_prefix}.rmhost.pe.2.fq.gz
@@ -661,7 +661,7 @@ if config["params"]["rmhost"]["kraken2"]["do"]:
                 >>{log} 2>&1
             fi
 
-            if [ $RS != "" ];
+            if [ "$RS" != "" ];
             then
                 FQS={params.se_prefix}.rmhost.se.fq.gz
                 TABLE={params.se_prefix}.rmhost.se.kraken2.table
@@ -764,7 +764,7 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
             trimpathreal=$(realpath $trimpath)
             trimdir=$(dirname $trimpathreal)
 
-            if [ $R1 != "" ];
+            if [ "$R1" != "" ];
             then
                 FQ1={params.pe_prefix}.rmhost.pe.1.fq.gz
                 FQ2={params.pe_prefix}.rmhost.pe.2.fq.gz
@@ -842,7 +842,7 @@ if config["params"]["rmhost"]["kneaddata"]["do"]:
                 mv $OUTPE/{params.output_prefix}_paired_2.fastq.gz $FQ2
             fi
 
-            if [ $RS != "" ];
+            if [ "$RS" != "" ];
             then
                 FQS={params.se_prefix}.rmhost.se.fq.gz
 
