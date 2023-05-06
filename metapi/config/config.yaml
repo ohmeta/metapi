@@ -172,7 +172,6 @@ params:
     aligner: "bwa" # "bwa-mem2" "bowtie2"
     cal_base_depth: False
     save_bam: False
-    report: True
 
   binning:
     threads: 8

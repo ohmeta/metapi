@@ -55,7 +55,7 @@ rule alignment_scaftigs_index:
         config["envs"]["align"]
     shell:
         '''
-        if [ "{params.aligner}" == "bwa" ] | [ "{params.aligner}" == "bwa-mem2" ];
+        if [ "{params.aligner}" == "bwa" ] || [ "{params.aligner}" == "bwa-mem2" ];
         then
             {params.aligner} index \
             {input} \
@@ -131,9 +131,9 @@ rule alignment_scaftigs_reads:
         rm -rf $STATSDIR
         mkdir -p $STATSDIR
 
-        if [ "{params.aligner}" == "bwa" ] || [ "{params.aligner} == "bwa-mem2" ];
+        if [ "{params.aligner}" == "bwa" ] || [ "{params.aligner}" == "bwa-mem2" ];
         then
-            if [ $R1 != "" ];
+            if [ "$R1" != "" ];
             then
                 mkdir -p $OUTPE
                 STATSPE=$STATSDIR/{params.aligner}.pe.flagstat
@@ -152,7 +152,7 @@ rule alignment_scaftigs_reads:
                 -O BAM -o $OUTPE/sorted.bam -
             fi
 
-            if [ $RS != "" ];
+            if [ "$RS" != "" ];
             then
                 mkdir -p $OUTSE
                 STATSSE=$STATSDIR/{params.aligner}.se.flagstat
@@ -181,39 +181,46 @@ rule alignment_scaftigs_reads:
                 $OUTSE/sorted.bam \
                 2>>{log}
 
-                samtools flagstat -@{threads} > {output.stats} 2>>{log}
                 rm -rf $OUTPE $OUTSE
 
             elif [ -s $OUTPE/sorted.bam ];
-                samtools index -@{threads} \
-                $OUTPE/sorted.bam {output.bai} \
-                2>> {log}
-
+            then
                 mv $OUTPE/sorted.bam {output.bam}
                 mv $STATSPE {output.stats}
                 rm -rf $OUTPE
 
             elif [ -s $OUTSE/sorted.bam ];
-                samtools index -@{threads} \
-                $OUTSE/sorted.bam {output.bai} \
-                2>> {log}
-
+            then
                 mv $OUTSE/sorted.bam {output.bam}
                 mv $STATSSE {output.stats}
                 rm -rf $OUTSE
             fi
+
+            samtools flagstat \
+            -@{threads} {output.bam} \
+            > {output.stats} \
+            2>>{log}
+
+            samtools index \
+            -@{threads} \
+            {output.bam} {output.bai} \
+            2>> {log}
 
         elif [ "{params.aligner}" == "bowtie2" ];
         then
             # see https://www.biostars.org/p/334422/
 
             READS=""
-            if [ $R1 != "" ] && [ $RS != "" ];
+            if [ "$R1" != "" ] && [ "$RS" != "" ];
+            then
                 READS="-1 $R1 -2 $R2 -U $RS"
-            elif [ $R1 != "" ];
+            elif [ "$R1" != "" ];
+            then
                 READS="-1 $R1 -2 $R2"
-            elif [ $RS != "" ];
+            elif [ "$RS" != "" ];
+            then
                 READS="-U $RS"
+            fi
 
             bowtie2 \
             --threads {threads} \
@@ -230,7 +237,8 @@ rule alignment_scaftigs_reads:
 
             rm -rf $OUTDIR/temp*
 
-            samtools index -@{threads} \
+            samtools index \
+            -@{threads} \
             {output.bam} {output.bai} \
             2>> {log}
         fi
