@@ -78,8 +78,11 @@ rule alignment_scaftigs_reads:
         index = expand(os.path.join(
             config["output"]["alignment"],
             "index/{{binning_group}}.{{assembly_group}}.{{assembler}}/{{binning_group}}.{{assembly_group}}.{{assembler}}.scaftigs.fa.gz.{suffix}"),
-            suffix=BWA_INDEX_SUFFIX)
+            suffix=INDEX_SUFFIX)
     output:
+        stats = os.path.join(
+            config["output"]["alignment"],
+            "report/flagstat/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.flagstat"),
         bam = os.path.join(
             config["output"]["alignment"],
             "bam/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.sorted.bam") \
@@ -104,7 +107,7 @@ rule alignment_scaftigs_reads:
             "benchmark/alignment_scaftigs_reads/{binning_group}.{assembly_group}.{assembler}/{sample}.txt")
     params:
         aligner = config["params"]["alignment"]["aligner"],
-        prefix = os.path.join(
+        index = os.path.join(
             config["output"]["alignment"],
             "index/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
     threads:
@@ -124,12 +127,16 @@ rule alignment_scaftigs_reads:
         R2=$(jq -r -M '.PE_REVERSE' {input.reads} | sed 's/^null$//g')
         RS=$(jq -r -M '.SE' {input.reads} | sed 's/^null$//g')
 
-        if [ "{params.aligner}" == "bwa" ] | [ "{params.aligner} == "bwa-mem2" ];
+        STATSDIR=$(dirname {output.stats})
+        rm -rf $STATSDIR
+        mkdir -p $STATSDIR
+
+        if [ "{params.aligner}" == "bwa" ] || [ "{params.aligner} == "bwa-mem2" ];
         then
             if [ $R1 != "" ];
             then
                 mkdir -p $OUTPE
-                STATSPE=$OUTDIR/pe.stats
+                STATSPE=$STATSDIR/{params.aligner}.pe.flagstat
 
                 {params.bwa} mem \
                 -t {threads} \
@@ -148,13 +155,13 @@ rule alignment_scaftigs_reads:
             if [ $RS != "" ];
             then
                 mkdir -p $OUTSE
-                STATSSE=$OUTDIR/pe.stats
+                STATSSE=$STATSDIR/{params.aligner}.se.flagstat
 
                 {params.bwa} mem \
                 -t {threads} \
                 {params.index} \
                 $RS \
-                2> {log} | \
+                2>> {log} | \
                 tee >(samtools flagstat \
                 -@4 - > $STATSSE) | \
                 samtools sort \
@@ -164,17 +171,68 @@ rule alignment_scaftigs_reads:
                 -O BAM -o $OUTSE/sorted.bam -
             fi
 
-            if [ -s $OUTPE/sorted.bam ] & [ -s $OUTSE/sorted.bam ];
+            if [ -s $OUTPE/sorted.bam ] && [ -s $OUTSE/sorted.bam ];
             then
-                samtools merge $OUTPE/sorted.bam $OUTSE/sorted.bam
+                samtools merge \
+                --write-index \
+                -l 6 \
+                -O BAM -o {output.bam} \
+                $OUTPE/sorted.bam \
+                $OUTSE/sorted.bam \
+                2>>{log}
 
+                samtools flagstat -@{threads} > {output.stats} 2>>{log}
+                rm -rf $OUTPE $OUTSE
 
-            samtools index -@{threads} {output.bam} {output.bai} 2>> {log}
+            elif [ -s $OUTPE/sorted.bam ];
+                samtools index -@{threads} \
+                $OUTPE/sorted.bam {output.bai} \
+                2>> {log}
+
+                mv $OUTPE/sorted.bam {output.bam}
+                mv $STATSPE {output.stats}
+                rm -rf $OUTPE
+
+            elif [ -s $OUTSE/sorted.bam ];
+                samtools index -@{threads} \
+                $OUTSE/sorted.bam {output.bai} \
+                2>> {log}
+
+                mv $OUTSE/sorted.bam {output.bam}
+                mv $STATSSE {output.stats}
+                rm -rf $OUTSE
+            fi
+
         elif [ "{params.aligner}" == "bowtie2" ];
         then
+            # see https://www.biostars.org/p/334422/
 
+            READS=""
+            if [ $R1 != "" ] && [ $RS != "" ];
+                READS="-1 $R1 -2 $R2 -U $RS"
+            elif [ $R1 != "" ];
+                READS="-1 $R1 -2 $R2"
+            elif [ $RS != "" ];
+                READS="-U $RS"
 
+            bowtie2 \
+            --threads {threads} \
+            -x {params.index} \
+            $READS \
+            2> {log} | \
+            tee >(samtools flagstat \
+            -@4 - {output.stats}) | \
+            samtools sort \
+            -m 3G \
+            -@4 \
+            -T $OUTDIR/temp \
+            -O BAM -o {output.bam} -
 
+            rm -rf $OUTDIR/temp*
+
+            samtools index -@{threads} \
+            {output.bam} {output.bai} \
+            2>> {log}
         fi
         '''
 
@@ -184,13 +242,13 @@ rule alignment_scaftigs_reads_all:
         expand([
             os.path.join(
                 config["output"]["alignment"],
-                "report/flagstat/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.flagstat"),
+                "report/flagstat/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.flagstat"),
             os.path.join(
                 config["output"]["alignment"],
-                "bam/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.sorted.bam"),
+                "bam/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.sorted.bam"),
             os.path.join(
                 config["output"]["alignment"],
-                "bam/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.sorted.bam.bai")],
+                "bam/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.sorted.bam.bai")],
             zip,
             binning_group=ALIGNMENT_GROUPS["binning_group"],
             assembly_group=ALIGNMENT_GROUPS["assembly_group"],
@@ -202,11 +260,11 @@ rule alignment_base_depth:
     input:
         os.path.join(
             config["output"]["alignment"],
-            "bam/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.sorted.bam")
+            "bam/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.sorted.bam")
     output:
         os.path.join(
             config["output"]["alignment"],
-            "depth/{binning_group}.{assembly_group}.{assembler}/{sample}.align2scaftigs.depth.gz")
+            "depth/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.depth.gz")
     log:
         os.path.join(
             config["output"]["alignment"],
@@ -249,7 +307,7 @@ rule alignment_report:
         expand(
             os.path.join(
                 config["output"]["alignment"],
-                "report/flagstat/{binning_group}.{assembly_group}.{{assembler}}/{sample}.align2scaftigs.flagstat"),
+                "report/flagstat/{binning_group}.{assembly_group}.{{assembler}}/{sample}/{sample}.align2scaftigs.flagstat"),
                 zip,
                 binning_group=ALIGNMENT_GROUP["binning_group"],
                 assembly_group=ALIGNMENT_GROUP["assembly_group"],
@@ -268,7 +326,7 @@ rule alignment_report_all:
         expand(
             os.path.join(
                 config["output"]["alignment"],
-                "report/alignment_flagstat_{assembler}_bwa.tsv"),
+                "report/alignment_flagstat_{assembler}.tsv"),
             assembler=ASSEMBLERS)
 
 
