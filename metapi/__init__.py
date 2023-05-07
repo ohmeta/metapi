@@ -36,6 +36,8 @@ from metapi.sampler import get_samples_for_assembly_plass
 from metapi.sampler import get_samples_for_assembly_opera_ms
 from metapi.sampler import get_samples_for_metaquast
 
+from metapi.sampler import get_samples_bax
+
 from metapi.qcer import change
 from metapi.qcer import compute_host_rate
 from metapi.qcer import qc_summary_merge

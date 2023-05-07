@@ -553,3 +553,17 @@ def get_samples_for_metaquast(wildcards, samples_df, samples_dir):
         #input_str = f"{input_str} --nanopore {reads_long}"
 
     return cmd, input_str, reads_dir
+
+
+def get_samples_bax(wildcards, samples_df, bam_dir, suffix="bam"):
+    samples_id_list = get_samples_id_by_assembly_and_binning_group(
+        samples_df, wildcards.assembly_group, wildcards.binning_group)
+
+    bam_list =  []
+    prefix = f"{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}"
+
+    for sample_id in samples_id_list:
+        bam_file = os.path.join(bam_dir, f"bam/{prefix}", f"{sample_id}.align2scaftigs.sorted.{suffix}")
+        bam_list.append(bam_file)
+
+    return bam_list
