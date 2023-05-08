@@ -174,7 +174,6 @@ rule alignment_scaftigs_reads:
             if [ -s $OUTPE/sorted.bam ] && [ -s $OUTSE/sorted.bam ];
             then
                 samtools merge \
-                --write-index \
                 -l 6 \
                 -O BAM -o {output.bam} \
                 $OUTPE/sorted.bam \

@@ -7,13 +7,13 @@ if len(BINNERS_CHECKM) != 0:
                 os.path.join(
                     config["output"]["binning"],
                     "report/{assembler}_{binner_checkm}_stats/{binning_group}.{assembly_group}"))
-        priority:
-            35
         params:
             binning_group = "{binning_group}",
             assembly_group = "{assembly_group}",
             assembler = "{assembler}",
             binner = "{binner_checkm}"
+        priority:
+            35
         run:
             import glob
 
@@ -21,9 +21,10 @@ if len(BINNERS_CHECKM) != 0:
             shell('''mkdir -p {output}''')
 
             bin_list =  glob.glob(os.path.dirname(input[0]) + "/*.fa.gz")
-            header_list = ["binning_group", "assembly_group", "bin_id", "bin_file", "assembler", "binner",
-                           "chr", "length", "#A", "#C", "#G", "#T",
-                           "#2", "#3", "#4", "#CpG", "#tv", "#ts", "#CpG-ts"]
+            header_list = [
+                "binning_group", "assembly_group", "bin_id", "bin_file", "assembler", "binner",
+                "chr", "length", "#A", "#C", "#G", "#T",
+                "#2", "#3", "#4", "#CpG", "#tv", "#ts", "#CpG-ts"]
             header_name = "\\t".join(header_list)
 
             for bin_fa in bin_list:
@@ -67,11 +68,13 @@ if len(BINNERS_CHECKM) != 0:
                 comp_list += glob.glob(i + "/*.seqtk.comp.tsv.gz")
 
             if len(comp_list) != 0:
-                metapi.assembler_init(params.len_ranges,
-                                      ["binning_group", "assembly_group", "bin_id", "bin_file", "assembler", "binner"])
+                metapi.assembler_init(
+                    params.len_ranges,
+                    ["binning_group", "assembly_group", "bin_id", "bin_file", "assembler", "binner"])
                 comp_list_ = [(j, params.min_length) for j in comp_list]
-                metapi.merge(comp_list_, metapi.parse_assembly,
-                             threads, output=output.summary)
+                metapi.merge(
+                    comp_list_, metapi.parse_assembly,
+                    threads, output=output.summary)
             else:
                 shell('''touch {output.summary}''')
 
@@ -81,8 +84,8 @@ if len(BINNERS_CHECKM) != 0:
             expand(os.path.join(
                 config["output"]["binning"],
                 "report/assembly_stats_{assembler}_{binner_checkm}.tsv.gz"),
-                   assembler=ASSEMBLERS,
-                   binner_checkm=BINNERS_CHECKM)
+                assembler=ASSEMBLERS,
+                binner_checkm=BINNERS_CHECKM)
 
 else:
     rule binning_report_all:

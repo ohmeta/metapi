@@ -1,7 +1,7 @@
 rule binning_metabat2_coverage:
     input:
-        bam = lambda wildcards: metapi.get_samples_bai(wildcards, SAMPLES, config["output"]["alignment"], "bam"),
-        bai = lambda wildcards: metapi.get_samples_bai(wildcards, SAMPLES, config["output"]["alignment"], "bai")
+        bam = lambda wildcards: metapi.get_samples_bax(wildcards, SAMPLES, config["output"]["alignment"], "bam"),
+        bai = lambda wildcards: metapi.get_samples_bax(wildcards, SAMPLES, config["output"]["alignment"], "bam.bai")
     output:
         coverage = os.path.join(
             config["output"]["binning"],
@@ -384,8 +384,8 @@ rule binning_concoct_cut_bed:
 
 rule binning_concoct_coverage:
     input:
-        bam = lambda wildcards: metapi.get_samples_bai(wildcards, SAMPLES, config["output"]["alignment"], "bam"),
-        bai = lambda wildcards: metapi.get_samples_bai(wildcards, SAMPLES, config["output"]["alignment"], "bai"),
+        bam = lambda wildcards: metapi.get_samples_bax(wildcards, SAMPLES, config["output"]["alignment"], "bam"),
+        bai = lambda wildcards: metapi.get_samples_bax(wildcards, SAMPLES, config["output"]["alignment"], "bam.bai"),
         scaftigs_bed = os.path.join(
             config["output"]["assembly"],
             "scaftigs_cut/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.cut.bed.gz"),
