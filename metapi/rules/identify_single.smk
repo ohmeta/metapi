@@ -278,12 +278,12 @@ rule identify_virsorter2_merge:
             score_tsv = os.path.join(vs2_dir, params.label + "-final-viral-score.tsv")
             boundary_tsv = os.path.join(vs2_dir, params.label + "-final-viral-boundary.tsv")
 
-            if os.path.exists(combined_fa):
+            if os.path.exists(combined_fa) and (os.path.getsize(combined_fa) > 0):
                 combined_fa_list.append(combined_fa)
-            if os.path.exists(score_tsv):
-                score_tsv_list.append(score_tsv)
-            if os.path.exists(boundary_tsv):
-                boundary_tsv_list.append(boundary_tsv)
+                if os.path.exists(score_tsv):
+                    score_tsv_list.append(score_tsv)
+                if os.path.exists(boundary_tsv):
+                    boundary_tsv_list.append(boundary_tsv)
 
         if len(combined_fa_list) > 0:
             fa_str = " ".join(combined_fa_list)

@@ -259,7 +259,7 @@ params:
       micompletedb: /home/jiezhu/databases/ecogenomics/miComplete/Bact105.hmm
       vogdb: /home/jiezhu/databases/ecogenomics/VOGDB/vog211/ALLVOG.hmm
       hmmsearch_evalue: 1.0e-05
-      randomforest_script: /home/jiezhu/toolkit/phamb/workflows/mag_annotation/scripts/run_RF.py
+      randomforest_script: /home/jiezhu/toolkit/phamb/workflows/mag_annotation/scripts/run_RF.py.py
       min_binsize: 2000 # default: 5000
 
   predict:
@@ -298,7 +298,7 @@ params:
     do: True
     threads: 8
     db: /home/jiezhu/databases/ecogenomics/CheckV/checkv-db-v1.4
-    checkv_identifier: ["virsorter2", "phamb"]
+    checkv_identifier: ["virsorter2", "phamb", "dbscan_swa", "deepvirfinder"]
 
   dereplicate:
     cdhit:

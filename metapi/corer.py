@@ -201,7 +201,7 @@ def run_snakemake(args, unknown, snakefile, workflow):
     print(f'''\nReal running cmd:\n{cmd_str}''')
 
 
-def update_config_tools(conf, begin, trimmer, rmhoster, assemblers, binners):
+def update_config_tools(conf, begin, trimmer, rmhoster, assemblers, binners, gpu):
     conf["params"]["simulate"]["do"] = False
     conf["params"]["begin"] = begin
 
@@ -229,6 +229,9 @@ def update_config_tools(conf, begin, trimmer, rmhoster, assemblers, binners):
         else:
             conf["params"]["binning"][binner_]["do"] = False
 
+    if gpu == "false":
+        conf["params"]["binning"]["vamb"]["cuda"] = False
+
     if begin == "simulate":
         conf["params"]["simulate"]["do"] = True
     elif begin == "rmhost":
@@ -254,7 +257,7 @@ def init(args, unknown):
             conf["envs"][env_name] = os.path.join(os.path.realpath(args.workdir), f"envs/{env_name}.yaml")
 
         conf = update_config_tools(
-            conf, args.begin, args.trimmer, args.rmhoster, args.assembler, args.binner
+            conf, args.begin, args.trimmer, args.rmhoster, args.assembler, args.binner, args.gpu
         )
 
         if args.samples:
@@ -588,6 +591,16 @@ if begin from simulate:
         default=["metabat2", "concoct", "maxbin2", "vamb", "dastools"],
         help="wchich binner used",
     )
+    parser_init.add_argument(
+        "--gpu",
+        type=str,
+        default="true",
+        dest="gpu",
+        required=False,
+        choices=["true", "false"],
+        help="indicate whether GPU is available",
+    )
+
     parser_init.set_defaults(func=init)
 
     parser_simulate_wf.add_argument(

@@ -80,7 +80,7 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
             batchid=list(set([i for i in glob_wildcards(os.path.join(checkpoint_output, "vamb_bins.{batchid}.fna")).batchid])))
 
 
-    rule annotation_prophage_dbscan_swa_merge:
+    checkpoint annotation_prophage_dbscan_swa_merge:
         input:
             aggregate_dbscan_swa_output
         output:
@@ -111,15 +111,63 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
             done
             '''
 
+    def get_dbscan_swa_merged_output(wildcards):
+         checkpoint_output = checkpoints.annotation_prophage_dbscan_swa_merge.get(**wildcards).output.fna
+         return expand(os.path.join(
+             config["output"]["annotation"], 
+             "dbscan_swa/{binning_group}.{assembler}.prophage/prophage.fna"),
+             binning_group=wildcards.binning_group,
+             assembler=wildcards.assembler)
+
+    checkpoint annotation_prophage_dbscan_swa_distribute:
+        input:
+            metadata = os.path.join(config["output"]["assembly"],
+                 "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.metadata.tsv.gz"),
+            all_fna = get_dbscan_swa_merged_output
+        output:
+            assembly_fna = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/{binning_group}.{assembly_group}.{assembler}.dbscan_swa.combined.fa.gz"),
+            done = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/distribution_done")
+        params:
+            working_dir = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa"), 
+            assembly_group = "{assembly_group}"
+        run:
+            shell("rm -rf {params.working_dir}")
+            shell("mkdir -p {params.working_dir}")
+            # shell("touch {params.assembly_fna}")
+
+            import pandas as pd
+            from Bio import SeqIO
+            import gzip
+
+            ### record assembly_group : alias ###
+            tab = pd.read_table(input.metadata)
+            assembly_vamb_id = {vamb_id : binning_assembly.split(".")[-1] for vamb_id, binning_assembly in zip(tab.iloc[:,1], tab.iloc[:, 0])}
+
+            ### read the prophage fna ###
+            n = 0
+            with gzip.open(output.assembly_fna, "at") as f:
+                for record in SeqIO.parse(input.all_fna[0], 'fasta'):
+                    desc = record.description
+                    vamb_id = desc.split("|")[0].split("C")[0]
+                    if assembly_vamb_id[vamb_id] != params.assembly_group:
+                        # print(vamb_id, assembly_vamb_id[vamb_id])
+                        continue
+                    n += 1
+                    f.write(record.format("fasta"))
+
+                if n == 0:
+                    f.write("")
+            # shell("gzip -f {params.assembly_fna}")
+            shell("touch {output.done}")
 
     rule annotation_prophage_dbscan_swa_all:
         input:
             expand(os.path.join(
-                config["output"]["annotation"],
-                "dbscan_swa/{binning_group}.{assembler}.prophage/{results}"),
+                config["output"]["identify"],
+                "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/distribution_done"),
+                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST,
                 binning_group=SAMPLES_BINNING_GROUP_LIST,
-                assembler=ASSEMBLERS,
-                results=["prophage.fna", "prophage.faa", "prophage_summary.tsv"])
+                assembler=ASSEMBLERS)
 
 else:
     rule annotation_prophage_dbscan_swa_all:
