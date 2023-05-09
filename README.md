@@ -18,7 +18,7 @@ You can install it via [bioconda](https://bioconda.github.io/):
 
 ```
 # It is recommended to install the latest version
-➤ mamba install -c conda-forge -c bioconda metapi=2.5.0
+➤ mamba install -c conda-forge -c bioconda metapi=3.0.0
 ```
 
 ## Run
@@ -71,16 +71,16 @@ optional arguments:
   -s, --samples SAMPLES
                         desired input:
                         samples list, tsv format required.
-                        
+
                         if begin from trimming, rmhost, or assembly:
                             if it is fastq:
                                 the header is: [sample_id, assembly_group, binning_group, fq1, fq2]
                             if it is sra:
                                 the header is: [sample_id, assembly_group, binning_group, sra]
-                        
+
                         if begin from simulate:
                                 the header is: [id, genome, abundance, reads_num, model]
-                        
+
   -b, --begin {simulate,trimming,rmhost,assembly,binning,checkm}
                         pipeline starting point (default: trimming)
   --trimmer {sickle,fastp,trimmomatic}
@@ -92,7 +92,7 @@ optional arguments:
   --binner BINNER [BINNER ...]
                         wchich binner used (default: ['metabat2', 'concoct', 'maxbin2', 'vamb', 'dastools'])
 ```
-- **Note**  
+- **Note**
   * When we do `metapi init`, metapi will help us to create project structure,
   include `config.yaml`, `profiles/`, `envs/`, `logs/` and `results/`.
     - `config.yaml`: workflow configuration, can be edited
@@ -112,8 +112,8 @@ optional arguments:
     - assembly: samples is clean, just do assembly, will not do trimming and rmhost
     -  (WIP) binning: supply samples and assembly, then do binning, will no do trimming, rmhost and assembly
 
-  * When metapi init executed, then corresponding configuration will be writen into `config.yaml`.  
-    Of course, you can edit `config.yaml` to update config, then when run `metapi mag_wf` or `metapi gene_wf`,  
+  * When metapi init executed, then corresponding configuration will be writen into `config.yaml`.
+    Of course, you can edit `config.yaml` to update config, then when run `metapi mag_wf` or `metapi gene_wf`,
     `metapi` will understand it. Just edit it, see what will happen.
 
 
@@ -128,10 +128,8 @@ optional arguments:
 
 positional arguments:
   TASK                  pipeline end point. Allowed values are
-  
-  prepare_short_reads_all,
-  prepare_long_reads_all,
-  prepare_reads_all,
+
+  raw_prepare_reads_all,
   raw_fastqc_all,
   raw_report_all,
   raw_all,
@@ -153,7 +151,7 @@ positional arguments:
   assembly_metaspades_all,
   assembly_spades_all,
   assembly_plass_all,
-  assembly_opera_ms_all, 
+  assembly_opera_ms_all,
   assembly_metaquast_all,
   assembly_report_all,
   assembly_all,
@@ -162,11 +160,11 @@ positional arguments:
   alignment_all,
   binning_metabat2_coverage_all,
   binning_metabat2_all,
-  binning_maxbin2_all, 
+  binning_maxbin2_all,
   binning_concoct_all,
   binning_graphbin2_all,
   binning_dastools_all,
-  binning_vamb_prepare_all, 
+  binning_vamb_prepare_all,
   binning_vamb_all,
   binning_report_all,
   binning_all,
@@ -183,6 +181,8 @@ positional arguments:
   predict_scaftigs_gene_all,
   predict_mags_gene_all,
   predict_all,
+  annotation_prophage_dbscan_swa_all,
+  annotation_all,
   checkm_all,
   checkv_all,
   check_all,
@@ -281,7 +281,6 @@ optional arguments:
 #run taxonomic (currently on microbial MAGs)
 ➤ metapi mag_wf taxonomic_all --use-conda --run-local
 
-
 # run databases (generate databases for profiling)
 ➤ metapi mag_wf databases_all --use-conda --run-local
 
@@ -319,60 +318,60 @@ optional arguments:
 
   - `Paired-end reads`
 
-  |  sample_id   |  assembly_group | binning_group |    fq1     |    fq2     |
-  | :----------: | :-------------: | :-----------: | :--------: | :--------: |
-  |  s1          | ag1             | bg1           | s1.1.fq.gz | s1.2.fq.gz |
-  |  s2          | ag1             | bg1           | s2.1.fq.gz | s2.2.fq.gz |
-  |  s3          | ag2             | bg2           | s3.1.fq.gz | s3.2.fq.gz |
-  |  s4          | ag2             | bg2           | s4.1.fq.gz | s4.2.fq.gz |
+  | sample_id | assembly_group | binning_group | short_forward_reads | short_reverse_reads |
+  | :-------: | :------------: | :-----------: | :-----------------: | :-----------------: |
+  | s1        | ag1            | bg1           | s1.1.fq.gz          | s1.2.fq.gz          |
+  | s2        | ag1            | bg1           | s2.1.fq.gz          | s2.2.fq.gz          |
+  | s3        | ag2            | bg2           | s3.1.fq.gz          | s3.2.fq.gz          |
+  | s4        | ag2            | bg2           | s4.1.fq.gz          | s4.2.fq.gz          |
 
-  - `Paired-end reads(interleaved)`, update `config.yaml::reads_interleaved=true`  
+  - `Paired-end reads (interleaved)`
 
-  |  sample_id   |  assembly_group | binning_group |    fq1     |    fq2     |
-  | :----------: | :-------------: | :-----------: | :--------: | :--------: |
-  |  s1          | ag1             | bg1           | s1.fq.gz   |            |
-  |  s2          | ag1             | bg1           | s2.fq.gz   |            |
-  |  s3          | ag2             | bg2           | s3.fq.gz   |            |
-  |  s4          | ag2             | bg2           | s4.fq.gz   |            |
+  | sample_id | assembly_group | binning_group | short_interleaved_reads |
+  | :-------: | :------------: | :-----------: | :---------------------: |
+  | s1        | ag1            | bg1           | s1.fq.gz                |
+  | s2        | ag1            | bg1           | s2.fq.gz                |
+  | s3        | ag2            | bg2           | s3.fq.gz                |
+  | s4        | ag2            | bg2           | s4.fq.gz                |
 
-  - (WIP) `Paired-end reads with long reads`, update `config.yaml::have_long=true`
+  - `Single-end reads`
 
-  |  sample_id   |  assembly_group | binning_group |    fq1     |    fq2     |   fq_long      |
-  | :----------: | :-------------: | :-----------: | :--------: | :--------: | :------------: |
-  |  s1          | ag1             | bg1           | s1.1.fq.gz | s1.2.fq.gz |  s1.long.fq.gz |
-  |  s2          | ag1             | bg1           | s2.1.fq.gz | s2.2.fq.gz |  s2.long.fq.gz |
-  |  s3          | ag2             | bg2           | s3.1.fq.gz | s3.2.fq.gz |  s3.long.fq.gz |
-  |  s4          | ag2             | bg2           | s4.1.fq.gz | s4.2.fq.gz |  s4.long.fq.gz |
+  | sample_id | assembly_group | binning_group | short_single_reads |
+  | :-------: | :------------: | :-----------: | :----------------: |
+  | s1        | ag1            | bg1           | s1.fq.gz           |
+  | s2        | ag1            | bg1           | s2.fq.gz           |
+  | s3        | ag2            | bg2           | s3.fq.gz           |
+  | s4        | ag2            | bg2           | s4.fq.gz           |
 
-  - (WIP)`Paired-end reads(interleaved) with long reads`, update `config.yaml::reads_interleaved=true` and `config.yaml::have_long=true`
+  - (WIP) `Paired-end reads and/or single reads`
 
-  |  sample_id   |  assembly_group | binning_group |    fq1     |    fq2     |   fq_long      |
-  | :----------: | :-------------: | :-----------: | :--------: | :--------: | :------------: |
-  |  s1          | ag1             | bg1           | s1.fq.gz   |            |  s1.long.fq.gz |
-  |  s2          | ag1             | bg1           | s2.fq.gz   |            |  s2.long.fq.gz |
-  |  s3          | ag2             | bg2           | s3.fq.gz   |            |  s3.long.fq.gz |
-  |  s4          | ag2             | bg2           | s4.fq.gz   |            |  s4.long.fq.gz |
+  | sample_id | assembly_group | binning_group | short_forward_reads | short_reverse_reads | short_single_reads |
+  | :-------: | :------------: | :-----------: | :-----------------: | :-----------------: | :----------------: |
+  | s1        | ag1            | bg1           | s1.1.fq.gz          | s1.2.fq.gz          |  s1.fq.gz          |
+  | s2        | ag1            | bg1           | s2.1.fq.gz          | s2.2.fq.gz          |  s2.fq.gz          |
+  | s3        | ag2            | bg2           | s3.1.fq.gz          | s3.2.fq.gz          |  s3.fq.gz          |
+  | s4        | ag2            | bg2           | s4.1.fq.gz          | s4.2.fq.gz          |  s4.fq.gz          |
 
-  - `Single-end reads`, update `config.yaml::reads_layout=se`
+  - `Paired-end reads and/or single reads, and/or long reads`
 
-  |  sample_id   |  assembly_group | binning_group |    fq1     |    fq2     |
-  | :----------: | :-------------: | :-----------: | :--------: | :--------: |
-  |  s1          | ag1             | bg1           | s1.fq.gz   |            |
-  |  s2          | ag1             | bg1           | s2.fq.gz   |            |
-  |  s3          | ag2             | bg2           | s3.fq.gz   |            |
-  |  s4          | ag2             | bg2           | s4.fq.gz   |            |
+  | sample_id | assembly_group | binning_group | short_forward_reads | short_reverse_reads | short_single_reads | long_reads    |
+  | :-------: | :------------: | :-----------: | :-----------------: | :-----------------: | :----------------: | :-----------: |
+  | s1        | ag1            | bg1           | s1.1.fq.gz          | s1.2.fq.gz          |  s1.fq.gz          | s1.long.fq.gz |
+  | s2        | ag1            | bg1           | s2.1.fq.gz          | s2.2.fq.gz          |  s2.fq.gz          | s2.long.fq.gz |
+  | s3        | ag2            | bg2           | s3.1.fq.gz          | s3.2.fq.gz          |  s3.fq.gz          | s3.long.fq.gz |
+  | s4        | ag2            | bg2           | s4.1.fq.gz          | s4.2.fq.gz          |  s4.fq.gz          | s4.long.fq.gz |
 
-  - `SRA (only support paired-end reads)` :
-  SRA can be dumpped to Paired-end fastq reads
+  - `SRA PE and/or SE` :
+  SRA can be dumpped to Paired-end/Single-end fastq reads
 
-  |  sample_id   |  assembly_group | binning_group |    sra     |
-  | :----------: | :-------------: | :-----------: | :--------: |
-  |  s1          | ag1             | bg1           | s1.sra     |
-  |  s2          | ag1             | bg1           | s2.sra     |
-  |  s3          | ag2             | bg2           | s3.sra     |
-  |  s4          | ag2             | bg2           | s4.sra     |
+  | sample_id | assembly_group | binning_group | sra_pe    | sra_se    |
+  | :-------: | :------------: | :-----------: | :-------: | :-------: |
+  | s1        | ag1            | bg1           | s1.pe.sra | s1.se.sra |
+  | s2        | ag1            | bg1           | s2.pe.sra | s2.se.sra |
+  | s3        | ag2            | bg2           | s3.pe.sra | s3.se.sra |
+  | s4        | ag2            | bg2           | s4.pe.sra | s4.se.sra |
 
-- begin from simulate, only support paired-end reads
+- (WIP) Begin from simulate, only support paired-end reads
 
   |  id   | genome | abundance | reads_num | model |
   | :---: | :----: | :-------: | :-------: | :---: |
@@ -434,6 +433,7 @@ Then metapi will use [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq) to g
     05.alignment/
     06.binning/
     06.identify/
+    07.annotation/
     07.predict/
     08.check/
     09.dereplicate/
@@ -442,8 +442,8 @@ Then metapi will use [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq) to g
     99.upload/
 ```
 
-- We will try our best to keep the directory structure uniform. Sequence files are generally placed in the reads directory, and report files are generally placed in the report directory. 
-- If you are not very clear about the output of the whole process, it is recommended to directly raise an issue or look at the code. 
+- We will try our best to keep the directory structure uniform. Sequence files are generally placed in the reads directory, and report files are generally placed in the report directory.
+- If you are not very clear about the output of the whole process, it is recommended to directly raise an issue or look at the code.
 
 ## Getting help
 
@@ -469,6 +469,7 @@ pip `pip install black flake8 flake8-bugbear snakefmt`.
 - Fangming Yang - [@yangfangming](https://github.com/yangfangming)
 - Yanmei Ju - [@juyanmei](https://github.com/juyanmei)
 - Weiting Liang - [@weiting-liang](https://github.com/weiting-liang)
+- Ye Peng - [@peng-ye](https://github.com/peng-ye)
 
 ## Citation
 

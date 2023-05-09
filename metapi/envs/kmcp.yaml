@@ -5,3 +5,4 @@ channels:
 dependencies:
   - kmcp=0.9.1
   - pigz
+  - jq

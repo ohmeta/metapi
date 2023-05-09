@@ -5,3 +5,4 @@ channels:
 dependencies:
   - metabat2=2.15
   - pigz
+  - jq

@@ -23,7 +23,7 @@ if config["upload"]["do"]:
         input:
             expand(os.path.join(
                 config["output"]["upload"], "md5/short_reads/{sample}.md5"),
-                   sample=SAMPLES_ID_LIST)
+                sample=SAMPLES_ID_LIST)
         output:
             os.path.join(config["output"]["upload"], "table/Experiment_Run.xlsx")
         threads:
@@ -41,7 +41,7 @@ if config["upload"]["do"]:
     localrules:
         upload_generate_samples_info,
         upload_generate_run_info,
- 
+
 
     if len(ASSEMBLERS) != 0:
         rule upload_md5_scaftigs:
@@ -68,8 +68,9 @@ if config["upload"]["do"]:
                     binning_group=ASSEMBLY_GROUP["binning_group"],
                     assembly_group=ASSEMBLY_GROUP["assembly_group"])
             output:
-                os.path.join(config["output"]["upload"],
-                             "table/Genome_Assembly_{assembler}.xlsx")
+                os.path.join(
+                    config["output"]["upload"],
+                    "table/Genome_Assembly_{assembler}.xlsx")
             threads:
                 config["upload"]["threads"]
             run:
@@ -81,12 +82,12 @@ if config["upload"]["do"]:
                 expand(os.path.join(
                     config["output"]["upload"],
                     "table/Genome_Assembly_{assembler}.xlsx"),
-                       assembler=ASSEMBLERS)
+                    assembler=ASSEMBLERS)
 
 
         localrules:
             upload_generate_assembly_info
- 
+
 
     else:
         rule upload_assembly_all:
@@ -105,8 +106,6 @@ rule upload_all:
     input:
         rules.upload_sequencing_all.input,
         rules.upload_assembly_all.input#,
-
-        #rules.assembly_all.input
 
 
 localrules:

@@ -1,7 +1,4 @@
 params:
-  reads_layout: "pe"
-  interleaved: False
-  have_long: False
   fq_encoding: "sanger"
   begin: "trimming"
   samples: "samples.tsv"
@@ -11,7 +8,6 @@ params:
     threads: 8
 
   raw:
-    do: True
     threads: 8
     check_paired: True
     save_reads: True
@@ -95,7 +91,7 @@ params:
       decontaminate_pairs: "strict" # ["strict", "lenient", "unpaired"]
       bowtie2_options: "--very-sensitive --dovetail"
       bowtie2_database: "/home/jiezhu/databases/genomics/human/CHM13/chm13v2.0_plusY/" # directory, not bowtie2 index prefix
- 
+
   qcreport:
     do: True
     seqkit:
@@ -145,7 +141,7 @@ params:
       min_seq_id:
       min_length: 45
       evalue:
-      filter_protiens: 1
+      filter_proteins: 1
     opera_ms:
       do: False
       path: "~/toolkit/OPERA-MS/OPERA-MS.pl"
@@ -173,10 +169,9 @@ params:
   alignment:
     do: True
     threads: 8
-    algorithms: "mem" # mem2
+    aligner: "bwa" # "bwa-mem2" "bowtie2"
     cal_base_depth: False
     save_bam: False
-    report: True
 
   binning:
     threads: 8
@@ -478,7 +473,7 @@ upload:
 
 envs:
   simulate: "envs/simulate.yaml"
-  prepare: "envs/prepare.yaml"
+  raw: "envs/raw.yaml"
   fastqc: "envs/fastqc.yaml"
   trimming: "envs/trimming.yaml"
   multiqc: "envs/multiqc.yaml"
@@ -487,7 +482,7 @@ envs:
   kraken2: "envs/kraken2.yaml"
   kneaddata: "envs/kneaddata.yaml"
   megahit: "envs/megahit.yaml"
-  idbaud: "envs/idbaud.yaml"
+  idba_ud: "envs/idba.yaml"
   spades: "envs/spades.yaml"
   plass: "envs/plass.yaml"
   quast: "envs/quast.yaml"

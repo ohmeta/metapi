@@ -5,3 +5,4 @@ channels:
 dependencies:
   - quast=5.2.0
   - pigz
+  - jq

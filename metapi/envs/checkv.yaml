@@ -5,3 +5,4 @@ channels:
 dependencies:
   - checkv=1.0.1
   - pigz
+  - jq

@@ -44,12 +44,7 @@ simulate_short_reads:
   output: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
-prepare_short_reads:
-  output: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
-  error: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
-
-prepare_long_reads:
-  mem: "1G"
+raw_prepare_reads:
   output: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
@@ -64,11 +59,6 @@ raw_fastqc_multiqc:
   error: "logs/00.{rule}/{rule}.{jobid}.e"
 
 raw_report:
-  mem: "1G"
-  output: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
-  error: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
-
-raw_report_refine:
   mem: "1G"
   output: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/00.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
@@ -88,27 +78,12 @@ trimming_fastp:
   output: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
-trimming_fastp_multiqc:
-  mem: "2G"
-  output: "logs/01.{rule}/{rule}.{jobid}.o"
-  error: "logs/01.{rule}/{rule}.{jobid}.e"
-
 trimming_trimmomatic:
   mem: "8G"
   output: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
 
-trimming_trimmomatic_multiqc:
-  mem: "2G"
-  output: "logs/01.{rule}/{rule}.{jobid}.o"
-  error: "logs/01.{rule}/{rule}.{jobid}.e"
-
 trimming_report:
-  mem: "1G"
-  output: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
-  error: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
-
-trimming_report_refine:
   mem: "1G"
   output: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/01.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
@@ -164,11 +139,6 @@ rmhost_alignment_report:
   error: "logs/02.{rule}/{rule}.{jobid}.e"
 
 rmhost_report:
-  mem: "1G"
-  output: "logs/02.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
-  error: "logs/02.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
-
-rmhost_report_refine:
   mem: "1G"
   output: "logs/02.{rule}/{rule}.{wildcards.sample}.{jobid}.o"
   error: "logs/02.{rule}/{rule}.{wildcards.sample}.{jobid}.e"
@@ -233,7 +203,7 @@ alignment_scaftigs_index:
   output: "logs/05.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
   error: "logs/05.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
-alignment_reads_scaftigs:
+alignment_scaftigs_reads:
   mem: "8G"
   output: "logs/05.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.o"
   error: "logs/05.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.e"
@@ -303,11 +273,6 @@ binning_vamb_align_scaftigs:
   output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.e"
 
-binning_vamb_sort_bam:
-  mem: "10G"
-  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.o"
-  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.sample}.{jobid}.e"
-
 binning_vamb_align_scaftigs_report:
   mem: "1G"
   output: "logs/06.{rule}/{rule}.{wildcards.assembler}.{jobid}.o"
@@ -332,7 +297,6 @@ binning_vamb:
   error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.e"
 
 binning_vamb_postprocess:
-  #partition: "gpu"
   mem: "2G"
   output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
@@ -428,7 +392,7 @@ identify_phamb_deepvirfinder_merge:
   error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.e"
 
 identify_phamb_randomforest:
-  mem: "10G"
+  mem: "20G"
   output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.e"
 

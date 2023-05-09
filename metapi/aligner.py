@@ -3,6 +3,7 @@ import argparse
 import gzip
 import os
 import re
+import json
 import pandas as pd
 from decimal import *
 
@@ -56,57 +57,71 @@ def flagstats_summary(flagstats, method, **kwargs):
 
     for flagstat_file in list_handle:
         if os.path.exists(flagstat_file.strip()):
-            info = {}
-            info["sample_id"] = os.path.basename(flagstat_file.strip()).split(".")[0]
-            stat_list = gzip.open(flagstat_file.strip(), "rt").readlines()
-
-            info["total_num"] = stat_list[0].split(" ")[0]
-
-            if len(stat_list) == 13:
-                info["read_1_num"] = stat_list[6].split(" ")[0]
-                info["read_2_num"] = stat_list[7].split(" ")[0]
-
-                mapped = re.split(r"\(|\s+", stat_list[4])
-                info["mapped_num"] = mapped[0]
-                info["mapped_rate"] = Decimal(mapped[5].rstrip("%")) / Decimal(100)
-            
-                #primary_mapped = re.split(r"\(|\s+", stat_list[5])
-                #info["primary_mapped_num"] = primary_mapped[0]
-                #info["primary_mapped_rate"] = Decimal(primary_mapped[6].rstrip("%")) / Decimal(100)
-
-            elif len(stat_list) == 16:
-                info["read_1_num"] = stat_list[9].split(" ")[0]
-                info["read_2_num"] = stat_list[10].split(" ")[0]
-
-                mapped = re.split(r"\(|\s+", stat_list[6])
-                info["mapped_num"] = mapped[0]
-                info["mapped_rate"] = Decimal(mapped[5].rstrip("%")) / Decimal(100)
-            
-                primary_mapped = re.split(r"\(|\s+", stat_list[7])
-                info["primary_mapped_num"] = primary_mapped[0]
-                info["primary_mapped_rate"] = Decimal(primary_mapped[6].rstrip("%")) / Decimal(100)
- 
-            paired = re.split(r"\(|\s+", stat_list[-5])
-            info["paired_num"] = paired[0]
-            paired_rate = paired[6].rstrip("%")
-            if paired_rate != "N/A":
-                info["paired_rate"] = Decimal(paired_rate) / Decimal(100)
-                info["mapping_type"] = "paired-end"
+            stat_lists = []
+            if flagstat_file.endswith(".json"):
+                with open(flagstat_file.strip(), "rt") as jsonh:
+                    jsondata = json.load(jsonh)
+                    if jsondata.get("PE_ALIGN_STATS", "") != "":
+                        stat_lists.append(["pe_align", jsondata["PE_ALIGN_STATS"]])
+                    if jsondata.get("SE_ALIGN_STATS", "") != "":
+                        stat_lists.append(["se_align", jsondata["SE_ALIGN_STATS"]])
             else:
-                info["paired_rate"] = paired_rate
-                info["mapping_type"] = "single-end"
+                stat_lists.append(["align", flagstat_file.strip()])
 
-            singletons = re.split(r"\(|\s+", stat_list[-3])
-            info["singletons_num"] = singletons[0]
-            singletons_rate = singletons[5].rstrip("%")
-            if singletons_rate != "N/A":
-                info["singletons_rate"] = Decimal(singletons_rate) / Decimal(100)
-            else:
-                info["singletons_rate"] = singletons_rate
+            for stat_file in stat_lists:
+                info = {}
+                info["sample_id"] = os.path.basename(stat_file[1].strip()).split(".")[0]
+                info["align_way"] = stat_file[0]
 
-            info["mate_mapped_num"] = re.split(r"\(|\s+", stat_list[-2])[0]
-            info["mate_mapped_num_mapQge5"] = re.split(r"\(|\s+", stat_list[-1])[0]
-            mapping_info.append(info)
+                stat_list = open(stat_file[1], "rt").readlines()
+                info["total_num"] = stat_list[0].split(" ")[0]
+
+                if len(stat_list) == 13:
+                    info["read_1_num"] = stat_list[6].split(" ")[0]
+                    info["read_2_num"] = stat_list[7].split(" ")[0]
+
+                    mapped = re.split(r"\(|\s+", stat_list[4])
+                    info["mapped_num"] = mapped[0]
+                    info["mapped_rate"] = Decimal(mapped[5].rstrip("%")) / Decimal(100)
+
+                    #primary_mapped = re.split(r"\(|\s+", stat_list[5])
+                    #info["primary_mapped_num"] = primary_mapped[0]
+                    #info["primary_mapped_rate"] = Decimal(primary_mapped[6].rstrip("%")) / Decimal(100)
+
+                elif len(stat_list) == 16:
+                    info["read_1_num"] = stat_list[9].split(" ")[0]
+                    info["read_2_num"] = stat_list[10].split(" ")[0]
+
+                    mapped = re.split(r"\(|\s+", stat_list[6])
+                    info["mapped_num"] = mapped[0]
+                    info["mapped_rate"] = Decimal(mapped[5].rstrip("%")) / Decimal(100)
+
+                    primary_mapped = re.split(r"\(|\s+", stat_list[7])
+                    info["primary_mapped_num"] = primary_mapped[0]
+                    info["primary_mapped_rate"] = Decimal(primary_mapped[6].rstrip("%")) / Decimal(100)
+
+                paired = re.split(r"\(|\s+", stat_list[-5])
+                info["paired_num"] = paired[0]
+                paired_rate = paired[6].rstrip("%")
+                if paired_rate != "N/A":
+                    info["paired_rate"] = Decimal(paired_rate) / Decimal(100)
+                    info["mapping_type"] = "paired-end"
+                else:
+                    info["paired_rate"] = paired_rate
+                    info["mapping_type"] = "single-end"
+
+                singletons = re.split(r"\(|\s+", stat_list[-3])
+                info["singletons_num"] = singletons[0]
+                singletons_rate = singletons[5].rstrip("%")
+                if singletons_rate != "N/A":
+                    info["singletons_rate"] = Decimal(singletons_rate) / Decimal(100)
+                else:
+                    info["singletons_rate"] = singletons_rate
+
+                info["mate_mapped_num"] = re.split(r"\(|\s+", stat_list[-2])[0]
+                info["mate_mapped_num_mapQge5"] = re.split(r"\(|\s+", stat_list[-1])[0]
+
+                mapping_info.append(info)
 
     mapping_info_df = pd.DataFrame(mapping_info)
     if "output" in kwargs:

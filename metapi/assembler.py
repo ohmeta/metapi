@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import re
 import numpy as np
 from metapi import tooler
@@ -121,3 +122,28 @@ def parse_assembly(input_tuple):
         return df
     else:
         return None
+
+
+def parse_assembly_spades_params(wildcards, scaftigs_dir, assembler):
+    params_file = os.path.join(
+        scaftigs_dir,
+        f"scaftigs/{wildcards.binning_group}.{wildcards.assembly_group}.{assembler}/params.txt"
+    )
+
+    if os.path.exists(params_file):
+        with open(params_file, "r") as ih:
+            cmd = ih.readline().strip()
+
+            matches = re.match(r".*-k\t(.*?)\t--memory\t(\d+)\t--threads\t(\d+).*", cmd)
+            if matches:
+                kmers = str(matches.group(1))
+                memory = str(matches.group(2))
+                threads = str(matches.group(3))
+                if "--only-assembler" in cmd:
+                    return [kmers, memory, threads, "yes"]
+                else:
+                    return [kmers, memory, threads, "no"]
+            else:
+                return [0, 0, 0, 0]
+    else:
+        return [0, 0, 0, 0]

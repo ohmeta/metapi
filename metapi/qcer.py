@@ -143,6 +143,26 @@ def change(input_file, output_file, sample_id, step, fq_type, reads_list):
     df.to_csv(output_file, sep="\t", index=False)
 
 
+def update_qcstats_row(row):
+    rows = row["file"].split(".")
+    sample_id = rows[0]
+    step = rows[1]
+    fq_type = rows[2]
+
+    reads = "fq1"
+    if "pe.2.fq.gz" in row["file"]:
+        reads = "fq2"
+
+    return pd.Series([sample_id, reads, step, fq_type])
+
+
+def update_qcstats_df(df):
+    stats_df = df.copy()
+    stats_df[["id", "reads", "step", "fq_type"]] = stats_df.apply(
+        lambda row: update_qcstats_row(row), axis=1, result_type="expand")
+    return stats_df
+
+
 def compute_host_rate(df, steps, samples_id_list, allow_miss_samples=True, **kwargs):
     all_state_set = set()
     have_state_set = set()
@@ -153,6 +173,7 @@ def compute_host_rate(df, steps, samples_id_list, allow_miss_samples=True, **kwa
         for sample_id in samples_id_list:
             all_state_set.add((sample_id, step))
 
+    df = update_qcstats_df(df)
     df = df.set_index("id")
     for sample_id in df.index.unique():
         if not pd.isnull(sample_id):
@@ -163,7 +184,7 @@ def compute_host_rate(df, steps, samples_id_list, allow_miss_samples=True, **kwa
                     [sample_id],
                 ].query(f'''reads=="fq1" and step=="{step}"''')
                 if not step_df.empty:
-                    num_seqs = step_df["num_seqs"].to_list()[0]
+                    num_seqs = sum(step_df["num_seqs"].to_list())
                     #print(num_seqs)
                     if num_seqs >= 0:
                         #print(sample_id)
@@ -190,7 +211,7 @@ def compute_host_rate(df, steps, samples_id_list, allow_miss_samples=True, **kwa
         if not allow_miss_samples:
             print("Please check stats report again for each sample")
             sys.exit(1)
-    
+
     for sample_id in df.index.unique():
         if not pd.isnull(sample_id):
             if sample_id in sample_reads:
@@ -227,9 +248,10 @@ def compute_host_rate(df, steps, samples_id_list, allow_miss_samples=True, **kwa
 def qc_summary_merge(df, **kwargs):
     df_host_rate = df.loc[:, ["id", "format", "type", "fq_type", "host_rate"]].drop_duplicates()
 
-    df_l = df.loc[:, ["id", "format", "type", "step", "fq_type",
-                     "num_seqs", "sum_len", "min_len", "avg_len", "max_len",
-                     "Q1", "Q2", "Q3", "sum_gap", "Q20(%)", "Q30(%)"]]
+    df_l = df.loc[:, [
+        "id", "format", "type", "step", "fq_type",
+        "num_seqs", "sum_len", "min_len", "avg_len", "max_len",
+        "Q1", "Q2", "Q3", "sum_gap", "Q20(%)", "Q30(%)"]]
 
     df_w = df_l.groupby(["id", "format", "type", "step", "fq_type"])\
             .agg(

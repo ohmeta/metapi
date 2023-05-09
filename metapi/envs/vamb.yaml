@@ -9,6 +9,7 @@ dependencies:
   - pysam>=0.14
   - numpy=1.20
   - pandas
+  - jq
   - pip
   - pip:
-     - git+https://github.com/RasmussenLab/vamb@v3.0.9
+    - git+https://github.com/RasmussenLab/vamb@v3.0.9

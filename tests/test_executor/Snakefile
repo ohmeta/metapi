@@ -1,0 +1,22 @@
+#!/usr/bin/env snakemake
+
+
+rule touch_1:
+    output:
+        "done1"
+    script:
+        "test.py"
+
+
+rule touch_2:
+    output:
+        "done2"
+    run:
+        from executor import execute
+        execute(f'''touch {output}''')
+
+
+rule all:
+    input:
+        "done1",
+        "done2"

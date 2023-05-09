@@ -1,346 +1,286 @@
 if config["params"]["trimming"]["sickle"]["do"]:
-    if IS_PE:
-        rule trimming_sickle:
-            input:
-                lambda wildcards: get_reads(wildcards, "raw", False)
-            output:
-                done = touch(os.path.join(config["output"]["trimming"],
-                                        "short_reads/{sample}/{sample}.sickle.done")),
-                reads = expand(
-                    os.path.join(
-                        config["output"]["trimming"],
-                        "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                    read=[".1", ".2", ".single"]) \
-                    if config["params"]["trimming"]["save_reads"] else \
-                    temp(expand(os.path.join(
-                        config["output"]["trimming"],
-                        "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                                read=[".1", ".2", ".single"]))
-            log:
-                os.path.join(config["output"]["trimming"], "logs/{sample}.sickle.log")
-            benchmark:
-                os.path.join(config["output"]["trimming"],
-                            "benchmark/sickle/{sample}.sickle.benchmark.txt")
-            conda:
-                config["envs"]["trimming"]
-            params:
-                output_prefix = os.path.join(config["output"]["trimming"],
-                                            "short_reads/{sample}/{sample}"),
-                quality_type = config["params"]["trimming"]["sickle"]["quality_type"],
-                quality_cutoff = config["params"]["trimming"]["sickle"]["quality_cutoff"],
-                length_cutoff = config["params"]["trimming"]["sickle"]["length_cutoff"]
-            priority:
-                10
-            shell:
-                '''
-                sickle pe \
-                --pe-file1 {input[0]} \
-                --pe-file2 {input[1]} \
-                --output-pe1 {output.reads[0]} \
-                --output-pe2 {output.reads[1]} \
-                --output-single {output.reads[2]} \
-                --qual-type {params.quality_type} \
-                --qual-threshold {params.quality_cutoff} \
-                --length-threshold {params.length_cutoff} \
-                --gzip-output 2> {log}
-                '''
+    rule trimming_sickle:
+        input:
+            rules.raw_prepare_reads.output
+        output:
+            os.path.join(config["output"]["trimming"], "reads/{sample}/{sample}.json")
+        log:
+            os.path.join(config["output"]["trimming"], "logs/trimming_sickle/{sample}.log")
+        benchmark:
+            os.path.join(config["output"]["trimming"], "benchmark/trimming_sickle/{sample}.txt")
+        params:
+            pe_prefix = os.path.join(config["output"]["trimming"], "reads/{sample}/pe/{sample}"),
+            se_prefix = os.path.join(config["output"]["trimming"], "reads/{sample}/se/{sample}"),
+            quality_type = config["params"]["trimming"]["sickle"]["quality_type"],
+            quality_cutoff = config["params"]["trimming"]["sickle"]["quality_cutoff"],
+            length_cutoff = config["params"]["trimming"]["sickle"]["length_cutoff"]
+        priority:
+            10
+        threads:
+            1
+        conda:
+            config["envs"]["trimming"]
+        shell:
+            '''
+            OUTDIR=$(dirname {output})
+            OUTPE=$(dirname {params.pe_prefix})
+            OUTSE=$(dirname {params.se_prefix})
 
-    else:
-        rule trimming_sickle:
-            input:
-                lambda wildcards: get_reads(wildcards, "raw", False)
-            output:
-                done = touch(os.path.join(config["output"]["trimming"],
-                                        "short_reads/{sample}/{sample}.sickle.done")),
-                reads = expand(
-                    os.path.join(
-                        config["output"]["trimming"],
-                        "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                    read=[""]) \
-                    if config["params"]["trimming"]["save_reads"] else \
-                    temp(expand(os.path.join(
-                        config["output"]["trimming"],
-                        "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                                read=[""]))
-            log:
-                os.path.join(config["output"]["trimming"], "logs/{sample}.sickle.log")
-            benchmark:
-                os.path.join(config["output"]["trimming"],
-                            "benchmark/sickle/{sample}.sickle.benchmark.txt")
-            conda:
-                config["envs"]["trimming"]
-            params:
-                output_prefix = os.path.join(config["output"]["trimming"],
-                                            "short_reads/{sample}/{sample}"),
-                quality_type = config["params"]["trimming"]["sickle"]["quality_type"],
-                quality_cutoff = config["params"]["trimming"]["sickle"]["quality_cutoff"],
-                length_cutoff = config["params"]["trimming"]["sickle"]["length_cutoff"]
-            priority:
-                10
-            shell:
-                '''
-                sickle se \
-                --fastq-file {input[0]} \
-                --output-file {output.reads[0]} \
+            rm -rf $OUTDIR $OUTPE $OUTSE
+            mkdir -p $OUTDIR
+
+            R1=$(jq -r -M '.PE_FORWARD' {input} | sed 's/^null$//g')
+            R2=$(jq -r -M '.PE_REVERSE' {input} | sed 's/^null$//g')
+            RS=$(jq -r -M '.SE' {input} | sed 's/^null$//g')
+
+            FQ1=""
+            FQ2=""
+            FQS=""
+
+            if [ "$R1" != " " ];
+            then
+                FQ1={params.pe_prefix}.trimming.pe.1.fq.gz
+                FQ2={params.pe_prefix}.trimming.pe.2.fq.gz
+                FQPESI={params.pe_prefix}.trimming.pe.single.fq.gz
+
+                mkdir -p $OUTPE
+
+                sickle pe \
+                --pe-file1 $R1 \
+                --pe-file2 $R2 \
+                --output-pe1 $FQ1 \
+                --output-pe2 $FQ2 \
+                --output-single $FQPESI \
                 --qual-type {params.quality_type} \
                 --qual-threshold {params.quality_cutoff} \
                 --length-threshold {params.length_cutoff} \
-                --gzip-output 2> {log}
-                '''
+                --gzip-output \
+                >{log} 2>&1
+            fi
+
+            if [ "$RS" != " " ];
+            then
+                FQS={params.se_prefix}.trimming.se.fq.gz
+                FQSESI={params.se_prefix}.trimming.se.single.fq.gz
+
+                mkdir -p $OUTSE
+
+                sickle se \
+                --fastq-file $RS \
+                --output-file $FQS \
+                --output-single $FQSESI \
+                --qual-type {params.quality_type} \
+                --qual-threshold {params.quality_cutoff} \
+                --length-threshold {params.length_cutoff} \
+                --gzip-output \
+                >>{log} 2>&1
+            fi
+
+            echo "{{\\"PE_FORWARD\\": \\"$FQ1\\", \\"PE_REVERSE\\": \\"$FQ2\\", \\"SE\\": \\"$FQS\\"}}" | \
+            jq . > {output}
+            '''
 
 
     rule trimming_sickle_all:
         input:
             expand(
-                os.path.join(config["output"]["trimming"],
-                             "short_reads/{sample}/{sample}.sickle.done"),
+                os.path.join(config["output"]["trimming"], "reads/{sample}/{sample}.json"),
                 sample=SAMPLES_ID_LIST)
 
 else:
     rule trimming_sickle_all:
         input:
-
-
-ADAPTER_OPERATION = ""
-adapter_sequence = config["params"]["trimming"]["fastp"]["adapter_sequence"]
-adapter_sequence_r2 = config["params"]["trimming"]["fastp"]["adapter_sequence_r2"]
-
-if config["params"]["trimming"]["fastp"]["disable_adapter_trimming"]:
-    adapter_operation = "--disable_adapter_trimming"
-else:
-    if IS_PE:
-        if config["params"]["trimming"]["fastp"]["detect_adapter_for_pe"]:
-            ADAPTER_OPERATION = "--detect_adapter_for_pe"
-        else:
-            ADAPTER_OPERATION = f'''--adapter_sequence {adapter_sequence} --adapter_sequence_r2 {adapter_sequence_r2}'''
-    else:
-        if config["params"]["trimming"]["fastp"]["detect_adapter_for_se"]:
-            ADAPTER_OPERATION = ""
-        else:
-            ADAPTER_OPERATION = f'''--adapter_sequence {adapter_sequence}'''
 
 
 if config["params"]["trimming"]["fastp"]["do"]:
-    if IS_PE:
-        rule trimming_fastp:
-            input:
-                lambda wildcards: get_reads(wildcards, "raw")
-            output:
-                html = os.path.join(config["output"]["trimming"],
-                                    "short_reads/{sample}/{sample}.fastp.html"),
-                json = os.path.join(config["output"]["trimming"],
-                                    "short_reads/{sample}/{sample}.fastp.json"),
-                reads = expand(os.path.join(
-                    config["output"]["trimming"],
-                    "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                    read=[".1", ".2"]) \
-                    if config["params"]["trimming"]["save_reads"] else \
-                    temp(expand(os.path.join(
-                        config["output"]["trimming"],
-                        "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                                read=[".1", ".2"]))
-            params:
-                output_prefix = os.path.join(config["output"]["trimming"],
-                                            "short_reads/{sample}/{sample}"),
-                compression = config["params"]["trimming"]["fastp"]["compression"],
-                cut_front_window_size = config["params"]["trimming"]["fastp"]["cut_front_window_size"],
-                cut_front_mean_quality = config["params"]["trimming"]["fastp"]["cut_front_mean_quality"],
-                cut_tail_window_size = config["params"]["trimming"]["fastp"]["cut_tail_window_size"],
-                cut_tail_mean_quality = config["params"]["trimming"]["fastp"]["cut_tail_mean_quality"],
-                cut_right_window_size = config["params"]["trimming"]["fastp"]["cut_right_window_size"],
-                cut_right_mean_quality = config["params"]["trimming"]["fastp"]["cut_right_mean_quality"],
-                length_required = config["params"]["trimming"]["fastp"]["length_required"],
-                n_base_limit = config["params"]["trimming"]["fastp"]["n_base_limit"],
-                use_slide_window = "yes" if config["params"]["trimming"]["fastp"]["use_slide_window"] else "no",
-                dedup = f'''--dedup --dup_calc_accuracy {config["params"]["trimming"]["fastp"]["dup_calc_accuracy"]}''' \
-                    if config["params"]["trimming"]["fastp"]["dedup"] else ""
-            log:
-                os.path.join(config["output"]["trimming"], "logs/{sample}.fastp.log")
-            benchmark:
-                os.path.join(config["output"]["trimming"],
-                            "benchmark/fastp/{sample}.fastp.benchmark.txt")
-            conda:
-                config["envs"]["trimming"]
-            threads:
-                config["params"]["trimming"]["threads"]
-            priority:
-                10
-            shell:
-                '''
-                if [ "{params.use_slide_window}" == "yes" ];
-                then
-                    fastp \
-                    --in1 {input[0]} \
-                    --in2 {input[1]} \
-                    --out1 {output.reads[0]} \
-                    --out2 {output.reads[1]} \
-                    --compression {params.compression} \
-                    {ADAPTER_OPERATION} \
-                    {params.dedup} \
-                    --cut_front \
-                    --cut_right \
-                    --cut_front_window_size {params.cut_front_window_size} \
-                    --cut_front_mean_quality {params.cut_front_mean_quality} \
-                    --cut_right_window_size {params.cut_right_window_size} \
-                    --cut_right_mean_quality {params.cut_right_mean_quality} \
-                    --n_base_limit {params.n_base_limit} \
-                    --length_required {params.length_required} \
-                    --thread {threads} \
-                    --html {output.html} \
-                    --json {output.json} 2> {log}
-                else
-                    fastp \
-                    --in1 {input[0]} \
-                    --in2 {input[1]} \
-                    --out1 {output.reads[0]} \
-                    --out2 {output.reads[1]} \
-                    --compression {params.compression} \
-                    {ADAPTER_OPERATION} \
-                    {params.dedup} \
-                    --cut_front \
-                    --cut_tail \
-                    --cut_front_window_size {params.cut_front_window_size} \
-                    --cut_front_mean_quality {params.cut_front_mean_quality} \
-                    --cut_tail_window_size {params.cut_tail_window_size} \
-                    --cut_tail_mean_quality {params.cut_tail_mean_quality} \
-                    --n_base_limit {params.n_base_limit} \
-                    --length_required {params.length_required} \
-                    --thread {threads} \
-                    --html {output.html} \
-                    --json {output.json} 2> {log}
-                fi
-            '''
-
-    else:
-        rule trimming_fastp:
-            input:
-                lambda wildcards: get_reads(wildcards, "raw")
-            output:
-                html = os.path.join(config["output"]["trimming"],
-                                    "short_reads/{sample}/{sample}.fastp.html"),
-                json = os.path.join(config["output"]["trimming"],
-                                    "short_reads/{sample}/{sample}.fastp.json"),
-                reads = expand(os.path.join(
-                    config["output"]["trimming"],
-                    "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                    read=[""]) \
-                    if config["params"]["trimming"]["save_reads"] else \
-                    temp(expand(os.path.join(
-                        config["output"]["trimming"],
-                        "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                        read=[""]))
-            params:
-                output_prefix = os.path.join(config["output"]["trimming"],
-                                            "short_reads/{sample}/{sample}"),
-                compression = config["params"]["trimming"]["fastp"]["compression"],
-                cut_front_window_size = config["params"]["trimming"]["fastp"]["cut_front_window_size"],
-                cut_front_mean_quality = config["params"]["trimming"]["fastp"]["cut_front_mean_quality"],
-                cut_tail_window_size = config["params"]["trimming"]["fastp"]["cut_tail_window_size"],
-                cut_tail_mean_quality = config["params"]["trimming"]["fastp"]["cut_tail_mean_quality"],
-                cut_right_window_size = config["params"]["trimming"]["fastp"]["cut_right_window_size"],
-                cut_right_mean_quality = config["params"]["trimming"]["fastp"]["cut_right_mean_quality"],
-                length_required = config["params"]["trimming"]["fastp"]["length_required"],
-                n_base_limit = config["params"]["trimming"]["fastp"]["n_base_limit"],
-                use_slide_window = "yes" if config["params"]["trimming"]["fastp"]["use_slide_window"] else "no",
-                dedup = f'''--dedup --dup_calc_accuracy {config["params"]["trimming"]["fastp"]["dup_calc_accuracy"]}''' \
-                    if config["params"]["trimming"]["fastp"]["dedup"] else ""
-            log:
-                os.path.join(config["output"]["trimming"], "logs/{sample}.fastp.log")
-            benchmark:
-                os.path.join(config["output"]["trimming"],
-                            "benchmark/fastp/{sample}.fastp.benchmark.txt")
-            conda:
-                config["envs"]["trimming"]
-            threads:
-                config["params"]["trimming"]["threads"]
-            priority:
-                10
-            shell:
-                '''
-                if [ "{params.use_slide_window}" == "yes" ];
-                then
-                    fastp \
-                    --in1 {input[0]} \
-                    --out1 {output.reads[0]} \
-                    --compression {params.compression} \
-                    {ADAPTER_OPERATION} \
-                    {params.dedup} \
-                    --cut_front \
-                    --cut_right \
-                    --cut_front_window_size {params.cut_front_window_size} \
-                    --cut_front_mean_quality {params.cut_front_mean_quality} \
-                    --cut_right_window_size {params.cut_right_window_size} \
-                    --cut_right_mean_quality {params.cut_right_mean_quality} \
-                    --n_base_limit {params.n_base_limit} \
-                    --length_required {params.length_required} \
-                    --thread {threads} \
-                    --html {output.html} \
-                    --json {output.json} 2> {log}
-                else
-                    fastp \
-                    --in1 {input[0]} \
-                    --out1 {output.reads[0]} \
-                    --compression {params.compression} \
-                    {ADAPTER_OPERATION} \
-                    {params.dedup} \
-                    --cut_front \
-                    --cut_tail \
-                    --cut_front_window_size {params.cut_front_window_size} \
-                    --cut_front_mean_quality {params.cut_front_mean_quality} \
-                    --cut_tail_window_size {params.cut_tail_window_size} \
-                    --cut_tail_mean_quality {params.cut_tail_mean_quality} \
-                    --n_base_limit {params.n_base_limit} \
-                    --length_required {params.length_required} \
-                    --thread {threads} \
-                    --html {output.html} \
-                    --json {output.json} 2> {log}
-                fi
-                '''
-
-
-    rule trimming_fastp_multiqc:
+    rule trimming_fastp:
         input:
-            expand(
-                os.path.join(config["output"]["trimming"],
-                             "short_reads/{sample}/{sample}.fastp.json"),
-                sample=SAMPLES_ID_LIST)
+            rules.raw_prepare_reads.output
         output:
-            html = os.path.join(config["output"]["trimming"],
-                                "report/fastp_multiqc_report.html")#,
-            #data_dir = directory(os.path.join(config["output"]["trimming"],
-            #                                  "report/fastp_multiqc_report_data"))
+            os.path.join(config["output"]["trimming"], "reads/{sample}/{sample}.json")
         log:
-            os.path.join(config["output"]["trimming"], "logs/multiqc.fastp.log")
+            os.path.join(config["output"]["trimming"], "logs/trimming_fastp/{sample}.log")
+        benchmark:
+            os.path.join(config["output"]["trimming"], "benchmark/trimming_fastp/{sample}.txt")
         params:
-            outdir = os.path.join(config["output"]["trimming"], "report")
-        conda:
-            config["envs"]["multiqc"]
+            pe_prefix = os.path.join(config["output"]["trimming"], "reads/{sample}/pe/{sample}"),
+            se_prefix = os.path.join(config["output"]["trimming"], "reads/{sample}/se/{sample}"),
+            adapter_sequence = config["params"]["trimming"]["fastp"]["adapter_sequence"],
+            adapter_sequence_r2 = config["params"]["trimming"]["fastp"]["adapter_sequence_r2"],
+            adapter_operation = "--disable_adapter_trimming" \
+            if config["params"]["trimming"]["fastp"]["disable_adapter_trimming"] else "",
+            detect_adapter_pe = config["params"]["trimming"]["fastp"]["detect_adapter_for_pe"],
+            detect_adapter_se = config["params"]["trimming"]["fastp"]["detect_adapter_for_se"],
+            compression = config["params"]["trimming"]["fastp"]["compression"],
+            cut_front_window_size = config["params"]["trimming"]["fastp"]["cut_front_window_size"],
+            cut_front_mean_quality = config["params"]["trimming"]["fastp"]["cut_front_mean_quality"],
+            cut_tail_window_size = config["params"]["trimming"]["fastp"]["cut_tail_window_size"],
+            cut_tail_mean_quality = config["params"]["trimming"]["fastp"]["cut_tail_mean_quality"],
+            cut_right_window_size = config["params"]["trimming"]["fastp"]["cut_right_window_size"],
+            cut_right_mean_quality = config["params"]["trimming"]["fastp"]["cut_right_mean_quality"],
+            length_required = config["params"]["trimming"]["fastp"]["length_required"],
+            n_base_limit = config["params"]["trimming"]["fastp"]["n_base_limit"],
+            use_slide_window = "yes" if config["params"]["trimming"]["fastp"]["use_slide_window"] else "no",
+            dedup = f'''--dedup --dup_calc_accuracy {config["params"]["trimming"]["fastp"]["dup_calc_accuracy"]}''' \
+                if config["params"]["trimming"]["fastp"]["dedup"] else ""
+
         priority:
             10
+        threads:
+            config["params"]["trimming"]["threads"]
+        conda:
+            config["envs"]["trimming"]
         shell:
             '''
-            multiqc \
-            --outdir {params.outdir} \
-            --title fastp \
-            --module fastp \
-            {input} \
-            2> {log}
+            OUTDIR=$(dirname {output})
+            OUTPE=$(dirname {params.pe_prefix})
+            OUTSE=$(dirname {params.se_prefix})
+
+            rm -rf $OUTDIR $OUTPE $OUTSE
+            mkdir -p $OUTDIR
+
+            R1=$(jq -r -M '.PE_FORWARD' {input} | sed 's/^null$//g')
+            R2=$(jq -r -M '.PE_REVERSE' {input} | sed 's/^null$//g')
+            RS=$(jq -r -M '.SE' {input} | sed 's/^null$//g')
+
+            FQ1=""
+            FQ2=""
+            FQS=""
+            ADAPTER_OPERATION_PE=""
+            ADAPTER_OPERATION_SE=""
+
+            ADAPTER_OPERATION="{params.adapter_operation}"
+            if [ "$ADAPTER_OPERATION" == "" ];
+            then
+                if [ "{params.detect_adapter_pe}" == "True" ]
+                then
+                    ADAPTER_OPERATION_PE="--detect_adapter_for_pe"
+                else
+                    ADAPTER_OPERATION_PE="--adapter_sequence {params.adapter_sequence} --adapter_sequence_r2 {params.adapter_sequence_r2}"
+                fi
+
+                if [ "{params.detect_adapter_se}" == "True" ]
+                then
+                    ADAPTER_OPERATION_SE=""
+                else
+                    ADAPTER_OPERATION_SE="--adapter_sequence {params.adapter_sequence}"
+                fi
+            fi
+
+            if [ "$R1" != "" ];
+            then
+                FQ1={params.pe_prefix}.trimming.pe.1.fq.gz
+                FQ2={params.pe_prefix}.trimming.pe.2.fq.gz
+                HTML={params.pe_prefix}.fastp.pe.html
+                JSON={params.pe_prefix}.fastp.pe.json
+
+                mkdir -p $OUTPE
+
+                if [ "{params.use_slide_window}" == "yes" ];
+                then
+                    fastp \
+                    --in1 $R1 \
+                    --in2 $R2 \
+                    --out1 $FQ1 \
+                    --out2 $FQ2 \
+                    --compression {params.compression} \
+                    $ADAPTER_OPERATION_PE \
+                    {params.dedup} \
+                    --cut_front \
+                    --cut_right \
+                    --cut_front_window_size {params.cut_front_window_size} \
+                    --cut_front_mean_quality {params.cut_front_mean_quality} \
+                    --cut_right_window_size {params.cut_right_window_size} \
+                    --cut_right_mean_quality {params.cut_right_mean_quality} \
+                    --n_base_limit {params.n_base_limit} \
+                    --length_required {params.length_required} \
+                    --thread {threads} \
+                    --html $HTML \
+                    --json $JSON \
+                    >{log} 2>&1
+                else
+                    fastp \
+                    --in1 $R1 \
+                    --in2 $R2 \
+                    --out1 $FQ1 \
+                    --out2 $FQ2 \
+                    --compression {params.compression} \
+                    $ADAPTER_OPERATION_PE \
+                    {params.dedup} \
+                    --cut_front \
+                    --cut_tail \
+                    --cut_front_window_size {params.cut_front_window_size} \
+                    --cut_front_mean_quality {params.cut_front_mean_quality} \
+                    --cut_tail_window_size {params.cut_tail_window_size} \
+                    --cut_tail_mean_quality {params.cut_tail_mean_quality} \
+                    --n_base_limit {params.n_base_limit} \
+                    --length_required {params.length_required} \
+                    --thread {threads} \
+                    --html $HTML \
+                    --json $JSON \
+                    >{log} 2>&1
+                fi
+            fi
+
+            if [ "$RS" != "" ];
+            then
+                FQS={params.se_prefix}.trimming.se.fq.gz
+                HTML={params.se_prefix}.fastp.se.html
+                JSON={params.se_prefix}.fastp.se.json
+
+                mkdir -p $OUTSE
+
+                if [ "{params.use_slide_window}" == "yes" ];
+                then
+                    fastp \
+                    --in1 $RS \
+                    --out1 $FQS \
+                    --compression {params.compression} \
+                    $ADAPTER_OPERATION_SE \
+                    {params.dedup} \
+                    --cut_front \
+                    --cut_right \
+                    --cut_front_window_size {params.cut_front_window_size} \
+                    --cut_front_mean_quality {params.cut_front_mean_quality} \
+                    --cut_right_window_size {params.cut_right_window_size} \
+                    --cut_right_mean_quality {params.cut_right_mean_quality} \
+                    --n_base_limit {params.n_base_limit} \
+                    --length_required {params.length_required} \
+                    --thread {threads} \
+                    --html $HTML \
+                    --json $JSON \
+                    >>{log} 2>&1
+                else
+                    fastp \
+                    --in1 $RS \
+                    --out1 $FQS \
+                    --compression {params.compression} \
+                    $ADAPTER_OPERATION_SE \
+                    {params.dedup} \
+                    --cut_front \
+                    --cut_tail \
+                    --cut_front_window_size {params.cut_front_window_size} \
+                    --cut_front_mean_quality {params.cut_front_mean_quality} \
+                    --cut_tail_window_size {params.cut_tail_window_size} \
+                    --cut_tail_mean_quality {params.cut_tail_mean_quality} \
+                    --n_base_limit {params.n_base_limit} \
+                    --length_required {params.length_required} \
+                    --thread {threads} \
+                    --html $HTML \
+                    --json $JSON \
+                    >>{log} 2>&1
+                fi
+            fi
+
+            echo "{{\\"PE_FORWARD\\": \\"$FQ1\\", \\"PE_REVERSE\\": \\"$FQ2\\", \\"SE\\": \\"$FQS\\"}}" | \
+            jq . > {output}
             '''
 
-           
+
     rule trimming_fastp_all:
         input:
-            expand([
-                os.path.join(config["output"]["trimming"],
-                             "short_reads/{sample}/{sample}.fastp.html"),
-                os.path.join(config["output"]["trimming"],
-                             "short_reads/{sample}/{sample}.fastp.json"),
-                os.path.join(config["output"]["trimming"],
-                             "report/fastp_multiqc_report.html"),
-                #os.path.join(config["output"]["trimming"],
-                #             "report/fastp_multiqc_report_data")
-                ],
-                   sample=SAMPLES_ID_LIST)
+            expand(os.path.join(config["output"]["trimming"], "reads/{sample}/{sample}.json"),
+            sample=SAMPLES_ID_LIST)
 
 else:
     rule trimming_fastp_all:
@@ -348,155 +288,93 @@ else:
 
 
 if config["params"]["trimming"]["trimmomatic"]["do"]:
-    if IS_PE:
-        rule trimming_trimmomatic:
-            input:
-                lambda wildcards: get_reads(wildcards, "raw")
-            output:
-                summary = os.path.join(config["output"]["trimming"],
-                                    "short_reads/{sample}/{sample}.trimmomatic.summary.txt"),
-                log = os.path.join(config["output"]["trimming"],
-                                    "short_reads/{sample}/{sample}.trimmomatic.summary.log"),
-                reads = expand(
-                    os.path.join(
-                        config["output"]["trimming"],
-                        "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                    read=[".1", ".2"]) \
-                    if config["params"]["trimming"]["save_reads"] else \
-                    temp(expand(os.path.join(
-                        config["output"]["trimming"],
-                        "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                                read=[".1", ".2"]))
-            params:
-                trimmomatic_options = config["params"]["trimming"]["trimmomatic"]["trimmomatic_options"],
-                phred = config["params"]["trimming"]["trimmomatic"]["phred"],
-                save_unpaired = "true" if config["params"]["trimming"]["trimmomatic"]["save_unpaired"] else "false"
-            log:
-                os.path.join(config["output"]["trimming"], "logs/{sample}.trimmomatic.log")
-            benchmark:
-                os.path.join(config["output"]["trimming"],
-                            "benchmark/trimmomatic/{sample}.trimmomatic.benchmark.txt")
-            conda:
-                config["envs"]["trimming"]
-            threads:
-                config["params"]["trimming"]["threads"]
-            priority:
-                10
-            shell:
-                '''
-                trimmomatic \
-                PE \
+    rule trimming_trimmomatic:
+        input:
+            rules.raw_prepare_reads.output
+        output:
+            os.path.join(config["output"]["trimming"], "reads/{sample}/{sample}.json")
+        log:
+            os.path.join(config["output"]["trimming"], "logs/trimming_trimmomatic/{sample}.log")
+        benchmark:
+            os.path.join(config["output"]["trimming"], "benchmark/trimming_trimmomatic/{sample}.txt")
+        params:
+            pe_prefix = os.path.join(config["output"]["trimming"], "reads/{sample}/pe/{sample}"),
+            se_prefix = os.path.join(config["output"]["trimming"], "reads/{sample}/se/{sample}"),
+            trimmomatic_options = config["params"]["trimming"]["trimmomatic"]["trimmomatic_options"],
+            phred = config["params"]["trimming"]["trimmomatic"]["phred"],
+            save_unpaired = "true" if config["params"]["trimming"]["trimmomatic"]["save_unpaired"] else "false"
+        priority:
+            10
+        threads:
+            config["params"]["trimming"]["threads"]
+        conda:
+            config["envs"]["trimming"]
+        shell:
+            '''
+            OUTDIR=$(dirname {output})
+            OUTPE=$(dirname {params.pe_prefix})
+            OUTSE=$(dirname {params.se_prefix})
+
+            rm -rf $OUTDIR $OUTPE $OUTSE
+            mkdir -p $OUTDIR
+
+            R1=$(jq -r -M '.PE_FORWARD' {input} | sed 's/^null$//g')
+            R2=$(jq -r -M '.PE_REVERSE' {input} | sed 's/^null$//g')
+            RS=$(jq -r -M '.SE' {input} | sed 's/^null$//g')
+
+            FQ1=""
+            FQ2=""
+            FQS=""
+
+            if [ "$R1" != "" ];
+            then
+                FQ1={params.pe_prefix}.trimming.pe.1.fq.gz
+                FQ2={params.pe_prefix}.trimming.pe.2.fq.gz
+
+                mkdir -p $OUTPE
+
+                trimmomatic PE \
                 {params.phred} \
                 -threads {threads} \
-                -summary {output.summary} \
-                {input} \
-                {output.reads[0]} {output.reads[0]}.unpaired.gz \
-                {output.reads[1]} {output.reads[1]}.unpaired.gz \
+                -summary {params.pe_prefix}.summary.txt \
+                $R1 $R2 \
+                $FQ1 $FQ1.unpaired.gz \
+                $FQ2 $FQ2.unpaired.gz \
                 {params.trimmomatic_options} \
-                >{output.log} 2>&1
+                >{log} 2>&1
 
                 if [ "{params.save_unpaired}" == "false" ];
                 then
-                    rm -rf {output.reads[0]}.unpaired.gz
-                    rm -rf {output.reads[1]}.unpaired.gz
+                    rm -rf $FQ1.unpaired.gz
+                    rm -rf $FQ2.unpaired.gz
                 fi
+            fi
 
-                cp {output.log} {log}
-                '''
+            if [ "$RS" != "" ];
+            then
+                FQS={params.se_prefix}.trimming.se.fq.gz
 
-    else:
-        rule trimming_trimmomatic:
-            input:
-                lambda wildcards: get_reads(wildcards, "raw")
-            output:
-                summary = os.path.join(config["output"]["trimming"],
-                                    "short_reads/{sample}/{sample}.trimmomatic.summary.txt"),
-                log = os.path.join(config["output"]["trimming"],
-                                    "short_reads/{sample}/{sample}.trimmomatic.summary.log"),
-                reads = expand(
-                    os.path.join(
-                        config["output"]["trimming"],
-                        "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                    read=[""]) \
-                    if config["params"]["trimming"]["save_reads"] else \
-                    temp(expand(os.path.join(
-                        config["output"]["trimming"],
-                        "short_reads/{{sample}}/{{sample}}.trimming{read}.fq.gz"),
-                                read=[""]))
-            params:
-                trimmomatic_options = config["params"]["trimming"]["trimmomatic"]["trimmomatic_options"],
-                phred = config["params"]["trimming"]["trimmomatic"]["phred"],
-                save_unpaired = "true" if config["params"]["trimming"]["trimmomatic"]["save_unpaired"] else "false"
-            log:
-                os.path.join(config["output"]["trimming"], "logs/{sample}.trimmomatic.log")
-            benchmark:
-                os.path.join(config["output"]["trimming"],
-                            "benchmark/trimmomatic/{sample}.trimmomatic.benchmark.txt")
-            conda:
-                config["envs"]["trimming"]
-            threads:
-                config["params"]["trimming"]["threads"]
-            priority:
-                10
-            shell:
-                '''
-                trimmomatic \
-                SE \
+                mkdir -p $OUTSE
+
+                trimmomatic SE \
                 {params.phred} \
                 -threads {threads} \
-                -summary {output.summary} \
-                {input} \
-                {output.reads} \
+                -summary {params.se_prefix}.summary.txt \
+                $RS \
+                $FQS \
                 {params.trimmomatic_options} \
-                >{output.log} 2>&1
+                >>{log} 2>&1
+            fi
 
-                cp {output.log} {log}
-                '''
-
-
-    rule trimming_trimmomatic_multiqc:
-        input:
-            expand(
-                os.path.join(config["output"]["trimming"],
-                             "short_reads/{sample}/{sample}.trimmomatic.log"),
-                sample=SAMPLES_ID_LIST)
-        output:
-            html = os.path.join(config["output"]["trimming"],
-                                "report/trimmomatic_multiqc_report.html")#,
-            #data_dir = directory(os.path.join(config["output"]["trimming"],
-            #                                  "report/trimmomatic_multiqc_report_data"))
-        log:
-            os.path.join(config["output"]["trimming"], "logs/multiqc.trimmomatic.log")
-        params:
-            outdir = os.path.join(config["output"]["trimming"], "report")
-        conda:
-            config["envs"]["multiqc"]
-        priority:
-            10
-        shell:
-            '''
-            multiqc \
-            --outdir {params.outdir} \
-            --title trimmomatic \
-            --module trimmomatic \
-            {input} \
-            2> {log}
+            echo "{{\\"PE_FORWARD\\": \\"$FQ1\\", \\"PE_REVERSE\\": \\"$FQ2\\", \\"SE\\": \\"$FQS\\"}}" | \
+            jq . > {output}
             '''
 
-           
+
     rule trimming_trimmomatic_all:
         input:
-            expand([
-                os.path.join(config["output"]["trimming"],
-                             "short_reads/{sample}/{sample}.trimmomatic.summary.txt"),
-                os.path.join(config["output"]["trimming"],
-                             "short_reads/{sample}/{sample}.trimmomatic.log"),
-                os.path.join(config["output"]["trimming"],
-                             "report/trimmomatic_multiqc_report.html"),
-                #os.path.join(config["output"]["trimming"],
-                #             "report/trimmomatic_multiqc_report_data")
-                ],
-                   sample=SAMPLES_ID_LIST)
+            expand(os.path.join(config["output"]["trimming"], "reads/{sample}/{sample}.json"),
+            sample=SAMPLES_ID_LIST)
 
 else:
     rule trimming_trimmomatic_all:
@@ -506,23 +384,27 @@ else:
 if TRIMMING_DO and config["params"]["qcreport"]["do"]:
     rule trimming_report:
         input:
-            lambda wildcards: get_reads(wildcards, "trimming")
+            os.path.join(config["output"]["trimming"], "reads/{sample}/{sample}.json")
         output:
-            temp(os.path.join(config["output"]["trimming"],
-                              "report/stats/{sample}_trimming_stats.tsv.raw"))
+            os.path.join(config["output"]["trimming"], "report/stats/{sample}_trimming_stats.tsv")
         log:
-            os.path.join(config["output"]["trimming"],
-                         "logs/{sample}.seqkit.log")
+            os.path.join(config["output"]["trimming"], "logs/trimming_report/{sample}.log")
+        benchmark:
+            os.path.join(config["output"]["trimming"], "benchmark/trimming_report/{sample}.txt")
         params:
             fq_encoding = config["params"]["fq_encoding"]
-        conda:
-            config["envs"]["report"]
-        threads:
-            config["params"]["qcreport"]["seqkit"]["threads"]
         priority:
             10
+        threads:
+            config["params"]["qcreport"]["seqkit"]["threads"]
+        conda:
+            config["envs"]["report"]
         shell:
             '''
+            R1=$(jq -r -M '.PE_FORWARD' {input} | sed 's/^null$//g')
+            R2=$(jq -r -M '.PE_REVERSE' {input} | sed 's/^null$//g')
+            RS=$(jq -r -M '.SE' {input} | sed 's/^null$//g')
+
             seqkit stats \
             --all \
             --basename \
@@ -530,51 +412,38 @@ if TRIMMING_DO and config["params"]["qcreport"]["do"]:
             --fq-encoding {params.fq_encoding} \
             --out-file {output} \
             --threads {threads} \
-            {input} 2> {log}
+            $R1 $R2 $RS \
+            >{log} 2>&1
             '''
-        
-
-    rule trimming_report_refine:
-        input:
-            os.path.join(config["output"]["trimming"],
-                         "report/stats/{sample}_trimming_stats.tsv.raw")
-        output:
-            os.path.join(config["output"]["trimming"],
-                         "report/stats/{sample}_trimming_stats.tsv.gz")
-        params:
-            sample_id = "{sample}"
-        threads:
-            1
-        priority:
-            10
-        run:
-            if IS_PE:
-                metapi.change(str(input), str(output), params.sample_id, "trimming",
-                              "pe", ["fq1", "fq2"])
-            else:
-                metapi.change(str(input), str(output), params.sample_id, "trimming",
-                              "se", ["fq1"])
 
 
     rule trimming_report_merge:
         input:
-            expand(
-                os.path.join(config["output"]["trimming"],
-                             "report/stats/{sample}_trimming_stats.tsv.gz"),
-                sample=SAMPLES_ID_LIST)
+            expand(os.path.join(config["output"]["trimming"], "report/stats/{sample}_trimming_stats.tsv"),
+            sample=SAMPLES_ID_LIST)
         output:
-            os.path.join(config["output"]["qcreport"], "trimming_stats.tsv.gz")
-        threads:
-            config["params"]["qcreport"]["seqkit"]["threads"]
+            os.path.join(config["output"]["qcreport"], "trimming_stats.tsv")
+        log:
+            os.path.join(config["output"]["raw"], "logs/trimming_report_merge/trimming_report_merge.log")
+        benchmark:
+            os.path.join(config["output"]["raw"], "benchmark/trimming_report_merge/trimming_report_merge.txt")
         priority:
             10
-        run:
-            metapi.merge(input, metapi.parse, threads, output=output[0])
+        threads:
+            config["params"]["qcreport"]["seqkit"]["threads"]
+        shell:
+            '''
+            head -1 {input[0]} > {output}
+            for report in {input}
+            do
+                tail -q -n +2 $report >> {output} 2>>{log}
+            done
+            '''
 
 
     rule trimming_report_all:
         input:
-            os.path.join(config["output"]["qcreport"], "trimming_stats.tsv.gz")
+            rules.trimming_report_merge.output
 
 else:
     rule trimming_report_all:
@@ -586,9 +455,7 @@ rule trimming_all:
         rules.trimming_sickle_all.input,
         rules.trimming_fastp_all.input,
         rules.trimming_trimmomatic_all.input,
-        rules.trimming_report_all.input#,
-
-        #rules.raw_all.input
+        rules.trimming_report_all.input
 
 
 localrules:

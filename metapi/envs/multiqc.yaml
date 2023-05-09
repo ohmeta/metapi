@@ -5,3 +5,4 @@ channels:
 dependencies:
   - multiqc=1.13a
   - pigz
+  - jq

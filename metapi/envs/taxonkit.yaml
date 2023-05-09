@@ -6,3 +6,4 @@ dependencies:
   - taxonkit
   - csvtk
   - pigz
+  - jq

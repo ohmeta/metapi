@@ -13,32 +13,15 @@ METAPI_DIR = metapi.__path__[0]
 WRAPPER_DIR = os.path.join(METAPI_DIR, "wrappers")
 
 
-IS_PE = True \
-    if config["params"]["reads_layout"] == "pe" \
-       else False
+RMHOST_DO = any([
+    config["params"]["rmhost"]["bwa"]["do"],
+    config["params"]["rmhost"]["bowtie2"]["do"]])
 
 
-IS_INTERLEAVED = True \
-    if config["params"]["interleaved"] \
-       else False
-
-
-HAVE_LONG = True \
-    if IS_PE and config["params"]["have_long"] \
-       else False
-
-
-RMHOST_DO = True \
-    if config["params"]["rmhost"]["bwa"]["do"] or \
-       config["params"]["rmhost"]["bowtie2"]["do"] \
-       else False
-
-
-TRIMMING_DO = True \
-    if config["params"]["trimming"]["sickle"]["do"] or \
-       config["params"]["trimming"]["fastp"]["do"] or \
-       config["params"]["trimming"]["trimmomatic"]["do"] \
-       else False
+TRIMMING_DO = any([
+    config["params"]["trimming"]["sickle"]["do"],
+    config["params"]["trimming"]["fastp"]["do"],
+    config["params"]["trimming"]["trimmomatic"]["do"]])
 
 
 ASSEMBLERS = []
@@ -52,15 +35,7 @@ if config["params"]["assembly"]["spades"]["do"]:
     ASSEMBLERS += ["spades"]
 
 
-SAMPLES = metapi.parse_samples(config["params"]["samples"],
-                               config["params"]["interleaved"],
-                               config["params"]["reads_layout"],
-                               config["params"]["begin"])
-
-
-READS_FORMAT = "sra" \
-    if "sra" in SAMPLES.columns \
-       else "fastq"
+SAMPLES, DATA_TYPE = metapi.parse_samples(config["params"]["samples"])
 
 
 include: "../rules/raw.smk"
@@ -75,7 +50,6 @@ include: "../rules/upload.smk"
 
 rule all:
     input:
-        rules.simulate_all.input,
         rules.raw_all.input,
         rules.trimming_all.input,
         rules.rmhost_all.input,

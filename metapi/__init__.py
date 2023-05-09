@@ -12,6 +12,7 @@ from metapi.simulator import parse_genomes
 from metapi.simulator import get_simulate_info
 from metapi.simulator import simulate_short_reads
 
+from metapi.sampler import HEADERS
 from metapi.sampler import parse_samples
 from metapi.sampler import get_reads
 from metapi.sampler import get_sample_id
@@ -23,6 +24,21 @@ from metapi.sampler import get_assembly_group_by_binning_group
 from metapi.sampler import get_binning_group_by_assembly_group
 from metapi.sampler import get_multibinning_group_by_assembly_group
 
+from metapi.sampler import get_raw_input_list
+from metapi.sampler import get_raw_input_dict
+
+from metapi.sampler import get_samples_for_assembly_list
+from metapi.sampler import get_samples_for_assembly_dict
+from metapi.sampler import get_samples_for_assembly_megahit
+from metapi.sampler import get_samples_for_assembly_idba_ud
+from metapi.sampler import get_samples_for_assembly_spades
+from metapi.sampler import get_samples_for_assembly_plass
+from metapi.sampler import get_samples_for_assembly_opera_ms
+from metapi.sampler import get_samples_for_metaquast
+
+from metapi.sampler import get_samples_bax
+from metapi.sampler import get_samples_scaftigs
+
 from metapi.qcer import change
 from metapi.qcer import compute_host_rate
 from metapi.qcer import qc_summary_merge
@@ -31,6 +47,7 @@ from metapi.qcer import parse_fastp_json
 
 from metapi.assembler import assembler_init
 from metapi.assembler import parse_assembly
+from metapi.assembler import parse_assembly_spades_params
 
 from metapi.aligner import flagstats_summary
 
