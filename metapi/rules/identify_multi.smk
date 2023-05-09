@@ -228,93 +228,6 @@ rule identify_phamb_hmmsearch_vog_merge:
         '''
 
 
-rule identify_phamb_deepvirfinder_merge:
-    input:
-        lambda wildcards: expand(os.path.join(
-            config["output"]["identify"],
-            "vmags/{{binning_group}}.{assembly_group}.{{assembler}}/deepvirfinder/{{binning_group}}.{assembly_group}.{{assembler}}.scaftigs.fa.gz_gt{min_length}bp_dvfpred.txt.gz"),
-            min_length=config["params"]["identify"]["deepvirfinder"]["min_length"],
-            assembly_group=sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, wildcards.binning_group)))
-    output:
-        dvf = os.path.join(config["output"]["identify"], "annotations/{binning_group}.{assembler}/all.DVF.predictions.txt.gz")
-    params:
-        binning_group = "{binning_group}"
-    run:
-        import gzip
-
-        assembly_groups = sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, params.binning_group))
-
-        with gzip.open(output.dvf, "wt") as oh:
-            assembly_group = os.path.basename(input[0]).split(".")[1]
-            assembly_index = int(assembly_groups.index(assembly_group)) + 1
-            assembly_group = f'''S{assembly_index}'''
-            with gzip.open(input[0], "rt") as ih:
-                oh.write(ih.readline())
-                for line in ih:
-                    oh.write(f'''{assembly_group}C{line}''')
-            for dvfpred in input[1:]:
-                assembly_group = os.path.basename(dvfpred).split(".")[1]
-                assembly_index = int(assembly_groups.index(assembly_group)) + 1
-                assembly_group = f'''S{assembly_index}'''
-                with gzip.open(dvfpred, "rt") as ih:
-                    ih.readline()
-                    for line in ih:
-                        oh.write(f'''{assembly_group}C{line}''')
-
-
-rule identify_phamb_deepvirfinder_extract_contigs:
-    input:
-        scaftigs = os.path.join(
-            config["output"]["assembly"],
-            "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz"),
-        dvf_anno = expand(os.path.join(
-            config["output"]["identify"],
-            "vmags/{{binning_group}}.{{assembly_group}}.{{assembler}}/deepvirfinder/{{binning_group}}.{{assembly_group}}.{{assembler}}.scaftigs.fa.gz_gt{min_length}bp_dvfpred.txt.gz"),
-            min_length=config["params"]["identify"]["deepvirfinder"]["min_length"]),
-        metadata = os.path.join(
-            config["output"]["assembly"],
-            "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.metadata.tsv.gz")
-    output:
-        assembly_fna = os.path.join(
-            config["output"]["identify"],
-            "vmags/{binning_group}.{assembly_group}.{assembler}/deepvirfinder/{binning_group}.{assembly_group}.{assembler}.deepvirfinder.combined.fa.gz"),
-        done = os.path.join(
-            config["output"]["identify"],
-            "vmags/{binning_group}.{assembly_group}.{assembler}/deepvirfinder/distribution_done")
-    params:
-        assembly_group = "{assembly_group}"
-    run:
-        from Bio import SeqIO
-        import gzip
-
-        ### record assembly_group : alias ###
-        tab = pd.read_table(input.metadata)
-        # vamb_id_assembly = {vamb_id : binning_assembly.split(".")[-1] for vamb_id, binning_assembly in zip(tab.iloc[:,1], tab.iloc[:, 0])}
-        assembly_vamb_id = {binning_assembly.split(".")[-1] : vamb_id for vamb_id, binning_assembly in zip(tab.iloc[:,1], tab.iloc[:, 0])}
-        # seems like metapi.get_samples_id_by_binning_group(SAMPLES, wildcards.binning_group) will do the trick
-
-        # shell("zcat {input.dvf_anno} | perl -lane 's/\s.*?\t/\t/; print' > {params.temp_metadata}")
-        dvf_dict = dict() #defaultdict(int)
-        vamb_id = assembly_vamb_id[params.assembly_group]
-        with gzip.open(input.dvf_anno, "rt") as records:
-            records.readline()# title line
-            for record in records:
-                name, length, score, p = record.split("\t")
-
-                if float(score) > 0.5 and float(p) < 0.05:
-                    name = name.split(" ")[0]
-                    name = vamb_id + 'C' + name
-                    dvf_dict[name] = 1
-                # print(record, end="")
-
-        dvf_viral_list = list(dvf_dict.keys())
-        with gzip.open(output.assembly_fna, "at") as f:
-            for record in SeqIO.parse(gzip.open(input.scaftigs, 'rt'), 'fasta'):
-                if record.description in dvf_viral_list:
-                    f.write(record.format("fasta"))
-        shell("touch {output.done}")
-
-
 rule identify_phamb_randomforest:
     input:
         scaftigs = os.path.join(
@@ -437,13 +350,6 @@ config["params"]["binning"]["vamb"]["do"]:
                     config["output"]["identify"],
                     "vmags/{binning_group}.{assembly_group}.{assembler}/phamb/{binning_group}.{assembly_group}.{assembler}.phamb.combined.fa.gz"),
                 zip,
-                binning_group=ASSEMBLY_GROUPS["binning_group"],
-                assembly_group=ASSEMBLY_GROUPS["assembly_group"],
-                assembler=ASSEMBLY_GROUPS["assembler"]),
-            expand(
-                os.path.join(
-                    config["output"]["identify"],
-                    "vmags/{binning_group}.{assembly_group}.{assembler}/deepvirfinder/{binning_group}.{assembly_group}.{assembler}.deepvirfinder.combined.fa.gz"),
                 binning_group=ASSEMBLY_GROUPS["binning_group"],
                 assembly_group=ASSEMBLY_GROUPS["assembly_group"],
                 assembler=ASSEMBLY_GROUPS["assembler"])
