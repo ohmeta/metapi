@@ -5,8 +5,10 @@ def rmhost_input(wildcards):
         return os.path.join(config["output"]["raw"], f"reads/{wildcards.sample}/{wildcards.sample}.json")
 
 
-BWA_INDEX_SUFFIX = ["0123", "amb", "ann", "bwt.2bit.64", "pac"] if config["params"]["rmhost"]["bwa"]["algorithms"] == "mem2" \
-else ["amb", "ann", "bwt", "pac", "sa"]
+BWA_INDEX_SUFFIX = ["0123", "amb", "ann", "bwt.2bit.64", "pac"]
+if config["params"]["rmhost"]["bwa"]["algorithms"] == "mem2":
+    BWA_INDEX_SUFFIX = ["amb", "ann", "bwt", "pac", "sa"]
+
 
 if config["params"]["rmhost"]["bwa"]["do"]:
     rule rmhost_bwa_index:
@@ -35,8 +37,10 @@ if config["params"]["rmhost"]["bwa"]["do"]:
     rule rmhost_bwa:
         input:
             reads = lambda wildcards: rmhost_input(wildcards),
-            index = expand("{prefix}.{suffix}", prefix=config["params"]["rmhost"]["bwa"]["index_prefix"],
-            suffix=BWA_INDEX_SUFFIX)
+            index = expand(
+                "{prefix}.{suffix}",
+                prefix=config["params"]["rmhost"]["bwa"]["index_prefix"],
+                suffix=BWA_INDEX_SUFFIX)
         output:
             os.path.join(config["output"]["rmhost"], "reads/{sample}/{sample}.json")
         log:
@@ -192,8 +196,9 @@ if config["params"]["rmhost"]["bwa"]["do"]:
 
     rule rmhost_bwa_all:
         input:
-            expand(os.path.join(config["output"]["rmhost"], "reads/{sample}/{sample}.json"),
-            sample=SAMPLES_ID_LIST)
+            expand(os.path.join(
+                config["output"]["rmhost"], "reads/{sample}/{sample}.json"),
+                sample=SAMPLES_ID_LIST)
 
 else:
     rule rmhost_bwa_all:
@@ -205,8 +210,10 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
         input:
             config["params"]["rmhost"]["host_fasta"]
         output:
-            expand("{prefix}.{suffix}", prefix=config["params"]["rmhost"]["bowtie2"]["index_prefix"],
-            suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
+            expand(
+                "{prefix}.{suffix}",
+                prefix=config["params"]["rmhost"]["bowtie2"]["index_prefix"],
+                suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
         log:
             os.path.join(config["output"]["rmhost"], "logs/rmhost_bowtie2_index/rmhost_bowtie2_index.log")
         benchmark:
@@ -228,8 +235,10 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
     rule rmhost_bowtie2:
         input:
             reads = lambda wildcards: rmhost_input(wildcards),
-            index = expand("{prefix}.{suffix}", prefix=config["params"]["rmhost"]["bowtie2"]["index_prefix"],
-            suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
+            index = expand(
+                "{prefix}.{suffix}",
+                prefix=config["params"]["rmhost"]["bowtie2"]["index_prefix"],
+                suffix=["1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"])
         output:
             os.path.join(config["output"]["rmhost"], "reads/{sample}/{sample}.json")
         log:
@@ -386,8 +395,9 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
 
     rule rmhost_bowtie2_all:
         input:
-            expand(os.path.join(config["output"]["rmhost"], "reads/{sample}/{sample}.json"),
-            sample=SAMPLES_ID_LIST)
+            expand(os.path.join(
+                config["output"]["rmhost"], "reads/{sample}/{sample}.json"),
+                sample=SAMPLES_ID_LIST)
 
 else:
     rule rmhost_bowtie2_all:

@@ -146,7 +146,7 @@ rule binning_vamb_index_scaftigs:
 
 rule binning_vamb_align_scaftigs:
     input:
-        reads = os.path.join(config["output"]["rmhost"], "reads/{sample}/{sample}.json"),
+        reads = os.path.join(SAMPLESDIR, "reads/{sample}/{sample}.json"),
         scaftigs_index = os.path.join(
             config["output"]["alignment"],
             "index_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.minimap2.mmi"),
