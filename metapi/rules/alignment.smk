@@ -8,15 +8,6 @@ for assembler in ASSEMBLERS:
 ALIGNMENT_GROUPS = pd.concat(alignment_df_list, axis=0)
 
 
-def alignment_input_with_short_reads(wildcards):
-    if RMHOST_DO:
-        return get_reads(wildcards, "rmhost", False, False)
-    elif TRIMMING_DO:
-        return get_reads(wildcards, "trimming", False, False)
-    else:
-        return get_reads(wildcards, "raw", False, False)
-
-
 INDEX_SUFFIX = ["amb", "ann", "bwt", "pac", "sa"]
 if config["params"]["alignment"]["aligner"] == "bwa-mem2":
     INDEX_SUFFIX = ["0123", "amb", "ann", "bwt.2bit.64", "pac"]

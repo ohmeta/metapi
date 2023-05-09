@@ -17,35 +17,20 @@ DATA_DIR = os.path.join(METAPI_DIR, "data")
 
 pprint(METAPI_DIR)
 
-IS_PE = True \
-    if config["params"]["reads_layout"] == "pe" \
-       else False
+TRIMMING_DO = any([
+    config["params"]["trimming"]["sickle"]["do"],
+    config["params"]["trimming"]["fastp"]["do"],
+    config["params"]["trimming"]["trimmomatic"]["do"]
+])
 
 
-IS_INTERLEAVED = True \
-    if config["params"]["interleaved"] \
-       else False
-
-
-HAVE_LONG = True \
-    if IS_PE and config["params"]["have_long"] \
-       else False
-
-
-TRIMMING_DO = True \
-    if config["params"]["trimming"]["sickle"]["do"] or \
-       config["params"]["trimming"]["fastp"]["do"] or \
-       config["params"]["trimming"]["trimmomatic"]["do"] \
-       else False
-
-
-RMHOST_DO = True \
-    if config["params"]["rmhost"]["bwa"]["do"] or \
-       config["params"]["rmhost"]["bowtie2"]["do"] or \
-       config["params"]["rmhost"]["minimap2"]["do"] or \
-       config["params"]["rmhost"]["kraken2"]["do"] or \
-       config["params"]["rmhost"]["kneaddata"]["do"] \
-       else False
+RMHOST_DO = any([
+    config["params"]["rmhost"]["bwa"]["do"],
+    config["params"]["rmhost"]["bowtie2"]["do"],
+    config["params"]["rmhost"]["minimap2"]["do"],
+    config["params"]["rmhost"]["kraken2"]["do"],
+    config["params"]["rmhost"]["kneaddata"]["do"]
+])
 
 
 ASSEMBLERS = []
@@ -62,11 +47,11 @@ if config["params"]["assembly"]["spades"]["do"]:
 if config["params"]["assembly"]["opera_ms"]["do"]:
     ASSEMBLERS += ["opera_ms"]
     if (config["params"]["assembly"]["opera_ms"]["short_read_assembler"] == "megahit") \
-       and (not "megahit" in ASSEMBLERS):
+    and (not "megahit" in ASSEMBLERS):
         config["params"]["assembly"]["megahit"]["do"] = True
         ASSEMBLERS += ["megahit"]
     elif (config["params"]["assembly"]["opera_ms"]["short_read_assembler"] == "metaspades") \
-         and (not "metaspades" in ASSEMBLERS):
+    and (not "metaspades" in ASSEMBLERS):
         config["params"]["assembly"]["metaspades"]["do"] = True
         ASSEMBLERS += ["metaspades"]
 
@@ -106,19 +91,13 @@ if config["params"]["dereplicate"]["galah"]["do"]:
     DEREPERS.append("galah")
 
 
-SAMPLES, DT = metapi.parse_samples(config["params"]["samples"])
+SAMPLES, DATA_TYPE = metapi.parse_samples(config["params"]["samples"])
 
 SAMPLES_ID_LIST = SAMPLES.index.get_level_values("sample_id").unique()
 SAMPLES_ASSEMBLY_GROUP_LIST = SAMPLES.index.get_level_values("assembly_group").unique()
 SAMPLES_BINNING_GROUP_LIST = SAMPLES.index.get_level_values("binning_group").unique()
 
 
-READS_FORMAT = "sra" \
-    if "sra" in SAMPLES.columns \
-       else "fastq"
-
-
-## TODO
 """
 if config["params"]["begin"] == "binning":
     for sample_id in SAMPLES.index.unique():
@@ -138,46 +117,46 @@ if config["params"]["begin"] == "binning":
 
 
 include: "../rules/raw.smk"
-#include: "../rules/trimming.smk"
-#include: "../rules/rmhost.smk"
-#include: "../rules/qcreport.smk"
-#include: "../rules/assembly.smk"
-#include: "../rules/predict_scaftigs.smk"
-#include: "../rules/alignment.smk"
-#include: "../rules/binning.smk"
-#include: "../rules/binning_multisplit.smk"
-#include: "../rules/binning_refine.smk"
-#include: "../rules/binning_report.smk"
-#include: "../rules/identify_single.smk"
-#include: "../rules/identify_multi.smk"
-#include: "../rules/predict_mags.smk"
-#include: "../rules/annotation.smk"
-#include: "../rules/checkm.smk"
-#include: "../rules/checkv.smk"
-#include: "../rules/dereplicate_gene.smk"
-#include: "../rules/dereplicate_mags.smk"
-#include: "../rules/dereplicate_vmags.smk"
-#include: "../rules/taxonomic.smk"
-#include: "../rules/databases.smk"
-#include: "../rules/upload.smk"
+include: "../rules/trimming.smk"
+include: "../rules/rmhost.smk"
+include: "../rules/qcreport.smk"
+include: "../rules/assembly.smk"
+include: "../rules/alignment.smk"
+include: "../rules/predict_scaftigs.smk"
+include: "../rules/binning.smk"
+include: "../rules/binning_multisplit.smk"
+include: "../rules/binning_refine.smk"
+include: "../rules/binning_report.smk"
+include: "../rules/identify_single.smk"
+include: "../rules/identify_multi.smk"
+include: "../rules/predict_mags.smk"
+include: "../rules/annotation.smk"
+include: "../rules/checkm.smk"
+include: "../rules/checkv.smk"
+include: "../rules/dereplicate_gene.smk"
+include: "../rules/dereplicate_mags.smk"
+include: "../rules/dereplicate_vmags.smk"
+include: "../rules/taxonomic.smk"
+include: "../rules/databases.smk"
+include: "../rules/upload.smk"
 
 
 rule all:
     input:
         rules.raw_all.input,
-        #rules.trimming_all.input,
-        #rules.rmhost_all.input,
-        #rules.qcreport_all.input,
-        #rules.assembly_all.input,
-        #rules.predict_scaftigs_gene_all.input,
-        #rules.alignment_all.input,
-        #rules.binning_all.input,
-        #rules.identify_single_all.input,
-        #rules.identify_multi_all.input,
-        #rules.predict_mags_gene_all.input,
-        #rules.annotation_all.input,
-        #rules.check_all.input,
-        #rules.dereplicate_all.input,
-        #rules.taxonomic_all.input,
-        #rules.databases_all.input,
-        #rules.upload_all.input
+        rules.trimming_all.input,
+        rules.rmhost_all.input,
+        rules.qcreport_all.input,
+        rules.assembly_all.input,
+        rules.predict_scaftigs_gene_all.input,
+        rules.alignment_all.input,
+        rules.binning_all.input,
+        rules.identify_single_all.input,
+        rules.identify_multi_all.input,
+        rules.predict_mags_gene_all.input,
+        rules.annotation_all.input,
+        rules.check_all.input,
+        rules.dereplicate_all.input,
+        rules.taxonomic_all.input,
+        rules.databases_all.input,
+        rules.upload_all.input

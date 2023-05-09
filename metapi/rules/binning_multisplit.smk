@@ -8,21 +8,6 @@ for binning_group in SAMPLES_BINNING_GROUP_LIST:
         MULTIBINING_INDEX[binning_group][assembly_group] = f'''S{count}'''
 
 
-def get_reads_for_multisplit_binning(wildcards, step):
-    samples_id_list = metapi.get_samples_id_by_binning_group(SAMPLES, wildcards.binning_group)
-    short_reads = get_short_reads_list(step, samples_id_list)
-    return short_reads
-
-
-def multisplit_binning_input_with_short_reads(wildcards):
-    if RMHOST_DO:
-        return get_reads_for_multisplit_binning(wildcards, "rmhost", False, False)
-    elif TRIMMING_DO:
-        return get_reads_for_multisplit_binning(wildcards, "trimming", False, False)
-    else:
-        return get_reads_for_multisplit_binning(wildcards, "raw", False, False)
-
-
 # reference: https://github.com/RasmussenLab/vamb/blob/master/workflow/vamb.snake.conda.py
 rule binning_vamb_combine_scaftigs:
     input:
