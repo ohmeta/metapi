@@ -438,6 +438,40 @@ rule identify_phamb_deepvirfinder_extract_contigs:
         shell("touch {output.done}")
 
 
+rule identify_phamb_deepvirfinder_merge:
+    input:
+        lambda wildcards: expand(os.path.join(
+            config["output"]["identify"],
+            "vmags/{{binning_group}}.{assembly_group}.{{assembler}}/deepvirfinder/{{binning_group}}.{assembly_group}.{{assembler}}.scaftigs.fa.gz_gt{min_length}bp_dvfpred.txt.gz"),
+            min_length=config["params"]["identify"]["deepvirfinder"]["min_length"],
+            assembly_group=sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, wildcards.binning_group)))
+    output:
+        dvf = os.path.join(config["output"]["identify"], "annotations/{binning_group}.{assembler}/all.DVF.predictions.txt.gz")
+    params:
+        binning_group = "{binning_group}"
+    run:
+        import gzip
+
+        assembly_groups = sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, params.binning_group))
+
+        with gzip.open(output.dvf, "wt") as oh:
+            assembly_group = os.path.basename(input[0]).split(".")[1]
+            assembly_index = int(assembly_groups.index(assembly_group)) + 1
+            assembly_group = f'''S{assembly_index}'''
+            with gzip.open(input[0], "rt") as ih:
+                oh.write(ih.readline())
+                for line in ih:
+                    oh.write(f'''{assembly_group}C{line}''')
+            for dvfpred in input[1:]:
+                assembly_group = os.path.basename(dvfpred).split(".")[1]
+                assembly_index = int(assembly_groups.index(assembly_group)) + 1
+                assembly_group = f'''S{assembly_index}'''
+                with gzip.open(dvfpred, "rt") as ih:
+                    ih.readline()
+                    for line in ih:
+                        oh.write(f'''{assembly_group}C{line}''')
+
+
 if config["params"]["identify"]["deepvirfinder"]["do"]:
     rule identify_deepvirfinder_all:
         input:
@@ -447,7 +481,12 @@ if config["params"]["identify"]["deepvirfinder"]["do"]:
                 zip,
                 binning_group=ASSEMBLY_GROUPS["binning_group"],
                 assembly_group=ASSEMBLY_GROUPS["assembly_group"],
-                assembler=ASSEMBLY_GROUPS["assembler"])
+                assembler=ASSEMBLY_GROUPS["assembler"]),
+            expand(os.path.join(
+                config["output"]["identify"],
+                "annotations/{binning_group}.{assembler}/all.DVF.predictions.txt.gz"),
+                binning_group=SAMPLES_BINNING_GROUP_LIST,
+                assembler=ASSEMBLERS)
 
 else:
     rule identify_deepvirfinder_all:
