@@ -419,7 +419,8 @@ rule identify_phamb_deepvirfinder_extract_contigs:
         # shell("zcat {input.dvf_anno} | perl -lane 's/\s.*?\t/\t/; print' > {params.temp_metadata}")
         dvf_dict = dict() #defaultdict(int)
         vamb_id = assembly_vamb_id[params.assembly_group]
-        with gzip.open(input.dvf_anno, "rt") as records:
+
+        with gzip.open(input.dvf_anno[0], "rt") as records:
             records.readline()# title line
             for record in records:
                 name, length, score, p = record.split("\t")
