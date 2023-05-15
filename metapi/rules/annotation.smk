@@ -111,6 +111,7 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
             done
             '''
 
+
     def get_dbscan_swa_merged_output(wildcards):
          checkpoint_output = checkpoints.annotation_prophage_dbscan_swa_merge.get(**wildcards).output.fna
          return expand(os.path.join(
@@ -118,6 +119,7 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
              "dbscan_swa/{binning_group}.{assembler}.prophage/prophage.fna"),
              binning_group=wildcards.binning_group,
              assembler=wildcards.assembler)
+
 
     checkpoint annotation_prophage_dbscan_swa_distribute:
         input:
@@ -128,7 +130,7 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
             assembly_fna = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/{binning_group}.{assembly_group}.{assembler}.dbscan_swa.combined.fa.gz"),
             done = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/distribution_done")
         params:
-            working_dir = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa"), 
+            working_dir = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa"),
             assembly_group = "{assembly_group}"
         run:
             shell("rm -rf {params.working_dir}")
@@ -160,11 +162,13 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
             # shell("gzip -f {params.assembly_fna}")
             shell("touch {output.done}")
 
+
     rule annotation_prophage_dbscan_swa_all:
         input:
             expand(os.path.join(
                 config["output"]["identify"],
                 "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/distribution_done"),
+                zip,
                 assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST,
                 binning_group=SAMPLES_BINNING_GROUP_LIST,
                 assembler=ASSEMBLERS)
