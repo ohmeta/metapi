@@ -344,7 +344,7 @@ config["params"]["binning"]["vamb"]["do"]:
                     "vmags_phamb/{binning_group}.{assembler}/phamb_randomforest_done")],
                 binning_group=SAMPLES_BINNING_GROUP_LIST,
                 assembler=ASSEMBLERS,
-                annotations=["hmmMiComplete105.tbl", "hmmVOG.tbl", "DVF.predictions.txt"]),
+                annotations=["hmmMiComplete105.tbl", "hmmVOG.tbl"]),
             expand(
                 os.path.join(
                     config["output"]["identify"],

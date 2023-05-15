@@ -179,10 +179,11 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
         input:
             expand(os.path.join(
                 config["output"]["identify"],
-                "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/distribution_done"),
-                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST,
-                binning_group=SAMPLES_BINNING_GROUP_LIST,
-                assembler=ASSEMBLERS)
+                "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/{binning_group}.{assembly_group}.{assembler}.dbscan_swa.combined.fa.gz"),
+                zip,
+                binning_group=ASSEMBLY_GROUPS["binning_group"],
+                assembly_group=ASSEMBLY_GROUPS["assembly_group"],
+                assembler=ASSEMBLY_GROUPS["assembler"])
 
 else:
     rule annotation_prophage_dbscan_swa_all:
