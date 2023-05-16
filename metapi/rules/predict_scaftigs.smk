@@ -26,16 +26,23 @@ rule predict_scaftigs_gene_prodigal:
         FFN={output[1]}
         GFF={output[2]}
 
-        zcat {input} | \
-        prodigal \
-        -m \
-        -a ${{FAA%.gz}} \
-        -d ${{FFN%.gz}} \
-        -o ${{GFF%.gz}} \
-        -f gff \
-        -p meta \
-        -q \
-        >{log} 2>&1
+        if [[ `zcat {input} | wc -l` -eq 0 ]];
+        then
+            touch ${{FAA%.gz}}
+            touch ${{FFN%.gz}}
+            touch ${{GFF%.gz}}
+        else
+            zcat {input} | \
+            prodigal \
+            -m \
+            -a ${{FAA%.gz}} \
+            -d ${{FFN%.gz}} \
+            -o ${{GFF%.gz}} \
+            -f gff \
+            -p meta \
+            -q \
+            >{log} 2>&1
+        fi
 
         pigz -f -p {threads} ${{FAA%.gz}}
         pigz -f -p {threads} ${{FFN%.gz}}
