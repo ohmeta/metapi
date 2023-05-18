@@ -21,10 +21,6 @@ if config["params"]["identify"]["virsorter2"]["do"]:
             virsorter setup --db-dir {params.db_dir} --jobs {threads} >{log} 2>&1
             '''
 
-    
-    localrules:
-        identify_virsorter2_setup_db
-
 
 # https://github.com/EddyRivasLab/hmmer/issues/161
 # hmmsearch threads: 2 (recommand)
@@ -60,10 +56,6 @@ if config["params"]["identify"]["virsorter2"]["do"]:
                 cp $configfile {output}
             fi
             '''
-
-
-    localrules:
-        identify_virsorter2_config
 
 
     checkpoint identify_virsorter2_prepare:
@@ -143,6 +135,12 @@ if config["params"]["identify"]["virsorter2"]["do"]:
 
             touch {output}
             '''
+
+
+    localrules:
+        identify_virsorter2_setup_db,
+        identify_virsorter2_config,
+        identify_virsorter2_init_run
 
 
     rule identify_virsorter2:
@@ -303,7 +301,7 @@ if config["params"]["identify"]["virsorter2"]["do"]:
                 assembly_group=ASSEMBLY_GROUPS["assembly_group"],
                 assembler=ASSEMBLY_GROUPS["assembler"]),
                 suffix=["combined.fa", "score.tsv", "boundary.tsv"])
- 
+
 else:
     rule identify_virsorter2_all:
         input:
@@ -373,7 +371,7 @@ if config["params"]["identify"]["deepvirfinder"]["do"]:
             '''
 
 
-    rule identify_phamb_deepvirfinder_extract_contigs:
+    rule identify_deepvirfinder_extract_contigs:
         input:
             scaftigs = os.path.join(
                         config["output"]["assembly"],

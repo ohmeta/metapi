@@ -375,6 +375,11 @@ identify_deepvirfinder:
   output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
   error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
+identify_deepvirfinder_extract_contigs:
+  mem: "2G"
+  output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
+
 identify_phamb_filter_pep:
   mem: "5G"
   output: "logs/06.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
@@ -459,6 +464,16 @@ annotation_prophage_dbscan_swa:
   mem: "20G"
   output: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.batchid}.{jobid}.o"
   error: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{wildcards.batchid}.{jobid}.e"
+
+annotation_prophage_dbscan_swa_merge:
+  mem: "5G"
+  output: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembler}.{jobid}.e"
+
+annotation_prophage_dbscan_swa_distribute:
+  mem: "2G"
+  output: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.o"
+  error: "logs/07.{rule}/{rule}.{wildcards.binning_group}.{wildcards.assembly_group}.{wildcards.assembler}.{jobid}.e"
 
 checkm_lineage_wf:
   mem: "50G"

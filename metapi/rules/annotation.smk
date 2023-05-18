@@ -169,9 +169,9 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
                 config["output"]["identify"],
                 "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/distribution_done"),
                 zip,
-                assembly_group=SAMPLES_ASSEMBLY_GROUP_LIST,
-                binning_group=SAMPLES_BINNING_GROUP_LIST,
-                assembler=ASSEMBLERS)
+                assembly_group=ASSEMBLY_GROUPS["assembly_group"],
+                binning_group=ASSEMBLY_GROUPS["binning_group"],
+                assembler=ASSEMBLY_GROUPS["assembler"])
 
 else:
     rule annotation_prophage_dbscan_swa_all:
