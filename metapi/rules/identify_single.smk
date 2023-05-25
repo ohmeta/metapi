@@ -21,10 +21,6 @@ rule identify_virsorter2_setup_db:
         '''
 
 
-localrules:
-    identify_virsorter2_setup_db
-
-
 # https://github.com/EddyRivasLab/hmmer/issues/161
 # hmmsearch threads: 2 (recommand)
 rule identify_virsorter2_config:
@@ -61,10 +57,6 @@ rule identify_virsorter2_config:
             cp $configfile {output}
         fi
         '''
-
-
-localrules:
-    identify_virsorter2_config
 
 
 checkpoint identify_virsorter2_prepare:
@@ -149,6 +141,12 @@ rule identify_virsorter2_init_run:
 
         touch {output}
         '''
+
+
+localrules:
+    identify_virsorter2_setup_db,
+    identify_virsorter2_config,
+    identify_virsorter2_init_run
 
 
 rule identify_virsorter2:
@@ -398,12 +396,9 @@ rule identify_phamb_deepvirfinder_extract_contigs:
             "vmags/{{binning_group}}.{{assembly_group}}.{{assembler}}/deepvirfinder/{{binning_group}}.{{assembly_group}}.{{assembler}}.scaftigs.fa.gz_gt{min_length}bp_dvfpred.txt.gz"),
             min_length=config["params"]["identify"]["deepvirfinder"]["min_length"])
     output:
-        assembly_fna = os.path.join(
+        fna = os.path.join(
             config["output"]["identify"],
-            "vmags/{binning_group}.{assembly_group}.{assembler}/deepvirfinder/{binning_group}.{assembly_group}.{assembler}.deepvirfinder.combined.fa.gz"),
-        done = os.path.join(
-            config["output"]["identify"],
-            "vmags/{binning_group}.{assembly_group}.{assembler}/deepvirfinder/distribution_done")
+            "vmags/{binning_group}.{assembly_group}.{assembler}/deepvirfinder/{binning_group}.{assembly_group}.{assembler}.deepvirfinder.combined.fa.gz")
     params:
         assembly_group = "{assembly_group}"
     run:
@@ -432,11 +427,10 @@ rule identify_phamb_deepvirfinder_extract_contigs:
                 # print(record, end="")
 
         dvf_viral_list = list(dvf_dict.keys())
-        with gzip.open(output.assembly_fna, "at") as f:
+        with gzip.open(output.fna, "wt") as f:
             for record in SeqIO.parse(gzip.open(input.scaftigs, 'rt'), 'fasta'):
                 if record.description in dvf_viral_list:
                     f.write(record.format("fasta"))
-        shell("touch {output.done}")
 
 
 rule identify_phamb_deepvirfinder_merge:
