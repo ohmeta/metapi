@@ -112,23 +112,14 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
             '''
 
 
-    def get_dbscan_swa_merged_output(wildcards):
-         checkpoint_output = checkpoints.annotation_prophage_dbscan_swa_merge.get(**wildcards).output.fna
-         return expand(os.path.join(
-             config["output"]["annotation"], 
-             "dbscan_swa/{binning_group}.{assembler}.prophage/prophage.fna"),
-             binning_group=wildcards.binning_group,
-             assembler=wildcards.assembler)
-
-
     checkpoint annotation_prophage_dbscan_swa_distribute:
         input:
-            metadata = os.path.join(config["output"]["assembly"],
-                 "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.metadata.tsv.gz"),
-            all_fna = get_dbscan_swa_merged_output
+            metadata = os.path.join(
+                config["output"]["assembly"],
+                "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.metadata.tsv.gz"),
+            all_fna = os.path.join(config["output"]["annotation"], "dbscan_swa/{binning_group}.{assembler}.prophage/prophage.fna")
         output:
-            assembly_fna = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/{binning_group}.{assembly_group}.{assembler}.dbscan_swa.combined.fa.gz"),
-            done = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/distribution_done")
+            assembly_fna = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/{binning_group}.{assembly_group}.{assembler}.dbscan_swa.combined.fa.gz")
         params:
             working_dir = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa"),
             assembly_group = "{assembly_group}"
@@ -160,14 +151,13 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
                 if n == 0:
                     f.write("")
             # shell("gzip -f {params.assembly_fna}")
-            shell("touch {output.done}")
 
 
     rule annotation_prophage_dbscan_swa_all:
         input:
             expand(os.path.join(
                 config["output"]["identify"],
-                "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/distribution_done"),
+                "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/{binning_group}.{assembly_group}.{assembler}.dbscan_swa.combined.fa.gz"),
                 zip,
                 assembly_group=ASSEMBLY_GROUPS["assembly_group"],
                 binning_group=ASSEMBLY_GROUPS["binning_group"],

@@ -65,13 +65,15 @@ if config["params"]["identify"]["virsorter2"]["do"]:
                 "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
         output:
             scaftigs_dir = directory(
-                os.path.join(config["output"]["assembly"], 
-                             "scaftigs_splited/{binning_group}.{assembly_group}.{assembler}"))
+                os.path.join(
+                    config["output"]["assembly"],
+                    "scaftigs_splited/{binning_group}.{assembly_group}.{assembler}"))
         conda:
             config["envs"]["report"]
         log:
-            os.path.join(config["output"]["identify"],
-                         "logs/virsorter2/seqkit_split/seqkit_split.{binning_group}.{assembly_group}.{assembler}.log")
+            os.path.join(
+                config["output"]["identify"],
+                "logs/virsorter2/seqkit_split/seqkit_split.{binning_group}.{assembly_group}.{assembler}.log")
         params:
             split_contigs_num = config["params"]["identify"]["virsorter2"]["split_contigs_num"]
         threads:
@@ -147,15 +149,16 @@ if config["params"]["identify"]["virsorter2"]["do"]:
         input:
             init_success = os.path.join(config["output"]["identify"], "config/virsorter2-init-run-success"),
             scaftigs = os.path.join(
-                config["output"]["assembly"], 
+                config["output"]["assembly"],
                 "scaftigs_splited/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.part_{split_num}.fa.gz")
         output:
             os.path.join(
                 config["output"]["identify"],
                 "vmags/{binning_group}.{assembly_group}.{assembler}/virsorter2/virsorter2_{split_num}/virsorter2_done")
         benchmark:
-            os.path.join(config["output"]["identify"],
-                         "benchmark/virsorter2/virsorter2/virsorter2.{binning_group}.{assembly_group}.{assembler}.{split_num}.benchmark.txt")
+            os.path.join(
+                config["output"]["identify"],
+                "benchmark/virsorter2/virsorter2/virsorter2.{binning_group}.{assembly_group}.{assembler}.{split_num}.benchmark.txt")
         log:
             os.path.join(config["output"]["identify"], "logs/virsorter2/virsorter2/virsorter2.{binning_group}.{assembly_group}.{assembler}.{split_num}.log")
         conda:
@@ -356,7 +359,7 @@ if config["params"]["identify"]["deepvirfinder"]["do"]:
 
             if [ $exitcode -eq 1 ];
             then
-                grep -oEi "ValueError: not enough values to unpack" {log} 
+                grep -oEi "ValueError: not enough values to unpack" {log}
                 grepcode=$?
                 if [ $grepcode -eq 0 ];
                 then
@@ -374,24 +377,20 @@ if config["params"]["identify"]["deepvirfinder"]["do"]:
     rule identify_deepvirfinder_extract_contigs:
         input:
             scaftigs = os.path.join(
-                        config["output"]["assembly"],
-                        "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz"),
+                config["output"]["assembly"],
+                "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz"),
             dvf_anno = os.path.join(
-                        config["output"]["identify"],
-                        "vmags/{binning_group}.{assembly_group}.{assembler}/deepvirfinder/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz_gt"+
-                            str(config["params"]["identify"]["deepvirfinder"]["min_length"])+
-                            "bp_dvfpred.txt.gz"),
-            metadata = os.path.join(config["output"]["assembly"],
-                            "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.metadata.tsv.gz")
+                config["output"]["identify"],
+                "vmags/{binning_group}.{assembly_group}.{assembler}/deepvirfinder/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz_gt" + str(config["params"]["identify"]["deepvirfinder"]["min_length"]) + "bp_dvfpred.txt.gz"),
+            metadata = os.path.join(
+                config["output"]["assembly"],
+                "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.metadata.tsv.gz")
         params:
             assembly_group = "{assembly_group}"
         output:
             assembly_fna = os.path.join(
-                                        config["output"]["identify"],
-                                        "vmags/{binning_group}.{assembly_group}.{assembler}/deepvirfinder/{binning_group}.{assembly_group}.{assembler}.deepvirfinder.combined.fa.gz"),
-            done = os.path.join(
-                    config["output"]["identify"],
-                    "vmags/{binning_group}.{assembly_group}.{assembler}/deepvirfinder/distribution_done")
+                config["output"]["identify"],
+                "vmags/{binning_group}.{assembly_group}.{assembler}/deepvirfinder/{binning_group}.{assembly_group}.{assembler}.deepvirfinder.combined.fa.gz")
         run:
             from Bio import SeqIO
             import gzip
@@ -421,7 +420,6 @@ if config["params"]["identify"]["deepvirfinder"]["do"]:
                 for record in SeqIO.parse(gzip.open(input.scaftigs, 'rt'), 'fasta'):
                     if record.description in dvf_viral_list:
                         f.write(record.format("fasta"))
-            shell("touch {output.done}")
 
 
     rule identify_deepvirfinder_all:
@@ -443,7 +441,6 @@ if config["params"]["identify"]["deepvirfinder"]["do"]:
                 binning_group=ASSEMBLY_GROUPS["binning_group"],
                 assembly_group=ASSEMBLY_GROUPS["assembly_group"],
                 assembler=ASSEMBLY_GROUPS["assembler"])
-
 
 else:
     rule identify_deepvirfinder_all:

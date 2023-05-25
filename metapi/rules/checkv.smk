@@ -20,7 +20,7 @@ if config["params"]["checkv"]["do"]:
             > {log} 2>&1
             '''
 
-        
+
     localrules:
         checkv_download_db
 
@@ -36,14 +36,17 @@ if config["params"]["checkv"]["do"]:
                 config["output"]["identify"],
                 "vmags/{binning_group}.{assembly_group}.{assembler}/{identifier}/{binning_group}.{assembly_group}.{assembler}.{identifier}.combined.fa.gz")
         output:
-            os.path.join(config["output"]["check"],
-                         "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/checkv_done")
+            os.path.join(
+                config["output"]["check"],
+                "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/checkv_done")
         benchmark:
-            os.path.join(config["output"]["check"],
-                         "benchmark/checkv/{identifier}/{binning_group}.{assembly_group}.{assembler}.{identifier}.checkv.benchmark.txt")
+            os.path.join(
+                config["output"]["check"],
+                "benchmark/checkv/{identifier}/{binning_group}.{assembly_group}.{assembler}.{identifier}.checkv.benchmark.txt")
         log:
-            os.path.join(config["output"]["check"],
-                         "logs/checkv/{identifier}/{binning_group}.{assembly_group}.{assembler}.{identifier}.checkv.log")
+            os.path.join(
+                config["output"]["check"],
+                "logs/checkv/{identifier}/{binning_group}.{assembly_group}.{assembler}.{identifier}.checkv.log")
         params:
             db = config["params"]["checkv"]["db"],
             outdir = os.path.join(config["output"]["check"], "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}")
@@ -161,7 +164,7 @@ if config["params"]["checkv"]["do"]:
     checkv_df_list = []
     for identifier in config["params"]["checkv"]["checkv_identifier"]:
         checkv_df = ASSEMBLY_GROUPS.copy()
-        checkv_df["identifier"] = identifier 
+        checkv_df["identifier"] = identifier
         checkv_df_list.append(checkv_df)
     CHECKV_GROUPS = pd.concat(checkv_df_list, axis=0)
 
@@ -178,7 +181,7 @@ if config["params"]["checkv"]["do"]:
                 assembly_group=CHECKV_GROUPS["assembly_group"],
                 assembler=CHECKV_GROUPS["assembler"],
                 identifier=CHECKV_GROUPS["identifier"])
- 
+
 else:
     rule checkv_all:
         input:
