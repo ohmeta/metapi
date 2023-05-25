@@ -388,7 +388,7 @@ if config["params"]["identify"]["deepvirfinder"]["do"]:
         params:
             assembly_group = "{assembly_group}"
         output:
-            assembly_fna = os.path.join(
+            fna = os.path.join(
                 config["output"]["identify"],
                 "vmags/{binning_group}.{assembly_group}.{assembler}/deepvirfinder/{binning_group}.{assembly_group}.{assembler}.deepvirfinder.combined.fa.gz")
         run:
@@ -416,7 +416,7 @@ if config["params"]["identify"]["deepvirfinder"]["do"]:
                     # print(record, end="")
 
             dvf_viral_list = list(dvf_dict.keys())
-            with gzip.open(output.assembly_fna, "at") as f:
+            with gzip.open(output.fna, "wt") as f:
                 for record in SeqIO.parse(gzip.open(input.scaftigs, 'rt'), 'fasta'):
                     if record.description in dvf_viral_list:
                         f.write(record.format("fasta"))

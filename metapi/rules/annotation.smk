@@ -112,21 +112,20 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
             '''
 
 
-    checkpoint annotation_prophage_dbscan_swa_distribute:
+    rule annotation_prophage_dbscan_swa_distribute:
         input:
             metadata = os.path.join(
                 config["output"]["assembly"],
                 "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.metadata.tsv.gz"),
             all_fna = os.path.join(config["output"]["annotation"], "dbscan_swa/{binning_group}.{assembler}.prophage/prophage.fna")
         output:
-            assembly_fna = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/{binning_group}.{assembly_group}.{assembler}.dbscan_swa.combined.fa.gz")
+            fna = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa/{binning_group}.{assembly_group}.{assembler}.dbscan_swa.combined.fa.gz")
         params:
             working_dir = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa"),
             assembly_group = "{assembly_group}"
         run:
             shell("rm -rf {params.working_dir}")
             shell("mkdir -p {params.working_dir}")
-            # shell("touch {params.assembly_fna}")
 
             import pandas as pd
             from Bio import SeqIO
@@ -138,8 +137,8 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
 
             ### read the prophage fna ###
             n = 0
-            with gzip.open(output.assembly_fna, "at") as f:
-                for record in SeqIO.parse(input.all_fna[0], 'fasta'):
+            with gzip.open(output.fna, "wt") as f:
+                for record in SeqIO.parse(input.all_fna, 'fasta'):
                     desc = record.description
                     vamb_id = desc.split("|")[0].split("C")[0]
                     if assembly_vamb_id[vamb_id] != params.assembly_group:
@@ -147,10 +146,6 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
                         continue
                     n += 1
                     f.write(record.format("fasta"))
-
-                if n == 0:
-                    f.write("")
-            # shell("gzip -f {params.assembly_fna}")
 
 
     rule annotation_prophage_dbscan_swa_all:
