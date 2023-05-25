@@ -80,7 +80,7 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
             batchid=list(set([i for i in glob_wildcards(os.path.join(checkpoint_output, "vamb_bins.{batchid}.fna")).batchid])))
 
 
-    checkpoint annotation_prophage_dbscan_swa_merge:
+    rule annotation_prophage_dbscan_swa_merge:
         input:
             aggregate_dbscan_swa_output
         output:
