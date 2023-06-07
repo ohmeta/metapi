@@ -20,7 +20,7 @@ if config["params"]["checkv"]["do"]:
             > {log} 2>&1
             '''
 
-
+        
     localrules:
         checkv_download_db
 
@@ -36,17 +36,14 @@ if config["params"]["checkv"]["do"]:
                 config["output"]["identify"],
                 "vmags/{binning_group}.{assembly_group}.{assembler}/{identifier}/{binning_group}.{assembly_group}.{assembler}.{identifier}.combined.fa.gz")
         output:
-            os.path.join(
-                config["output"]["check"],
-                "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/checkv_done")
+            os.path.join(config["output"]["check"],
+                         "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/checkv_done")
         benchmark:
-            os.path.join(
-                config["output"]["check"],
-                "benchmark/checkv/{identifier}/{binning_group}.{assembly_group}.{assembler}.{identifier}.checkv.benchmark.txt")
+            os.path.join(config["output"]["check"],
+                         "benchmark/checkv/{identifier}/{binning_group}.{assembly_group}.{assembler}.{identifier}.checkv.benchmark.txt")
         log:
-            os.path.join(
-                config["output"]["check"],
-                "logs/checkv/{identifier}/{binning_group}.{assembly_group}.{assembler}.{identifier}.checkv.log")
+            os.path.join(config["output"]["check"],
+                         "logs/checkv/{identifier}/{binning_group}.{assembly_group}.{assembler}.{identifier}.checkv.log")
         params:
             db = config["params"]["checkv"]["db"],
             outdir = os.path.join(config["output"]["check"], "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}")
@@ -81,7 +78,9 @@ if config["params"]["checkv"]["do"]:
                                 "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/checkv_done")
         output:
             vmag = os.path.join(config["output"]["check"],
-                                "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/vMAG_hmq.fa.gz")
+                                "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/vMAG_hmq.fa.gz"),
+            summary = os.path.join(config["output"]["check"],
+                                "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/vMAG_hmq.summary.tsv")
         params:
             binning_group = "{binning_group}",
             assembly_group = "{assembly_group}",
@@ -118,6 +117,10 @@ if config["params"]["checkv"]["do"]:
                 print(f'''Identified {len(proviruses_df) + len(viruses_df)} complete, high or medium quality vMAGs''')
 
                 with gzip.open(output.vmag, "wt") as oh:
+                    proviruses_contig_id_list = []
+                    proviruses_rc_id_list = []
+                    viruses_contig_id_list = []
+                    viruses_rc_id_list = []
                     if os.path.exists(proviruses_f):
                         proviruses_rc = SeqIO.index_db(":memory:", proviruses_f, "fasta")
                         for contig_id in proviruses_df.index.unique():
@@ -127,13 +130,18 @@ if config["params"]["checkv"]["do"]:
                                 rc = proviruses_rc[contig_id]
                                 rc.id = f'''{label}.{contig_num}|proviruses|{quality}'''
                                 SeqIO.write(rc, oh, "fasta")
+                                proviruses_contig_id_list.append(contig_id)
+                                proviruses_rc_id_list.append(rc.id)
                             else:
+                                contig_id_original = contig_id
                                 contig_id = f'''{contig_id}_1'''
                                 if contig_id in proviruses_rc:
                                     contig_num += 1
                                     rc = proviruses_rc[contig_id]
                                     rc.id = f'''{label}.{contig_num}|proviruses|{quality}'''
                                     SeqIO.write(rc, oh, "fasta")
+                                    proviruses_contig_id_list.append(contig_id_original)
+                                    proviruses_rc_id_list.append(rc.id)
                                 else:
                                     print(f'''Proviruses contig_id {contig_id} can't be found in {proviruses_f}, please check it!''')
                                     sys.exit(1)
@@ -149,22 +157,32 @@ if config["params"]["checkv"]["do"]:
                                 rc = viruses_rc[contig_id]
                                 rc.id = f'''{label}.{contig_num}|viruses|{quality}'''
                                 SeqIO.write(rc, oh, "fasta")
+                                viruses_contig_id_list.append(contig_id)
+                                viruses_rc_id_list.append(rc.id)
                             else:
                                 print(f'''Viruses contig_id {contig_id} can't be found in {viruses_f}, please check it!''')
                                 sys.exit(1)
                     else:
                         print(f'''No {viruses_f} can be found''')
+ 
+                    proviruses_hmq_df = proviruses_df.loc[proviruses_contig_id_list, :].copy()
+                    proviruses_hmq_df['renamed_id'] = proviruses_rc_id_list
+                    viruses_hmq_df = viruses_df.loc[viruses_contig_id_list, :].copy()
+                    viruses_hmq_df['renamed_id'] = viruses_rc_id_list
+                    combined_hmq_df = pd.concat([proviruses_hmq_df, viruses_hmq_df], axis=0)
+                    combined_hmq_df.to_csv(output.summary, sep="\t")
 
             else:
                 vmag = os.path.splitext(output.vmag)[0]
                 subprocess.run(f'''touch {vmag}''', shell=True)
                 subprocess.run(f'''pigz -f {vmag}''', shell=True)
+                subprocess.run(f'''touch {output.summary}''', shell=True)
 
 
     checkv_df_list = []
     for identifier in config["params"]["checkv"]["checkv_identifier"]:
         checkv_df = ASSEMBLY_GROUPS.copy()
-        checkv_df["identifier"] = identifier
+        checkv_df["identifier"] = identifier 
         checkv_df_list.append(checkv_df)
     CHECKV_GROUPS = pd.concat(checkv_df_list, axis=0)
 
@@ -175,13 +193,15 @@ if config["params"]["checkv"]["do"]:
                 os.path.join(config["output"]["check"],
                 "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/checkv_done"),
                 os.path.join(config["output"]["check"],
-                "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/vMAG_hmq.fa.gz")],
+                "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/vMAG_hmq.fa.gz"),
+                os.path.join(config["output"]["check"],
+                "data/checkv/{binning_group}.{assembly_group}.{assembler}/{identifier}/vMAG_hmq.summary.tsv")],
                 zip,
                 binning_group=CHECKV_GROUPS["binning_group"],
                 assembly_group=CHECKV_GROUPS["assembly_group"],
                 assembler=CHECKV_GROUPS["assembler"],
                 identifier=CHECKV_GROUPS["identifier"])
-
+ 
 else:
     rule checkv_all:
         input:
