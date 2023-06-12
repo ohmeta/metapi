@@ -88,6 +88,7 @@ if is_fastq:
                 execute(f'''rm -rf {id2}''')
             else:
                 idp = f"{outdir_pe_temp}/id.list.paired"
+                execute(f'''mkdir -p {outdir_pe_temp}/temp0''')
                 execute(f'''sort -T {outdir_pe_temp}/temp0 {id1} {id2} | uniq -c | awk '$1==2{{print $2}}' > {idp} 2>> {log}''')
                 oneline = execute(f'''zcat {r1_temp} | head -1''', capture=True)
                 if "/1" in oneline:
@@ -106,6 +107,8 @@ if is_fastq:
                 execute(f'''rm -rf {idp} 2>> {log}''')
 
                 ## more check
+                execute(f'''mkdir -p {outdir_pe_temp}/temp1''')
+                execute(f'''mkdir -p {outdir_pe_temp}/temp2''')
                 execute(
                     f'''
                     pigz -b 102400 -dc {r1_temp_p} | \
