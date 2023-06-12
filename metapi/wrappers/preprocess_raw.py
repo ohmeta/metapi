@@ -89,7 +89,7 @@ if is_fastq:
             else:
                 idp = f"{outdir_pe_temp}/id.list.paired"
                 execute(f'''sort -T {outdir_pe_temp}/temp0 {id1} {id2} | uniq -c | awk '$1==2{{print $2}}' > {idp} 2>> {log}''')
-                oneline = execute(f'''zcat {r1_temp} | head -1''', captute=True)
+                oneline = execute(f'''zcat {r1_temp} | head -1''', capture=True)
                 if "/1" in oneline:
                     cmd1 = f'''awk '{{print $0 "/1"}}' {idp} | seqkit grep -f - {r1_temp} -o {r1_temp_p} 2>> {log}'''
                     cmd2 = f'''awk '{{print $0 "/2"}}' {idp} | seqkit grep -f - {r2_temp} -o {r2_temp_p} 2>> {log}'''
