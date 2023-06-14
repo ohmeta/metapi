@@ -257,7 +257,7 @@ def qc_summary_merge(df, **kwargs):
             .agg(
                 num_seqs=("num_seqs", "sum"),
                 sum_len=("sum_len", "sum"),
-                min_len=("min_len", "sum"),
+                min_len=("min_len", "min"),
                 avg_len=("avg_len", "mean"),
                 max_len=("max_len", "max"),
                 Q1=("Q1", "mean"),
