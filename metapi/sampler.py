@@ -381,7 +381,7 @@ def get_samples_for_assembly_spades(wildcards, samples_df, samples_dir, assemble
     if len(samples_dict.get("PE_FORWARD", [])) > 0:
         have_pe = True
         datasets_pe = {}
-        #datasets_pe["orientation"] = "fr"
+        datasets_pe["orientation"] = "fr" # FIXME
         datasets_pe["type"] = "paired-end"
         datasets_pe["left reads"] = [os.path.realpath(fq) for fq in samples_dict["PE_FORWARD"]]
         datasets_pe["right reads"] = [os.path.realpath(fq) for fq in samples_dict["PE_REVERSE"]]
