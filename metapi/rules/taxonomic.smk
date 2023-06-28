@@ -22,7 +22,8 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
                 config["params"]["taxonomic"]["gtdbtk"]["gtdb_data_path"], "{gtdbtk_dir}"),
                 gtdbtk_dir = ["fastani", "markers", "masks", "metadata", "mrca_red", "msa", "pplacer", "radii", "taxonomy"])
         output:
-            os.path.join(config["output"]["taxonomic"], "table/gtdbtk/gtdbtk.out.{assembler}.{binner_checkm}.{batchid}/gtdbtk_done")
+            done = os.path.join(config["output"]["taxonomic"], "table/gtdbtk/gtdbtk.out.{assembler}.{binner_checkm}.{batchid}/gtdbtk_done"),
+            mash_db = os.path.join(config["output"]["taxonomic"], "table/gtdbtk/gtdbtk.out.{assembler}.{binner_checkm}.{batchid}.msh")
         wildcard_constraints:
             batchid="\d+"
         conda:
@@ -40,8 +41,8 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
             '''
             export GTDBTK_DATA_PATH={params.gtdb_data_path}
 
-            outdir=$(dirname {output})
-            #rm -rf $outdir
+            outdir=$(dirname {output.done})
+            mkdir -p $outdir.tmp
 
             gtdbtk classify_wf \
             --batchfile {input.mags_input} \
@@ -49,7 +50,12 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
             --extension gz \
             --cpus {threads} \
             --pplacer_cpus {params.pplacer_threads} \
+            --mash_db {output.mash_db} \
+            --write_single_copy_genes \
+            --tmpdir $outdir.tmp \
             > {log} 2>&1
+
+            rm -rf $outdir.tmp
 
             if [ -f $outdir/classify/gtdbtk.bac120.summary.tsv ];
             then
@@ -78,12 +84,12 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
                 popd
             fi
 
-            touch {output}
+            touch {output.done}
             '''
 
 
     def aggregate_gtdbtk_report_input(wildcards):
-        checkpoint_output = checkpoints.taxonomic_gtdbtk_prepare.get(**wildcards).output[0]
+        checkpoint_output = checkpoints.taxonomic_gtdbtk_prepare.get(**wildcards).output.mags_dir
 
         return expand(os.path.join(
             config["output"]["taxonomic"],
