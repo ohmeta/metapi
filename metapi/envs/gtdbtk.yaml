@@ -3,9 +3,9 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - gtdbtk=2.1.1
+  - gtdbtk=2.3.0
   - pandas
-  - numpy=1.23.1
-  - dendropy>=4.1.0
-  - tqdm>=4.35.0
+  - numpy
+  - dendropy
+  - tqdm
   - pigz
