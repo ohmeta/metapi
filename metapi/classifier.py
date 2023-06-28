@@ -13,7 +13,7 @@ from Bio import bgzf
 def gtdbtk_prepare_from_mags(rep_table, batch_num, mags_dir):
     os.makedirs(mags_dir, exist_ok=True)
 
-    table_df = pd.read_csv(rep_table, sep="\t")
+    table_df = pd.read_csv(rep_table, sep="\t").query('MIMAG_quality_level!="low_quality"').reset_index(drop=True)
 
     batchid = -1
     if len(table_df) > 0:
@@ -54,7 +54,7 @@ def gtdbtk_prepare_from_genes(rep_table, batch_num, mags_dir):
 
             table_split["pep_location"] = table_split.apply(lambda x: os.path.splitext(x["pep_file"])[0], axis=1)
             table_split["pep_basename"] = table_split.apply(lambda x: os.path.basename(x["pep_location"]), axis=1)
- 
+
             table_split\
                 .loc[:, ["pep_location", "pep_basename", "best_translation_table"]]\
                 .to_csv(os.path.join(mags_dir, f"mags_input.{batchid}.tsv"),

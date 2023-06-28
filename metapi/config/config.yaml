@@ -95,7 +95,7 @@ params:
       decontaminate_pairs: "strict" # ["strict", "lenient", "unpaired"]
       bowtie2_options: "--very-sensitive --dovetail"
       bowtie2_database: "/home/jiezhu/databases/genomics/human/CHM13/chm13v2.0_plusY/" # directory, not bowtie2 index prefix
- 
+
   qcreport:
     do: True
     seqkit:
@@ -243,7 +243,7 @@ params:
       megabin_penalty: 0.5
 
   identify:
-    threads: 2 
+    threads: 2
     virsorter2:
       do: True
       db: /home/jiezhu/databases/ecogenomics/VirSorter2/db
@@ -285,7 +285,6 @@ params:
       min_binsize: 5000
       script: /home/jiezhu/toolkit/DBSCAN-SWA-1/bin/dbscan-swa.py
       phamb_utils: /home/jiezhu/toolkit/phamb/workflows/mag_annotation/scripts/get_contigs_vamb_bins.py
-
 
   checkm:
     do: True
@@ -349,9 +348,9 @@ params:
       do: True
       max_target_seqs: 25000   # blastn
       prec_identity: 90        # blastn
-      min_ani: 95              # clust: Minimum average nucleotide identity 
-      min_tcov: 85             # clust: Minimum alignment coverage of longer sequence 
-      min_qcov: 0              # clust: Minimum sequence length 
+      min_ani: 95              # clust: Minimum average nucleotide identity
+      min_tcov: 85             # clust: Minimum alignment coverage of longer sequence
+      min_qcov: 0              # clust: Minimum sequence length
 
   taxonomic:
     threads: 8
@@ -359,9 +358,9 @@ params:
       do: True
       pplacer_threads: 1
       batch_num: 1000
-      gtdb_data_path: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release207_v2"
-      metadata_archaea: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release207_v2/ar53_metadata_r207.tsv"
-      metadata_bacteria: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release207_v2/bac120_metadata_r207.tsv"
+      gtdb_data_path: "/home/jiezhu/databases/ecogenomics/GTDB/GTDBTk/release214"
+      metadata_archaea: "/home/jiezhu/databases/ecogenomics/GTDB/data/release214/ar53_metadata_r214.tsv"
+      metadata_bacteria: "/home/jiezhu/databases/ecogenomics/GTDB/data/release214/bac120_metadata_r214.tsv"
       gtdb_to_ncbi_script: "/home/jiezhu/toolkit/GTDBTk/scripts/gtdb_to_ncbi_majority_vote.py"
     genomad:
       do: True

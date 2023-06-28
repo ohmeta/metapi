@@ -1,11 +1,11 @@
 rule databases_bacteriome_refine_taxonomy:
     input:
-        genomes_info = os.path.join(
-            config["output"]["check"],
-            "report/checkm/checkm_table_genomes_info.{assembler}.all.tsv"),
-        table_gtdb = os.path.join(
+        rep_genomes_info = os.path.join(
+            config["output"]["dereplicate"],
+            "report/bacteriome/checkm_table_genomes_info.{assembler}.{dereper}.tsv.gz"),
+        taxa_info = os.path.join(
             config["output"]["taxonomic"],
-            "report/gtdbtk/MAGs_hmq.rep.{assembler}.{dereper}.gtdbtk.gtdb.tsv")
+            "report/gtdbtk/MAGs_hmq_{assembler}_all_gtdbtk_gtdb.tsv")
     output:
         taxonomy = os.path.join(
             config["output"]["databases"],
@@ -25,11 +25,11 @@ rule databases_bacteriome_refine_taxonomy:
     run:
         import shutil
 
-        shutil.rmtree(params.out_dir) 
+        shutil.rmtree(params.out_dir)
 
         metapi.refine_taxonomy(
-            input.genomes_info,
-            input.table_gtdb,
+            input.rep_genomes_info,
+            input.taxa_info,
             params.db_name,
             params.rep_level,
             params.base_dir,

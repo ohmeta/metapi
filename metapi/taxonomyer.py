@@ -119,7 +119,7 @@ def update_genomes(rep_info, scaftigs_info):
                 rc_id = rc.id
                 rc.id = contig_name
                 rc.description = f"{genome_id}|original_contig_id={rc_id}|original_bin_id={bin_id}|gtdb_classification={clade_lineage}|completeness={completeness}|contamination={contamination}|strain_heterogeneity={strain_heterogeneity}|quality_score={quality_score}"
-                SeqIO.write(rc, oh2, "fasta") 
+                SeqIO.write(rc, oh2, "fasta")
 
         handle.close()
 
@@ -131,16 +131,16 @@ def refine_taxonomy(genomes_info_f, tax_info_f, map_name, rep_level, base_dir, o
     tax_info = pd.read_csv(tax_info_f, sep="\t").rename(columns={"user_genome": "genome"})
 
     rep_info = pd.merge(genomes_info, tax_info, how="inner", on=["genome"])\
-                 .sort_values(["classification", "genome"])\
-                 .reset_index(drop=True)
+        .sort_values(["classification", "genome"])\
+        .reset_index(drop=True)
 
     # step 1: set genomes
     rep_info = set_genomes(rep_info, map_name, base_dir)
 
     # step 2: set lineages
     rep_info[["kingdom", "phylum", "class", "order",
-              "family", "genus", "species", "strain",
-              "lineage"]] = rep_info.apply(
+            "family", "genus", "species", "strain",
+            "lineage"]] = rep_info.apply(
                 lambda x: set_lineages(
                     x["genome_id"], x["classification"], rep_level),
                     axis = 1, result_type = "expand")
