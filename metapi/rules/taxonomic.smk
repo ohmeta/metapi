@@ -52,6 +52,7 @@ if config["params"]["taxonomic"]["gtdbtk"]["do"]:
             --pplacer_cpus {params.pplacer_threads} \
             --mash_db {output.mash_db} \
             --write_single_copy_genes \
+            --keep_intermediates \
             --tmpdir $outdir.tmp \
             > {log} 2>&1
 
