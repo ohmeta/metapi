@@ -196,10 +196,10 @@ if config["params"]["checkv"]["do"]:
                 config["output"]["check"],
                 "data/checkv/{binning_group}.{assembly_group}.{{assembler}}/{{identifier}}/vMAG_hmq.summary.tsv"),
                 zip,
-                binning_group=CHECKV_GROUPS["binning_group"],
-                assembly_group=CHECKV_GROUPS["assembly_group"])
+                binning_group=ASSEMBLY_GROUP["binning_group"],
+                assembly_group=ASSEMBLY_GROUP["assembly_group"])
         output:
-            summary = os.path.join(config["output"]["check"], "report/checkv/checkv_table_{assembler}_{identifier}.tsv")
+            summary = os.path.join(config["output"]["check"], "report/checkv/checkv_table.{assembler}.{identifier}.tsv")
         run:
             import pandas as pd
             import re
@@ -208,10 +208,10 @@ if config["params"]["checkv"]["do"]:
             dfs = []
             for i in input:
                 ilist = re.split("/|\.", i)
-                binning_group = i[-7]
-                assembly_group = i[-6]
-                assembler = i[-5]
-                identifier = i[-4]
+                binning_group = ilist[-7]
+                assembly_group = ilist[-6]
+                assembler = ilist[-5]
+                identifier = ilist[-4]
                 df = pd.read_csv(i, sep="\t")
                 if not df.empty:
                     df["binning_group"] = binning_group
@@ -228,12 +228,11 @@ if config["params"]["checkv"]["do"]:
         input:
             expand(os.path.join(
                 config["output"]["check"],
-                "report/checkv/checkv_table_{assembler}_{identifier}.tsv"),
-                assembler=ASSEMBLERS,
+                "report/checkv/checkv_table.{{assembler}}.{identifier}.tsv"),
                 identifier=IDENTIFIERS
             )
         output:
-            summary = os.path.join(config["output"]["check"], "report/checkv/check_table_all.tsv")
+            summary = os.path.join(config["output"]["check"], "report/checkv/checkv_table.{assembler}.all.tsv")
         run:
             import pandas as pd
 
@@ -263,10 +262,10 @@ if config["params"]["checkv"]["do"]:
             expand([
                 os.path.join(
                     config["output"]["check"],
-                    "report/checkv/checkv_table_{assembler}_{identifier}.tsv"),
+                    "report/checkv/checkv_table.{assembler}.{identifier}.tsv"),
                 os.path.join(
                     config["output"]["check"],
-                    "report/checkv/check_table_all.tsv")],
+                    "report/checkv/checkv_table.{assembler}.all.tsv")],
                 assembler=ASSEMBLERS,
                 identifier=IDENTIFIERS
             )
