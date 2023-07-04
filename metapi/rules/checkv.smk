@@ -212,7 +212,12 @@ if config["params"]["checkv"]["do"]:
                 assembly_group = ilist[-6]
                 assembler = ilist[-5]
                 identifier = ilist[-4]
-                df = pd.read_csv(i, sep="\t")
+
+                try:
+                    df = pd.read_csv(i, sep="\t")
+                except pd.errors.EmptyDataError:
+                    print(f"{i} is empty, please check")
+
                 if not df.empty:
                     df["binning_group"] = binning_group
                     df["assembly_group"] = assembly_group
@@ -238,7 +243,14 @@ if config["params"]["checkv"]["do"]:
 
             dfs = []
             for i in input:
-                dfs.append(pd.read_csv(i, sep="\t"))
+                try:
+                    df = pd.read_csv(i, sep="\t")
+                except pd.errors.EmptyDataError:
+                    print(f"{i} is empty, please check")
+
+                if not df.empty:
+                    dfs.append(df)
+
             pd.concat(dfs, ignore_index=True).to_csv(output.summary, sep="\t", index=False)
 
 
