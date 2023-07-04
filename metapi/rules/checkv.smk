@@ -188,6 +188,58 @@ rule checkv_postprocess:
             subprocess.run(f'''touch {output.summary}''', shell=True)
 
 
+        rule checkv_report:
+        input:
+            expand(os.path.join(
+                config["output"]["check"],
+                "data/checkv/{binning_group}.{assembly_group}.{{assembler}}/{{identifier}}/vMAG_hmq.summary.tsv"),
+                zip,
+                binning_group=ASSEMBLY_GROUP["binning_group"],
+                assembly_group=ASSEMBLY_GROUP["assembly_group"])
+        output:
+            summary = os.path.join(config["output"]["check"], "report/checkv/checkv_table.{assembler}.{identifier}.tsv")
+        run:
+            import pandas as pd
+            import re
+            import os
+
+            dfs = []
+            for i in input:
+                ilist = re.split("/|\.", i)
+                binning_group = ilist[-7]
+                assembly_group = ilist[-6]
+                assembler = ilist[-5]
+                identifier = ilist[-4]
+                df = pd.read_csv(i, sep="\t")
+                if not df.empty:
+                    df["binning_group"] = binning_group
+                    df["assembly_group"] = assembly_group
+                    df["assembler"] = assembler
+                    df["identifier"] = identifier
+                    dfs.append(df)
+
+            df_summary = pd.concat(dfs, ignore_index=True)
+            df_summary.to_csv(output.summary, sep="\t", index=False)
+
+
+    rule checkv_report_merge:
+        input:
+            expand(os.path.join(
+                config["output"]["check"],
+                "report/checkv/checkv_table.{{assembler}}.{identifier}.tsv"),
+                identifier=IDENTIFIERS
+            )
+        output:
+            summary = os.path.join(config["output"]["check"], "report/checkv/checkv_table.{assembler}.all.tsv")
+        run:
+            import pandas as pd
+
+            dfs = []
+            for i in input:
+                dfs.append(pd.read_csv(i, sep="\t"))
+            pd.concat(dfs, ignore_index=True).to_csv(output.summary, sep="\t", index=False)
+
+
 checkv_df_list = []
 for identifier in config["params"]["checkv"]["checkv_identifier"]:
     checkv_df = ASSEMBLY_GROUPS.copy()
@@ -210,7 +262,18 @@ if config["params"]["checkv"]["do"]:
                 binning_group=CHECKV_GROUPS["binning_group"],
                 assembly_group=CHECKV_GROUPS["assembly_group"],
                 assembler=CHECKV_GROUPS["assembler"],
-                identifier=CHECKV_GROUPS["identifier"])
+                identifier=CHECKV_GROUPS["identifier"]),
+            expand([
+                os.path.join(
+                    config["output"]["check"],
+                    "report/checkv/checkv_table.{assembler}.{identifier}.tsv"),
+                os.path.join(
+                    config["output"]["check"],
+                    "report/checkv/checkv_table.{assembler}.all.tsv")],
+                assembler=ASSEMBLERS,
+                identifier=IDENTIFIERS
+            )
+
 
 else:
     rule checkv_all:
@@ -224,4 +287,6 @@ rule check_all:
 
 
 localrules:
+    checkv_report,
+    checkv_report_merge,
     check_all
