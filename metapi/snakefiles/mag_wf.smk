@@ -16,35 +16,29 @@ DATA_DIR = os.path.join(METAPI_DIR, "data")
 
 pprint(METAPI_DIR)
 
-IS_PE = True \
-    if config["params"]["reads_layout"] == "pe" \
-       else False
+IS_PE = True if config["params"]["reads_layout"] == "pe" else False
 
 
-IS_INTERLEAVED = True \
-    if config["params"]["interleaved"] \
-       else False
+IS_INTERLEAVED = True if config["params"]["interleaved"] else False
 
 
-HAVE_LONG = True \
-    if IS_PE and config["params"]["have_long"] \
-       else False
+HAVE_LONG = True if IS_PE and config["params"]["have_long"] else False
 
 
 TRIMMING_DO = True \
-    if config["params"]["trimming"]["sickle"]["do"] or \
-       config["params"]["trimming"]["fastp"]["do"] or \
-       config["params"]["trimming"]["trimmomatic"]["do"] \
-       else False
+if config["params"]["trimming"]["sickle"]["do"] or \
+config["params"]["trimming"]["fastp"]["do"] or \
+config["params"]["trimming"]["trimmomatic"]["do"] \
+else False
 
 
 RMHOST_DO = True \
-    if config["params"]["rmhost"]["bwa"]["do"] or \
-       config["params"]["rmhost"]["bowtie2"]["do"] or \
-       config["params"]["rmhost"]["minimap2"]["do"] or \
-       config["params"]["rmhost"]["kraken2"]["do"] or \
-       config["params"]["rmhost"]["kneaddata"]["do"] \
-       else False
+if config["params"]["rmhost"]["bwa"]["do"] or \
+config["params"]["rmhost"]["bowtie2"]["do"] or \
+config["params"]["rmhost"]["minimap2"]["do"] or \
+config["params"]["rmhost"]["kraken2"]["do"] or \
+config["params"]["rmhost"]["kneaddata"]["do"] \
+else False
 
 
 ASSEMBLERS = []
@@ -60,12 +54,10 @@ if config["params"]["assembly"]["spades"]["do"]:
 
 if config["params"]["assembly"]["opera_ms"]["do"]:
     ASSEMBLERS += ["opera_ms"]
-    if (config["params"]["assembly"]["opera_ms"]["short_read_assembler"] == "megahit") \
-       and (not "megahit" in ASSEMBLERS):
+    if (config["params"]["assembly"]["opera_ms"]["short_read_assembler"] == "megahit") and (not "megahit" in ASSEMBLERS):
         config["params"]["assembly"]["megahit"]["do"] = True
         ASSEMBLERS += ["megahit"]
-    elif (config["params"]["assembly"]["opera_ms"]["short_read_assembler"] == "metaspades") \
-         and (not "metaspades" in ASSEMBLERS):
+    elif (config["params"]["assembly"]["opera_ms"]["short_read_assembler"] == "metaspades") and (not "metaspades" in ASSEMBLERS):
         config["params"]["assembly"]["metaspades"]["do"] = True
         ASSEMBLERS += ["metaspades"]
 
@@ -97,6 +89,8 @@ if config["params"]["binning"]["dastools"]["do"]:
 
 BINNERS_CHECKM = config["params"]["checkm"]["check_binners"]
 
+IDENTIFIERS = config["params"]["checkv"]["checkv_identifier"]
+
 
 DEREPERS = []
 if config["params"]["dereplicate"]["drep"]["do"]:
@@ -105,19 +99,18 @@ if config["params"]["dereplicate"]["galah"]["do"]:
     DEREPERS.append("galah")
 
 
-SAMPLES = metapi.parse_samples(config["params"]["samples"],
-                               config["params"]["interleaved"],
-                               config["params"]["reads_layout"],
-                               config["params"]["begin"])
+SAMPLES = metapi.parse_samples(
+    config["params"]["samples"],
+    config["params"]["interleaved"],
+    config["params"]["reads_layout"],
+    config["params"]["begin"])
 
 SAMPLES_ID_LIST = SAMPLES.index.get_level_values("sample_id").unique()
 SAMPLES_ASSEMBLY_GROUP_LIST = SAMPLES.index.get_level_values("assembly_group").unique()
 SAMPLES_BINNING_GROUP_LIST = SAMPLES.index.get_level_values("binning_group").unique()
 
 
-READS_FORMAT = "sra" \
-    if "sra" in SAMPLES.columns \
-       else "fastq"
+READS_FORMAT = "sra" if "sra" in SAMPLES.columns else "fastq"
 
 
 ## TODO
