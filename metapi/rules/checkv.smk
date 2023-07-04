@@ -282,4 +282,6 @@ rule check_all:
 
 
 localrules:
+    checkv_report,
+    checkv_report_merge,
     check_all
