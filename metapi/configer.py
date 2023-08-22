@@ -94,6 +94,8 @@ class metaconfig:
         "logs/06.identify_virsorter2",
         "logs/06.identify_virsorter2_merge",
         "logs/06.identify_deepvirfinder",
+        "logs/06.identify_deepvirfinder_extract_contigs",
+        "logs/06.identify_deepvirfinder_merge",
         "logs/06.identify_phamb_micomplete",
         "logs/06.identify_phamb_vog",
         "logs/06.identify_phamb_randomforest",

@@ -383,7 +383,7 @@ rule identify_deepvirfinder:
         '''
 
 
-rule identify_phamb_deepvirfinder_extract_contigs:
+rule identify_deepvirfinder_extract_contigs:
     input:
         scaftigs = os.path.join(
             config["output"]["assembly"],
@@ -433,7 +433,7 @@ rule identify_phamb_deepvirfinder_extract_contigs:
                     f.write(record.format("fasta"))
 
 
-rule identify_phamb_deepvirfinder_merge:
+rule identify_deepvirfinder_merge:
     input:
         lambda wildcards: expand(os.path.join(
             config["output"]["identify"],
