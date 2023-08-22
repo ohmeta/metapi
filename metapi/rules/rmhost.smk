@@ -101,7 +101,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     -k {params.minimum_seed_length} \
                     -t {threads} \
                     {params.index_prefix} \
-                    $R1 $R2 | \
+                    $R1 $R2 2> {log} | \
                     tee >(samtools flagstat \
                         -@4 - > $STATSPE) | \
                     tee >(samtools fastq \
@@ -114,14 +114,13 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     -m 3G \
                     -@4 \
                     -T {params.pe_bam_dir}/temp \
-                    -O BAM -o $BAM - \
-                    2> {log}
+                    -O BAM -o $BAM -
                 else
                     {params.bwa} mem \
                     -k {params.minimum_seed_length} \
                     -t {threads} \
                     {params.index_prefix} \
-                    $R1 $R2 | \
+                    $R1 $R2 2> {log} | \
                     tee >(samtools flagstat \
                         -@4 - > $STATSPE) | \
                     samtools fastq \
@@ -129,8 +128,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     -c {params.compression} \
                     -N -f 12 -F 256 \
                     -1 $FQ1 \
-                    -2 $FQ2 - \
-                    2> {log}
+                    -2 $FQ2 -
                 fi
             fi
 
@@ -151,7 +149,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     -k {params.minimum_seed_length} \
                     -t {threads} \
                     {params.index_prefix} \
-                    $RS | \
+                    $RS 2>> {log} | \
                     tee >(samtools flagstat \
                         -@4 - > $STATSSE) | \
                     tee >(samtools fastq \
@@ -164,14 +162,13 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     -m 3G \
                     -@4 \
                     -T {params.se_bam_dir}/temp \
-                    -O BAM -o $BAM - \
-                    2>> {log}
+                    -O BAM -o $BAM -
                 else
                     {params.bwa} mem \
                     -k {params.minimum_seed_length} \
                     -t {threads} \
                     {params.index_prefix} \
-                    $RS | \
+                    $RS 2>> {log} | \
                     tee >(samtools flagstat \
                         -@4 - > $STATSSE) | \
                     samtools fastq \
@@ -179,8 +176,7 @@ if config["params"]["rmhost"]["bwa"]["do"]:
                     -c {params.compression} \
                     -N -f 4 -F 256 - | \
                     pigz -cf -p {threads} \
-                    > $FQS \
-                    2>> {log}
+                    > $FQS
                 fi
             fi
 
@@ -490,7 +486,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                     -t {threads} \
                     -ax {params.preset} \
                     {input.index} \
-                    $R1 $R2 | \
+                    $R1 $R2 2> {log} | \
                     tee >(samtools flagstat \
                         -@4 - > $STATSPE) | \
                     tee >(samtools fastq \
@@ -503,14 +499,13 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                     -m 3G \
                     -@4 \
                     -T {params.pe_bam_dir}/temp \
-                    -O BAM -o $BAM - \
-                    2> {log}
+                    -O BAM -o $BAM -
                 else
                     minimap2 \
                     -t {threads} \
                     -ax {params.preset} \
                     {input.index} \
-                    $R1 $R2 | \
+                    $R1 $R2 2> {log} | \
                     tee >(samtools flagstat \
                         -@4 - > $STATSPE) | \
                     samtools fastq \
@@ -518,8 +513,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                     -c {params.compression} \
                     -N -f 12 -F 256 \
                     -1 $FQ1 \
-                    -2 $FQ2 - \
-                    2> {log}
+                    -2 $FQ2 -
                 fi
             fi
 
@@ -539,7 +533,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                     minimap2 \
                     -t {threads} \
                     {input.index} \
-                    $RS | \
+                    $RS 2> {log} | \
                     tee >(samtools flagstat \
                         -@4 - > $STATSSE) | \
                     tee >(samtools fastq \
@@ -552,13 +546,12 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                     -m 3G \
                     -@4 \
                     -T {params.se_bam_dir}/temp \
-                    -O BAM -o $BAM - \
-                    2> {log}
+                    -O BAM -o $BAM -
                 else
                     minimap2 \
                     -t {threads} \
                     {input.index} \
-                    $RS | \
+                    $RS 2> {log} | \
                     tee >(samtools flagstat \
                         -@4 - > $STATSSE) | \
                     samtools fastq \
@@ -566,8 +559,7 @@ if config["params"]["rmhost"]["minimap2"]["do"]:
                     -c {params.compression} \
                     -N -f 4 -F 256 - | \
                     pigz -cf -p {threads} \
-                    > $FQS \
-                    2> {log}
+                    > $FQS
                 fi
             fi
 

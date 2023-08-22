@@ -214,7 +214,7 @@ rule binning_vamb_align_scaftigs:
             -m 3G -@4 \
             -T $OUTPE/temp \
             -O BAM \
-            -o $OUTPE/sorted.bam 2>> {log}
+            -o $OUTPE/sorted.bam
         fi
 
         if [ "$RS" != "" ];
@@ -237,7 +237,7 @@ rule binning_vamb_align_scaftigs:
             -m 3G -@4 \
             -T $OUTSE/temp \
             -O BAM \
-            -o $OUTSE/sorted.bam 2>> {log}
+            -o $OUTSE/sorted.bam
         fi
 
         if [ -s $OUTPE/sorted.bam ] && [ -s $OUTSE/sorted.bam ];
