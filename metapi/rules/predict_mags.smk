@@ -50,7 +50,7 @@ rule predict_mags_gene_prodigal_report:
 checkm_df_list = []
 for binner_checkm in BINNERS_CHECKM:
     checkm_df = ASSEMBLY_GROUPS.copy()
-    checkm_df["binner_checkm"] = binner_checkm 
+    checkm_df["binner_checkm"] = binner_checkm
     checkm_df_list.append(checkm_df)
 CHECKM_GROUPS = pd.concat(checkm_df_list, axis=0)
 

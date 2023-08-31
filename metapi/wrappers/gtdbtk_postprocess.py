@@ -39,7 +39,6 @@ def merge(input_list, func, workers, **kwargs):
 threads = int(snakemake.threads)
 
 gtdb_done_list = snakemake.input["gtdb_done"]
-rep_genomes_info = snakemake.input["rep_genomes_info"]
 
 gtdb_to_ncbi_script = snakemake.params["gtdb_to_ncbi_script"]
 metadata_archaea = snakemake.params["metadata_archaea"]
@@ -105,12 +104,8 @@ pprint(table_gtdb_df)
 table_ncbi_df = table_ncbi_df.rename(columns={"Genome ID": "user_genome"})
 pprint(table_ncbi_df)
 
-table_rep_genomes_info = pd.read_csv(rep_genomes_info, sep="\t")\
-    .rename(columns={"genome": "user_genome"})
-pprint(table_rep_genomes_info)
-
-table_all_df = pd.merge(table_gtdb_df, table_ncbi_df, how="inner",
-                        on=["user_genome", "GTDB classification"])#\
-                 #.merge(table_rep_genomes_info, how="inner", on="user_genome")
+table_all_df = pd.merge(
+    table_gtdb_df, table_ncbi_df, how="inner",
+    on=["user_genome", "GTDB classification"])#\
 
 table_all_df.to_csv(table_all, sep="\t", index=False)

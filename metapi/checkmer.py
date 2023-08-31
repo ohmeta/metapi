@@ -13,17 +13,19 @@ def checkm_prepare(gene_table, batch_num, mags_dir):
     os.makedirs(mags_dir, exist_ok=True)
 
     table_df = pd.read_csv(gene_table, sep="\t")
-    table_df = table_df.sort_values(by="bin_id",
-                                    key=lambda x: np.argsort(index_natsorted(table_df["bin_id"])))\
-                       .reset_index(drop=True)
+    table_df = table_df.sort_values(
+        by="bin_id",
+        key=lambda x: np.argsort(
+        index_natsorted(table_df["bin_id"]))).reset_index(drop=True)
 
     batchid = -1
     if len(table_df) > 0:
         for batch in range(0, len(table_df), batch_num):
             batchid += 1
             table_split = table_df.iloc[batch:batch+batch_num, ]
-            table_split.to_csv(os.path.join(mags_dir, f"mags_input.{batchid}.tsv"),
-                               sep="\t", index=False, header=None)
+            table_split.to_csv(
+                os.path.join(mags_dir, f"mags_input.{batchid}.tsv"),
+                sep="\t", index=False, header=None)
     else:
         subprocess.run(f'''touch {os.path.join(mags_dir, "mags_input.0.tsv")}''', shell=True)
 

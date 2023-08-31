@@ -507,8 +507,8 @@ dereplicate_vmags_postprocess:
 taxonomic_gtdbtk:
   #partition: "hugemem"
   mem: "50G"
-  output: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.dereper}.{wildcards.batchid}.{jobid}.o"
-  error: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.dereper}.{wildcards.batchid}.{jobid}.e"
+  output: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{wildcards.batchid}.{jobid}.o"
+  error: "logs/10.{rule}/{rule}.{wildcards.assembler}.{wildcards.binner_checkm}.{wildcards.batchid}.{jobid}.e"
 
 databases_bacteriome_refine_taxonomy:
   mem: "1G"
