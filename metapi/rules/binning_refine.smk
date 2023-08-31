@@ -240,6 +240,7 @@ rule binning_dastools:
         mkdir -p {params.mags_dir}
 
         contigs2bin=$(python -c "import sys; print(','.join(sys.argv[1:]))" {input.contigs2bin})
+        #contigs2bin=$(sed -E 's/^| /,/g' <<<"{input.contigs2bin}")
 
         FNAGZ={input.scaftigs}
         PEPGZ={input.pep}

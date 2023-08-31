@@ -3,7 +3,7 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - das_tool=1.1.4
-  - diamond=2.0.14
+  - python
+  - das_tool=1.1.6
   - pigz
   - jq
