@@ -30,10 +30,7 @@ rule taxonomic_gtdbtk:
     output:
         done = os.path.join(
             config["output"]["taxonomic"],
-            "table/gtdbtk/gtdbtk.out.{assembler}.{binner_checkm}.{batchid}/gtdbtk_done"),
-        mash_db = os.path.join(
-            config["output"]["taxonomic"],
-            "table/gtdbtk/gtdbtk.out.{assembler}.{binner_checkm}.{batchid}/msh")
+            "table/gtdbtk/gtdbtk.out.{assembler}.{binner_checkm}.{batchid}/gtdbtk_done")
     wildcard_constraints:
         batchid = "\d+"
     log:
@@ -64,7 +61,6 @@ rule taxonomic_gtdbtk:
         --extension gz \
         --cpus {threads} \
         --pplacer_cpus {params.pplacer_threads} \
-        --mash_db {output.mash_db} \
         --keep_intermediates \
         --write_single_copy_genes \
         --skip_ani_screen \
