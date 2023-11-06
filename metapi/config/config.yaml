@@ -238,7 +238,7 @@ params:
       megabin_penalty: 0.5
 
   identify:
-    threads: 2 
+    threads: 2
     virsorter2:
       do: True
       db: /home/jiezhu/databases/ecogenomics/VirSorter2/db

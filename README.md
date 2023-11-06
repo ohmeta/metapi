@@ -445,6 +445,30 @@ Then metapi will use [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq) to g
 - We will try our best to keep the directory structure uniform. Sequence files are generally placed in the reads directory, and report files are generally placed in the report directory.
 - If you are not very clear about the output of the whole process, it is recommended to directly raise an issue or look at the code.
 
+
+## Databases and scripts used in metapi
+
+### Bowtie2 index for human reference genome
+- [CHM13_plus_Y](https://genome-idx.s3.amazonaws.com/bt/chm13.draft_v1.0_plusY.zip)
+
+### GTDBTk database
+- [Release214.0](https://data.gtdb.ecogenomic.org/releases/release214/214.0/auxillary_files/gtdbtk_r214_data.tar.gz)
+- [ar53_metadata](https://data.gtdb.ecogenomic.org/releases/release214/214.0/ar53_metadata_r214.tar.gz)
+- [bac120_metadata](https://data.gtdb.ecogenomic.org/releases/release214/214.0/bac120_metadata_r214.tar.gz)
+- [gtdb_to_ncbi_script](https://github.com/Ecogenomics/GTDBTk/blob/master/scripts/gtdb_to_ncbi_majority_vote.py)
+
+### Phamb database
+ - [miMompletedb](https://bitbucket.org/evolegiolab/micomplete/src/master/micomplete/share/Bact105.hmm)
+- [VOGdb](https://vogdb.csb.univie.ac.at/download): untar vog.hmm.tar.gz to get all hmm files. Concatenate all the hmm-files these into an AllVOG.hmm file.
+- [randomforest_script](https://github.com/RasmussenLab/phamb/blob/master/phamb/run_RF.py)
+
+### DeepVirFinder
+- [Script](https://github.com/jessieren/DeepVirFinder/blob/master/dvf.py)
+
+### CheckV database
+- [CheckV v1.5](https://portal.nersc.gov/CheckV/checkv-db-v1.5.tar.gz)
+
+
 ## Getting help
 
 If you want to report a bug or issue, or have problems with installing or
