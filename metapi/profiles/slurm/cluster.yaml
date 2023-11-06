@@ -1,5 +1,5 @@
 __resources__:
-  gpu: 
+  gpu:
     - "gpu"
     - "nvidia_gpu"
 
@@ -12,7 +12,7 @@ __options__:
 __default__:
   # we can comment it, use default, or specific it, use we defined.
   # eg: HPC2021 of HKU
-  
+
   partition: "intel,amd" # use default, can uncomment and change
   # partition | default;max job duration | # of nodes | cores/node | RAM/node(GB) | RAM/core(GB) | Features
   #########################################################################################################
@@ -22,7 +22,7 @@ __default__:
   # gpu       | 1 Day;1 Week             | 4          | 32         | 384          | 12           | 4x V100
   # gpu       | 1 Day;1 Week             | 3          | 32         | 384          | 12           | 8x V100
   # hugumem   | 1 Day;1 Week             | 2          | 128        | 2048         | 16           | EPYC7742 + 2TB RAM
-  
+
   #qos: "normal" # use default, can uncomment and change
   # qos     | partition     | max job duration | max resources per job
   ####################################################################
@@ -36,7 +36,7 @@ __default__:
   mem: "512M"
   nodes: 1 # one rule run on one node, unless rule support MPI/openmp
   #threads: 1
-  #time: 24:00:00 # one day, PriorityTimelimit
+  time: 6-23:59:59 # one day, PriorityTimelimit
 
 
 simulate_short_reads:
