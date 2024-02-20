@@ -552,7 +552,7 @@ rule binning_vamb_postprocess:
                 # bin_id = os.path.basename(fna).split(".")[0].split("C")[-1]
                 fna_dist = os.path.join(outdir, f'''{params.binning_group}.{params.assembly_group}.{params.assembler}.vamb.bin.{bin_index}.fa.gz''')
                 metadata.append((os.path.abspath(fna) + ".gz", os.path.abspath(fna_dist)))
-                shell(f'''zcat {fna}.gz | seqkit replace -p "^S\d+C" | pigz -cf > {fna_dist}''')
+                shell(f'''zcat {fna}.gz | seqkit replace -p "^S\\d+C" | pigz -cf > {fna_dist}''')
 
         shell(f'''touch {output.binning_done}''')
 

@@ -37,7 +37,7 @@ rule checkm_lineage_wf:
             config["output"]["check"],
             "benchmark/checkm_lineage_wf/{assembler}.{binner_checkm}.{batchid}.txt")
     wildcard_constraints:
-        batchid="\d+"
+        batchid="\\d+"
     params:
         pplacer_threads = config["params"]["checkm"]["pplacer_threads"],
         reduced_tree = "--reduced_tree" if config["params"]["checkm"]["reduced_tree"] else "",

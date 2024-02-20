@@ -32,7 +32,7 @@ rule taxonomic_gtdbtk:
             config["output"]["taxonomic"],
             "table/gtdbtk/gtdbtk.out.{assembler}.{binner_checkm}.{batchid}/gtdbtk_done")
     wildcard_constraints:
-        batchid = "\d+"
+        batchid = "\\d+"
     log:
         os.path.join(
             config["output"]["taxonomic"],

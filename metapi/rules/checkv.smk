@@ -205,7 +205,7 @@ rule checkv_report:
 
         dfs = []
         for i in input:
-            ilist = re.split("/|\.", i)
+            ilist = re.split("/|\\.", i)
             binning_group = ilist[-7]
             assembly_group = ilist[-6]
             assembler = ilist[-5]
