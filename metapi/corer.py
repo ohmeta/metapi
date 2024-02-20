@@ -158,8 +158,7 @@ def run_snakemake(args, unknown, snakefile, workflow):
         cmd += [
             "--rerun-incomplete",
             "--keep-going",
-            "--printshellcmds",
-            "--reason",
+            "--printshellcmds"
         ]
 
         if args.use_conda:
@@ -365,7 +364,7 @@ def sync(args, unknown):
 
 
 def main():
-    banner = """
+    banner = """\\
 
   .___  ___.  _______ .___________.    ___      .______    __
   |   \/   | |   ____||           |   /   \     |   _  \  |  |
