@@ -1,9 +1,10 @@
-numpy
 pandas
-openpyxl
-snakemake >=7.0
+numpy
 ruamel.yaml
+snakemake >=7.0
+openpyxl
 natsort
 biopython >=1.73
 seaborn
 matplotlib
+executor

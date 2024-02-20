@@ -1,8 +1,8 @@
 name: metapi
 channels:
-  - bioconda
   - conda-forge
-  - defaults
+  - bioconda
+  - nodefaults
 dependencies:
   - setuptools
   - pandas
@@ -18,3 +18,4 @@ dependencies:
   - seqkit
   - pigz
   - fd-find
+  - executor
