@@ -80,11 +80,11 @@ def flagstats_summary(flagstats, method, **kwargs):
                     info["read_1_num"] = stat_list[6].split(" ")[0]
                     info["read_2_num"] = stat_list[7].split(" ")[0]
 
-                    mapped = re.split(r"\(|\s+", stat_list[4])
+                    mapped = re.split(r"\(|\\s+", stat_list[4])
                     info["mapped_num"] = mapped[0]
                     info["mapped_rate"] = Decimal(mapped[5].rstrip("%")) / Decimal(100)
 
-                    #primary_mapped = re.split(r"\(|\s+", stat_list[5])
+                    #primary_mapped = re.split(r"\(|\\s+", stat_list[5])
                     #info["primary_mapped_num"] = primary_mapped[0]
                     #info["primary_mapped_rate"] = Decimal(primary_mapped[6].rstrip("%")) / Decimal(100)
 
@@ -92,15 +92,15 @@ def flagstats_summary(flagstats, method, **kwargs):
                     info["read_1_num"] = stat_list[9].split(" ")[0]
                     info["read_2_num"] = stat_list[10].split(" ")[0]
 
-                    mapped = re.split(r"\(|\s+", stat_list[6])
+                    mapped = re.split(r"\(|\\s+", stat_list[6])
                     info["mapped_num"] = mapped[0]
                     info["mapped_rate"] = Decimal(mapped[5].rstrip("%")) / Decimal(100)
 
-                    primary_mapped = re.split(r"\(|\s+", stat_list[7])
+                    primary_mapped = re.split(r"\(|\\s+", stat_list[7])
                     info["primary_mapped_num"] = primary_mapped[0]
                     info["primary_mapped_rate"] = Decimal(primary_mapped[6].rstrip("%")) / Decimal(100)
 
-                paired = re.split(r"\(|\s+", stat_list[-5])
+                paired = re.split(r"\(|\\s+", stat_list[-5])
                 info["paired_num"] = paired[0]
                 paired_rate = paired[6].rstrip("%")
                 if paired_rate != "N/A":
@@ -110,7 +110,7 @@ def flagstats_summary(flagstats, method, **kwargs):
                     info["paired_rate"] = paired_rate
                     info["mapping_type"] = "single-end"
 
-                singletons = re.split(r"\(|\s+", stat_list[-3])
+                singletons = re.split(r"\(|\\s+", stat_list[-3])
                 info["singletons_num"] = singletons[0]
                 singletons_rate = singletons[5].rstrip("%")
                 if singletons_rate != "N/A":
@@ -118,8 +118,8 @@ def flagstats_summary(flagstats, method, **kwargs):
                 else:
                     info["singletons_rate"] = singletons_rate
 
-                info["mate_mapped_num"] = re.split(r"\(|\s+", stat_list[-2])[0]
-                info["mate_mapped_num_mapQge5"] = re.split(r"\(|\s+", stat_list[-1])[0]
+                info["mate_mapped_num"] = re.split(r"\(|\\s+", stat_list[-2])[0]
+                info["mate_mapped_num_mapQge5"] = re.split(r"\(|\\s+", stat_list[-1])[0]
 
                 mapping_info.append(info)
 

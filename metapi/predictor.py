@@ -32,7 +32,7 @@ def parse_gff(gff_file, min_len):
                 else:
                     save = True
             elif save:
-                line_split = re.split("\s+", line.strip())
+                line_split = re.split("\\s+", line.strip())
                 seq_id = line_split[0]
                 trans_id = line_split[-1].split(";")[0].split("_")[-1]
                 pep_id = f'''{seq_id}_{trans_id}'''

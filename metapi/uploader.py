@@ -93,7 +93,7 @@ def parse_md5(md5_file):
     try:
         if os.path.exists(md5_file):
             df = pd.read_csv(
-                md5_file, sep="\s+", header=None, names=["file_md5", "file_name"]
+                md5_file, sep="\\s+", header=None, names=["file_md5", "file_name"]
             )
             if df.empty:
                 print("%s is empty, please check" % md5_file)
