@@ -2,7 +2,7 @@ channels:
   - pytorch
   - conda-forge
   - bioconda
-  - defaults
+  - nodefaults
 dependencies:
   - pigz
   - pytorch=*=*cuda11.3*
