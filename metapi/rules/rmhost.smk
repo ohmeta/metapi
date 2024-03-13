@@ -298,7 +298,7 @@ if config["params"]["rmhost"]["bowtie2"]["do"]:
                     {params.presets} \
                     2> {log} | \
                     tee >(samtools flagstat \
-                        -@4 - $STATSPE) | \
+                        -@4 - > $STATSPE) | \
                     tee >(samtools fastq \
                         -@4 \
                         -c {params.compression} \
