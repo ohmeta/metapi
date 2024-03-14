@@ -3,6 +3,6 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - blast=2.13.0
+  - blast=2.15.0
   - pigz
   - jq

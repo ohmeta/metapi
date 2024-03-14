@@ -3,6 +3,6 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - multiqc=1.13a
+  - multiqc=1.21
   - pigz
   - jq

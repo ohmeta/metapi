@@ -3,7 +3,7 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - insilicoseq=1.5.4
+  - insilicoseq=2.0.1
   - pandas
   - biopython
   - pigz

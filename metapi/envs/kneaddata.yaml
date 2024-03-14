@@ -3,6 +3,6 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - kneaddata=0.10.0
+  - kneaddata=0.12.0
   - pigz
   - jq

@@ -3,10 +3,10 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - minimap2=2.24
-  - samtools=1.15.1
+  - minimap2=2.27
+  - samtools=1.19.2
   - bwa=0.7.17
   - bwa-mem2=2.2.1
-  - bowtie2=2.4.5
+  - bowtie2=2.5.3
   - pigz
   - jq

@@ -3,6 +3,6 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - drep=3.4.0
+  - drep=3.5.0
   - pigz
   - jq

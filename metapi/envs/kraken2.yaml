@@ -3,9 +3,9 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - kraken2=2.1.2
+  - kraken2=2.1.3
   - krakentools=1.2
-  - bracken=2.8
+  - bracken=2.9
   - krona=2.8.1
   - pigz
   - jq

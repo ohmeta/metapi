@@ -3,12 +3,12 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - hmmer=3.2.1
-  - pyhmmer=0.6.2
+  - phamb=1.0.1
+  - hmmer=3.4
+  - pyhmmer=0.10.9
   - joblib
   - pandas
   - numpy
-  - scikit-learn=1.0.2
   - biopython
   - pigz
   - jq
