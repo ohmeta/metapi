@@ -596,9 +596,6 @@ if config["params"]["binning"]["vamb"]["do"]:
                 assembler=ASSEMBLY_GROUPS["assembler"])
 
 else:
-    rule binning_vamb_prepare_all:
-        input:
-
     rule binning_vamb_all:
         input:
 
