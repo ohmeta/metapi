@@ -30,6 +30,7 @@ or install latest version using git:
 ➤ echo "export PYTHONPATH=/path/to/metapi:$PYTHONPATH" >> ~/.zshrc                   # if you use zsh 
 ➤ echo "set -x PYTHONPATH /path/to/metapi $PYTHONPATH" >> ~/.config/fish/config.fish # if you use fish
 
+➤ mamba activate metapi-env
 ➤ python /path/to/metapi/run_metapi.py --help # using run_metapi.py instead of metapi
 ```
 
