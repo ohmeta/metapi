@@ -25,13 +25,14 @@ rule binning_vamb_combine_scaftigs:
             config["output"]["binning"],
             "benchmark/binning_vamb_combine_scaftigs/{binning_group}.{assembler}.txt")
     params:
+        script = os.path.join(WRAPPER_DIR, "vamb", "concatenate.py"),
         min_contig = config["params"]["binning"]["vamb"]["min_contig"]
     conda:
         config["envs"]["vamb"]
     shell:
         '''
         set +e
-        concatenate.py {output} {input} -m {params.min_contig} 2> {log}
+        {params.script} {output} {input} -m {params.min_contig} 2> {log}
 
         exitcode=$?
         echo "concatenate.py exit code is: $exitcode" >>{log} 2>&1
