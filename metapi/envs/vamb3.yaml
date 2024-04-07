@@ -1,0 +1,15 @@
+channels:
+  - pytorch
+  - conda-forge
+  - bioconda
+  - nodefaults
+dependencies:
+  - pigz
+  - pytorch=*=*cuda11.3*
+  - pysam
+  - numpy
+  - pandas
+  - jq
+  - pip
+  - pip:
+    - git+https://github.com/RasmussenLab/vamb@v3.0.9
