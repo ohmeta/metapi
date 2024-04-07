@@ -20,6 +20,18 @@ You can install it via [bioconda](https://bioconda.github.io/):
 # It is recommended to install the latest version
 ➤ mamba install -c conda-forge -c bioconda metapi=3.0.0
 ```
+or install latest version using git:
+```
+➤ mamba create -n metapi-env python=3.10 snakemake fd-find seqkit seqtk ruamel.yaml pandas numpy natsort openpyxl biopython seaborn matplotlib executor
+
+➤ git clone https://github.com/ohmeta/metapi
+
+➤ echo "export PYTHONPATH=/path/to/metapi:$PYTHONPATH" >> ~/.bashrc                  # if you use bash
+➤ echo "export PYTHONPATH=/path/to/metapi:$PYTHONPATH" >> ~/.zshrc                   # if you use zsh 
+➤ echo "set -x PYTHONPATH /path/to/metapi $PYTHONPATH" >> ~/.config/fish/config.fish # if you use fish
+
+➤ python /path/to/metapi/run_metapi.py --help # using run_metapi.py instead of metapi
+```
 
 ## Run
 
