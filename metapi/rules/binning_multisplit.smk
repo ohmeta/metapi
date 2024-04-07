@@ -688,7 +688,7 @@ rule binning_vamb:
             config["output"]["binning"],
             "benchmark/binning_vamb_run_{vamber}/{binning_group}.{assembler}.log")
     wildcard_constraints:
-        vamber="vamb"
+        vamber="[a]?vamb"
     params:
         outdir = os.path.join(config["output"]["binning"], "mags_vamb/{binning_group}.{assembler}.{vamber}"),
         min_contig = config["params"]["binning"]["vamb"]["min_contig"],
@@ -813,7 +813,7 @@ rule binning_vamb_postprocess:
             config["output"]["binning"],
             "benchmark/binning_vamb_postprocess_{vamber}/{binning_group}.{assembly_group}.{assembler}.txt")
     wildcard_constraints:
-        vamber="vamb"
+        vamber="[a]?vamb"
     params:
         binning_group = "{binning_group}",
         assembly_group = "{assembly_group}",

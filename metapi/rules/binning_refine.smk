@@ -161,7 +161,7 @@ rule binning_dastools_preprocess:
     output:
         expand(os.path.join(
             config["output"]["binning"],
-            "mags_id/{{binning_group}}.{{assembly_group}}.{{assembler}}/{binner_dastools}-Contigs2Bin.tsv"),
+            "mags_id/{{binning_group}}.{{assembly_group}}.{{assembler}}/{binner_dastools}.Contigs2Bin.tsv"),
             binner_dastools=BINNERS_DASTOOLS)
     run:
         import glob
@@ -194,7 +194,7 @@ rule binning_dastools:
         contigs2bin = expand(
             os.path.join(
                 config["output"]["binning"],
-                "mags_id/{{binning_group}}.{{assembly_group}}.{{assembler}}/{binner_dastools}-Contigs2Bin.tsv"),
+                "mags_id/{{binning_group}}.{{assembly_group}}.{{assembler}}/{binner_dastools}.Contigs2Bin.tsv"),
                 binner_dastools=BINNERS_DASTOOLS),
         scaftigs = os.path.join(
             config["output"]["assembly"],
