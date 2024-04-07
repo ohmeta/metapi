@@ -27,7 +27,7 @@ rule binning_vamb_combine_scaftigs:
     params:
         min_contig = config["params"]["binning"]["vamb"]["min_contig"]
     conda:
-        config["envs"]["vamb3"]
+        config["envs"]["vamb"]
     shell:
         '''
         set +e
@@ -157,12 +157,12 @@ rule binning_vamb_align_scaftigs:
         stats = os.path.join(
             config["output"]["alignment"],
             "report/flagstat_minimap2/{binning_group}.{assembler}/{sample}/{sample}.align2merged_scaftigs.flagstat"),
-        bam = temp(os.path.join(
+        bam = os.path.join(
             config["output"]["alignment"],
-            "bam_merged/{binning_group}.{assembler}/{sample}/{sample}.align2merged_scaftigs.sorted.bam")),
-        bai = temp(os.path.join(
+            "bam_merged/{binning_group}.{assembler}/{sample}/{sample}.align2merged_scaftigs.sorted.bam"),
+        bai = os.path.join(
             config["output"]["alignment"],
-            "bam_merged/{binning_group}.{assembler}/{sample}/{sample}.align2merged_scaftigs.sorted.bam.bai"))
+            "bam_merged/{binning_group}.{assembler}/{sample}/{sample}.align2merged_scaftigs.sorted.bam.bai")
     log:
         os.path.join(
             config["output"]["binning"],
@@ -400,7 +400,7 @@ rule binning_vamb:
     threads:
         config["params"]["binning"]["threads"]
     conda:
-        config["envs"]["vamb3"]
+        config["envs"]["vamb"]
     shell:
         '''
         set +e
