@@ -406,7 +406,9 @@ rule binning_vamb_gen_abundance_mask:
             config["output"]["alignment"],
             "index_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.headers.txt")
     output:
-        mask_refhash = os.path.join(config["output"]["binning"], "matrix/mask_refhash.npz")
+        mask_refhash = os.path.join(
+            config["output"]["binning"],
+            "matrix/{binning_group}.{assembler}.mask_refhash.npz")
     log:
         os.path.join(
             config["output"]["binning"],
@@ -421,7 +423,7 @@ rule binning_vamb_gen_abundance_mask:
     threads:
         config["params"]["binning"]["threads"]
     conda:
-        conda["envs"]["vamb"]
+        config["envs"]["vamb"]
     shell:
         '''
         python {params.script} \
@@ -437,7 +439,9 @@ rule binning_vamb_gen_abundance_samples:
         bam = os.path.join(
             config["output"]["alignment"],
             "bam_merged/{binning_group}.{assembler}/{sample}/{sample}.align2merged_scaftigs.sorted.bam"),
-        mask_refhash = os.path.join(config["output"]["binning"], "matrix/mask_refhash.npz")
+        mask_refhash = os.path.join(
+            config["output"]["binning"],
+            "matrix/{binning_group}.{assembler}.mask_refhash.npz")
     output:
         abundance = os.path.join(
             config["output"]["binning"],
@@ -472,9 +476,11 @@ rule binning_vamb_gen_abundance_matrix:
     input:
         abundances = lambda wildcards: expand(os.path.join(
             config["output"]["binning"],
-            "covearge/{{binning_group}}.{{assembler}}/{sample}.align2merged_scaftigs.npz"),
+            "coverage/{{binning_group}}.{{assembler}}/{sample}.align2merged_scaftigs.npz"),
             sample=sorted(metapi.get_samples_id_by_binning_group(SAMPLES, wildcards.binning_group))),
-        mask_refhash = os.path.join(config["output"]["binning"], "matrix/mask_refhash.npz")
+        mask_refhash = os.path.join(
+            config["output"]["binning"],
+            "matrix/{binning_group}.{assembler}.mask_refhash.npz")
     output:
         matrix = os.path.join(
             config["output"]["binning"],
@@ -681,6 +687,8 @@ rule binning_vamb:
         os.path.join(
             config["output"]["binning"],
             "benchmark/binning_vamb_run_{vamber}/{binning_group}.{assembler}.log")
+    wildcard_constraints:
+        vamber="vamb"
     params:
         outdir = os.path.join(config["output"]["binning"], "mags_vamb/{binning_group}.{assembler}.{vamber}"),
         min_contig = config["params"]["binning"]["vamb"]["min_contig"],
@@ -804,6 +812,8 @@ rule binning_vamb_postprocess:
         os.path.join(
             config["output"]["binning"],
             "benchmark/binning_vamb_postprocess_{vamber}/{binning_group}.{assembly_group}.{assembler}.txt")
+    wildcard_constraints:
+        vamber="vamb"
     params:
         binning_group = "{binning_group}",
         assembly_group = "{assembly_group}",
