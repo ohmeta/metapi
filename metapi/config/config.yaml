@@ -194,7 +194,7 @@ params:
       saveCls: False
       seed: 2020
     maxbin2:
-      do: False
+      do: True
       min_contig: 2000
       max_iteration: 50
       prob_threshold: 0.9
@@ -216,7 +216,7 @@ params:
       no_original_data: False
       coverage_out: False
     graphbin2:
-      do: False
+      do: True
       depth: 5
       threshold: 1.5
     vamb:
@@ -233,7 +233,7 @@ params:
       index_size: "500G"
       external_params: ""
     dastools:
-      do: False
+      do: True
       search_engine: "diamond"
       score_threshold: 0.5
       duplicate_penalty: 0.6
@@ -286,8 +286,6 @@ params:
 
   checkm:
     do: True
-    #check_binners: ["metabat2", "concoct", "maxbin2", "vamb", "dastools"]
-    check_binners: ["metabat2", "concoct", "vamb", "avamb"]
     report: True
     threads: 8
     pplacer_threads: 4 # 1: 30G, 2: 60G, 3: 90G, 4: 120G
@@ -301,7 +299,6 @@ params:
     do: True
     threads: 8
     db: /home/jiezhu/databases/ecogenomics/CheckV/checkv-db-v1.4
-    checkv_identifier: ["virsorter2", "phamb", "dbscan_swa", "deepvirfinder"]
 
   dereplicate:
     cdhit:

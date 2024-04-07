@@ -8,7 +8,8 @@ from Bio import SeqIO
 import pandas as pd
 
 
-def get_binning_info(mags_dir, cluster_file, assembler):
+def get_binning_info(binning_done, cluster_file, assembler):
+    mags_dir = os.path.dirname(binning_done)
     if assembler.lower() in ["spades", "metaspades", "megahit"]:
         with os.scandir(mags_dir) as itr, open(cluster_file, "w") as oh:
             for entry in itr:

@@ -251,7 +251,7 @@ rule checkv_report_merge:
 
 
 checkv_df_list = []
-for identifier in config["params"]["checkv"]["checkv_identifier"]:
+for identifier in IDENTIFIERS:
     checkv_df = ASSEMBLY_GROUPS.copy()
     checkv_df["identifier"] = identifier
     checkv_df_list.append(checkv_df)

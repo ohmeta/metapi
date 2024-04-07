@@ -235,7 +235,7 @@ rule identify_phamb_randomforest:
             "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz"),
         binning_done = os.path.join(
             config["output"]["binning"],
-            "mags_vamb/{binning_group}.{assembler}/binning_done"),
+            "mags_vamb/{binning_group}.{assembler}.{vamber}/binning_done"),
         micomplete = os.path.join(
             config["output"]["identify"],
             "annotations/{binning_group}.{assembler}/all.hmmMiComplete105.tbl.gz"),
@@ -249,21 +249,21 @@ rule identify_phamb_randomforest:
         # vambbins_aggregated_annotation.txt
         # vambbins_RF_predictions.txt
         # vamb_bins
-        os.path.join(config["output"]["identify"], "vmags_phamb/{binning_group}.{assembler}/phamb_randomforest_done")
+        os.path.join(config["output"]["identify"], "vmags_phamb/{binning_group}.{assembler}.{vamber}/phamb_randomforest_done")
     log:
         os.path.join(
             config["output"]["identify"],
-            "logs/identify_phamb_randomforest/{binning_group}.{assembler}.log")
+            "logs/identify_phamb_randomforest/{binning_group}.{assembler}.{vamber}.log")
     benchmark:
         os.path.join(
             config["output"]["identify"],
-            "benchmark/identify_phamb_randomforest/{binning_group}.{assembler}.txt")
+            "benchmark/identify_phamb_randomforest/{binning_group}.{assembler}.{vamber}.txt")
     params:
         randomforest_script = config["params"]["identify"]["phamb"]["randomforest_script"],
         min_binsize = config["params"]["identify"]["phamb"]["min_binsize"],
-        mags_dir = os.path.join(config["output"]["binning"], "mags_vamb/{binning_group}.{assembler}"),
+        mags_dir = os.path.join(config["output"]["binning"], "mags_vamb/{binning_group}.{assembler}.{vamber}"),
         annotations_dir = os.path.join(config["output"]["identify"], "annotations/{binning_group}.{assembler}"),
-        output_dir = os.path.join(config["output"]["identify"], "vmags_phamb/{binning_group}.{assembler}")
+        output_dir = os.path.join(config["output"]["identify"], "vmags_phamb/{binning_group}.{assembler}.{vamber}")
     threads:
         config["params"]["identify"]["threads"]
     conda:
@@ -293,11 +293,11 @@ rule identify_phamb_postprocess:
         metadata = os.path.join(config["output"]["assembly"],
             "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.metadata.tsv.gz"),
         phamb_rf_done = os.path.join(config["output"]["identify"],
-            "vmags_phamb/{binning_group}.{assembler}/phamb_randomforest_done")
+            "vmags_phamb/{binning_group}.{assembler}.{vamber}/phamb_randomforest_done")
     output:
         viral = os.path.join(
             config["output"]["identify"],
-            "vmags/{binning_group}.{assembly_group}.{assembler}/phamb/{binning_group}.{assembly_group}.{assembler}.phamb.combined.fa.gz")
+            "vmags/{binning_group}.{assembly_group}.{assembler}/phamb_{vamber}/{binning_group}.{assembly_group}.{assembler}.phamb_{vamber}.combined.fa.gz")
     params:
         binning_group = "{binning_group}",
         assembly_group = "{assembly_group}",
@@ -341,18 +341,20 @@ config["params"]["binning"]["vamb"]["do"]:
                     "annotations/{binning_group}.{assembler}/all.{annotations}.gz"),
                 os.path.join(
                     config["output"]["identify"],
-                    "vmags_phamb/{binning_group}.{assembler}/phamb_randomforest_done")],
+                    "vmags_phamb/{binning_group}.{assembler}.{vamber}/phamb_randomforest_done")],
                 binning_group=SAMPLES_BINNING_GROUP_LIST,
                 assembler=ASSEMBLERS,
+                vamber=BINNERS_VAMB,
                 annotations=["hmmMiComplete105.tbl", "hmmVOG.tbl"]),
-            expand(
+            expand(expand(
                 os.path.join(
                     config["output"]["identify"],
-                    "vmags/{binning_group}.{assembly_group}.{assembler}/phamb/{binning_group}.{assembly_group}.{assembler}.phamb.combined.fa.gz"),
+                    "vmags/{binning_group}.{assembly_group}.{assembler}/phamb_{{vamber}}/{binning_group}.{assembly_group}.{assembler}.phamb_{{vamber}}.combined.fa.gz"),
                 zip,
                 binning_group=ASSEMBLY_GROUPS["binning_group"],
                 assembly_group=ASSEMBLY_GROUPS["assembly_group"],
-                assembler=ASSEMBLY_GROUPS["assembler"])
+                assembler=ASSEMBLY_GROUPS["assembler"]),
+                vamber=BINNERS_VAMB)
 
 else:
     rule identify_phamb_all:

@@ -24,9 +24,9 @@ rule binning_graphbin2_prepare_assembly:
 
 rule binning_graphbin2_prepare_binned:
     input:
-        mags_dir = os.path.join(
+        binning_done = os.path.join(
             config["output"]["binning"],
-            "mags/{binning_group}.{assembly_group}.{assembler}/{binner_graphbin}")
+            "mags/{binning_group}.{assembly_group}.{assembler}/{binner_graphbin}/binning_done")
     output:
         binned = os.path.join(
             config["output"]["binning"],
@@ -34,7 +34,7 @@ rule binning_graphbin2_prepare_binned:
     params:
         assembler = "{assembler}"
     run:
-        metapi.get_binning_info(input.mags_dir, output.binned, params.assembler)
+        metapi.get_binning_info(input.binning_done, output.binned, params.assembler)
 
 
 localrules:

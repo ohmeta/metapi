@@ -864,16 +864,6 @@ localrules:
 
 
 if config["params"]["binning"]["vamb"]["do"]:
-    vamb_assembly_df_list = []
-    for assembler in ASSEMBLERS:
-        assembly_df = ASSEMBLY_GROUP.copy()
-        assembly_df["assembler"] = assembler
-        for vamber in BINNERS_VAMB:
-            assembly_df_vamb = assembly_df.copy()
-            assembly_df_vamb["binner"] = vamber
-            vamb_assembly_df_list.append(assembly_df_vamb)
-    ASSEMBLY_GROUPS_VAMB = pd.concat(vamb_assembly_df_list, axis=0)
-
     rule binning_vamb_all:
         input:
             rules.binning_vamb_prepare_all.input,
@@ -893,18 +883,18 @@ if config["params"]["binning"]["vamb"]["do"]:
                     #"mask.npz",
                     #"tnf.npz",
                     "binning_done"]),
-            expand([
+            expand(expand([
                 os.path.join(
                     config["output"]["binning"],
-                    "mags_vamb/{binning_group}.{assembler}.{vamber}/bins_{assembly_group}/cluster.metadata.tsv.gz"),
+                    "mags_vamb/{binning_group}.{assembler}.{{vamber}}/bins_{assembly_group}/cluster.metadata.tsv.gz"),
                 os.path.join(
                     config["output"]["binning"],
-                    "mags/{binning_group}.{assembly_group}.{assembler}/{vamber}/binning_done")],
+                    "mags/{binning_group}.{assembly_group}.{assembler}/{{vamber}}/binning_done")],
                 zip,
-                binning_group=ASSEMBLY_GROUPS_VAMB["binning_group"],
-                assembly_group=ASSEMBLY_GROUPS_VAMB["assembly_group"],
-                assembler=ASSEMBLY_GROUPS_VAMB["assembler"],
-                vamber=ASSEMBLY_GROUPS_VAMB["binner"])
+                binning_group=ASSEMBLY_GROUPS["binning_group"],
+                assembly_group=ASSEMBLY_GROUPS["assembly_group"],
+                assembler=ASSEMBLY_GROUPS["assembler"]),
+                vamber=BINNERS_VAMB)
 
 else:
     rule binning_vamb_all:
