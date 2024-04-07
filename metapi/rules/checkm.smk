@@ -2,7 +2,7 @@ checkpoint checkm_prepare:
     input:
         gene_table = os.path.join(
             config["output"]["predict"],
-            "report/mags_gene_stats_{assembler}_{binner_checkm}.tsv.gz")
+            "report/mags_gene_stats_{assembler}.{binner_checkm}.tsv.gz")
     output:
         mags_dir = directory(os.path.join(
             config["output"]["check"],
@@ -103,26 +103,26 @@ rule checkm_report:
         checkm_table = aggregate_checkm_output,
         gene_table = os.path.join(
             config["output"]["predict"],
-            "report/mags_gene_stats_{assembler}_{binner_checkm}.tsv.gz"),
+            "report/mags_gene_stats_{assembler}.{binner_checkm}.tsv.gz"),
         mags_report = os.path.join(
             config["output"]["binning"],
-            "report/assembly_stats_{assembler}_{binner_checkm}.tsv.gz")
+            "report/assembly_stats_{assembler}.{binner_checkm}.tsv.gz")
     output:
         genomes_info = os.path.join(
             config["output"]["check"],
-            "report/checkm/checkm_table_{assembler}_{binner_checkm}.tsv.gz"),
+            "report/checkm/checkm_table_{assembler}.{binner_checkm}.tsv.gz"),
         mags_hq = os.path.join(
             config["output"]["check"],
-            "report/checkm/MAGs_hq_{assembler}_{binner_checkm}.tsv.gz"),
+            "report/checkm/MAGs_hq_{assembler}.{binner_checkm}.tsv.gz"),
         mags_mq = os.path.join(
             config["output"]["check"],
-            "report/checkm/MAGs_mq_{assembler}_{binner_checkm}.tsv.gz"),
+            "report/checkm/MAGs_mq_{assembler}.{binner_checkm}.tsv.gz"),
         mags_lq = os.path.join(
             config["output"]["check"],
-            "report/checkm/MAGs_lq_{assembler}_{binner_checkm}.tsv.gz"),
+            "report/checkm/MAGs_lq_{assembler}.{binner_checkm}.tsv.gz"),
         mags_hmq = os.path.join(
             config["output"]["check"],
-            "report/checkm/MAGs_hmq_{assembler}_{binner_checkm}.tsv.gz")
+            "report/checkm/MAGs_hmq_{assembler}.{binner_checkm}.tsv.gz")
     params:
         standard = config["params"]["checkm"]["standard"] + "_quality_level"
     threads:
@@ -159,11 +159,11 @@ rule checkm_report_merge:
     input:
         genomes_info = expand(os.path.join(
             config["output"]["check"],
-            "report/checkm/checkm_table_{{assembler}}_{binner_checkm}.tsv.gz"),
+            "report/checkm/checkm_table_{{assembler}}.{binner_checkm}.tsv.gz"),
             binner_checkm=BINNERS_CHECKM),
         mags_hmq = expand(os.path.join(
             config["output"]["check"],
-            "report/checkm/MAGs_hmq_{{assembler}}_{binner_checkm}.tsv.gz"),
+            "report/checkm/MAGs_hmq_{{assembler}}.{binner_checkm}.tsv.gz"),
             binner_checkm=BINNERS_CHECKM)
     output:
         genomes_info = os.path.join(
@@ -202,19 +202,19 @@ if config["params"]["checkm"]["do"]:
             expand([
                 os.path.join(
                     config["output"]["check"],
-                    "report/checkm/checkm_table_{assembler}_{binner_checkm}.tsv.gz"),
+                    "report/checkm/checkm_table_{assembler}.{binner_checkm}.tsv.gz"),
                 os.path.join(
                     config["output"]["check"],
-                    "report/checkm/MAGs_hq_{assembler}_{binner_checkm}.tsv.gz"),
+                    "report/checkm/MAGs_hq_{assembler}.{binner_checkm}.tsv.gz"),
                 os.path.join(
                     config["output"]["check"],
-                    "report/checkm/MAGs_mq_{assembler}_{binner_checkm}.tsv.gz"),
+                    "report/checkm/MAGs_mq_{assembler}.{binner_checkm}.tsv.gz"),
                 os.path.join(
                     config["output"]["check"],
-                    "report/checkm/MAGs_lq_{assembler}_{binner_checkm}.tsv.gz"),
+                    "report/checkm/MAGs_lq_{assembler}.{binner_checkm}.tsv.gz"),
                 os.path.join(
                     config["output"]["check"],
-                    "report/checkm/MAGs_hmq_{assembler}_{binner_checkm}.tsv.gz"),
+                    "report/checkm/MAGs_hmq_{assembler}.{binner_checkm}.tsv.gz"),
                 os.path.join(
                     config["output"]["check"],
                     "report/checkm/checkm_table_genomes_info.{assembler}.all.tsv"),

@@ -578,7 +578,7 @@ if begin from simulate:
     parser_init.add_argument(
         "--assembler",
         nargs="+",
-        default=["megahit"],
+        default=["metaspades"],
         required=False,
         choices=["idba-ud", "megahit", "metaspades", "spades", "opera-ms"],
         help="which assembler used, required when begin with binning, can be changed in config.yaml",

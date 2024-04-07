@@ -37,7 +37,7 @@ rule predict_mags_gene_prodigal_report:
                 binning_group=ASSEMBLY_GROUP["binning_group"],
                 assembly_group=ASSEMBLY_GROUP["assembly_group"])
         output:
-            os.path.join(config["output"]["predict"], "report/mags_gene_stats_{assembler}_{binner_checkm}.tsv.gz")
+            os.path.join(config["output"]["predict"], "report/mags_gene_stats_{assembler}.{binner_checkm}.tsv.gz")
         run:
             import pandas as pd
 
@@ -67,7 +67,7 @@ rule predict_mags_gene_prodigal_all:
             binner_checkm=CHECKM_GROUPS["binner_checkm"]),
         expand(os.path.join(
             config["output"]["predict"],
-            "report/mags_gene_stats_{assembler}_{binner_checkm}.tsv.gz"),
+            "report/mags_gene_stats_{assembler}.{binner_checkm}.tsv.gz"),
             assembler=ASSEMBLERS,
             binner_checkm=BINNERS_CHECKM)
 

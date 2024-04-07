@@ -6,7 +6,7 @@ if len(BINNERS_CHECKM) != 0:
             directory(
                 os.path.join(
                     config["output"]["binning"],
-                    "report/{assembler}_{binner_checkm}_stats/{binning_group}.{assembly_group}"))
+                    "report/{assembler}/{binner_checkm}/{binning_group}.{assembly_group}"))
         params:
             binning_group = "{binning_group}",
             assembly_group = "{assembly_group}",
@@ -48,14 +48,14 @@ if len(BINNERS_CHECKM) != 0:
         input:
             expand(os.path.join(
                 config["output"]["binning"],
-                "report/{{assembler}}_{{binner_checkm}}_stats/{binning_group}.{assembly_group}"),
+                "report/{{assembler}}/{{binner_checkm}}/{binning_group}.{assembly_group}"),
                 zip,
                 binning_group=ASSEMBLY_GROUP["binning_group"],
                 assembly_group=ASSEMBLY_GROUP["assembly_group"])
         output:
             summary = os.path.join(
                 config["output"]["binning"],
-                "report/assembly_stats_{assembler}_{binner_checkm}.tsv.gz")
+                "report/assembly_stats_{assembler}.{binner_checkm}.tsv.gz")
         params:
             min_length = config["params"]["assembly"]["report"]["min_length"],
             len_ranges = config["params"]["assembly"]["report"]["len_ranges"]
@@ -83,7 +83,7 @@ if len(BINNERS_CHECKM) != 0:
         input:
             expand(os.path.join(
                 config["output"]["binning"],
-                "report/assembly_stats_{assembler}_{binner_checkm}.tsv.gz"),
+                "report/assembly_stats_{assembler}.{binner_checkm}.tsv.gz"),
                 assembler=ASSEMBLERS,
                 binner_checkm=BINNERS_CHECKM)
 

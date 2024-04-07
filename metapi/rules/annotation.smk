@@ -129,9 +129,9 @@ rule annotation_prophage_dbscan_swa_distribute:
     output:
         fna = os.path.join(
             config["output"]["identify"],
-            "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa_{vamber}/{binning_group}.{assembly_group}.{assembler}.dbscan_swa_{vamber}.combined.fa.gz")
+            "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa-{vamber}/{binning_group}.{assembly_group}.{assembler}.dbscan_swa-{vamber}.combined.fa.gz")
     params:
-        working_dir = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa_{vamber}"),
+        working_dir = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa-{vamber}"),
         assembly_group = "{assembly_group}"
     run:
         shell("rm -rf {params.working_dir}")
@@ -162,7 +162,7 @@ if config["params"]["annotation"]["dbscan_swa"]["do"]:
         input:
             expand(expand(os.path.join(
                 config["output"]["identify"],
-                "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa_{{vamber}}/{binning_group}.{assembly_group}.{assembler}.dbscan_swa_{{vamber}}.combined.fa.gz"),
+                "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa-{{vamber}}/{binning_group}.{assembly_group}.{assembler}.dbscan_swa-{{vamber}}.combined.fa.gz"),
                 zip,
                 binning_group=ASSEMBLY_GROUPS["binning_group"],
                 assembly_group=ASSEMBLY_GROUPS["assembly_group"],

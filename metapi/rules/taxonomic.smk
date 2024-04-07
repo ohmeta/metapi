@@ -2,7 +2,7 @@ checkpoint taxonomic_gtdbtk_prepare:
     input:
         rep_genomes_info = os.path.join(
             config["output"]["check"],
-            "report/checkm/checkm_table_{assembler}_{binner_checkm}.tsv.gz")
+            "report/checkm/checkm_table_{assembler}.{binner_checkm}.tsv.gz")
     output:
         mags_dir = directory(os.path.join(
             config["output"]["taxonomic"],

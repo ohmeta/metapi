@@ -297,7 +297,7 @@ rule identify_phamb_postprocess:
     output:
         viral = os.path.join(
             config["output"]["identify"],
-            "vmags/{binning_group}.{assembly_group}.{assembler}/phamb_{vamber}/{binning_group}.{assembly_group}.{assembler}.phamb_{vamber}.combined.fa.gz")
+            "vmags/{binning_group}.{assembly_group}.{assembler}/phamb-{vamber}/{binning_group}.{assembly_group}.{assembler}.phamb-{vamber}.combined.fa.gz")
     params:
         binning_group = "{binning_group}",
         assembly_group = "{assembly_group}",
@@ -349,7 +349,7 @@ config["params"]["binning"]["vamb"]["do"]:
             expand(expand(
                 os.path.join(
                     config["output"]["identify"],
-                    "vmags/{binning_group}.{assembly_group}.{assembler}/phamb_{{vamber}}/{binning_group}.{assembly_group}.{assembler}.phamb_{{vamber}}.combined.fa.gz"),
+                    "vmags/{binning_group}.{assembly_group}.{assembler}/phamb-{{vamber}}/{binning_group}.{assembly_group}.{assembler}.phamb-{{vamber}}.combined.fa.gz"),
                 zip,
                 binning_group=ASSEMBLY_GROUPS["binning_group"],
                 assembly_group=ASSEMBLY_GROUPS["assembly_group"],

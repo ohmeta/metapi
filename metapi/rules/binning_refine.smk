@@ -55,7 +55,7 @@ rule binning_graphbin2:
     output:
         os.path.join(
             config["output"]["binning"],
-            "mags/{binning_group}.{assembly_group}.{assembler}/{binner_graphbin}_graphbin2/binning_done")
+            "mags/{binning_group}.{assembly_group}.{assembler}/{binner_graphbin}-graphbin2/binning_done")
     log:
         os.path.join(
             config["output"]["binning"],
@@ -68,10 +68,10 @@ rule binning_graphbin2:
         assembler = "{assembler}",
         mags_dir = os.path.join(
             config["output"]["binning"],
-            "mags/{binning_group}.{assembly_group}.{assembler}/{binner_graphbin}_graphbin2/"),
+            "mags/{binning_group}.{assembly_group}.{assembler}/{binner_graphbin}-graphbin2/"),
         prefix = os.path.join(
             config["output"]["binning"],
-            "mags/{binning_group}.{assembly_group}.{assembler}/{binner_graphbin}_graphbin2/{binning_group}.{assembly_group}.{assembler}.{binner_graphbin}_graphbin2.bin"),
+            "mags/{binning_group}.{assembly_group}.{assembler}/{binner_graphbin}-graphbin2/{binning_group}.{assembly_group}.{assembler}.{binner_graphbin}-graphbin2.bin"),
         paths = os.path.join(
             config["output"]["assembly"],
             "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.paths.gz"),
@@ -133,7 +133,7 @@ if config["params"]["binning"]["graphbin2"]["do"]:
         input:
             expand(expand(os.path.join(
                 config["output"]["binning"],
-                "mags/{binning_group}.{assembly_group}.{assembler}/{{binner_graphbin}}_graphbin2/binning_done"),
+                "mags/{binning_group}.{assembly_group}.{assembler}/{{binner_graphbin}}-graphbin2/binning_done"),
                 zip,
                 binning_group=ASSEMBLY_GROUPS["binning_group"],
                 assembly_group=ASSEMBLY_GROUPS["assembly_group"],
@@ -161,7 +161,7 @@ rule binning_dastools_preprocess:
     output:
         expand(os.path.join(
             config["output"]["binning"],
-            "mags_id/{{binning_group}}.{{assembly_group}}.{{assembler}}/{binner_dastools}_Contigs2Bin.tsv"),
+            "mags_id/{{binning_group}}.{{assembly_group}}.{{assembler}}/{binner_dastools}-Contigs2Bin.tsv"),
             binner_dastools=BINNERS_DASTOOLS)
     run:
         import glob
@@ -194,7 +194,7 @@ rule binning_dastools:
         contigs2bin = expand(
             os.path.join(
                 config["output"]["binning"],
-                "mags_id/{{binning_group}}.{{assembly_group}}.{{assembler}}/{binner_dastools}_Contigs2Bin.tsv"),
+                "mags_id/{{binning_group}}.{{assembly_group}}.{{assembler}}/{binner_dastools}-Contigs2Bin.tsv"),
                 binner_dastools=BINNERS_DASTOOLS),
         scaftigs = os.path.join(
             config["output"]["assembly"],
