@@ -27,7 +27,7 @@ rule binning_vamb_combine_scaftigs:
     params:
         min_contig = config["params"]["binning"]["vamb"]["min_contig"]
     conda:
-        config["envs"]["vamb"]
+        config["envs"]["vamb3"]
     shell:
         '''
         set +e
@@ -400,7 +400,7 @@ rule binning_vamb:
     threads:
         config["params"]["binning"]["threads"]
     conda:
-        config["envs"]["vamb"]
+        config["envs"]["vamb3"]
     shell:
         '''
         set +e
