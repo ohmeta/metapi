@@ -100,7 +100,7 @@ params:
   assembly:
     threads: 8
     megahit:
-      do: True
+      do: False
       min_contig: 100
       only_save_scaftigs: True
       k_list: ["21", "29", "39", "59", "79", "99", "119", "141"] # please update it by yourself
@@ -117,7 +117,7 @@ params:
       min_contig: 500
       only_save_scaftigs: True
     metaspades:
-      do: False
+      do: True
       only_assembler: False
       only_save_scaftigs: True
       link_scaffolds: True
@@ -194,7 +194,7 @@ params:
       saveCls: False
       seed: 2020
     maxbin2:
-      do: True
+      do: False
       min_contig: 2000
       max_iteration: 50
       prob_threshold: 0.9
@@ -221,6 +221,7 @@ params:
       threshold: 1.5
     vamb:
       do: True
+      mode: ["vamb", "avamb"]
       cuda: True
       cuda_module: "cuda/11.2" # take effect only when use_cuda_module
       use_cuda_module: False # avoid conda's CUDA issue
@@ -228,10 +229,11 @@ params:
       allow_small_scaftigs: False
       min_contig: 2000
       min_fasta: 200000 # 200K, 500K # For viral genome, choose ? 1kb ?
+      min_identity: 0.95 # min identity for alignment
       index_size: "500G"
       external_params: ""
     dastools:
-      do: True
+      do: False
       search_engine: "diamond"
       score_threshold: 0.5
       duplicate_penalty: 0.6
@@ -284,7 +286,8 @@ params:
 
   checkm:
     do: True
-    check_binners: ["metabat2", "concoct", "maxbin2", "vamb", "dastools"]
+    #check_binners: ["metabat2", "concoct", "maxbin2", "vamb", "dastools"]
+    check_binners: ["metabat2", "concoct", "vamb", "avamb"]
     report: True
     threads: 8
     pplacer_threads: 4 # 1: 30G, 2: 60G, 3: 90G, 4: 120G
