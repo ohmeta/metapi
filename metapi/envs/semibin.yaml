@@ -9,5 +9,4 @@ dependencies:
   - pigz
   - jq
   - pandas
-  - numexpr=2.8.4
   - semibin

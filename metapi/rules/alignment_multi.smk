@@ -16,23 +16,45 @@ rule alignment_scaftigs_combined:
     params:
         min_contig = config["params"]["binning"]["min_contig_len_bp"],
         separator = config["params"]["binning"]["separator"]
-    run:
-        import os
-        import sys
-        import gzip
-        from Bio import SeqIO
+    conda:
+        config["envs"]["report"]
+    shell:
+        '''
+        rm -rf {output.scaftigs}
 
-        scaftigs_sorted = sorted(input.scaftigs) 
+        SCAFTIGSGZ={output.scaftigs}
+        SCAFTIGS=${{SCAFTIGSGZ%.gz}}
 
-        with gzip.open(output.scaftigs, "wt") as oh:
-            for scaftigs in scaftigs_sorted:
-                sample_name = os.path.basename(scaftigs).replace(".scaftigs.fa.gz", "")
-                with gzip.open(scaftigs, "rt") as ih:
-                    for rc in SeqIO.parse(ih, "fasta"):
-                        if len(rc) >= params.min_contig:
-                            seq_id = rc.id
-                            rc.id = f'{sample_name}{params.separator}{seq_id}'
-                            SeqIO.write(rc, oh, "fasta")
+        for i in {input.scaftigs}
+        do
+            asmindex=$(basename $i | sed 's#.scaftigs.fa.gz##g')   
+
+            bioawk \
+            -v scaftigsid=asmindex separator={params.separator} mincontig={params.min_contig} \
+            -c fastx '{{if(length($seq) >= mincontig){{print ">" scaftigsid separator $name;print $seq}}}}' $i \
+            >> $SCAFTIGS
+        done
+        
+        pigz -p {threads} $SCAFTIGS 
+        '''
+    # too slow
+    #run:
+    #    import os
+    #    import sys
+    #    import gzip
+    #    from Bio import SeqIO
+
+    #    scaftigs_sorted = sorted(input.scaftigs) 
+
+    #    with gzip.open(output.scaftigs, "wt") as oh:
+    #        for scaftigs in scaftigs_sorted:
+    #            sample_name = os.path.basename(scaftigs).replace(".scaftigs.fa.gz", "")
+    #            with gzip.open(scaftigs, "rt") as ih:
+    #                for rc in SeqIO.parse(ih, "fasta"):
+    #                    if len(rc) >= params.min_contig:
+    #                        seq_id = rc.id
+    #                        rc.id = f'{sample_name}{params.separator}{seq_id}'
+    #                        SeqIO.write(rc, oh, "fasta")
    
 
 rule alignment_scaftigs_combined_dict:
