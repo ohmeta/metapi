@@ -599,7 +599,7 @@ rule binning_semibin_single_easy_bin:
         min_fasta = config["params"]["binning"]["min_bin_len_kbp"],
         reference_db = config["params"]["binning"]["semibin"]["reference_db"],
         seed = config["params"]["seed"],
-        engine = "auto"
+        engine = config["params"]["binning"]["semibin"]["engine"]
     conda:
         config["envs"]["semibin"]
     threads:
@@ -613,7 +613,7 @@ rule binning_semibin_single_easy_bin:
         --input-bam {input.bam} \
         --compression gz \
         --sequencing-type short_read \
-        --engine {} \
+        --engine {params.engine} \
         --random-seed {params.seed} \
         --environment {params.environment} \
         --min-len {params.min_len} \
@@ -626,7 +626,25 @@ rule binning_semibin_single_easy_bin:
         '''
 
 
+if config["params"]["binning"]["semibin"]["do"]:
+    if "single_easy" in config["params"]["binning"]["semibin"]["mode"]:
+        rule binning_semibin_single_easy_bin_all:
+            input:
+                expand(os.path.join(
+                    config["output"]["binning"],
+                    "mags/{binning_group}.{assembly_group}.{assembler}/semibin_single/binning_done"),
+                    zip,
+                    binning_group=ASSEMBLY_GROUPS["binning_group"],
+                    assembly_group=ASSEMBLY_GROUPS["assembly_group"],
+                    assembler=ASSEMBLY_GROUPS["assembler"])
+
+else:
+    rule binning_semibin_single_easy_bin_all:
+        input:
+
+
 localrules:
     binning_metabat2_all,
     binning_maxbin2_all,
-    binning_concoct_all
+    binning_concoct_all,
+    binning_semibin_single_easy_bin_all

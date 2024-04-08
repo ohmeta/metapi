@@ -55,6 +55,7 @@ WORKFLOWS_MAG = [
     "binning_dastools_all",
     "binning_vamb_prepare_all",
     "binning_vamb_all",
+    "binning_semibin_single_easy_all",
     "binning_report_all",
     "binning_all",
     "identify_virsorter2_all",

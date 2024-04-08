@@ -228,6 +228,12 @@ params:
       min_identity: 0.95 # min identity for alignment
       index_size: "500G"
       external_params: ""
+    semibin:
+      do: True
+      mode: ["single_easy", "multi_easy"]
+      engine: "gpu"
+      environment: "human_gut"
+      reference_db: /home/jiezhu/databases/ecogenomics/MMseqs2/GTDB
     dastools:
       do: True
       search_engine: "diamond"
