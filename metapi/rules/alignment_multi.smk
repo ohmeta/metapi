@@ -16,6 +16,8 @@ rule alignment_scaftigs_combined:
     params:
         min_contig = config["params"]["binning"]["min_contig_len_bp"],
         separator = config["params"]["binning"]["separator"]
+    threads:
+        config["params"]["alignment"]["threads"]
     conda:
         config["envs"]["report"]
     shell:
@@ -33,8 +35,9 @@ rule alignment_scaftigs_combined:
             -v scaftigsid=$ASMINDEX \
             -v separator={params.separator} \
             -v mincontig={params.min_contig} \
-            -c fastx '{{if(length($seq) >= mincontig){{print ">" scaftigsid separator $name;print $seq}}}}' $i \
-            >> $SCAFTIGS
+            -c fastx '{{if(length($seq) >= mincontig){{print ">" scaftigsid separator $name;print $seq}}}}' $FASTA \
+            >> $SCAFTIGS \
+            2>> {log}
         done
         
         pigz -p {threads} $SCAFTIGS 
