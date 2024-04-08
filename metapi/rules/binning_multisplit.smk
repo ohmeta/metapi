@@ -402,7 +402,6 @@ rule binning_semibin_multi_easy_bin:
         outdir = os.path.join(
             config["output"]["binning"],
             "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi"),
-        environment = config["params"]["binning"]["semibin"]["environment"],
         min_len = config["params"]["binning"]["min_contig_len_bp"],
         min_fasta = config["params"]["binning"]["min_bin_len_kbp"],
         reference_db = config["params"]["binning"]["semibin"]["reference_db"],
@@ -423,7 +422,6 @@ rule binning_semibin_multi_easy_bin:
         --sequencing-type short_read \
         --engine {params.engine} \
         --random-seed {params.seed} \
-        --environment {params.environment} \
         --min-len {params.min_len} \
         --minfasta-kbs {params.min_fasta} \
         --reference-db-data-dir {params.reference_db} \
