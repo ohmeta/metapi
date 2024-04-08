@@ -66,7 +66,7 @@ rule alignment_scaftigs_combined_dict:
 
         tail -n +2 {output.scaftigs_dict} | \
         cut -f2,3 \
-        > {output} \
+        > {output.scaftigs_headers} \
         2>> {log}
         '''
 

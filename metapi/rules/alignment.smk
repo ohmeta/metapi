@@ -240,7 +240,7 @@ rule alignment_scaftigs_reads_all:
         expand([
             os.path.join(
                 config["output"]["alignment"],
-                "report/flagstat_bowtie2/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.flagstat"),
+                "report/flagstat/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.flagstat"),
             os.path.join(
                 config["output"]["alignment"],
                 "bam/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.sorted.bam"),
@@ -305,13 +305,13 @@ rule alignment_scaftigs_reads_report:
         expand(
             os.path.join(
                 config["output"]["alignment"],
-                "report/flagstat_bowtie2/{binning_group}.{assembly_group}.{{assembler}}/{sample}/{sample}.align2scaftigs.flagstat"),
+                "report/flagstat/{binning_group}.{assembly_group}.{{assembler}}/{sample}/{sample}.align2scaftigs.flagstat"),
                 zip,
                 binning_group=ALIGNMENT_GROUP["binning_group"],
                 assembly_group=ALIGNMENT_GROUP["assembly_group"],
                 sample=ALIGNMENT_GROUP["sample_id"])
     output:
-        flagstat = os.path.join(config["output"]["alignment"], "report/alignment_flagstat_{assembler}_bowtie2.tsv")
+        flagstat = os.path.join(config["output"]["alignment"], "report/alignment_flagstat_{assembler}.tsv")
     run:
         input_list = [str(i) for i in input]
         metapi.flagstats_summary(input_list, 2, output=output.flagstat)
@@ -319,5 +319,5 @@ rule alignment_scaftigs_reads_report:
 
 rule alignment_scaftigs_reads_report_all:
     input:
-        expand(os.path.join(config["output"]["alignment"], "report/alignment_flagstat_{assembler}_bowtie2.tsv"),
+        expand(os.path.join(config["output"]["alignment"], "report/alignment_flagstat_{assembler}.tsv"),
         assembler=ASSEMBLERS)

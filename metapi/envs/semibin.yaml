@@ -4,7 +4,8 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - pytorch=*=*cuda11.8*
+  - pytorch=*=*cuda11.3*
+  - mkl=2024.0
   - pigz
   - jq
   - semibin

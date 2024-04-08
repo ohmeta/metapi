@@ -8,5 +8,7 @@ dependencies:
   - bwa=0.7.17
   - bwa-mem2=2.2.1
   - bowtie2=2.5.3
+  - seqtk
+  - seqkit
   - pigz
   - jq
