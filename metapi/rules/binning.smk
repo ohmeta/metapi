@@ -455,7 +455,7 @@ rule binning_concoct:
             "mags/{binning_group}.{assembly_group}.{assembler}/concoct"),
         clusters = config["params"]["binning"]["concoct"]["clusters"],
         kmer_length = config["params"]["binning"]["concoct"]["kmer_length"],
-        length_threshold = config["params"]["binning"]["concoct"]["length_threshold"],
+        length_threshold = config["params"]["binning"]["min_contig_len_bp"],
         read_length = config["params"]["binning"]["concoct"]["read_length"],
         total_percentage_pca = config["params"]["binning"]["concoct"]["total_percentage_pca"],
         iterations = config["params"]["binning"]["concoct"]["iterations"],
@@ -581,7 +581,7 @@ rule binning_semibin_single_easy_bin:
     output:
         os.path.join(
             config["output"]["binning"],
-            "mags/{binning_group}.{assembly_group}.{assembler}/semibin-single/binning_done")
+            "mags/{binning_group}.{assembly_group}.{assembler}/semibin_single/binning_done")
     log:
         os.path.join(
             config["output"]["binning"],
@@ -593,7 +593,7 @@ rule binning_semibin_single_easy_bin:
     params:
         outdir = os.path.join(
             config["output"]["binning"],
-            "mags/{binning_group}.{assembly_group}.{assembler}/semibin-single"),
+            "mags/{binning_group}.{assembly_group}.{assembler}/semibin_single"),
         environment = config["params"]["binning"]["semibin"]["environment"],
         min_len = config["params"]["binning"]["min_contig_len_bp"],
         min_fasta = config["params"]["binning"]["min_bin_len_kbp"],

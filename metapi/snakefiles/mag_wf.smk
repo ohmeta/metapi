@@ -56,23 +56,40 @@ if config["params"]["assembly"]["opera_ms"]["do"]:
 
 
 BINNERS_TOTAL = []
+BINNERS_VAMB = []
+BINNERS_SEMIBIN = []
 BINNERS_GRAPHBIN = []
 BINNERS_DASTOOLS = []
 
 if config["params"]["binning"]["metabat2"]["do"]:
-    BINNERS_TOTAL += ["metabat2"]
+    BINNERS_TOTAL.append("metabat2")
 if config["params"]["binning"]["maxbin2"]["do"]:
-    BINNERS_TOTAL += ["maxbin2"]
+    BINNERS_TOTAL.append("maxbin2")
 if config["params"]["binning"]["concoct"]["do"]:
-    BINNERS_TOTAL += ["concoct"]
+    BINNERS_TOTAL.append("concoct")
+
 if config["params"]["binning"]["vamb"]["do"]:
-    BINNERS_TOTAL += ["vamb"]
+    if "vamb" in config["params"]["binning"]["vamb"]["mode"]:
+        BINNERS_VAMB.append("vamb")
+        BINNERS_TOTAL.append("vamb")
+    if "avamb" in config["params"]["binning"]["vamb"]["mode"]:
+        BINNERS_VAMB.append("avamb")
+        BINNERS_TOTAL.append("avamb")
+
+if config["params"]["binning"]["semibin"]["do"]:
+    if "single_easy" in config["params"]["binning"]["semibin"]["mode"]:
+        BINNERS_SEMIBIN.append("semibin_single")
+        BINNERS_TOTAL.append("semibin_single")
+    if "multi_easy" in config["params"]["binning"]["semibin"]["mode"]:
+        BINNERS_SEMIBIN.append("semibin_multi")
+        BINNERS_TOTAL.append("semibin_multi")
+
 
 if config["params"]["binning"]["graphbin2"]["do"]:
     BINNERS_GRAPHBIN = BINNERS_TOTAL.copy()
     for i in BINNERS_GRAPHBIN:
-        BINNERS_TOTAL.append(i + "_graphbin2")
-        BINNERS_DASTOOLS.append(i + "_graphbin2")
+        BINNERS_TOTAL.append(i + "-graphbin2")
+        BINNERS_DASTOOLS.append(i + "-graphbin2")
 else:
     BINNERS_DASTOOLS = BINNERS_TOTAL.copy()
 
@@ -80,9 +97,29 @@ if config["params"]["binning"]["dastools"]["do"]:
     BINNERS_TOTAL.append("dastools")
 
 
-BINNERS_CHECKM = config["params"]["checkm"]["check_binners"]
+BINNERS_CHECKM = BINNERS_TOTAL
 
-IDENTIFIERS = config["params"]["checkv"]["checkv_identifier"]
+pprint(f"BINNERS_TOTAL: {BINNERS_TOTAL}")
+pprint(f"BINNERS_VAMB: {BINNERS_VAMB}")
+pprint(f"BINNERS_GRAPHBIN: {BINNERS_GRAPHBIN}")
+pprint(f"BINNERS_DASTOOLS: {BINNERS_DASTOOLS}")
+pprint(f"BINNERS_CHECKM: {BINNERS_CHECKM}")
+
+
+IDENTIFIERS = []
+if config["params"]["identify"]["virsorter2"]["do"]:
+    IDENTIFIERS.append("virsorter2")
+if config["params"]["identify"]["deepvirfinder"]["do"]:
+    IDENTIFIERS.append("deepvirfinder")
+if config["params"]["identify"]["phamb"]["do"]:
+    if "vamb" in config["params"]["binning"]["vamb"]["mode"]:
+        IDENTIFIERS.append("phamb-vamb")
+        if config["params"]["annotation"]["dbscan_swa"]["do"]:
+            IDENTIFIERS.append("dbscan_swa-vamb")
+    if "avamb" in config["params"]["binning"]["vamb"]["mode"]:
+        IDENTIFIERS.append("phamb-avamb")
+        if config["params"]["annotation"]["dbscan_swa"]["do"]:
+            IDENTIFIERS.append("dbscan_swa-avamb")
 
 
 DEREPERS = []
