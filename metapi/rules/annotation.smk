@@ -141,7 +141,7 @@ rule annotation_prophage_dbscan_swa_distribute:
         shell("mkdir -p {params.working_dir}")
 
         assembly_index = f'''{params.binning_group}.{params.assembly_group}.{params.assembler}'''
-        with gzip.open(output.fna, "w") as f:
+        with gzip.open(output.fna, "wt") as f:
             for record in SeqIO.parse(input.all_fna, "fasta"):
                 if record.id.startswith(f'''{assembly_index}{params.separator}'''):
                     SeqIO.write(record, f, "fasta")

@@ -418,7 +418,7 @@ rule identify_deepvirfinder_extract_contigs:
                     dvf_dict[name] = 1
 
         dvf_viral_list = list(dvf_dict.keys())
-        with gzip.open(output.fna, "w") as f:
+        with gzip.open(output.fna, "wt") as f:
             for record in SeqIO.parse(gzip.open(input.scaftigs, "rt"), "fasta"):
                 if record.id in dvf_viral_list:
                     SeqIO.write(record, f, "fasta")

@@ -19,11 +19,12 @@ rule alignment_scaftigs_combined:
     run:
         import os
         import sys
+        import gzip
         from Bio import SeqIO
 
         scaftigs_sorted = sorted(input.scaftigs) 
 
-        with gzip.open(output.scaftigs, "w") as oh:
+        with gzip.open(output.scaftigs, "wt") as oh:
             for scaftigs in scaftigs_sorted:
                 sample_name = os.path.basename(scaftigs).replace(".scaftigs.fa.gz", "")
                 with gzip.open(scaftigs, "rt") as ih:
