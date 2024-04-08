@@ -25,7 +25,7 @@ rule alignment_scaftigs_combined:
 
         with gzip.open(output.scaftigs, "w") as oh:
             for scaftigs in scaftigs_sorted:
-                sample_name = os.path.basename(scaftigs).rsplit(".", 1)[0]
+                sample_name = os.path.basename(scaftigs).replace(".scaftigs.fa.gz", "")
                 with gzip.open(scaftigs, "rt") as ih:
                     for rc in SeqIO.parse(ih, "fasta"):
                         if len(rc) >= params.min_contig:

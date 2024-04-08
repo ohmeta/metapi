@@ -122,39 +122,29 @@ rule annotation_prophage_dbscan_swa_distribute:
     input:
         all_fna = os.path.join(
             config["output"]["annotation"],
-            "dbscan_swa/{binning_group}.{assembler}.{vamber}.prophage/prophage.fna"),
-        metadata = os.path.join(
-            config["output"]["assembly"],
-            "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.metadata.tsv.gz")
+            "dbscan_swa/{binning_group}.{assembler}.{vamber}.prophage/prophage.fna")
     output:
         fna = os.path.join(
             config["output"]["identify"],
             "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa-{vamber}/{binning_group}.{assembly_group}.{assembler}.dbscan_swa-{vamber}.combined.fa.gz")
     params:
         working_dir = os.path.join(config["output"]["identify"], "vmags/{binning_group}.{assembly_group}.{assembler}/dbscan_swa-{vamber}"),
-        assembly_group = "{assembly_group}"
+        binning_group = "{binning_group}",
+        assembly_group = "{assembly_group}",
+        assembler = "{assembler}",
+        separator = config["params"]["binning"]["separator"]
     run:
+        import gzip
+        from Bio import SeqIO
+
         shell("rm -rf {params.working_dir}")
         shell("mkdir -p {params.working_dir}")
-        # shell("touch {params.assembly_fna}")
 
-        import pandas as pd
-        from Bio import SeqIO
-        import gzip
-
-        ### record assembly_group : alias ###
-        tab = pd.read_table(input.metadata)
-        assembly_vamb_id = {vamb_id : binning_assembly.split(".")[-1] for vamb_id, binning_assembly in zip(tab.iloc[:,1], tab.iloc[:, 0])}
-
-        ### read the prophage fna ###
-        with gzip.open(output.fna, "wt") as f:
-            for record in SeqIO.parse(input.all_fna[0], 'fasta'):
-                desc = record.description
-                vamb_id = desc.split("|")[0].split("C")[0]
-                if assembly_vamb_id[vamb_id] != params.assembly_group:
-                    # print(vamb_id, assembly_vamb_id[vamb_id])
-                    continue
-                f.write(record.format("fasta"))
+        assembly_index = f'''{params.binning_group}.{params.assembly_group}.{params.assembler}'''
+        with gzip.open(output.fna, "w") as f:
+            for record in SeqIO.parse(input.all_fna, "fasta"):
+                if record.id.startswith(f'''{assembly_index}{params.separator}'''):
+                    SeqIO.write(record, f, "fasta")
 
 
 if config["params"]["annotation"]["dbscan_swa"]["do"]:

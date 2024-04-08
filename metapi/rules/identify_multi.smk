@@ -246,10 +246,9 @@ rule identify_phamb_randomforest:
             config["output"]["identify"],
             "annotations/{binning_group}.{assembler}/all.DVF.predictions.txt.gz")
     output:
-        # vambbins_aggregated_annotation.txt
-        # vambbins_RF_predictions.txt
-        # vamb_bins
-        os.path.join(config["output"]["identify"], "vmags_phamb/{binning_group}.{assembler}.{vamber}/phamb_randomforest_done")
+        os.path.join(
+            config["output"]["identify"],
+            "vmags_phamb/{binning_group}.{assembler}.{vamber}/phamb_randomforest_done")
     log:
         os.path.join(
             config["output"]["identify"],
@@ -290,8 +289,6 @@ rule identify_phamb_randomforest:
 
 rule identify_phamb_postprocess:
     input:
-        metadata = os.path.join(config["output"]["assembly"],
-            "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.metadata.tsv.gz"),
         phamb_rf_done = os.path.join(config["output"]["identify"],
             "vmags_phamb/{binning_group}.{assembler}.{vamber}/phamb_randomforest_done")
     output:
@@ -301,7 +298,8 @@ rule identify_phamb_postprocess:
     params:
         binning_group = "{binning_group}",
         assembly_group = "{assembly_group}",
-        assembler = "{assembler}"
+        assembler = "{assembler}",
+        separator = config["params"]["binning"]["separator"]
     run:
         import os
         import gzip
@@ -309,9 +307,10 @@ rule identify_phamb_postprocess:
         from glob import glob
         from Bio import SeqIO
 
-        binning_assembly_metadata = pd.read_csv(input.metadata, sep="\t").set_index("binning_assembly_group")
-        assembly_index = binning_assembly_metadata.loc[f'''{params.binning_group}.{params.assembly_group}''', "vamb_id"]
+        #binning_assembly_metadata = pd.read_csv(input.metadata, sep="\t").set_index("binning_assembly_group")
+        #assembly_index = binning_assembly_metadata.loc[f'''{params.binning_group}.{params.assembly_group}''', "vamb_id"]
 
+        assembly_index = f'''{params.binning_group}.{params.assembly_group}.{params.assembler}'''
         vamb_bins_dir = os.path.join(os.path.dirname(input.phamb_rf_done), "vamb_bins")
 
         os.makedirs(os.path.dirname(output.viral), exist_ok=True)
@@ -322,7 +321,7 @@ rule identify_phamb_postprocess:
                 if len(vamb_bins_list) > 0:
                     for fna in vamb_bins_list:
                         for rc in SeqIO.parse(fna, "fasta"):
-                            if rc.id.startswith(f'''{assembly_index}C'''):
+                            if rc.id.startswith(f'''{assembly_index}{params.separator}'''):
                                 SeqIO.write(rc, oh, "fasta")
                 else:
                     subprocess.run(f'''touch {output.viral}''', shell=True)

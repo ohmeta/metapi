@@ -100,6 +100,7 @@ rule binning_all:
         rules.binning_graphbin2_all.input,
         rules.binning_vamb_all.input,
         rules.binning_semibin_single_easy_bin_all.input,
+        rules.binning_semibin_multi_easy_bin_all.input,
         rules.binning_dastools_all.input,
         rules.binning_report_all.input
 

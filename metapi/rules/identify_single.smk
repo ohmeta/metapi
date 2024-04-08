@@ -388,9 +388,6 @@ rule identify_deepvirfinder_extract_contigs:
         scaftigs = os.path.join(
             config["output"]["assembly"],
             "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz"),
-        metadata = os.path.join(
-            config["output"]["assembly"],
-            "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.metadata.tsv.gz"),
         dvf_anno = expand(os.path.join(
             config["output"]["identify"],
             "vmags/{{binning_group}}.{{assembly_group}}.{{assembler}}/deepvirfinder/{{binning_group}}.{{assembly_group}}.{{assembler}}.scaftigs.fa.gz_gt{min_length}bp_dvfpred.txt.gz"),
@@ -400,37 +397,31 @@ rule identify_deepvirfinder_extract_contigs:
             config["output"]["identify"],
             "vmags/{binning_group}.{assembly_group}.{assembler}/deepvirfinder/{binning_group}.{assembly_group}.{assembler}.deepvirfinder.combined.fa.gz")
     params:
-        assembly_group = "{assembly_group}"
+        binning_group = "{binning_group}",
+        assembly_group = "{assembly_group}",
+        assembler = "{assembler}",
+        separator = config["params"]["binning"]["separator"]
     run:
         from Bio import SeqIO
         import gzip
 
-        ### record assembly_group : alias ###
-        tab = pd.read_table(input.metadata)
-        # vamb_id_assembly = {vamb_id : binning_assembly.split(".")[-1] for vamb_id, binning_assembly in zip(tab.iloc[:,1], tab.iloc[:, 0])}
-        assembly_vamb_id = {binning_assembly.split(".")[-1] : vamb_id for vamb_id, binning_assembly in zip(tab.iloc[:,1], tab.iloc[:, 0])}
-        # seems like metapi.get_samples_id_by_binning_group(SAMPLES, wildcards.binning_group) will do the trick
-
-        # shell("zcat {input.dvf_anno} | perl -lane 's/\s.*?\t/\t/; print' > {params.temp_metadata}")
-        dvf_dict = dict() #defaultdict(int)
-        vamb_id = assembly_vamb_id[params.assembly_group]
+        assembly_index = f'''{params.binning_group}.{params.assembly_group}.{params.assembler}'''
 
         with gzip.open(input.dvf_anno[0], "rt") as records:
-            records.readline()# title line
+            records.readline()
             for record in records:
                 name, length, score, p = record.split("\t")
 
                 if float(score) > 0.5 and float(p) < 0.05:
                     name = name.split(" ")[0]
-                    name = vamb_id + 'C' + name
+                    name = f'''{assembly_index}{params.separator}{name}'''
                     dvf_dict[name] = 1
-                # print(record, end="")
 
         dvf_viral_list = list(dvf_dict.keys())
-        with gzip.open(output.fna, "wt") as f:
-            for record in SeqIO.parse(gzip.open(input.scaftigs, 'rt'), 'fasta'):
-                if record.description in dvf_viral_list:
-                    f.write(record.format("fasta"))
+        with gzip.open(output.fna, "w") as f:
+            for record in SeqIO.parse(gzip.open(input.scaftigs, "rt"), "fasta"):
+                if record.id in dvf_viral_list:
+                    SeqIO.write(record, f, "fasta")
 
 
 rule identify_deepvirfinder_merge:
