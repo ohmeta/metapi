@@ -73,7 +73,7 @@ rule alignment_scaftigs_reads:
     output:
         stats = os.path.join(
             config["output"]["alignment"],
-            "report/flagstat/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.flagstat"),
+            "report/flagstat_bowtie2/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.flagstat"),
         bam = os.path.join(
             config["output"]["alignment"],
             "bam/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.sorted.bam") \
@@ -240,7 +240,7 @@ rule alignment_scaftigs_reads_all:
         expand([
             os.path.join(
                 config["output"]["alignment"],
-                "report/flagstat/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.flagstat"),
+                "report/flagstat_bowtie2/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.flagstat"),
             os.path.join(
                 config["output"]["alignment"],
                 "bam/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.sorted.bam"),
@@ -300,37 +300,24 @@ else:
         input:
 
 
-rule alignment_report:
+rule alignment_scaftigs_reads_report:
     input:
         expand(
             os.path.join(
                 config["output"]["alignment"],
-                "report/flagstat/{binning_group}.{assembly_group}.{{assembler}}/{sample}/{sample}.align2scaftigs.flagstat"),
+                "report/flagstat_bowtie2/{binning_group}.{assembly_group}.{{assembler}}/{sample}/{sample}.align2scaftigs.flagstat"),
                 zip,
                 binning_group=ALIGNMENT_GROUP["binning_group"],
                 assembly_group=ALIGNMENT_GROUP["assembly_group"],
                 sample=ALIGNMENT_GROUP["sample_id"])
     output:
-        flagstat = os.path.join(config["output"]["alignment"], "report/alignment_flagstat_{assembler}.tsv")
+        flagstat = os.path.join(config["output"]["alignment"], "report/alignment_flagstat_{assembler}_bowtie2.tsv")
     run:
         input_list = [str(i) for i in input]
         metapi.flagstats_summary(input_list, 2, output=output.flagstat)
 
 
-rule alignment_report_all:
+rule alignment_scaftigs_reads_report_all:
     input:
-        expand(os.path.join(config["output"]["alignment"], "report/alignment_flagstat_{assembler}.tsv"),
+        expand(os.path.join(config["output"]["alignment"], "report/alignment_flagstat_{assembler}_bowtie2.tsv"),
         assembler=ASSEMBLERS)
-
-
-rule alignment_all:
-    input:
-        rules.alignment_base_depth_all.input,
-        rules.alignment_report_all.input
-
-
-localrules:
-    alignment_scaftigs_reads_all,
-    alignment_base_depth_all,
-    alignment_report_all,
-    alignment_all

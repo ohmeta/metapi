@@ -178,6 +178,8 @@ params:
     threads: 8
     min_contig_len_bp: 2000
     min_bin_len_kbp: 200
+    separator: ":"
+    combined_index_size: "100G"
     metabat2:
       do: True
       percent_identity: 97
@@ -226,7 +228,6 @@ params:
       save_bam: False
       allow_small_scaftigs: False
       min_identity: 0.95 # min identity for alignment
-      index_size: "500G"
       external_params: ""
     semibin:
       do: True
