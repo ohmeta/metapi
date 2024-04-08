@@ -99,7 +99,7 @@ rule binning_metabat2:
         bin_prefix = os.path.join(
             config["output"]["binning"],
             "mags/{binning_group}.{assembly_group}.{assembler}/metabat2/{binning_group}.{assembly_group}.{assembler}.metabat2.bin"),
-        min_contig = config["params"]["binning"]["metabat2"]["min_contig"],
+        min_contig = config["params"]["binning"]["min_contig_len_bp"],
         max_p = config["params"]["binning"]["metabat2"]["maxP"],
         min_s = config["params"]["binning"]["metabat2"]["minS"],
         max_edges = config["params"]["binning"]["metabat2"]["maxEdges"],
@@ -110,7 +110,7 @@ rule binning_metabat2:
         min_cls_size = config["params"]["binning"]["metabat2"]["minClsSize"],
         save_cls = "--saveCls" \
             if config["params"]["binning"]["metabat2"]["saveCls"] else "",
-        seed = config["params"]["binning"]["metabat2"]["seed"]
+        seed = config["params"]["seed"]
     priority:
         30
     threads:
@@ -231,7 +231,7 @@ rule binning_maxbin2:
         bin_prefix = os.path.join(
             config["output"]["binning"],
             "mags/{binning_group}.{assembly_group}.{assembler}/maxbin2/{binning_group}.{assembly_group}.{assembler}.maxbin2.bin"),
-        min_contig = config["params"]["binning"]["maxbin2"]["min_contig"],
+        min_contig = config["params"]["binning"]["min_contig_len_bp"],
         max_iteration = config["params"]["binning"]["maxbin2"]["max_iteration"],
         prob_threshold = config["params"]["binning"]["maxbin2"]["prob_threshold"],
         plotmarker = "-plotmarker" if config["params"]["binning"]["maxbin2"]["plotmarker"] \
@@ -459,7 +459,7 @@ rule binning_concoct:
         read_length = config["params"]["binning"]["concoct"]["read_length"],
         total_percentage_pca = config["params"]["binning"]["concoct"]["total_percentage_pca"],
         iterations = config["params"]["binning"]["concoct"]["iterations"],
-        seed = config["params"]["binning"]["concoct"]["seed"],
+        seed = config["params"]["seed"],
         no_cov_normalization = "--no_cov_normalization" \
             if config["params"]["binning"]["concoct"]["no_cov_normalization"] \
                 else "",
@@ -569,6 +569,61 @@ if config["params"]["binning"]["concoct"]["do"]:
 else:
     rule binning_concoct_all:
         input:
+
+
+rule binning_semibin_single_easy_bin:
+    input:
+        scaftigs = os.path.join(
+            config["output"]["assembly"],
+            "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz"),
+        bam = lambda wildcards: metapi.get_samples_bax(wildcards, SAMPLES, config["output"]["alignment"], "bam"),
+        bai = lambda wildcards: metapi.get_samples_bax(wildcards, SAMPLES, config["output"]["alignment"], "bam.bai")
+    output:
+        os.path.join(
+            config["output"]["binning"],
+            "mags/{binning_group}.{assembly_group}.{assembler}/semibin-single/binning_done")
+    log:
+        os.path.join(
+            config["output"]["binning"],
+            "logs/binning_semibin_single_easy_bin/{binning_group}.{assembly_group}.{assembler}.log")
+    benchmark:
+        os.path.join(
+            config["output"]["binning"],
+            "benchmark/binning_semibin_single_easy_bin/{binning_group}.{assembly_group}.{assembler}.txt")
+    params:
+        outdir = os.path.join(
+            config["output"]["binning"],
+            "mags/{binning_group}.{assembly_group}.{assembler}/semibin-single"),
+        environment = config["params"]["binning"]["semibin"]["environment"],
+        min_len = config["params"]["binning"]["min_contig_len_bp"],
+        min_fasta = config["params"]["binning"]["min_bin_len_kbp"],
+        reference_db = config["params"]["binning"]["semibin"]["reference_db"],
+        seed = config["params"]["seed"],
+        engine = "auto"
+    conda:
+        config["envs"]["semibin"]
+    threads:
+        config["params"]["binning"]["threads"]
+    shell:
+        '''
+        SemiBin2 \
+        single_easy_bin \
+        --threads {threads} \
+        --input-fasta {input.scaftigs} \
+        --input-bam {input.bam} \
+        --compression gz \
+        --sequencing-type short_read \
+        --engine {} \
+        --random-seed {params.seed} \
+        --environment {params.environment} \
+        --min-len {params.min_len} \
+        --minfasta-kbs {params.min_fasta} \
+        --reference-db-data-dir {params.reference_db} \
+        --output {params.outdir} \
+        2> {log}
+
+        touch {output}
+        '''
 
 
 localrules:

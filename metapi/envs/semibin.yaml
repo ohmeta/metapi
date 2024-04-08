@@ -1,0 +1,10 @@
+channels:
+  - pytorch
+  - conda-forge
+  - bioconda
+  - nodefaults
+dependencies:
+  - pytorch=*=*cuda11.8*
+  - pigz
+  - jq
+  - semibin

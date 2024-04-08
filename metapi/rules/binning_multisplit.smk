@@ -26,7 +26,7 @@ rule binning_vamb_combine_scaftigs:
             "benchmark/binning_vamb_combine_scaftigs/{binning_group}.{assembler}.txt")
     params:
         script = os.path.join(WRAPPER_DIR, "vamb", "concatenate.py"),
-        min_contig = config["params"]["binning"]["vamb"]["min_contig"]
+        min_contig = config["params"]["binning"]["min_contig_len_bp"]
     conda:
         config["envs"]["vamb"]
     shell:
@@ -419,7 +419,7 @@ rule binning_vamb_gen_abundance_mask:
             "benchmark/binning_vamb_gen_abundance_mask/{binning_group}.{assembler}.txt")
     params:
         script = os.path.join(WRAPPER_DIR, "vamb", "abundances_mask.py"),
-        min_contig = config["params"]["binning"]["vamb"]["min_contig"]
+        min_contig = config["params"]["binning"]["min_contig_len_bp"]
     threads:
         config["params"]["binning"]["threads"]
     conda:
@@ -691,14 +691,15 @@ rule binning_vamb:
         vamber="[a]?vamb"
     params:
         outdir = os.path.join(config["output"]["binning"], "mags_vamb/{binning_group}.{assembler}.{vamber}"),
-        min_contig = config["params"]["binning"]["vamb"]["min_contig"],
-        min_fasta = config["params"]["binning"]["vamb"]["min_fasta"],
+        min_contig = config["params"]["binning"]["min_contig_len_bp"],
+        min_fasta = config["params"]["binning"]["min_bin_len_kbp"] * 1000,
         cuda = "--cuda" if config["params"]["binning"]["vamb"]["cuda"] else "",
         cuda_module = config["params"]["binning"]["vamb"]["cuda_module"],
         use_cuda_module = int(config["params"]["binning"]["vamb"]["use_cuda_module"]),
         allow_small_scaftigs = 1 if config["params"]["binning"]["vamb"]["allow_small_scaftigs"] else 0,
+        binner = lambda wildcards: "default" if wildcards.vamber == "vamb" else "avamb",
+        seed = config["params"]["seed"],
         external_params = config["params"]["binning"]["vamb"]["external_params"],
-        binner = lambda wildcards: "default" if wildcards.vamber == "vamb" else "avamb"
     threads:
         config["params"]["binning"]["threads"]
     conda:
@@ -765,7 +766,7 @@ rule binning_vamb:
         vamb bin {params.binner} \
         {params.cuda} \
         -p {threads} \
-        --seed 2024 \
+        --seed {params.seed} \
         --outdir {params.outdir} \
         --fasta {input.scaftigs} \
         --rpkm {input.matrix} \

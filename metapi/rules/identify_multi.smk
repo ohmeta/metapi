@@ -11,9 +11,9 @@ rule identify_phamb_filter_pep:
         pep = expand(os.path.join(
             config["output"]["predict"],
             "scaftigs_gene_ge{min_contig}/{{binning_group}}.{{assembly_group}}.{{assembler}}.prodigal/{{binning_group}}.{{assembly_group}}.{{assembler}}.prodigal.renamed.ge{min_contig}.faa.gz"),
-            min_contig=config["params"]["binning"]["vamb"]["min_contig"])
+            min_contig=config["params"]["binning"]["min_contig_len_bp"])
     params:
-        min_contig = config["params"]["binning"]["vamb"]["min_contig"],
+        min_contig = config["params"]["binning"]["min_contig_len_bp"],
         binning_group = "{binning_group}",
         assembly_group = "{assembly_group}"
     run:
@@ -30,7 +30,7 @@ rule identify_phamb_hmmsearch_micomplete:
         pep = expand(os.path.join(
             config["output"]["predict"],
             "scaftigs_gene_ge{min_contig}/{{binning_group}}.{{assembly_group}}.{{assembler}}.prodigal/{{binning_group}}.{{assembly_group}}.{{assembler}}.prodigal.renamed.ge{min_contig}.faa.gz"),
-            min_contig=config["params"]["binning"]["vamb"]["min_contig"]),
+            min_contig=config["params"]["binning"]["min_contig_len_bp"]),
         db = config["params"]["identify"]["phamb"]["micompletedb"]
     output:
         hmm = os.path.join(
@@ -132,7 +132,7 @@ rule identify_phamb_hmmsearch_vog:
         pep = expand(os.path.join(
             config["output"]["predict"],
             "scaftigs_gene_ge{min_contig}/{{binning_group}}.{{assembly_group}}.{{assembler}}.prodigal/{{binning_group}}.{{assembly_group}}.{{assembler}}.prodigal.renamed.ge{min_contig}.faa.gz"),
-            min_contig=config["params"]["binning"]["vamb"]["min_contig"]),
+            min_contig=config["params"]["binning"]["min_contig_len_bp"]),
         db = config["params"]["identify"]["phamb"]["vogdb"]
     output:
         hmm = os.path.join(

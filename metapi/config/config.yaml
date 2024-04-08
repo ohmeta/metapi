@@ -1,4 +1,5 @@
 params:
+  seed: 2024
   fq_encoding: "sanger"
   begin: "trimming"
   samples: "samples.tsv"
@@ -175,6 +176,8 @@ params:
 
   binning:
     threads: 8
+    min_contig_len_bp: 2000
+    min_bin_len_kbp: 200
     metabat2:
       do: True
       percent_identity: 97
@@ -182,7 +185,6 @@ params:
       output_paired_contigs: False
       output_gc: False
       output_gc_window: False
-      min_contig: 2000
       maxP: 95
       minS: 60
       maxEdges: 200
@@ -192,10 +194,8 @@ params:
       minCVSum: 1
       minClsSize: 200000
       saveCls: False
-      seed: 2020
     maxbin2:
       do: True
-      min_contig: 2000
       max_iteration: 50
       prob_threshold: 0.9
       plotmarker: True
@@ -206,11 +206,9 @@ params:
       overlap_size: 0
       clusters: 400
       kmer_length: 4
-      length_threshold: 2000
       read_length: 100
       total_percentage_pca: 90
       iterations: 500
-      seed: 2020
       no_cov_normalization: False
       no_total_coverage: False
       no_original_data: False
@@ -227,8 +225,6 @@ params:
       use_cuda_module: False # avoid conda's CUDA issue
       save_bam: False
       allow_small_scaftigs: False
-      min_contig: 2000
-      min_fasta: 200000 # 200K, 500K # For viral genome, choose ? 1kb ?
       min_identity: 0.95 # min identity for alignment
       index_size: "500G"
       external_params: ""
@@ -491,6 +487,7 @@ envs:
   concoct: "envs/concoct.yaml"
   dastools: "envs/dastools.yaml"
   vamb: "envs/vamb.yaml"
+  semibin: "envs/semibin.yaml"
   predict: "envs/predict.yaml"
   virsorter2: "envs/virsorter2.yaml"
   deepvirfinder: "envs/deepvirfinder.yaml"
