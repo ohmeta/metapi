@@ -25,12 +25,14 @@ rule alignment_scaftigs_combined:
         SCAFTIGSGZ={output.scaftigs}
         SCAFTIGS=${{SCAFTIGSGZ%.gz}}
 
-        for i in {input.scaftigs}
+        for FASTA in {input.scaftigs}
         do
-            asmindex=$(basename $i | sed 's#.scaftigs.fa.gz##g')   
+            ASMINDEX=$(basename $FASTA | sed 's#.scaftigs.fa.gz##g')   
 
             bioawk \
-            -v scaftigsid=asmindex separator={params.separator} mincontig={params.min_contig} \
+            -v scaftigsid=$ASMINDEX \
+            -v separator={params.separator} \
+            -v mincontig={params.min_contig} \
             -c fastx '{{if(length($seq) >= mincontig){{print ">" scaftigsid separator $name;print $seq}}}}' $i \
             >> $SCAFTIGS
         done
