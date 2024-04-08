@@ -142,7 +142,7 @@ rule alignment_scaftigs_reads_multi:
     output:
         stats = os.path.join(
             config["output"]["alignment"],
-            "report/flagstat_minimap2/{binning_group}.{assembler}/{sample}.align2merged_scaftigs.flagstat"),
+            "report/flagstat_minimap2/{binning_group}.{assembler}/{sample}/{sample}.align2merged_scaftigs.flagstat"),
         bam = os.path.join(
             config["output"]["alignment"],
             "bam_merged/{binning_group}.{assembler}/{sample}/{sample}.align2merged_scaftigs.sorted.bam"),
@@ -267,7 +267,7 @@ rule alignment_scaftigs_reads_multi_report:
         expand(
             os.path.join(
                 config["output"]["alignment"],
-                "report/flagstat_minimap2/{binning_group}.{{assembler}}/{sample}.align2merged_scaftigs.flagstat"),
+                "report/flagstat_minimap2/{binning_group}.{{assembler}}/{sample}/{sample}.align2merged_scaftigs.flagstat"),
             zip,
             binning_group=ALIGNMENT_GROUP["binning_group"],
             sample=ALIGNMENT_GROUP["sample_id"])
