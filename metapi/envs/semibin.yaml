@@ -8,4 +8,6 @@ dependencies:
   - mkl=2024.0
   - pigz
   - jq
+  - pandas
+  - numexpr=2.8.4
   - semibin
