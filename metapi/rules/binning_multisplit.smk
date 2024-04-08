@@ -520,6 +520,9 @@ if config["params"]["binning"]["semibin"]["do"]:
                     assembly_group=ASSEMBLY_GROUPS["assembly_group"],
                     assembler=ASSEMBLY_GROUPS["assembler"])
 
+    else:
+        rule binning_semibin_multi_easy_bin_all:
+            input:
 else:
     rule binning_semibin_multi_easy_bin_all:
         input:
