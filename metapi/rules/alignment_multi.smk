@@ -29,7 +29,7 @@ rule alignment_scaftigs_combined:
 
         for FASTA in {input.scaftigs}
         do
-            ASMINDEX=$(basename $FASTA | sed 's#.scaftigs.fa.gz##g')   
+            ASMINDEX=$(basename $FASTA | sed 's#.scaftigs.fa.gz##g')
 
             bioawk \
             -v scaftigsid=$ASMINDEX \
@@ -39,8 +39,8 @@ rule alignment_scaftigs_combined:
             >> $SCAFTIGS \
             2>> {log}
         done
-        
-        pigz -p {threads} $SCAFTIGS 
+
+        pigz -p {threads} $SCAFTIGS
         '''
     # too slow
     #run:
@@ -49,7 +49,7 @@ rule alignment_scaftigs_combined:
     #    import gzip
     #    from Bio import SeqIO
 
-    #    scaftigs_sorted = sorted(input.scaftigs) 
+    #    scaftigs_sorted = sorted(input.scaftigs)
 
     #    with gzip.open(output.scaftigs, "wt") as oh:
     #        for scaftigs in scaftigs_sorted:
@@ -60,7 +60,7 @@ rule alignment_scaftigs_combined:
     #                        seq_id = rc.id
     #                        rc.id = f'{sample_name}{params.separator}{seq_id}'
     #                        SeqIO.write(rc, oh, "fasta")
-   
+
 
 rule alignment_scaftigs_combined_dict:
     input:
@@ -129,6 +129,27 @@ rule alignment_scaftigs_combined_index:
         >{log} 2>&1
         '''
 
+
+# https://broadinstitute.github.io/picard/explain-flags.html
+##   read paired
+##   read mapped in proper pair
+##   read unmapped
+##   mate unmapped
+##   read reverse strand
+##   mate reverse strand
+##   first in pair
+##   second in pair
+##   not primary alignment
+##   read fails platform/vendor quality checks
+##   read is PCR or optical duplicate
+##   supplementary alignment
+
+# samples view -F 3584
+# -F, --exclude-flags, have none of the FLAGs present
+## Summary:
+##    read fails platform/vendor quality checks (0x200)
+##    read is PCR or optical duplicate (0x400)
+##    supplementary alignment (0x800)
 
 rule alignment_scaftigs_reads_multi:
     input:
