@@ -45,6 +45,8 @@ WORKFLOWS_MAG = [
     "assembly_report_all",
     "assembly_all",
     "alignment_base_depth_all",
+    "alignment_scaftigs_reads_report_all",
+    "alignment_scaftigs_reads_multi_report_all",
     "alignment_all",
     "binning_metabat2_coverage_all",
     "binning_metabat2_all",
