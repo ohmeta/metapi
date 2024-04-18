@@ -231,10 +231,12 @@ params:
       external_params: ""
     semibin:
       do: True
-      mode: ["single_easy", "multi_easy"]
-      engine: "gpu"
-      environment: "human_gut"
-      reference_db: /home/jiezhu/databases/ecogenomics/MMseqs2/GTDB
+      mode: ["single", "multi"]
+      engine: "gpu" # choose one from ["cpu", "gpu"]
+      train_mode: "self" # choose one from ["null", "self", "semi"]
+      environment: "human_gut" # choose one from ["null", "human_gut", "dog_gut", "ocean", "soil" "cat_gut", "human_oral",
+                               #                  "mouse_gut", "pig_gut", "built_environment", "wastewater", "chicken_caecum", "global"]
+      reference_db: /home/jiezhu/databases/ecogenomics/MMseqs2/GTDB # no need if "training_mode == self"
     dastools:
       do: True
       search_engine: "diamond"
