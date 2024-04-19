@@ -7,11 +7,11 @@ rule alignment_scaftigs_combined:
             "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz")
     log:
         os.path.join(
-            config["output"]["binning"],
+            config["output"]["alignment"],
             "logs/alignment_scaftigs_combined/{binning_group}.{assembler}.log")
     benchmark:
         os.path.join(
-            config["output"]["binning"],
+            config["output"]["alignment"],
             "benchmark/alignment_scaftigs_combined/{binning_group}.{assembler}.txt")
     params:
         min_contig = config["params"]["binning"]["min_contig_len_bp"],
@@ -76,11 +76,11 @@ rule alignment_scaftigs_combined_dict:
             "index_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.headers.txt"),
     log:
         os.path.join(
-            config["output"]["binning"],
+            config["output"]["alignment"],
             "logs/alignment_scaftigs_combined_dict/{binning_group}.{assembler}.log")
     benchmark:
         os.path.join(
-            config["output"]["binning"],
+            config["output"]["alignment"],
             "benchmark/alignment_scaftigs_combined_dict/{binning_group}.{assembler}.txt")
     conda:
         config["envs"]["align"]
@@ -109,11 +109,11 @@ rule alignment_scaftigs_combined_index:
             "index_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.minimap2.mmi")
     log:
         os.path.join(
-            config["output"]["binning"],
+            config["output"]["alignment"],
             "logs/alignment_scaftigs_combined_index/{binning_group}.{assembler}.log")
     benchmark:
         os.path.join(
-            config["output"]["binning"],
+            config["output"]["alignment"],
             "benchmark/alignment_scaftigs_combined_index/{binning_group}.{assembler}.txt")
     params:
         index_size = config["params"]["binning"]["combined_index_size"]
@@ -172,11 +172,11 @@ rule alignment_scaftigs_reads_multi:
             "bam_merged/{binning_group}.{assembler}/{sample}/{sample}.align2merged_scaftigs.sorted.bam.bai")
     log:
         os.path.join(
-            config["output"]["binning"],
+            config["output"]["alignment"],
             "logs/alignment_scaftigs_reads_multi/{binning_group}.{assembler}.{sample}.log")
     benchmark:
         os.path.join(
-            config["output"]["binning"],
+            config["output"]["alignment"],
             "benchmark/alignment_scaftigs_reads_multi/{binning_group}.{assembler}.{sample}.txt")
     priority:
         28
