@@ -838,9 +838,6 @@ rule binning_semibin_single_bin:
     params:
         min_len = config["params"]["binning"]["min_contig_len_bp"],
         min_fasta = config["params"]["binning"]["min_bin_len_kbp"],
-        outdir = os.path.join(
-            config["output"]["binning"],
-            "mags/{binning_group}.{assembly_group}.{assembler}/semibin_single"),
         train_mode = config["params"]["binning"]["semibin"]["train_mode"],
         environment = config["params"]["binning"]["semibin"]["environment"],
         seed = config["params"]["seed"],
@@ -866,7 +863,7 @@ rule binning_semibin_single_bin:
             --random-seed {params.seed} \
             --min-len {params.min_len} \
             --minfasta-kbs {params.min_fasta} \
-            --output {params.outdir} \
+            --output {params.out_dir} \
             >{log} 2>&1
 
             touch {output}
@@ -882,7 +879,7 @@ rule binning_semibin_single_bin:
             --random-seed {params.seed} \
             --min-len {params.min_len} \
             --minfasta-kbs {params.min_fasta} \
-            --output {params.outdir} \
+            --output {params.out_dir} \
             >{log} 2>&1
 
             touch {output}

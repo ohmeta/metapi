@@ -99,8 +99,7 @@ rule binning_all:
         rules.binning_concoct_all.input,
         rules.binning_graphbin2_all.input,
         rules.binning_vamb_all.input,
-        rules.binning_semibin_single_bin_all.input,
-        rules.binning_semibin_multi_bin_all.input,
+        rules.binning_semibin_all.input,
         rules.binning_dastools_all.input,
         rules.binning_report_all.input
 

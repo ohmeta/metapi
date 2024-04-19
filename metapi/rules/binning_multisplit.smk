@@ -374,8 +374,10 @@ else:
         input:
 
 
-rule binning_semibin_multi_bin:
+rule binning_semibin_multi_generate_sequence_features:
     input:
+        scaftigs = os.path.join(config["output"]["assembly"],
+            "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz"),
         bam = lambda wildcards: expand(os.path.join(
             config["output"]["alignment"],
             "bam_merged/{{binning_group}}.{{assembler}}/{sample}/{sample}.align2merged_scaftigs.sorted.bam"),
@@ -383,11 +385,250 @@ rule binning_semibin_multi_bin:
         bai = lambda wildcards: expand(os.path.join(
             config["output"]["alignment"],
             "bam_merged/{{binning_group}}.{{assembler}}/{sample}/{sample}.align2merged_scaftigs.sorted.bam.bai"),
-            sample=sorted(metapi.get_samples_id_by_binning_group(SAMPLES, wildcards.binning_group))),
-        scaftigs = os.path.join(config["output"]["assembly"],
-            "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz")
+            sample=sorted(metapi.get_samples_id_by_binning_group(SAMPLES, wildcards.binning_group)))
     output:
-        binning_done = os.path.join(
+        data = os.path.join(
+            config["output"]["binning"],
+            "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/data.csv"),
+        data_split = os.path.join(
+            config["output"]["binning"],
+            "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/data_split.csv")
+    log:
+        os.path.join(
+            config["output"]["binning"],
+            "logs/binning_semibin_multi_generate_sequence_features/{binning_group}.{assembler}.log")
+    benchmark:
+        os.path.join(
+            config["output"]["binning"],
+            "benchmark/binning_semibin_multi_generate_sequence_features/{binning_group}.{assembler}.txt")
+    params:
+        min_len = config["params"]["binning"]["min_contig_len_bp"],
+        out_dir = os.path.join(
+            config["output"]["binning"],
+            "mags_semibin_multi/{binning_group}.{assembler}/semibin_multi")
+    conda:
+        config["envs"]["semibin"]
+    threads:
+        config["params"]["binning"]["threads"]
+    shell:
+        '''
+        SemiBin2 generate_sequence_features_multi \
+        --input-fasta {input.scaftigs} \
+        --input-bam {input.bam} \
+        --compression gz \
+        --min-len {params.min_len} \
+        --threads {threads} \
+        --output {params.out_dir} \
+        >{log} 2>&1
+        '''
+
+
+rule binning_semibin_multi_generate_cannot_links:
+    input:
+        scaftigs = os.path.join(config["output"]["assembly"],
+            "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz"),
+    output:
+        os.path.join(
+            config["output"]["binning"],
+            "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/cannot/cannot.txt")
+    log:
+        os.path.join(
+            config["output"]["binning"],
+            "logs/binning_semibin_multi_generate_cannot_links/{binning_group}.{assembler}.log")
+    benchmark:
+        os.path.join(
+            config["output"]["binning"],
+            "benchmark/binning_semibin_multi_generate_cannot_links/{binning_group}.{assembler}.txt")
+    params:
+        min_len = config["params"]["binning"]["min_contig_len_bp"],
+        reference_db = config["params"]["binning"]["semibin"]["reference_db"],
+        out_dir = os.path.join(
+            config["output"]["binning"],
+            "mags_semibin_multi/{binning_group}.{assembler}/semibin_multi")
+    conda:
+        config["envs"]["semibin"]
+    threads:
+        config["params"]["binning"]["threads"]
+    shell:
+        '''
+        SemiBin2 generate_cannot_links \
+        --input-fasta {input.scaftigs} \
+        --compression gz \
+        --reference_db {params.reference_db} \
+        --min-len {params.min_len} \
+        --threads {threads} \
+        --output {params.out_dir} \
+        >{log} 2>&1
+        '''
+
+
+if  config["params"]["binning"]["semibin"]["train_mode"] == "self":
+    rule binning_semibin_multi_train:
+        input:
+            data = os.path.join(
+                config["output"]["binning"],
+                "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/data.csv"),
+            data_split = os.path.join(
+                config["output"]["binning"],
+                "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/data_split.csv")
+        output:
+            #model = os.path.join(
+            #    config["output"]["binning"],
+            #    "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/model.h5")
+            done = os.path.join(
+                config["output"]["binning"],
+                "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/train_done")
+        log:
+            os.path.join(
+                config["output"]["binning"],
+                "logs/binning_semibin_multi_train/{binning_group}.{assembler}.log")
+        benchmark:
+            os.path.join(
+                config["output"]["binning"],
+                "benchmark/binning_semibin_multi_train/{binning_group}.{assembler}.txt")
+        params:
+            min_len = config["params"]["binning"]["min_contig_len_bp"],
+            train_mode = config["params"]["binning"]["semibin"]["train_mode"],
+            train_batch_size = config["params"]["binning"]["semibin"]["train_batch_size"],
+            train_epochs = config["params"]["binning"]["semibin"]["train_epochs"],
+            random_seed = config["params"]["seed"],
+            engine = config["params"]["binning"]["semibin"]["engine"],
+            orf_finder = config["params"]["binning"]["semibin"]["orf_finder"],
+            out_dir = os.path.join(
+                config["output"]["binning"],
+                "mags_semibin_multi/{binning_group}.{assembler}/semibin_multi")
+        conda:
+            config["envs"]["semibin"]
+        threads:
+            config["params"]["binning"]["threads"]
+        shell:
+            '''
+            SemiBin2 train_self \
+            --data {input.data} \
+            --data-split {input.data_split} \
+            --batch-size {params.train_batch_size} \
+            --epochs {params.train_epochs} \
+            --random-seed {params.random_seed} \
+            --engien {params.engine} \
+            --output {params.out_dir} \
+            --threads {threads} \
+            >{log} 2>&1
+
+            touch {output.done}
+            '''
+
+
+elif  config["params"]["binning"]["semibin"]["train_mode"] == "semi":
+    rule binning_semibin_multi_train:
+        input:
+            scaftigs = os.path.join(config["output"]["assembly"],
+                "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz"),
+            data = os.path.join(
+                config["output"]["binning"],
+                "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/data.csv"),
+            data_split = os.path.join(
+                config["output"]["binning"],
+                "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/data_split.csv"),
+            cannot = os.path.join(
+                config["output"]["binning"],
+                "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/cannot/cannot.txt")
+        output:
+            #model = os.path.join(
+            #    config["output"]["binning"],
+            #    "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/cannot/model.h5")
+            done = os.path.join(
+                config["output"]["binning"],
+                "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/train_done")
+        log:
+            os.path.join(
+                config["output"]["binning"],
+                "logs/binning_semibin_multi_train/{binning_group}.{assembler}.log")
+        benchmark:
+            os.path.join(
+                config["output"]["binning"],
+                "benchmark/binning_semibin_multi_train/{binning_group}.{assembler}.txt")
+        params:
+            min_len = config["params"]["binning"]["min_contig_len_bp"],
+            train_mode = config["params"]["binning"]["semibin"]["train_mode"],
+            train_batch_size = config["params"]["binning"]["semibin"]["train_batch_size"],
+            train_epochs = config["params"]["binning"]["semibin"]["train_epochs"],
+            random_seed = config["params"]["seed"],
+            engine = config["params"]["binning"]["semibin"]["engine"],
+            orf_finder = config["params"]["binning"]["semibin"]["orf_finder"],
+            out_dir = os.path.join(
+                config["output"]["binning"],
+                "mags_semibin_multi/{binning_group}.{assembler}/semibin_multi")
+        conda:
+            config["envs"]["semibin"]
+        threads:
+            config["params"]["binning"]["threads"]
+        shell:
+            '''
+            SemiBin2 train_semi \
+            --input-fasta {input.scaftigs} \
+            --cannot-link {input.cannot} \
+            --data {input.data} \
+            --data-split {input.data_split} \
+            --batch-size {params.train_batch_size} \
+            --epochs {params.train_epochs} \
+            --random-seed {params.random_seed} \
+            --engien {params.engine} \
+            --orf-finder {params.orf_finder} \
+            --output {params.out_dir} \
+            --threads {threads} \
+            >{log} 2>&1
+
+            touch {output.done}
+            '''
+
+else:
+    rule binning_semibin_multi_train:
+        input:
+            scaftigs = os.path.join(config["output"]["assembly"],
+                "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz"),
+            data = os.path.join(
+                config["output"]["binning"],
+                "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/data.csv"),
+            data_split = os.path.join(
+                config["output"]["binning"],
+                "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/data_split.csv")
+        output:
+            done = os.path.join(
+                config["output"]["binning"],
+                "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/train_done")
+        log:
+            os.path.join(
+                config["output"]["binning"],
+                "logs/binning_semibin_multi_train/{binning_group}.{assembler}.log")
+        benchmark:
+            os.path.join(
+                config["output"]["binning"],
+                "benchmark/binning_semibin_multi_train/{binning_group}.{assembler}.txt")
+        conda:
+            config["envs"]["semibin"]
+        threads:
+            1
+        shell:
+            '''
+            touch {output.done}
+            '''
+
+ 
+rule binning_semibin_multi_bin:
+    input:
+        scaftigs = os.path.join(config["output"]["assembly"],
+            "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz"),
+        data = os.path.join(
+            config["output"]["binning"],
+            "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/data.csv"),
+        data_split = os.path.join(
+            config["output"]["binning"],
+            "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/data_split.csv"),
+        done = os.path.join(
+            config["output"]["binning"],
+            "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/train_done")
+    output:
+        os.path.join(
             config["output"]["binning"],
             "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/binning_done")
     log:
@@ -399,12 +640,13 @@ rule binning_semibin_multi_bin:
             config["output"]["binning"],
             "benchmark/binning_semibin_multi_bin/{binning_group}.{assembler}.txt")
     params:
-        outdir = os.path.join(
-            config["output"]["binning"],
-            "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi"),
         min_len = config["params"]["binning"]["min_contig_len_bp"],
         min_fasta = config["params"]["binning"]["min_bin_len_kbp"],
-        reference_db = config["params"]["binning"]["semibin"]["reference_db"],
+        outdir = os.path.join(
+            config["output"]["binning"],
+            "mags_semibin_multi/{binning_group}.{assembler}/semibin_multi"),
+        train_mode = config["params"]["binning"]["semibin"]["train_mode"],
+        environment = config["params"]["binning"]["semibin"]["environment"],
         seed = config["params"]["seed"],
         engine = config["params"]["binning"]["semibin"]["engine"]
     conda:
@@ -413,22 +655,39 @@ rule binning_semibin_multi_bin:
         config["params"]["binning"]["threads"]
     shell:
         '''
-        SemiBin2 \
-        multi_easy_bin \
-        --threads {threads} \
-        --input-fasta {input.scaftigs} \
-        --input-bam {input.bam} \
-        --compression gz \
-        --sequencing-type short_read \
-        --engine {params.engine} \
-        --random-seed {params.seed} \
-        --min-len {params.min_len} \
-        --minfasta-kbs {params.min_fasta} \
-        --reference-db-data-dir {params.reference_db} \
-        --output {params.outdir} \
-        2> {log}
+        if [ "{params.train_mode}" == "self" ] || [ "{params.train_mode}" == "semi" ];
+        then
+            SemiBin2 bin_short \
+            --threads {threads} \
+            --input-fasta {input.scaftigs} \
+            --data {input.data} \
+            --compression gz \
+            --model {params.outdir}/model.h5 \
+            --engine {params.engine} \
+            --random-seed {params.seed} \
+            --min-len {params.min_len} \
+            --minfasta-kbs {params.min_fasta} \
+            --output {params.outdir} \
+            >{log} 2>&1
 
-        touch {output}
+            touch {output}
+
+        else
+            SemiBin2 bin_short \
+            --threads {threads} \
+            --input-fasta {input.scaftigs} \
+            --data {input.data} \
+            --compression gz \
+            --environment {params.environment} \
+            --engine {params.engine} \
+            --random-seed {params.seed} \
+            --min-len {params.min_len} \
+            --minfasta-kbs {params.min_fasta} \
+            --output {params.outdir} \
+            >{log} 2>&1
+
+            touch {output}
+        fi
         '''
 
 
@@ -495,7 +754,7 @@ rule binning_semibin_multi_bin_postprocess:
 
         shell(f'''touch {output.binning_done}''')
 
-        pd.DataFrame(metadata, columns=["semibin_multi_easy_bin", "semibin_multi_easy_postprocess_bin"])\
+        pd.DataFrame(metadata, columns=["semibin_multi_bin", "semibin_multi_postprocess_bin"])\
             .to_csv(output.metadata, sep='\t', index=False)
 
 
@@ -504,7 +763,7 @@ localrules:
 
 
 if config["params"]["binning"]["semibin"]["do"]:
-    if "multi_easy" in config["params"]["binning"]["semibin"]["mode"]:
+    if "multi" in config["params"]["binning"]["semibin"]["mode"]:
         rule binning_semibin_multi_bin_all:
             input:
                 expand(os.path.join(
@@ -528,8 +787,15 @@ else:
         input:
 
 
+rule binning_semibin_all:
+    input:
+        rules.binning_semibin_single_bin_all.input,
+        rules.binning_semibin_multi_bin_all.input
+
+
 localrules:
     binning_vamb_prepare_all,
     binning_vamb_all,
-    binning_semibin_multi_bin_all
+    binning_semibin_multi_bin_all,
+    binning_semibin_all
 
