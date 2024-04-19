@@ -9,4 +9,10 @@ dependencies:
   - pigz
   - jq
   - pandas
-  - semibin
+  - mmseqs2
+  - hmmer
+  - prodigal
+  - bedtools
+  - samtools
+  - fraggenescan
+  - semibin=2.1.0

@@ -234,8 +234,13 @@ params:
       mode: ["single", "multi"]
       engine: "gpu" # choose one from ["cpu", "gpu"]
       train_mode: "self" # choose one from ["null", "self", "semi"]
+      train_batch_size: 2048
+      train_epochs: 15
+      orf_finder: "fast-naive" # only take effect when train_mode == "semi" ["fast-naive", "prodigal", "fraggenescan"]
       environment: "human_gut" # choose one from ["null", "human_gut", "dog_gut", "ocean", "soil" "cat_gut", "human_oral",
                                #                  "mouse_gut", "pig_gut", "built_environment", "wastewater", "chicken_caecum", "global"]
+                               # if "train_mode" == "self" or "train_mode" == "semi":
+                               # environment will not take effect
       reference_db: /home/jiezhu/databases/ecogenomics/MMseqs2/GTDB # no need if "training_mode == self"
     dastools:
       do: True

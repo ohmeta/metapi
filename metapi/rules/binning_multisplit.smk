@@ -374,7 +374,7 @@ else:
         input:
 
 
-rule binning_semibin_multi_easy_bin:
+rule binning_semibin_multi_bin:
     input:
         bam = lambda wildcards: expand(os.path.join(
             config["output"]["alignment"],
@@ -393,11 +393,11 @@ rule binning_semibin_multi_easy_bin:
     log:
         os.path.join(
             config["output"]["binning"],
-            "logs/binning_semibin_multi_easy_bin/{binning_group}.{assembler}.log")
+            "logs/binning_semibin_multi_bin/{binning_group}.{assembler}.log")
     benchmark:
         os.path.join(
             config["output"]["binning"],
-            "benchmark/binning_semibin_multi_easy_bin/{binning_group}.{assembler}.txt")
+            "benchmark/binning_semibin_multi_bin/{binning_group}.{assembler}.txt")
     params:
         outdir = os.path.join(
             config["output"]["binning"],
@@ -432,7 +432,7 @@ rule binning_semibin_multi_easy_bin:
         '''
 
 
-rule binning_semibin_multi_easy_bin_postprocess:
+rule binning_semibin_multi_bin_postprocess:
     input:
         binning_done = os.path.join(
             config["output"]["binning"],
@@ -447,11 +447,11 @@ rule binning_semibin_multi_easy_bin_postprocess:
     log:
         os.path.join(
             config["output"]["binning"],
-            "benchmark/binning_semibin_multi_easy_bin_postprocess/{binning_group}.{assembly_group}.{assembler}.log")
+            "benchmark/binning_semibin_multi_bin_postprocess/{binning_group}.{assembly_group}.{assembler}.log")
     benchmark:
         os.path.join(
             config["output"]["binning"],
-            "benchmark/binning_semibin_multi_easy_bin_postprocess/{binning_group}.{assembly_group}.{assembler}.txt")
+            "benchmark/binning_semibin_multi_bin_postprocess/{binning_group}.{assembly_group}.{assembler}.txt")
     params:
         binning_group = "{binning_group}",
         assembly_group = "{assembly_group}",
@@ -500,12 +500,12 @@ rule binning_semibin_multi_easy_bin_postprocess:
 
 
 localrules:
-    binning_semibin_multi_easy_bin_postprocess
+    binning_semibin_multi_bin_postprocess
 
 
 if config["params"]["binning"]["semibin"]["do"]:
     if "multi_easy" in config["params"]["binning"]["semibin"]["mode"]:
-        rule binning_semibin_multi_easy_bin_all:
+        rule binning_semibin_multi_bin_all:
             input:
                 expand(os.path.join(
                     config["output"]["binning"],
@@ -521,15 +521,15 @@ if config["params"]["binning"]["semibin"]["do"]:
                     assembler=ASSEMBLY_GROUPS["assembler"])
 
     else:
-        rule binning_semibin_multi_easy_bin_all:
+        rule binning_semibin_multi_bin_all:
             input:
 else:
-    rule binning_semibin_multi_easy_bin_all:
+    rule binning_semibin_multi_bin_all:
         input:
 
 
 localrules:
     binning_vamb_prepare_all,
     binning_vamb_all,
-    binning_semibin_multi_easy_bin_all
+    binning_semibin_multi_bin_all
 
