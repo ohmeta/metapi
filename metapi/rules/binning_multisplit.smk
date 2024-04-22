@@ -472,6 +472,7 @@ rule binning_semibin_multi_generate_sequence_features:
             config["output"]["binning"],
             "benchmark/binning_semibin_multi_generate_sequence_features/{binning_group}.{assembler}.txt")
     params:
+        separator = config["params"]["binning"]["separator"],
         min_len = config["params"]["binning"]["min_contig_len_bp"],
         out_dir = os.path.join(
             config["output"]["binning"],
@@ -486,6 +487,7 @@ rule binning_semibin_multi_generate_sequence_features:
         --input-fasta {input.scaftigs} \
         --input-bam {input.bam} \
         --compression gz \
+        --separator {params.separator} \
         --min-len {params.min_len} \
         --threads {threads} \
         --output {params.out_dir} \
