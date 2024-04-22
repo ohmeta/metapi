@@ -493,6 +493,15 @@ rule binning_semibin_multi_generate_sequence_features:
         '''
 
 
+rule binning_semibin_multi_generate_sequence_features_all:
+    input:
+        expand(os.path.join(
+            config["output"]["binning"],
+            "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/binning_generate_sequence_features_done"),
+            binning_group=SAMPLES_BINNING_GROUP_LIST,
+            assembler=ASSEMBLERS)
+
+
 # it seems that it is same with binning_semibin_single_generate_cannot_links
 rule binning_semibin_multi_generate_cannot_links:
     input:
@@ -828,6 +837,7 @@ rule binning_semibin_all:
 localrules:
     binning_vamb_prepare_all,
     binning_vamb_all,
+    binning_semibin_multi_generate_sequence_features_all,
     binning_semibin_multi_bin_all,
     binning_semibin_all
 

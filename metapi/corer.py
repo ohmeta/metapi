@@ -56,6 +56,8 @@ WORKFLOWS_MAG = [
     "binning_dastools_all",
     "binning_vamb_prepare_all",
     "binning_vamb_all",
+    #"binning_semibin_single_generate_sequence_features_all",
+    "binning_semibin_multi_generate_sequence_features_all",
     "binning_semibin_single_bin_all",
     "binning_semibin_multi_bin_all",
     "binning_semibin_all",
