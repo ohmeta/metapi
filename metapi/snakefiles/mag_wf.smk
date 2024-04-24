@@ -77,10 +77,10 @@ if config["params"]["binning"]["vamb"]["do"]:
         BINNERS_TOTAL.append("avamb")
 
 if config["params"]["binning"]["semibin"]["do"]:
-    if "single_easy" in config["params"]["binning"]["semibin"]["mode"]:
+    if "single" in config["params"]["binning"]["semibin"]["mode"]:
         BINNERS_SEMIBIN.append("semibin_single")
         BINNERS_TOTAL.append("semibin_single")
-    if "multi_easy" in config["params"]["binning"]["semibin"]["mode"]:
+    if "multi" in config["params"]["binning"]["semibin"]["mode"]:
         BINNERS_SEMIBIN.append("semibin_multi")
         BINNERS_TOTAL.append("semibin_multi")
 
@@ -162,8 +162,9 @@ include: "../rules/assembly.smk"
 include: "../rules/alignment.smk"
 include: "../rules/alignment_multi.smk"
 include: "../rules/predict_scaftigs.smk"
-include: "../rules/binning.smk"
-include: "../rules/binning_multisplit.smk"
+include: "../rules/binning_single.smk"
+include: "../rules/binning_multi.smk"
+#include: "../rules/binning_cross.smk"
 include: "../rules/binning_refine.smk"
 include: "../rules/binning_report.smk"
 include: "../rules/identify_single.smk"
