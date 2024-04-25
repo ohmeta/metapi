@@ -73,7 +73,7 @@ rule alignment_scaftigs_reads:
     output:
         stats = os.path.join(
             config["output"]["alignment"],
-            "report/flagstat_bowtie2/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.flagstat"),
+            "report/flagstat/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.flagstat"),
         bam = os.path.join(
             config["output"]["alignment"],
             "bam/{binning_group}.{assembly_group}.{assembler}/{sample}/{sample}.align2scaftigs.sorted.bam") \
