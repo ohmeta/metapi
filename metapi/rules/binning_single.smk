@@ -702,7 +702,7 @@ if  config["params"]["binning"]["semibin"]["train_mode"] == "self":
             --batch-size {params.train_batch_size} \
             --epochs {params.train_epochs} \
             --random-seed {params.random_seed} \
-            --engien {params.engine} \
+            --engine {params.engine} \
             --output {params.out_dir} \
             --threads {threads} \
             >{log} 2>&1
@@ -766,7 +766,7 @@ elif  config["params"]["binning"]["semibin"]["train_mode"] == "semi":
             --batch-size {params.train_batch_size} \
             --epochs {params.train_epochs} \
             --random-seed {params.random_seed} \
-            --engien {params.engine} \
+            --engine {params.engine} \
             --orf-finder {params.orf_finder} \
             --output {params.out_dir} \
             --threads {threads} \
