@@ -593,6 +593,25 @@ def get_samples_bax_multi(wildcards, samples_df, bam_dir, suffix="bam"):
     return bam_list
 
 
+def get_samples_bax_multi_all(wildcards, samples_df, bam_dir, suffix="bam"):
+    samples_id_list = get_samples_id_by_binning_group(
+        samples_df, wildcards.binning_group)
+
+    bam_list =  []
+    prefix = f"{wildcards.binning_group}.{wildcards.assembler}"
+
+    for sample_id in samples_id_list:
+        bam_file = os.path.join(
+            bam_dir,
+            "bam_merged",
+            prefix,
+            sample_id,
+            f"{sample_id}.align2merged_scaftigs.sorted.{suffix}")
+        bam_list.append(bam_file)
+
+    return bam_list
+
+
 def get_samples_scaftigs(wildcards, samples_df, scaftigs_dir):
     assembly_group_list = sorted(get_assembly_group_by_binning_group(samples_df, wildcards.binning_group))
     scaftigs_list = []

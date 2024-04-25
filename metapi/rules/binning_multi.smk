@@ -374,91 +374,93 @@ else:
         input:
 
 
-rule binning_semibin_multi_prepare_bam:
-    input:
-        bam = lambda wildcards: metapi.get_samples_bax_multi(wildcards, SAMPLES, config["output"]["alignment"], "bam"),
-        bai = lambda wildcards: metapi.get_samples_bax_multi(wildcards, SAMPLES, config["output"]["alignment"], "bam.bai")
-    output:
-        bam = os.path.join(
-            config["output"]["alignment"],
-            "bam_merged_by_assembly_group/{binning_group}.{assembly_group}.{assembler}/{assembly_group}.sorted.bam"),
-        bai = os.path.join(
-            config["output"]["alignment"],
-            "bam_merged_by_assembly_group/{binning_group}.{assembly_group}.{assembler}/{assembly_group}.sorted.bam.bai")
-    log:
-        os.path.join(
-            config["output"]["binning"],
-            "logs/binning_semibin_multi_prepare_bam/{binning_group}.{assembly_group}.{assembler}.log")
-    benchmark:
-        os.path.join(
-            config["output"]["binning"],
-            "benchmark/binning_semibin_multi_prepare_bam/{binning_group}.{assembly_group}.{assembler}.txt")
-    params:
-        bam_dir = os.path.join(
-            config["output"]["alignment"],
-            "bam_merged_by_assembly_group/{binning_group}.{assembly_group}.{assembler}")
-    conda:
-        config["envs"]["align"]
-    threads:
-        config["params"]["alignment"]["threads"]
-    shell:
-        '''
-        rm -rf {params.bam_dir}
-        mkdir -p {params.bam_dir}
+#rule binning_semibin_multi_prepare_bam:
+#    input:
+#        bam = lambda wildcards: metapi.get_samples_bax_multi(wildcards, SAMPLES, config["output"]["alignment"], "bam"),
+#        bai = lambda wildcards: metapi.get_samples_bax_multi(wildcards, SAMPLES, config["output"]["alignment"], "bam.bai")
+#    output:
+#        bam = os.path.join(
+#            config["output"]["alignment"],
+#            "bam_merged_by_assembly_group/{binning_group}.{assembly_group}.{assembler}/{assembly_group}.sorted.bam"),
+#        bai = os.path.join(
+#            config["output"]["alignment"],
+#            "bam_merged_by_assembly_group/{binning_group}.{assembly_group}.{assembler}/{assembly_group}.sorted.bam.bai")
+#    log:
+#        os.path.join(
+#            config["output"]["binning"],
+#            "logs/binning_semibin_multi_prepare_bam/{binning_group}.{assembly_group}.{assembler}.log")
+#    benchmark:
+#        os.path.join(
+#            config["output"]["binning"],
+#            "benchmark/binning_semibin_multi_prepare_bam/{binning_group}.{assembly_group}.{assembler}.txt")
+#    params:
+#        bam_dir = os.path.join(
+#            config["output"]["alignment"],
+#            "bam_merged_by_assembly_group/{binning_group}.{assembly_group}.{assembler}")
+#    conda:
+#        config["envs"]["align"]
+#    threads:
+#        config["params"]["alignment"]["threads"]
+#    shell:
+#        '''
+#        rm -rf {params.bam_dir}
+#        mkdir -p {params.bam_dir}
+#
+#        inputarray=({input.bam})
+#        inputlen=${{#inputarray[@]}}
+#
+#        if [ $inputlen -eq 1 ];
+#        then
+#            BAM=$(realpath {input.bam[0]})
+#            BAI=$(realpath {input.bai[0]})
+#            ln -s $BAM {output.bam}
+#            ln -s $BAI {output.bai}
+#        else
+#            samtools merge \
+#            -l 6 \
+#            -O BAM -o {output.bam}.merged {input.bam} \
+#            2> {log}
+#
+#            samtools sort \
+#            -m 3G \
+#            -@4 \
+#            -T {output.bam}.temp \
+#            -O BAM -o {output.bam} {output.bam}.merged \
+#            2>> {log}
+#
+#            rm -rf {output.bam}.merged
+#            rm -rf {output.bam}.temp*
+#
+#            samtools index \
+#            -@{threads} \
+#            {output.bam} {output.bai} \
+#            2>> {log}
+#        fi
+#        '''
 
-        inputarray=({input.bam})
-        inputlen=${{#inputarray[@]}}
-
-        if [ $inputlen -eq 1 ];
-        then 
-            BAM=$(realpath {input.bam[0]})
-            BAI=$(realpath {input.bai[0]})
-            ln -s $BAM {output.bam}
-            ln -s $BAI {output.bai}
-        else
-            samtools merge \
-            -l 6 \
-            -O BAM -o {output.bam}.merged {input.bam} \
-            2> {log}
-
-            samtools sort \
-            -m 3G \
-            -@4 \
-            -T {output.bam}.temp \
-            -O BAM -o {output.bam} {output.bam}.merged \
-            2>> {log}
-
-            rm -rf {output.bam}.merged
-            rm -rf {output.bam}.temp*
-
-            samtools index \
-            -@{threads} \
-            {output.bam} {output.bai} \
-            2>> {log}
-        fi
-        '''
- 
 
 rule binning_semibin_multi_generate_sequence_features:
     input:
         scaftigs = os.path.join(config["output"]["assembly"],
             "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz"),
-        bam = lambda wildcards: expand(os.path.join(
-            config["output"]["alignment"],
-            "bam_merged_by_assembly_group/{{binning_group}}.{assembly_group}.{{assembler}}/{assembly_group}.sorted.bam"),
-            assembly_group=sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, wildcards.binning_group))),
-        bai = lambda wildcards: expand(os.path.join(
-            config["output"]["alignment"],
-            "bam_merged_by_assembly_group/{{binning_group}}.{assembly_group}.{{assembler}}/{assembly_group}.sorted.bam.bai"),
-            assembly_group=sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, wildcards.binning_group)))
+        bam = lambda wildcards: metapi.get_samples_bax_multi_all(wildcards, SAMPLES, config["output"]["alignment"], "bam"),
+        bai = lambda wildcards: metapi.get_samples_bax_multi_all(wildcards, SAMPLES, config["output"]["alignment"], "bam.bai")
+        #bam = lambda wildcards: expand(os.path.join(
+        #    config["output"]["alignment"],
+        #    "bam_merged_by_assembly_group/{{binning_group}}.{assembly_group}.{{assembler}}/{assembly_group}.sorted.bam"),
+        #    assembly_group=sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, wildcards.binning_group))),
+        #bai = lambda wildcards: expand(os.path.join(
+        #    config["output"]["alignment"],
+        #    "bam_merged_by_assembly_group/{{binning_group}}.{assembly_group}.{{assembler}}/{assembly_group}.sorted.bam.bai"),
+        #    assembly_group=sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, wildcards.binning_group)))
     output:
         #data = expand(os.path.join(
         #    config["output"]["binning"],
-        #    "mags_semibin_multi/{{binning_group}}.{{assembler}}.semibin_multi/samples/{assembly_group}/data.csv"),
+        #    "mags_semibin_multi/{{binning_group}}.{{assembler}}.semibin_multi/samples/{{binning_group}}.{assembly_group}.{{assembler}}/data.csv"),
         #    assembly_group=sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, "{binning_group}"))),
         #data_split = expand(os.path.join(
         #    config["output"]["binning"],
-        #    "mags_semibin_multi/{{binning_group}}.{{assembler}}.semibin_multi/samples/{assembly_group}/data_split.csv"),
+        #    "mags_semibin_multi/{{binning_group}}.{{assembler}}.semibin_multi/samples/{{binning_group}}.{assembly_group}.{{assembler}}/data_split.csv"),
         #    assembly_group=sorted(metapi.get_assembly_group_by_binning_group(SAMPLES, "{binning_group}")))
         done = os.path.join(
             config["output"]["binning"],
@@ -483,6 +485,8 @@ rule binning_semibin_multi_generate_sequence_features:
         config["params"]["binning"]["threads"]
     shell:
         '''
+        rm -rf {params.out_dir}
+
         SemiBin2 generate_sequence_features_multi \
         --input-fasta {input.scaftigs} \
         --input-bam {input.bam} \
@@ -492,6 +496,8 @@ rule binning_semibin_multi_generate_sequence_features:
         --threads {threads} \
         --output {params.out_dir} \
         >{log} 2>&1
+
+        touch {output.done}
         '''
 
 
@@ -553,10 +559,10 @@ if  config["params"]["binning"]["semibin"]["train_mode"] == "self":
                 "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz"),
             #data = os.path.join(
             #    config["output"]["binning"],
-            #    "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{assembly_group}/data.csv"),
+            #    "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{binning_group}.{assembly_group}.{assembler}/data.csv"),
             #data_split = os.path.join(
             #    config["output"]["binning"],
-            #    "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{assembly_group}/data_split.csv")
+            #    "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{binning_group}.{assembly_group}.{assembler}/data_split.csv")
             done = os.path.join(
                 config["output"]["binning"],
                 "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/binning_generate_sequence_features_done")
@@ -588,10 +594,10 @@ if  config["params"]["binning"]["semibin"]["train_mode"] == "self":
                 "mags/{binning_group}.{assembly_group}.{assembler}/semibin_multi"),
             data = os.path.join(
                 config["output"]["binning"],
-                "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{assembly_group}/data.csv"),
+                "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{binning_group}.{assembly_group}.{assembler}/data.csv"),
             data_split = os.path.join(
                 config["output"]["binning"],
-                "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{assembly_group}/data_split.csv")
+                "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{binning_group}.{assembly_group}.{assembler}/data_split.csv")
         conda:
             config["envs"]["semibin"]
         threads:
@@ -621,10 +627,10 @@ elif  config["params"]["binning"]["semibin"]["train_mode"] == "semi":
                 "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz"),
             #data = os.path.join(
             #    config["output"]["binning"],
-            #    "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{assembly_group}/data.csv"),
+            #    "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{binning_group}.{assembly_group}.{assembler}/data.csv"),
             #data_split = os.path.join(
             #    config["output"]["binning"],
-            #    "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{assembly_group}/data_split.csv"),
+            #    "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{binning_group}.{assembly_group}.{assembler}/data_split.csv"),
             cannot = os.path.join(
                 config["output"]["binning"],
                 "mags/{binning_group}.{assembly_group}.{assembler}/semibin_multi/cannot/cannot.txt"),
@@ -659,10 +665,10 @@ elif  config["params"]["binning"]["semibin"]["train_mode"] == "semi":
                 "mags/{binning_group}.{assembly_group}.{assembler}/semibin_multi"),
             data = os.path.join(
                 config["output"]["binning"],
-                "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{assembly_group}/data.csv"),
+                "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{binning_group}.{assembly_group}.{assembler}/data.csv"),
             data_split = os.path.join(
                 config["output"]["binning"],
-                "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{assembly_group}/data_split.csv")
+                "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{binning_group}.{assembly_group}.{assembler}/data_split.csv")
         conda:
             config["envs"]["semibin"]
         threads:
@@ -694,10 +700,10 @@ else:
                 "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz"),
             #data = os.path.join(
             #    config["output"]["binning"],
-            #    "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{assembly_group}/data.csv"),
+            #    "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{binning_group}.{assembly_group}.{assembler}/data.csv"),
             #data_split = os.path.join(
             #    config["output"]["binning"],
-            #    "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{assembly_group}/data_split.csv")
+            #    "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{binning_group}.{assembly_group}.{assembler}/data_split.csv")
             done = os.path.join(
                 config["output"]["binning"],
                 "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/binning_generate_sequence_features_done")
@@ -722,7 +728,7 @@ else:
             touch {output.done}
             '''
 
- 
+
 rule binning_semibin_multi_bin:
     input:
         scaftigs = os.path.join(
@@ -730,10 +736,10 @@ rule binning_semibin_multi_bin:
             "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz"),
         #data = os.path.join(
         #    config["output"]["binning"],
-        #    "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{assembly_group}/data.csv"),
+        #    "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{binning_group}.{assembly_group}.{assembler}/data.csv"),
         #data_split = os.path.join(
         #    config["output"]["binning"],
-        #    "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{assembly_group}/data_split.csv"),
+        #    "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{binning_group}.{assembly_group}.{assembler}/data_split.csv"),
         done_data = os.path.join(
             config["output"]["binning"],
             "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/binning_generate_sequence_features_done"),
@@ -764,10 +770,10 @@ rule binning_semibin_multi_bin:
         engine = config["params"]["binning"]["semibin"]["engine"],
         data = os.path.join(
             config["output"]["binning"],
-            "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{assembly_group}/data.csv"),
+            "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{binning_group}.{assembly_group}.{assembler}/data.csv"),
         data_split = os.path.join(
             config["output"]["binning"],
-            "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{assembly_group}/data_split.csv")
+            "mags_semibin_multi/{binning_group}.{assembler}.semibin_multi/samples/{binning_group}.{assembly_group}.{assembler}/data_split.csv")
     conda:
         config["envs"]["semibin"]
     threads:

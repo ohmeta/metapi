@@ -38,6 +38,7 @@ from metapi.sampler import get_samples_for_metaquast
 
 from metapi.sampler import get_samples_bax
 from metapi.sampler import get_samples_bax_multi
+from metapi.sampler import get_samples_bax_multi_all
 from metapi.sampler import get_samples_scaftigs
 
 from metapi.qcer import change
