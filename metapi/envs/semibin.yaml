@@ -5,10 +5,11 @@ channels:
   - nodefaults
 dependencies:
   - pytorch=*=*cuda11.3*
-  - mkl=2024.0
+  - mkl=2023.2.0
   - pigz
   - jq
   - pandas
+  - numexpr=2.9.0
   - mmseqs2
   - hmmer
   - prodigal
