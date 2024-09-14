@@ -22,6 +22,8 @@
 
 if config["params"]["checkv"]["do"]:
     CLUSTER_VMAGS_GROUPS = CHECKV_GROUPS.loc[:, ["binning_group", "assembly_group", "identifier"]].drop_duplicates()
+else:
+    CLUSTER_VMAGS_GROUPS = []
 
 rule dereplicate_vmags_prepare:
     input:
