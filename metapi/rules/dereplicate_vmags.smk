@@ -20,7 +20,8 @@
 # aniclust.py --fna <my_seqs.fna> --ani <my_ani.tsv> --out <my_clusters.tsv> --min_ani 95 --min_tcov 85 --min_qcov 0
 
 
-CLUSTER_VMAGS_GROUPS = CHECKV_GROUPS.loc[:, ["binning_group", "assembly_group", "identifier"]].drop_duplicates()
+if config["params"]["checkv"]["do"]:
+    CLUSTER_VMAGS_GROUPS = CHECKV_GROUPS.loc[:, ["binning_group", "assembly_group", "identifier"]].drop_duplicates()
 
 rule dereplicate_vmags_prepare:
     input:
