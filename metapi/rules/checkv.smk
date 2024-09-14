@@ -255,7 +255,8 @@ for identifier in IDENTIFIERS:
     checkv_df = ASSEMBLY_GROUPS.copy()
     checkv_df["identifier"] = identifier
     checkv_df_list.append(checkv_df)
-CHECKV_GROUPS = pd.concat(checkv_df_list, axis=0)
+if len(checkv_df_list) > 0:
+    CHECKV_GROUPS = pd.concat(checkv_df_list, axis=0)
 
 
 if config["params"]["checkv"]["do"]:
