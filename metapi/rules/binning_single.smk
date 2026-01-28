@@ -193,6 +193,8 @@ rule binning_maxbin2_coverage:
         30
     threads:
         1
+    conda:
+        config["envs"]["maxbin2"]
     shell:
         '''
         zcat {input.coverage} | \

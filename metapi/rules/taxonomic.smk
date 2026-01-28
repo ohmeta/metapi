@@ -25,7 +25,7 @@ rule taxonomic_gtdbtk:
         gtdb_data_path = expand(os.path.join(
             config["params"]["taxonomic"]["gtdbtk"]["gtdb_data_path"], "{gtdbtk_dir}"),
             gtdbtk_dir = [
-                "fastani", "markers", "masks", "metadata",
+                "skani", "markers", "masks", "metadata",
                 "mrca_red", "msa", "pplacer", "radii", "taxonomy"])
     output:
         done = os.path.join(
