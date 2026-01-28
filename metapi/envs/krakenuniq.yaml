@@ -3,8 +3,8 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - krakenuniq=1.0.4
-  - bracken=2.9
-  - jellyfish=1.0.3
+  - krakenuniq
+  - bracken
+  - jellyfish
   - pigz
   - jq

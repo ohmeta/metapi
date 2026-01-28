@@ -3,6 +3,6 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - fastqc=0.12.1
+  - fastqc
   - pigz
   - jq

@@ -3,8 +3,8 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - sickle-trim=1.33
-  - fastp=0.23.4
-  - trimmomatic=0.39
+  - sickle-trim
+  - fastp
+  - trimmomatic
   - pigz
   - jq

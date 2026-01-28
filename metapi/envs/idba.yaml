@@ -3,7 +3,7 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - idba=1.1.3
+  - idba
   - seqtk
   - pigz
   - jq

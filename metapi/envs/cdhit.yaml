@@ -3,6 +3,6 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - cd-hit=4.8.1
+  - cd-hit
   - pigz
   - jq

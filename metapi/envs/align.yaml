@@ -3,11 +3,11 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - minimap2=2.27
-  - samtools=1.19.2
-  - bwa=0.7.17
-  - bwa-mem2=2.2.1
-  - bowtie2=2.5.3
+  - minimap2
+  - samtools
+  - bwa
+  - bwa-mem2
+  - bowtie2
   - seqtk
   - seqkit
   - pigz

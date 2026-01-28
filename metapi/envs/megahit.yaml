@@ -3,7 +3,7 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - megahit=1.2.9
+  - megahit
   - gfa1
   - pigz
   - fd-find

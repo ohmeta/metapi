@@ -3,7 +3,7 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - galah=0.4.0
+  - galah
   - dashing
   - fastani
   - pigz

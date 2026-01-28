@@ -3,9 +3,9 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - phamb=1.0.1
-  - hmmer=3.4
-  - pyhmmer=0.10.9
+  - phamb
+  - hmmer
+  - pyhmmer
   - joblib
   - pandas
   - numpy

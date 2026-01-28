@@ -3,6 +3,6 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - plass=4.687d7
+  - plass
   - pigz
   - jq

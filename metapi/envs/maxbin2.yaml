@@ -3,7 +3,7 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - maxbin2=2.2.7
-  - fraggenescan=1.31
+  - maxbin2
+  - fraggenescan
   - pigz
   - jq

@@ -3,12 +3,12 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - concoct=1.1.0
+  - concoct
   - libopenblas=*=openmp*
   - mkl
   - python>=3
-  - samtools>=1.9
-  - scikit-learn=1.1.*
+  - samtools
+  - scikit-learn
   - pigz
   - jq
 variables:

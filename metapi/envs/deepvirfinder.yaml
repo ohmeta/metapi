@@ -3,13 +3,13 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - python=3.6
+  - python
   - numpy
-  - theano=1.0.3
-  - keras=2.2.4
+  - theano
+  - keras
   - scikit-learn
   - Biopython
-  - h5py=2.10.0
-  - mkl-service=2.3.0
+  - h5py
+  - mkl-service
   - pigz
   - jq

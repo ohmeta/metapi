@@ -3,8 +3,8 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - seqtk=1.4
-  - seqkit=2.8.0
-  - bioawk=1.0
+  - seqtk
+  - seqkit
+  - bioawk
   - pigz
   - jq

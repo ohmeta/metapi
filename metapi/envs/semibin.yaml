@@ -4,16 +4,16 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - pytorch=*=*cuda11.3*
-  - mkl=2023.2.0
+  - pytorch
+  - mkl
   - pigz
   - jq
   - pandas
-  - numexpr=2.9.0
+  - numexpr
   - mmseqs2
   - hmmer
   - prodigal
   - bedtools
   - samtools
   - fraggenescan
-  - semibin=2.1.0
+  - semibin

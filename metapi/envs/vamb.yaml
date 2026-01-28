@@ -4,12 +4,10 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
+  - vamb
   - pigz
-  - pytorch=*=*cuda11.3*
+  - pytorch
   - pysam
   - numpy
   - pandas
   - jq
-  - pip
-  - pip:
-    - git+https://github.com/RasmussenLab/vamb@v4.1.3

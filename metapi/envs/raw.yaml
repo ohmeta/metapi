@@ -9,4 +9,4 @@ dependencies:
   - pigz
   - jq
   - executor
-  - sra-tools=3.0.3
+  - sra-tools
