@@ -145,7 +145,7 @@ rule binning_vamb_gen_abundance_samples_faster:
     threads:
         config["params"]["binning"]["threads"]
     conda:
-        config["envs"]["binning"]
+        config["envs"]["vamb"]
     shell:
         '''
         R1=$(jq -r -M '.PE_FORWARD' {input.reads} | sed 's/^null$//g')
@@ -158,7 +158,7 @@ rule binning_vamb_gen_abundance_samples_faster:
             -t {threads} \
             --aemb {input.scaftigs} \
             $R1 $R2 \
-            > aemb/{putput.aemb} \
+            > aemb/{output.abundance} \
             2> {log}
         fi
 
@@ -168,7 +168,7 @@ rule binning_vamb_gen_abundance_samples_faster:
             -t {threads} \
             --aemb {input.scaftigs} \
             $RS > \
-            aemb/{putput.aemb} \
+            aemb/{output.abundance} \
             2> {log}
         fi
         '''
@@ -239,7 +239,7 @@ rule binning_vamb:
         scaftigs = os.path.join(config["output"]["assembly"],
             "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz"),
         matrix = os.path.join(config["output"]["binning"],
-            "matrix/{binning_group}.{assembler}.abundance.matrix.{}".format(
+            "matrix/{{binning_group}}.{{assembler}}.abundance.matrix.{}".format(
                 "npz" if config["params"]["binning"]["vamb"]["use_faster_abundance_embedding"] == False else "tsv"))
     output:
         binning_done = os.path.join(
