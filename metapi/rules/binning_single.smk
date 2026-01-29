@@ -839,6 +839,13 @@ rule binning_semibin_single_bin:
             config["output"]["binning"],
             "benchmark/binning_semibin_single_bin/{binning_group}.{assembly_group}.{assembler}.txt")
     params:
+        wrapper_dir = WRAPPER_DIR,
+        mags_dir = os.path.join(
+            config["output"]["binning"],
+            "mags/{binning_group}.{assembly_group}.{assembler}/semibin_single"),
+        bin_prefix = os.path.join(
+            config["output"]["binning"],
+            "mags/{binning_group}.{assembly_group}.{assembler}/semibin_single/{binning_group}.{assembly_group}.{assembler}.semibin_single.bin"),
         min_len = config["params"]["binning"]["min_contig_len_bp"],
         min_fasta = config["params"]["binning"]["min_bin_len_kbp"],
         train_mode = config["params"]["binning"]["semibin"]["train_mode"],
@@ -887,6 +894,10 @@ rule binning_semibin_single_bin:
 
             touch {output}
         fi
+
+        python {params.wrapper_dir}/semibin_postprocess.py \
+        {params.mags_dir}/output_bins \
+        {params.bin_prefix}
         '''
 
 
