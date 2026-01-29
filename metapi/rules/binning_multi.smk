@@ -131,7 +131,7 @@ rule binning_vamb_gen_abundance_samples_faster:
     output:
         abundance = os.path.join(
             config["output"]["binning"],
-            "coverage/{binning_group}.{assembler}/{sample}.align2merged_scaftigs.aemb.tsv")
+            "aemb/{binning_group}.{assembler}/{sample}.align2merged_scaftigs.aemb.tsv")
     log:
         os.path.join(
             config["output"]["binning"],
@@ -178,7 +178,7 @@ rule binning_vamb_gen_abundance_matrix_faster:
     input:
         abundances = lambda wildcards: expand(os.path.join(
             config["output"]["binning"],
-            "coverage/{{binning_group}}.{{assembler}}/{sample}.align2merged_scaftigs.aemb.tsv"),
+            "aemb/{{binning_group}}.{{assembler}}/{sample}.align2merged_scaftigs.aemb.tsv"),
             sample=sorted(metapi.get_samples_id_by_binning_group(SAMPLES, wildcards.binning_group)))
     output:
         matrix = os.path.join(
@@ -194,13 +194,16 @@ rule binning_vamb_gen_abundance_matrix_faster:
             "benchmark/binning_vamb_gen_abundance_matrix_faster/{binning_group}.{assembler}.txt")
     params:
         script = os.path.join(WRAPPER_DIR, "vamb", "merge_aemb.py"),
-        min_identity = config["params"]["binning"]["vamb"]["min_identity"]
+        input_dir = lambda wildcards: os.path.join(
+            config["output"]["binning"],
+            "aemb/{wildcards.binning_group}.{wildcards.assembler}")
     conda:
         config["envs"]["vamb"]
     shell:
         '''
         python {params.script} \
-        aemb {output} \
+        {params.input_dir} \
+        {output} \
         2> {log}
         '''
 
