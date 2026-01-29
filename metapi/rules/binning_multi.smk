@@ -174,6 +174,14 @@ rule binning_vamb_gen_abundance_samples_faster:
         '''
 
 
+def get_aemb_dir(wildcards):
+    return os.path.join(
+        config["output"]["binning"],
+        "aemb/{binning_group}.{assembler}".format(
+            binning_group=wildcards.binning_group,
+            assembler=wildcards.assembler))
+
+
 rule binning_vamb_gen_abundance_matrix_faster:
     input:
         abundances = lambda wildcards: expand(os.path.join(
@@ -194,9 +202,7 @@ rule binning_vamb_gen_abundance_matrix_faster:
             "benchmark/binning_vamb_gen_abundance_matrix_faster/{binning_group}.{assembler}.txt")
     params:
         script = os.path.join(WRAPPER_DIR, "vamb", "merge_aemb.py"),
-        input_dir = lambda wildcards: os.path.join(
-            config["output"]["binning"],
-            "aemb/{wildcards.binning_group}.{wildcards.assembler}")
+        input_dir = lambda wildcards: get_aemb_dir(wildcards)
     conda:
         config["envs"]["vamb"]
     shell:
@@ -271,6 +277,7 @@ rule binning_vamb:
         allow_small_scaftigs = 1 if config["params"]["binning"]["vamb"]["allow_small_scaftigs"] else 0,
         binner = lambda wildcards: "default" if wildcards.vamber == "vamb" else "avamb",
         seed = config["params"]["seed"],
+        separator = config["params"]["binning"]["separator"],
         external_params = config["params"]["binning"]["vamb"]["external_params"],
     threads:
         config["params"]["binning"]["threads"]
@@ -342,13 +349,13 @@ rule binning_vamb:
         --outdir {params.outdir} \
         --fasta {input.scaftigs} \
         {params.abundance} \
-        -o C \
+        -o {params.separator} \
         -m {params.min_contig} \
         --minfasta {params.min_fasta} \
         {params.external_params} \
         >> {log} 2>&1
 
-        if [ -f {params.outdir}/clusters.tsv ];
+        if [ -f {params.outdir}/vae_clusters_metadata.tsv ];
         then
             echo "Running vamb completed" >> {log} 2>&1
             echo "Touch binning_done" >> {log} 2>&1

@@ -207,7 +207,7 @@ rule identify_virsorter2:
 
         if [ $exitcode -eq 1 ];
         then
-            grep -oEi "No genes from the contigs are left in iter-0/all.pdg.faa after preprocess" {log} 
+            grep -oEi "No genes from the contigs are left in iter-0/all.pdg.faa after preprocess" {log}
             grepcode=$?
             if [ $grepcode -eq 0 ];
             then

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os 
+import os
 import sys
 import subprocess
 
@@ -8,7 +8,9 @@ import subprocess
 with os.scandir(sys.argv[1]) as itr:
     i = 0
     for entry in itr:
-        bin_id, suffix = os.path.splitext(entry.name)
+        prefix, suffix = os.path.splitext(entry.name)
+        bin_id, suffix_2 = os.path.splitext(prefix)
+        suffix = suffix_2 + "." + suffix
         if suffix == ".fa.gz":
             i += 1
             subprocess.run('''mv %s %s''' \
