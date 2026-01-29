@@ -811,7 +811,7 @@ else:
             touch {output.done}
             '''
 
- 
+
 rule binning_semibin_single_bin:
     input:
         scaftigs = os.path.join(
@@ -840,9 +840,6 @@ rule binning_semibin_single_bin:
             "benchmark/binning_semibin_single_bin/{binning_group}.{assembly_group}.{assembler}.txt")
     params:
         wrapper_dir = WRAPPER_DIR,
-        mags_dir = os.path.join(
-            config["output"]["binning"],
-            "mags/{binning_group}.{assembly_group}.{assembler}/semibin_single"),
         bin_prefix = os.path.join(
             config["output"]["binning"],
             "mags/{binning_group}.{assembly_group}.{assembler}/semibin_single/{binning_group}.{assembly_group}.{assembler}.semibin_single.bin"),
@@ -868,7 +865,7 @@ rule binning_semibin_single_bin:
             --input-fasta {input.scaftigs} \
             --data {input.data} \
             --compression gz \
-            --model {params.out_dir}/model.h5 \
+            --model {params.out_dir}/model.pt \
             --engine {params.engine} \
             --random-seed {params.seed} \
             --min-len {params.min_len} \
@@ -896,7 +893,7 @@ rule binning_semibin_single_bin:
         fi
 
         python {params.wrapper_dir}/semibin_postprocess.py \
-        {params.mags_dir}/output_bins \
+        {params.out_dir}/output_bins \
         {params.bin_prefix}
         '''
 
