@@ -222,6 +222,7 @@ params:
     vamb:
       do: True
       mode: ["vamb", "avamb"]
+      use_faster_abundance_embedding: True
       cuda: True
       cuda_module: "cuda/11.2" # take effect only when use_cuda_module
       use_cuda_module: False # avoid conda's CUDA issue

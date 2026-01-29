@@ -122,6 +122,89 @@ rule binning_vamb_gen_abundance_matrix:
         '''
 
 
+rule binning_vamb_gen_abundance_samples_faster:
+    input:
+        reads = os.path.join(SAMPLESDIR, "reads/{sample}/{sample}.json"),
+        scaftigs = os.path.join(
+            config["output"]["assembly"],
+            "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz")
+    output:
+        abundance = os.path.join(
+            config["output"]["binning"],
+            "coverage/{binning_group}.{assembler}/{sample}.align2merged_scaftigs.aemb.tsv")
+    log:
+        os.path.join(
+            config["output"]["binning"],
+            "logs/binning_vamb_gen_abundance_samples_faster/{binning_group}.{assembler}.{sample}.log")
+    benchmark:
+        os.path.join(
+            config["output"]["binning"],
+            "benchmark/binning_vamb_gen_abundance_samples_faster/{binning_group}.{assembler}.{sample}.txt")
+    priority:
+        28
+    threads:
+        config["params"]["binning"]["threads"]
+    conda:
+        config["envs"]["binning"]
+    shell:
+        '''
+        R1=$(jq -r -M '.PE_FORWARD' {input.reads} | sed 's/^null$//g')
+        R2=$(jq -r -M '.PE_REVERSE' {input.reads} | sed 's/^null$//g')
+        RS=$(jq -r -M '.SE' {input.reads} | sed 's/^null$//g')
+
+        if [ "$R1" != "" ];
+        then
+            strobealign \
+            -t {threads} \
+            --aemb {input.scaftigs} \
+            $R1 $R2 \
+            > aemb/{putput.aemb} \
+            2> {log}
+        fi
+
+        if [ "$RS" != "" ];
+        then
+            strobealign \
+            -t {threads} \
+            --aemb {input.scaftigs} \
+            $RS > \
+            aemb/{putput.aemb} \
+            2> {log}
+        fi
+        '''
+
+
+rule binning_vamb_gen_abundance_matrix_faster:
+    input:
+        abundances = lambda wildcards: expand(os.path.join(
+            config["output"]["binning"],
+            "coverage/{{binning_group}}.{{assembler}}/{sample}.align2merged_scaftigs.aemb.tsv"),
+            sample=sorted(metapi.get_samples_id_by_binning_group(SAMPLES, wildcards.binning_group)))
+    output:
+        matrix = os.path.join(
+            config["output"]["binning"],
+            "matrix/{binning_group}.{assembler}.abundance.matrix.tsv")
+    log:
+        os.path.join(
+            config["output"]["binning"],
+            "logs/binning_vamb_gen_abundance_matrix_faster/{binning_group}.{assembler}.log")
+    benchmark:
+        os.path.join(
+            config["output"]["binning"],
+            "benchmark/binning_vamb_gen_abundance_matrix_faster/{binning_group}.{assembler}.txt")
+    params:
+        script = os.path.join(WRAPPER_DIR, "vamb", "merge_aemb.py"),
+        min_identity = config["params"]["binning"]["vamb"]["min_identity"]
+    conda:
+        config["envs"]["vamb"]
+    shell:
+        '''
+        python {params.script} \
+        aemb {output} \
+        2> {log}
+        '''
+
+
 rule binning_vamb_prepare_all:
     input:
         expand([
@@ -138,12 +221,26 @@ rule binning_vamb_prepare_all:
             assembler=ASSEMBLERS)
 
 
+rule binning_vamb_prepare_faster_all:
+    input:
+        expand([
+            os.path.join(
+                config["output"]["assembly"],
+                "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz"),
+            os.path.join(
+                config["output"]["binning"],
+                "matrix/{binning_group}.{assembler}.abundance.matrix.tsv")],
+            binning_group=SAMPLES_BINNING_GROUP_LIST,
+            assembler=ASSEMBLERS)
+
+
 rule binning_vamb:
     input:
         scaftigs = os.path.join(config["output"]["assembly"],
             "scaftigs_merged/{binning_group}.{assembler}/{binning_group}.{assembler}.merged.scaftigs.fa.gz"),
         matrix = os.path.join(config["output"]["binning"],
-            "matrix/{binning_group}.{assembler}.abundance.matrix.npz")
+            "matrix/{binning_group}.{assembler}.abundance.matrix.{}".format(
+                "npz" if config["params"]["binning"]["vamb"]["use_faster_abundance_embedding"] == False else "tsv"))
     output:
         binning_done = os.path.join(
             config["output"]["binning"],
@@ -159,6 +256,9 @@ rule binning_vamb:
     wildcard_constraints:
         vamber="[a]?vamb"
     params:
+        abundance = "--abundance_tsv " + os.path.join(config["output"]["binning"], "matrix/{binning_group}.{assembler}.abundance.matrix.tsv") \
+        if config["params"]["binning"]["vamb"]["use_faster_abundance_embedding"] else \
+        "--rpkm " + os.path.join(config["output"]["binning"], "matrix/{binning_group}.{assembler}.abundance.matrix.npz"),
         outdir = os.path.join(config["output"]["binning"], "mags_vamb/{binning_group}.{assembler}.{vamber}"),
         min_contig = config["params"]["binning"]["min_contig_len_bp"],
         min_fasta = config["params"]["binning"]["min_bin_len_kbp"] * 1000,
@@ -238,7 +338,7 @@ rule binning_vamb:
         --seed {params.seed} \
         --outdir {params.outdir} \
         --fasta {input.scaftigs} \
-        --rpkm {input.matrix} \
+        {params.abundance} \
         -o C \
         -m {params.min_contig} \
         --minfasta {params.min_fasta} \

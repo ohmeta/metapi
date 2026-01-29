@@ -5,6 +5,7 @@ channels:
   - nodefaults
 dependencies:
   - vamb
+  - strobealign
   - pigz
   - pytorch
   - pysam
