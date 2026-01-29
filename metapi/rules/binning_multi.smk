@@ -439,7 +439,7 @@ localrules:
 if config["params"]["binning"]["vamb"]["do"]:
     rule binning_vamb_all:
         input:
-            rules.binning_vamb_prepare_all.input,
+            #rules.binning_vamb_prepare_all.input,
             expand(
                 os.path.join(
                     config["output"]["binning"],
