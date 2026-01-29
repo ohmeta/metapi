@@ -4,7 +4,8 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - pytorch
+  - semibin
+  - pytorch-gpu=2.10.0
   - mkl
   - pigz
   - jq
@@ -16,4 +17,3 @@ dependencies:
   - bedtools
   - samtools
   - fraggenescan
-  - semibin

@@ -158,7 +158,7 @@ rule binning_vamb_gen_abundance_samples_faster:
             -t {threads} \
             --aemb {input.scaftigs} \
             $R1 $R2 \
-            > aemb/{output.abundance} \
+            > {output.abundance} \
             2> {log}
         fi
 
@@ -167,8 +167,8 @@ rule binning_vamb_gen_abundance_samples_faster:
             strobealign \
             -t {threads} \
             --aemb {input.scaftigs} \
-            $RS > \
-            aemb/{output.abundance} \
+            $RS \
+            > {output.abundance} \
             2> {log}
         fi
         '''
