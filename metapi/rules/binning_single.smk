@@ -617,45 +617,6 @@ rule binning_semibin_single_generate_sequence_features:
         '''
 
 
-rule binning_semibin_single_generate_cannot_links:
-    input:
-        scaftigs = os.path.join(
-            config["output"]["assembly"],
-            "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
-    output:
-        os.path.join(
-            config["output"]["binning"],
-            "mags/{binning_group}.{assembly_group}.{assembler}/semibin_single/cannot/cannot.txt")
-    log:
-        os.path.join(
-            config["output"]["binning"],
-            "logs/binning_semibin_single_generate_cannot_links/{binning_group}.{assembly_group}.{assembler}.log")
-    benchmark:
-        os.path.join(
-            config["output"]["binning"],
-            "benchmark/binning_semibin_single_generate_cannot_links/{binning_group}.{assembly_group}.{assembler}.txt")
-    params:
-        min_len = config["params"]["binning"]["min_contig_len_bp"],
-        reference_db = config["params"]["binning"]["semibin"]["reference_db"],
-        out_dir = os.path.join(
-            config["output"]["binning"],
-            "mags/{binning_group}.{assembly_group}.{assembler}/semibin_single")
-    conda:
-        config["envs"]["semibin"]
-    threads:
-        config["params"]["binning"]["threads"]
-    shell:
-        '''
-        SemiBin2 generate_cannot_links \
-        --input-fasta {input.scaftigs} \
-        --compression gz \
-        --reference_db {params.reference_db} \
-        --min-len {params.min_len} \
-        --threads {threads} \
-        --output {params.out_dir} \
-        >{log} 2>&1
-        '''
-
 
 if  config["params"]["binning"]["semibin"]["train_mode"] == "self":
     rule binning_semibin_single_train:
@@ -714,6 +675,46 @@ if  config["params"]["binning"]["semibin"]["train_mode"] == "self":
 
 
 elif  config["params"]["binning"]["semibin"]["train_mode"] == "semi":
+    rule binning_semibin_single_generate_cannot_links:
+        input:
+            scaftigs = os.path.join(
+                config["output"]["assembly"],
+                "scaftigs/{binning_group}.{assembly_group}.{assembler}/{binning_group}.{assembly_group}.{assembler}.scaftigs.fa.gz")
+        output:
+            os.path.join(
+                config["output"]["binning"],
+                "mags/{binning_group}.{assembly_group}.{assembler}/semibin_single/cannot/cannot.txt")
+        log:
+            os.path.join(
+                config["output"]["binning"],
+                "logs/binning_semibin_single_generate_cannot_links/{binning_group}.{assembly_group}.{assembler}.log")
+        benchmark:
+            os.path.join(
+                config["output"]["binning"],
+                "benchmark/binning_semibin_single_generate_cannot_links/{binning_group}.{assembly_group}.{assembler}.txt")
+        params:
+            min_len = config["params"]["binning"]["min_contig_len_bp"],
+            reference_db = config["params"]["binning"]["semibin"]["reference_db"],
+            out_dir = os.path.join(
+                config["output"]["binning"],
+                "mags/{binning_group}.{assembly_group}.{assembler}/semibin_single")
+        conda:
+            config["envs"]["semibin"]
+        threads:
+            config["params"]["binning"]["threads"]
+        shell:
+            '''
+            SemiBin2 generate_cannot_links \
+            --input-fasta {input.scaftigs} \
+            --compression gz \
+            --reference_db {params.reference_db} \
+            --min-len {params.min_len} \
+            --threads {threads} \
+            --output {params.out_dir} \
+            >{log} 2>&1
+            '''
+
+
     rule binning_semibin_single_train:
         input:
             scaftigs = os.path.join(
