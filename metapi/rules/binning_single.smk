@@ -894,7 +894,8 @@ rule binning_semibin_single_bin:
 
         python {params.wrapper_dir}/semibin_postprocess.py \
         {params.out_dir}/output_bins \
-        {params.bin_prefix}
+        {params.bin_prefix} \
+        2>> {log}
         '''
 
 

@@ -10,7 +10,7 @@ with os.scandir(sys.argv[1]) as itr:
     for entry in itr:
         prefix, suffix = os.path.splitext(entry.name)
         bin_id, suffix_2 = os.path.splitext(prefix)
-        suffix = suffix_2 + "." + suffix
+        suffix = suffix_2 + suffix
         if suffix == ".fa.gz":
             i += 1
             subprocess.run('''mv %s %s''' \
