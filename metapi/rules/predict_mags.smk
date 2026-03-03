@@ -24,7 +24,7 @@ rule predict_mags_gene_prodigal:
         python {params.wrapper_dir}/prodigal_wrapper.py \
         {threads} \
         {input.binning_done} \
-        {output.predict_done}
+        {output.predict_done} >{log} 2>&1
         '''
 
 
